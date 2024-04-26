@@ -155,8 +155,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DialogHelper.hpp" />
     <ClInclude Include="EncodingHelper.hpp" />
     <ClInclude Include="IOHelper.hpp" />
+    <ClInclude Include="ParserHelper.hpp" />
     <ClInclude Include="StringHelper.hpp" />
     <ClInclude Include="TerminalHelper.hpp" />
     <ClInclude Include="WinImportPrefix.hpp" />
@@ -165,8 +167,10 @@
     <ClInclude Include="YYCCommonplace.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DialogHelper.cpp" />
     <ClCompile Include="EncodingHelper.cpp" />
     <ClCompile Include="IOHelper.cpp" />
+    <ClCompile Include="ParserHelper.cpp" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="TerminalHelper.cpp" />
   </ItemGroup>

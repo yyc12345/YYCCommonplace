@@ -39,6 +39,12 @@
     <ClInclude Include="YYCCInternal.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="ParserHelper.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogHelper.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StringHelper.cpp">
@@ -51,6 +57,12 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="IOHelper.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ParserHelper.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogHelper.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

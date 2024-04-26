@@ -1,8 +1,14 @@
 #pragma once
+#include "YYCCInternal.hpp"
+#if YYCC_OS == YYCC_OS_WINDOWS
+
 #include <string>
 
 namespace YYCC::IOHelper {
 
-	void GetCmdLine(std::string&);
-	FILE* UTF8FOpen(const char* u8_filepath, const char* u8_mode);
+	void Gets(std::string& u8cmd);
+	FILE* FOpen(const char* u8_filepath, const char* u8_mode);
+
 }
+
+#endif

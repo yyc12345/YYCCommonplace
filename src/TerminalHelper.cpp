@@ -1,16 +1,13 @@
 #include "TerminalHelper.hpp"
-
 #if YYCC_OS == YYCC_OS_WINDOWS
+
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
 #include <io.h>
 #include <fcntl.h>
 #include "WinImportSuffix.hpp"
-#endif
 
 namespace YYCC::TerminalHelper {
-
-#if YYCC_OS == YYCC_OS_WINDOWS
 
 	bool ColorfulTerminal(FILE* fs) {
 		if (!_isatty(_fileno(fs))) return false;
@@ -34,6 +31,6 @@ namespace YYCC::TerminalHelper {
 		return true;
 	}
 
-#endif
-
 }
+
+#endif

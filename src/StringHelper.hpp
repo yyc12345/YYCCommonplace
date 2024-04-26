@@ -10,4 +10,6 @@ namespace YYCC::StringHelper {
 	std::string Printf(const char* format, ...);
 	std::string VPrintf(const char* format, va_list argptr);
 
+	std::string Join(const char* decilmer);
+
 }
