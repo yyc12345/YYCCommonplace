@@ -7,21 +7,42 @@
 
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
+#include <shlobj_core.h>
+#include <commdlg.h>
 #include "WinImportSuffix.hpp"
 
 namespace YYCC::DialogHelper {
 
-	struct FileDialogFilterEntry {
-		std::string FileType;
-		std::string FileExtension;
+	struct FileDialogParameter {
+		FileDialogParameter() :
+			m_Owner(nullptr),
+			m_Filter(), m_SelectedFilter(0),
+			m_Title(),
+			m_DefaultExtension(), m_InitialDirectory(), m_InitialFileName() {}
+
+		HWND m_Owner;
+		std::vector<std::pair<u8string, u8string>> m_Filter;
+		size_t m_SelectedFilter;
+		u8string m_Title;
+		u8string m_DefaultExtension;
+		u8string m_InitialFileName;
+		u8string m_InitialDirectory;
 	};
-	using FileDialogFilter = std::vector<FileDialogFilterEntry>;
 
-	bool OpenFileDialog(HWND parent, const char* title, const FileDialogFilter& filter, std::string& ret);
-	bool OpenMultipleFileDialog(HWND parent, const char* title, const FileDialogFilter& filter, std::vector<std::string>& ret);
-	bool SaveFileDialog(HWND parent, const char* title, const FileDialogFilter& filter, std::string& ret);
+	struct FolderDialogParameter {
+		FolderDialogParameter() :
+			m_Owner(nullptr),
+			m_Title() {}
 
-	bool OpenFolderDialog(HWND parent, std::string& ret);
+		HWND m_Owner;
+		u8string m_Title;
+	}
+
+	bool OpenFileDialog(const FileDialogParameter& params, std::string& ret);
+	bool OpenMultipleFileDialog(const FileDialogParameter& params, std::vector<std::string>& ret);
+	bool SaveFileDialog(const FileDialogParameter& params, std::string& ret);
+
+	bool OpenFolderDialog(const FolderDialogParameter& params, std::string& ret);
 
 }
 

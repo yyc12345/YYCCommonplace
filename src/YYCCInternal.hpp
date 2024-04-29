@@ -9,3 +9,15 @@
 #else
 #define YYCC_OS YYCC_OS_LINUX
 #endif
+
+// Decide the char type we used
+#include <string>
+namespace YYCC {
+#if defined(__cpp_char8_t)
+	using u8char = char8_t;
+	using u8string = std::u8string
+#else
+	using u8char = char;
+	using u8string = std::string;
+#endif
+}
