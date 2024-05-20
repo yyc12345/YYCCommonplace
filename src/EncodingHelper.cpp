@@ -3,7 +3,7 @@
 
 namespace YYCC::EncodingHelper {
 
-	bool WcharToChar(const wchar_t* src, u8string& dest, UINT codepage) {
+	bool WcharToChar(const wchar_t* src, std::string& dest, UINT codepage) {
 		int count, write_result;
 
 		//converter to CHAR
@@ -16,19 +16,19 @@ namespace YYCC::EncodingHelper {
 
 		return true;
 	}
-	bool WcharToUTF8(const wchar_t* src, u8string& dest) {
+	bool WcharToUTF8(const wchar_t* src, std::string& dest) {
 		return WcharToChar(src, dest, CP_UTF8);
 	}
-	u8string WcharToChar(const wchar_t* src, UINT codepage) {
-		u8string ret;
+	std::string WcharToChar(const wchar_t* src, UINT codepage) {
+		std::string ret;
 		if (!WcharToChar(src, ret, codepage)) ret.clear();
 		return ret;
 	}
-	u8string WcharToUTF8(const wchar_t* src) {
+	std::string WcharToUTF8(const wchar_t* src) {
 		return WcharToChar(src, CP_UTF8);
 	}
 
-	bool CharToWchar(const u8char* src, std::wstring& dest, UINT codepage) {
+	bool CharToWchar(const char* src, std::wstring& dest, UINT codepage) {
 		int wcount, write_result;
 
 		// convert to WCHAR
@@ -41,26 +41,26 @@ namespace YYCC::EncodingHelper {
 
 		return true;
 	}
-	bool UTF8ToWchar(const u8char* src, std::wstring& dest) {
+	bool UTF8ToWchar(const char* src, std::wstring& dest) {
 		return CharToWchar(src, dest, CP_UTF8);
 	}
-	std::wstring CharToWchar(const u8char* src, UINT codepage) {
+	std::wstring CharToWchar(const char* src, UINT codepage) {
 		std::wstring ret;
 		if (!CharToWchar(src, ret, codepage)) ret.clear();
 		return ret;
 	}
-	std::wstring UTF8ToWchar(const u8char* src) {
+	std::wstring UTF8ToWchar(const char* src) {
 		return CharToWchar(src, CP_UTF8);
 	}
 
-	bool CharToChar(const u8char* src, u8string& dest, UINT src_codepage, UINT dest_codepage) {
+	bool CharToChar(const char* src, std::string& dest, UINT src_codepage, UINT dest_codepage) {
 		std::wstring intermediary;
 		if (!CharToWchar(src, intermediary, src_codepage)) return false;
 		if (!WcharToChar(intermediary.c_str(), dest, dest_codepage)) return false;
 		return true;
 	}
-	u8string CharToChar(const u8char* src, UINT src_codepage, UINT dest_codepage) {
-		u8string ret;
+	std::string CharToChar(const char* src, UINT src_codepage, UINT dest_codepage) {
+		std::string ret;
 		if (!CharToChar(src, ret, src_codepage, dest_codepage)) ret.clear();
 		return ret;
 	}

@@ -3,6 +3,7 @@
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 #include <cstdio>
+#include <string>
 
 namespace YYCC::TerminalHelper {
 	
@@ -45,10 +46,24 @@ namespace YYCC::TerminalHelper {
 #define YYCC_TERMCOL_LIGHT_CYAN(T) "\033[96m" T "\033[0m"
 #define YYCC_TERMCOL_LIGHT_WHITE(T) "\033[97m" T "\033[0m"
 
-
-	bool ColorfulTerminal(FILE* fs);
-	bool UTF8Terminal(FILE* fs);
+	/**
+	 * @brief Try letting terminal support ASCII color schema.
+	 * @param fs[in] The stream to be set.
+	 * @return true if success, otherwise false.
+	*/
+	bool EnsureTerminalColor(FILE* fs);
+	/**
+	 * @brief Try setting terminal to UTF8 encoding.
+	 * @param fs[in] The stream to be set.
+	 * @return true if success, otherwise false.
+	 * @remarks If you enable UTF8 for a stream, you must use stream functions provided in this namespace to operate that stream,
+	 * because after UTF8 modification, some old standard functions are not work and it may takes a little bit performance reduction.
+	*/
+	bool EnsureTerminalUTF8(FILE* fs);
 	
+	bool FGets(std::string& u8_buf, FILE* stream);
+	void FPuts(const char* u8_buf, FILE* stream);
+	void FPrintf(FILE* stream, const char* u8_fmt, ...);
 }
 
 #endif

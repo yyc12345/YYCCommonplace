@@ -10,18 +10,18 @@
 
 namespace YYCC::EncodingHelper {
 
-	bool WcharToChar(const wchar_t* src, u8string& dest, UINT codepage);
-	bool WcharToUTF8(const wchar_t* src, u8string& dest);
-	u8string WcharToChar(const wchar_t* src, UINT codepage);
-	u8string WcharToUTF8(const wchar_t* src);
+	bool WcharToChar(const wchar_t* src, std::string& dest, UINT codepage);
+	bool WcharToUTF8(const wchar_t* src, std::string& dest);
+	std::string WcharToChar(const wchar_t* src, UINT codepage);
+	std::string WcharToUTF8(const wchar_t* src);
 
-	bool CharToWchar(const u8char* src, std::wstring& dest, UINT codepage);
-	bool UTF8ToWchar(const u8char* src, std::wstring& dest);
-	std::wstring CharToWchar(const u8char* src, UINT codepage);
-	std::wstring UTF8ToWchar(const u8char* src);
+	bool CharToWchar(const char* src, std::wstring& dest, UINT codepage);
+	bool UTF8ToWchar(const char* src, std::wstring& dest);
+	std::wstring CharToWchar(const char* src, UINT codepage);
+	std::wstring UTF8ToWchar(const char* src);
 
-	bool CharToChar(const u8char* src, u8string& dest, UINT src_codepage, UINT dest_codepage);
-	u8string CharToChar(const u8char* src, UINT src_codepage, UINT dest_codepage);
+	bool CharToChar(const char* src, std::string& dest, UINT src_codepage, UINT dest_codepage);
+	std::string CharToChar(const char* src, UINT src_codepage, UINT dest_codepage);
 
 }
 

@@ -4,3 +4,4 @@
 
 #include "StringHelper.hpp"
 #include "EncodingHelper.hpp"
+#include "TerminalHelper.hpp"

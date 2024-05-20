@@ -7,12 +7,6 @@
 
 namespace YYCC::IOHelper {
 
-	void Gets(std::string& u8cmd) {
-		std::wstring wcmd;
-		std::getline(std::wcin, wcmd);
-		YYCC::EncodingHelper::WcharToChar(wcmd, u8cmd, CP_UTF8);
-	}
-
 	FILE* FOpen(const char* u8_filepath, const char* u8_mode) {
 		std::wstring wmode, wpath;
 		bool suc = YYCC::EncodingHelper::CharToWchar(u8_mode, wmode, CP_UTF8);
