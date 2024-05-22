@@ -53,8 +53,10 @@ namespace YYCC::StringHelper {
 
 	/**
 	 * @brief General Split function.
-	 * @param _strl 
-	 * @param _decilmer 
+	 * @param _strl[in] The string need to be splitting.
+	 * If this is nullptr, the result will be empty.
+	 * @param _decilmer[in] The decilmer for splitting.
+	 * If decilmer is nullptr or zero length, the result will only have 1 element which is original string.
 	 * @return 
 	 * @remarks This function may be low performance because it just a homebrew Split functon.
 	 * It can works in most toy cases but not suit for high performance scenario.

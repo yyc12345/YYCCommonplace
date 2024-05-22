@@ -3,6 +3,15 @@
 
 namespace Testbench {
 
+	static void Assert(bool condition, const char* description) {
+		if (condition) {
+			YYCC::TerminalHelper::FPrintf(stdout, YYCC_TERMCOL_LIGHT_GREEN(u8"OK: %s\n"), description);
+		} else {
+			YYCC::TerminalHelper::FPrintf(stdout, YYCC_TERMCOL_LIGHT_RED(u8"Failed: %s\n"), description);
+			std::abort();
+		}
+	}
+
 	static void TerminalTestbench() {
 		YYCC::TerminalHelper::EnsureTerminalUTF8(stdout);
 		YYCC::TerminalHelper::FPuts(u8"你好世界\n", stdout);
@@ -11,22 +20,36 @@ namespace Testbench {
 	}
 
 	static void StringTestbench() {
-		YYCC::TerminalHelper::FPuts(
-			YYCC::StringHelper::Printf(u8"Translation: %s == %s\n", u8"Hello World", u8"你好世界").c_str(),
-			stdout
-		);
+		auto test_printf = YYCC::StringHelper::Printf(u8"%s == %s", u8"Hello World", u8"你好世界");
+		Assert(test_printf == u8"Hello World == 你好世界", "YYCC::StringHelper::Printf");
+			
+		auto test_lower = YYCC::StringHelper::Lower("LOWER");
+		Assert(test_lower == "lower", "YYCC::StringHelper::Lower");
+		auto test_upper = YYCC::StringHelper::Upper("upper");
+		Assert(test_upper == "UPPER", "YYCC::StringHelper::Upper");
 
-		std::string test_string(u8"UPPER -> lower\n");
-		YYCC::TerminalHelper::FPuts(test_string.c_str(), stdout);
-		YYCC::TerminalHelper::FPuts(YYCC::StringHelper::Lower(test_string.c_str()).c_str(), stdout);
-		YYCC::TerminalHelper::FPuts(YYCC::StringHelper::Upper(test_string.c_str()).c_str(), stdout);
-		
-		std::vector<std::string> test_container {
-			"test1", "test2", "test3", "test4"
+
+		std::vector<std::string> test_join_container {
+			"", "1", "2", ""
 		};
-		YYCC::TerminalHelper::FPuts(YYCC::StringHelper::Join(test_container, ", ").c_str(), stdout);
-		std::string test_split(", 1, 3, 5, 7, 9, ");
-		YYCC::TerminalHelper::FPuts(YYCC::StringHelper::Join(YYCC::StringHelper::Split(test_split.c_str(), ", "), " -> ").c_str(), stdout);
+		auto test_join = YYCC::StringHelper::Join(test_join_container, ", ");
+		Assert(test_join == ", 1, 2, ", "YYCC::StringHelper::Join");
+		test_join = YYCC::StringHelper::Join(test_join_container, ", ", true);
+		Assert(test_join == ", 2, 1, ", "YYCC::StringHelper::Join");
+
+		auto test_split = YYCC::StringHelper::Split(", 1, 2, ", ", ");
+		Assert(test_split.size() == 4u, "YYCC::StringHelper::Split");
+		Assert(test_split[0] == "", "YYCC::StringHelper::Split");
+		Assert(test_split[1] == "1", "YYCC::StringHelper::Split");
+		Assert(test_split[2] == "2", "YYCC::StringHelper::Split");
+		Assert(test_split[3] == "", "YYCC::StringHelper::Split");
+		test_split = YYCC::StringHelper::Split("test", "-");
+		Assert(test_split.size() == 1u, "YYCC::StringHelper::Split");
+		Assert(test_split[0] == "test", "YYCC::StringHelper::Split");
+		test_split = YYCC::StringHelper::Split("test", "");
+		Assert(test_split.size() == 1u, "YYCC::StringHelper::Split");
+		Assert(test_split[0] == "test", "YYCC::StringHelper::Split");
+
 	}
 
 }

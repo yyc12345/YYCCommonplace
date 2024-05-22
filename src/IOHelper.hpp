@@ -2,7 +2,7 @@
 #include "YYCCInternal.hpp"
 #if YYCC_OS == YYCC_OS_WINDOWS
 
-#include <string>
+#include <cstdio>
 
 namespace YYCC::IOHelper {
 

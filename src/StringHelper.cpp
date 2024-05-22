@@ -98,7 +98,7 @@ namespace YYCC::StringHelper {
 				const char* ret = iter->c_str();
 				++iter;
 				return ret;
-			}, decilmer);
+				}, decilmer);
 		} else {
 			auto iter = data.cbegin();
 			auto stop = data.cend();
@@ -109,7 +109,7 @@ namespace YYCC::StringHelper {
 				const char* ret = iter->c_str();
 				++iter;
 				return ret;
-			}, decilmer);
+				}, decilmer);
 		}
 	}
 
@@ -119,7 +119,7 @@ namespace YYCC::StringHelper {
 		// https://en.cppreference.com/w/cpp/algorithm/transform
 		// https://en.cppreference.com/w/cpp/string/byte/tolower
 		std::transform(
-			strl.cbegin(), strl.cend(), strl.begin(), 
+			strl.cbegin(), strl.cend(), strl.begin(),
 			[](unsigned char c) -> char {
 				if constexpr (bIsToLower) return std::tolower(c);
 				else return std::toupper(c);
@@ -153,33 +153,30 @@ namespace YYCC::StringHelper {
 	}
 
 	std::vector<std::string> Split(const char* _strl, const char* _decilmer) {
-		std::vector<std::string> elems;
+		// Reference: 
+		// https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 		
-		// check whether string and decilmer are nullptr
-		std::string strl, decilmer;
-		if (_strl == nullptr || _decilmer == nullptr) 
-			return elems;
-		else {
-			strl = _strl;
-			decilmer = _decilmer;
-		}
-		// if no decilmer, return the whole string as the only one element of result.
-		if (decilmer.empty()) {
+		// prepare return value
+		std::vector<std::string> elems;
+
+		// if the string need to be splitted is nullptr, return empty result.
+		if (_strl == nullptr) return elems;
+		std::string strl(_strl);
+		// if decilmer is nullptr, or decilmer is zero length, return original string
+		std::string decilmer;
+		if (_decilmer == nullptr || (decilmer = _decilmer, decilmer.empty())) {
 			elems.push_back(strl);
 			return elems;
 		}
-		
+
 		// start spliting
-		std::size_t previous = 0;
-		std::size_t current = strl.find(decilmer.c_str());
-		while (current != std::string::npos) {
-			if (current >= previous) {
-				elems.push_back(strl.substr(previous, current - previous));
-			}
+		std::size_t previous = 0, current;
+		while ((current = strl.find(decilmer.c_str(), previous)) != std::string::npos) {
+			elems.push_back(strl.substr(previous, current - previous));
 			previous = current + decilmer.size();
-			current = strl.find(decilmer, previous);
 		}
-		if (previous != strl.size()) {
+		// try insert last part but prevent possible out of range exception
+		if (previous <= strl.size()) {
 			elems.push_back(strl.substr(previous));
 		}
 		return elems;

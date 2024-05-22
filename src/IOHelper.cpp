@@ -4,6 +4,7 @@
 #include "EncodingHelper.hpp"
 #include <cstdio>
 #include <iostream>
+#include <string>
 
 namespace YYCC::IOHelper {
 
