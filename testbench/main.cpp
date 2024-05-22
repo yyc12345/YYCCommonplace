@@ -52,9 +52,23 @@ namespace Testbench {
 
 	}
 
+	static void DialogTestbench() {
+		YYCC::DialogHelper::FileFilters test;
+		test.Add("Microsoft Word (*.docx; *.doc)", {"*.docx", "*.doc"});
+		test.Add("Microsoft Excel (*.xlsx; *.xls)", {"*.xlsx", "*.xls"});
+		test.Add("Microsoft PowerPoint (*.pptx; *.ppt)", {"*.pptx", "*.ppt"});
+		test.Add("Text File (*.*)", {"*.txt"});
+		test.Add("All Files (*.*)", {"*.*"});
+
+		UINT count;
+		COMDLG_FILTERSPEC* specs;
+		bool ret = test.Generate(count, specs);
+	}
+
 }
 
 int main(int argc, char** args) {
 	Testbench::TerminalTestbench();
 	Testbench::StringTestbench();
+	Testbench::DialogTestbench();
 }

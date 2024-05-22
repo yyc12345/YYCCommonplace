@@ -2,8 +2,80 @@
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 #include "EncodingHelper.hpp"
+#include "StringHelper.hpp"
 
 namespace YYCC::DialogHelper {
+
+#pragma region FileFilters
+
+	bool FileFilters::Add(const char* filter_name, std::initializer_list<const char*> il) {
+		// assign filter name
+		if (filter_name == nullptr) return false;
+		FilterName name(filter_name);
+
+		// assign filter patterns
+		FilterModes modes;
+		for (const char* pattern : il) {
+			if (pattern != nullptr) modes.emplace_back(std::string(pattern));
+		}
+
+		// check filter patterns
+		if (modes.empty()) return false;
+
+		// add into pairs and return
+		m_Filters.emplace_back(std::make_pair(name, modes));
+		return true;
+	}
+
+	void FileFilters::Clear() {
+		m_Filters.clear();
+	}
+
+	bool FileFilters::Generate(UINT& filter_count, COMDLG_FILTERSPEC*& filter_specs) {
+		// init defualt value to prevent the scenario that caller do not check return value.
+		filter_count = 0u;
+		filter_specs = nullptr;
+
+		// clear win string vector and build new one
+		m_WinFilters.clear();
+		for (const auto& it : m_Filters) {
+			// convert name to wchar
+			WinFilterName name;
+			if (!YYCC::EncodingHelper::UTF8ToWchar(it.first.c_str(), name))
+				return false;
+
+			// convert pattern and join them
+			std::string joined_modes(YYCC::StringHelper::Join(it.second, u8";"));
+			WinFilterModes modes;
+			if (!YYCC::EncodingHelper::UTF8ToWchar(joined_modes.c_str(), modes))
+				return false;
+
+			// append new pair
+			m_WinFilters.emplace_back(std::make_pair(name, modes));
+		}
+
+		// check filter size
+		// if it overflow the maximum value, return false
+		size_t count = m_WinFilters.size();
+		if (count > std::numeric_limits<UINT>::max())
+			return false;
+
+		// create new win data struct
+		// and assign string pointer from internal built win string vector.
+		m_WinDataStruct.reset(new COMDLG_FILTERSPEC[count]);
+		for (size_t i = 0u; i < count; ++i) {
+			m_WinDataStruct[i].pszName = m_WinFilters[i].first.c_str();
+			m_WinDataStruct[i].pszSpec = m_WinFilters[i].second.c_str();
+		}
+
+		// set return value
+		filter_count = static_cast<UINT>(count);
+		filter_specs = m_WinDataStruct.get();
+		return true;
+	}
+
+#pragma endregion
+
 
 	//template<bool TIsOpen, bool TMultiSelection>
 	//bool GeneralFileDialog(const FileDialogParameter& params, std::vector<std::string>& ret) {

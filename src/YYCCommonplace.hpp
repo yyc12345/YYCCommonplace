@@ -5,3 +5,4 @@
 #include "StringHelper.hpp"
 #include "EncodingHelper.hpp"
 #include "TerminalHelper.hpp"
+#include "DialogHelper.hpp"
