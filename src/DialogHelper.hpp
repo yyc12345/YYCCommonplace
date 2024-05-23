@@ -16,14 +16,38 @@
 namespace YYCC::DialogHelper {
 
 	/**
+	 * @brief The class represent the file types region in file dialog
+	 * @details THis class is specific for Windows use, not user oriented.
+	*/
+	class WinFileFilters {
+		friend class FileFilters;
+	public:
+		WinFileFilters() : m_WinFilters(), m_WinDataStruct(nullptr) {}
+
+		UINT GetFilterCount() const {
+			return static_cast<UINT>(m_WinFilters.size());
+		}
+		const COMDLG_FILTERSPEC* GetFilterSpecs() const {
+			return m_WinDataStruct.get();
+		}
+
+	protected:
+		using WinFilterModes = std::wstring;
+		using WinFilterName = std::wstring;
+		using WinFilterPair = std::pair<WinFilterName, WinFilterModes>;
+
+		std::vector<WinFilterPair> m_WinFilters;
+		std::unique_ptr<COMDLG_FILTERSPEC[]> m_WinDataStruct;
+	};
+
+	/**
 	 * @brief The class represent the file types region in file dialog.
+	 * @details THis class is user oriented. User can use function manipulate file types
+	 * and final fialog function will produce Windows-understood data struct from this.
 	*/
 	class FileFilters {
 	public:
-		FileFilters() : 
-			m_Filters(),
-			m_WinFilters(), m_WinDataStruct(nullptr)
-		{}
+		FileFilters() : m_Filters(){}
 
 		/**
 		 * @brief Add a filter pair in file types list.
@@ -40,16 +64,19 @@ namespace YYCC::DialogHelper {
 		/**
 		 * @brief Clear filter pairs for following re-use.
 		*/
-		void Clear();
+		void Clear() { m_Filters.clear(); }
+		/**
+		 * @brief Get the count of added filter pairs.
+		 * @return The count of already added filter pairs.
+		*/
+		size_t Count() const { return m_Filters.size(); }
 
 		/**
 		 * @brief Generate Windows dialog system used data struct.
-		 * @param filter_count[out] The count of generated filter data struct.
-		 * @param filter_specs[out] The pointer to generated filter data struct.
-		 * @remarks User should not call this function. This function is used by internal functions.
+		 * @param win_result[out] The class holding the generated filter data struct.
 		 * @return True if generation is success, otherwise false.
 		*/
-		bool Generate(UINT& filter_count, COMDLG_FILTERSPEC*& filter_specs);
+		bool Generate(WinFileFilters& win_result) const;
 
 	protected:
 		using FilterModes = std::vector<std::string>;
@@ -57,45 +84,70 @@ namespace YYCC::DialogHelper {
 		using FilterPair = std::pair<FilterName, FilterModes>;
 
 		std::vector<FilterPair> m_Filters;
-
-		using WinFilterModes = std::wstring;
-		using WinFilterName = std::wstring;
-		using WinFilterPair = std::pair<WinFilterName, WinFilterModes>;
-
-		std::vector<WinFilterPair> m_WinFilters;
-		std::unique_ptr<COMDLG_FILTERSPEC[]> m_WinDataStruct;
 	};
 
-	//struct FileDialogParameter {
-	//	FileDialogParameter() :
-	//		m_Owner(nullptr),
-	//		m_Filter(), m_SelectedFilter(0),
-	//		m_Title(),
-	//		m_DefaultExtension(), m_InitialDirectory(), m_InitialFileName() {}
+	class FileDialog {
+	public:
+		FileDialog() :
+			m_Owner(NULL), m_Title(),
+			m_FileTypes(),
+			m_DefaultFileTypeIndex(0u),
+			m_InitFileName(), m_InitDirectory() {}
 
-	//	HWND m_Owner;
-	//	std::vector<std::pair<std::string, std::string>> m_Filter;
-	//	size_t m_SelectedFilter;
-	//	std::string m_Title;
-	//	std::string m_DefaultExtension;
-	//	std::string m_InitialFileName;
-	//	std::string m_InitialDirectory;
-	//};
+		void SetOwner(HWND owner) { m_Owner = owner; }
+		HWND GetOwner() const { return m_Owner; }
 
-	//struct FolderDialogParameter {
-	//	FolderDialogParameter() :
-	//		m_Owner(nullptr),
-	//		m_Title() {}
+		void SetTitle(const char* title) {
+			if (title == nullptr) m_Title.clear();
+			else m_Title = title;
+		}
+		const char* GetTitle() const {
+			if (m_Title.empty()) return nullptr;
+			else return m_Title.c_str();
+		}
 
-	//	HWND m_Owner;
-	//	std::string m_Title;
-	//};
+		FileFilters& GetFileTypes() {
+			return m_FileTypes;
+		}
+		const FileFilters& GetFileTypes() const {
+			return m_FileTypes;
+		}
 
-	//bool OpenFileDialog(const FileDialogParameter& params, std::string& ret);
-	//bool OpenMultipleFileDialog(const FileDialogParameter& params, std::vector<std::string>& ret);
-	//bool SaveFileDialog(const FileDialogParameter& params, std::string& ret);
+		void SetDefaultFileTypeIndex(UINT idx) { m_DefaultFileTypeIndex = idx; }
+		UINT GetDefaultFileTypeIndex() const { return m_DefaultFileTypeIndex; }
+		
+		void SetInitFileName(const char* init_filename) {
+			if (init_filename == nullptr) m_InitFileName.clear();
+			else m_InitFileName = init_filename;
+		}
+		const char* GetInitFileName() const {
+			if (m_InitFileName.empty()) return nullptr;
+			else return m_InitFileName.c_str();
+		}
+		
+		void SetInitDirectory(const char* init_dir) {
+			if (init_dir == nullptr) m_InitDirectory.clear();
+			else m_InitDirectory = init_dir;
+		}
+		const char* GetInitDirectory() const {
+			if (m_InitDirectory.empty()) return nullptr;
+			else return m_InitDirectory.c_str();
+		}
 
-	//bool OpenFolderDialog(const FolderDialogParameter& params, std::string& ret);
+	private:
+		HWND m_Owner;
+		std::string m_Title;
+		FileFilters m_FileTypes;
+		UINT m_DefaultFileTypeIndex;
+		std::string m_InitFileName;
+		std::string m_InitDirectory;
+	};
+
+	bool OpenFileDialog(const FileDialog& params, std::string& ret);
+	bool OpenMultipleFileDialog(const FileDialog& params, std::vector<std::string>& ret);
+	bool SaveFileDialog(const FileDialog& params, std::string& ret);
+
+	bool OpenFolderDialog(const FileDialog& params, std::string& ret);
 
 }
 

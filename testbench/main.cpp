@@ -60,9 +60,8 @@ namespace Testbench {
 		test.Add("Text File (*.*)", {"*.txt"});
 		test.Add("All Files (*.*)", {"*.*"});
 
-		UINT count;
-		COMDLG_FILTERSPEC* specs;
-		bool ret = test.Generate(count, specs);
+		YYCC::DialogHelper::WinFileFilters win_file_filters;
+		bool ret = test.Generate(win_file_filters);
 	}
 
 }
