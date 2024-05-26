@@ -47,7 +47,7 @@ namespace YYCC::DialogHelper {
 	*/
 	class FileFilters {
 	public:
-		FileFilters() : m_Filters(){}
+		FileFilters() : m_Filters() {}
 
 		/**
 		 * @brief Add a filter pair in file types list.
@@ -86,6 +86,39 @@ namespace YYCC::DialogHelper {
 		std::vector<FilterPair> m_Filters;
 	};
 
+	class WinFileDialog {
+		friend class FileDialog;
+	public:
+		WinFileDialog() :
+			m_WinOwner(NULL),
+			m_WinFileTypes(), m_WinDefaultFileTypeIndex(0u),
+			m_HasTitle(false), m_HasInitFileName(false), m_WinTitle(), m_WinInitFileName(), 
+			m_WinInitDirectory(nullptr)
+		{}
+
+		bool HasOwner() const { return m_WinOwner != NULL; }
+		HWND GetOwner() const { return m_WinOwner; }
+
+		bool HasTitle() const { return !m_WinTitle.empty(); }
+		const wchar_t* GetTitle() const { return m_WinTitle.c_str(); }
+		bool HasInitFileName() const { return !m_WinInitFileName.empty(); }
+		const wchar_t* GetInitFileName() const { return m_WinInitFileName.c_str(); }
+		bool HasInitDirectory() const { return m_WinInitDirectory != nullptr;}
+		const IShellItem* GetInitDirectory() const { return m_WinInitDirectory.get(); }
+
+	protected:
+		HWND m_WinOwner;
+
+		WinFileFilters m_WinFileTypes;
+		UINT m_WinDefaultFileTypeIndex;
+
+		bool m_HasTitle, m_HasInitFileName;
+		std::wstring m_WinTitle, m_WinInitFileName;
+
+		using SmartShellItem = std::unique_ptr<IShellItem, std::function<void(IShellItem*)>>;
+		SmartShellItem m_WinInitDirectory;
+	};
+
 	class FileDialog {
 	public:
 		FileDialog() :
@@ -95,52 +128,38 @@ namespace YYCC::DialogHelper {
 			m_InitFileName(), m_InitDirectory() {}
 
 		void SetOwner(HWND owner) { m_Owner = owner; }
-		HWND GetOwner() const { return m_Owner; }
-
 		void SetTitle(const char* title) {
-			if (title == nullptr) m_Title.clear();
-			else m_Title = title;
+			if (m_HasTitle = title != nullptr)
+				m_Title = title;
 		}
-		const char* GetTitle() const {
-			if (m_Title.empty()) return nullptr;
-			else return m_Title.c_str();
-		}
-
-		FileFilters& GetFileTypes() {
+		FileFilters& ConfigreFileTypes() {
 			return m_FileTypes;
 		}
-		const FileFilters& GetFileTypes() const {
-			return m_FileTypes;
-		}
-
 		void SetDefaultFileTypeIndex(UINT idx) { m_DefaultFileTypeIndex = idx; }
-		UINT GetDefaultFileTypeIndex() const { return m_DefaultFileTypeIndex; }
-		
 		void SetInitFileName(const char* init_filename) {
-			if (init_filename == nullptr) m_InitFileName.clear();
-			else m_InitFileName = init_filename;
+			if (m_HasInitFileName = init_filename != nullptr)
+				m_InitFileName = init_filename;
 		}
-		const char* GetInitFileName() const {
-			if (m_InitFileName.empty()) return nullptr;
-			else return m_InitFileName.c_str();
-		}
-		
 		void SetInitDirectory(const char* init_dir) {
-			if (init_dir == nullptr) m_InitDirectory.clear();
-			else m_InitDirectory = init_dir;
-		}
-		const char* GetInitDirectory() const {
-			if (m_InitDirectory.empty()) return nullptr;
-			else return m_InitDirectory.c_str();
+			if (m_HasInitDirectory = init_dir != nullptr)
+				m_InitDirectory = init_dir;
 		}
 
-	private:
+		bool Generate(WinFileDialog& win_result) const;
+
+	protected:
 		HWND m_Owner;
-		std::string m_Title;
+
+		bool m_HasTitle, m_HasInitFileName, m_HasInitDirectory;
+		std::string m_Title, m_InitFileName, m_InitDirectory;
+
 		FileFilters m_FileTypes;
+		/**
+		 * @brief The default file type selected in dialog
+		 * @remarks Although Windows notice that this is a 1-based index,
+		 * but for universal experience, we order this is 0-based index.
+		*/
 		UINT m_DefaultFileTypeIndex;
-		std::string m_InitFileName;
-		std::string m_InitDirectory;
 	};
 
 	bool OpenFileDialog(const FileDialog& params, std::string& ret);
