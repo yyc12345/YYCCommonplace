@@ -32,18 +32,17 @@ namespace YYCC::DialogHelper {
 	using SmartIShellItemArray = std::unique_ptr<IShellItemArray, ComPtrDeleter>;
 	using SmartIShellFolder = std::unique_ptr<IShellFolder, ComPtrDeleter>;
 
-	template<typename _Ty>
 	class CoTaskMemDeleter {
 	public:
 		CoTaskMemDeleter() {}
-		void operator() (_Ty* com_ptr) {
+		void operator() (void* com_ptr) {
 			if (com_ptr != nullptr) {
 				CoTaskMemFree(com_ptr);
 			}
 		}
 	};
 
-	using SmartLPWSTR = std::unique_ptr<WCHAR, CoTaskMemDeleter<WCHAR>>;
+	using SmartLPWSTR = std::unique_ptr<std::remove_pointer_t<LPWSTR>, CoTaskMemDeleter>;
 
 #pragma endregion
 

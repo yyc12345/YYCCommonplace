@@ -161,7 +161,7 @@ namespace YYCC::DialogHelper {
 
 	bool ExtractDisplayName(IShellItem* item, std::string& ret) {
 		// fetch display name from IShellItem*
-		WCHAR* _name;
+		LPWSTR _name;
 		HRESULT hr = item->GetDisplayName(SIGDN_FILESYSPATH, &_name);
 		if (FAILED(hr)) return false;
 		SmartLPWSTR display_name(_name);
