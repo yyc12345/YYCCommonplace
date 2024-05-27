@@ -6,6 +6,29 @@
 
 namespace YYCC::DialogHelper {
 
+#pragma region COM Guard
+
+	class ComGuard {
+	public:
+		ComGuard() : m_HasInit(false) {
+			HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+			if (SUCCEEDED(hr)) m_HasInit = true;
+		}
+		~ComGuard() {
+			if (m_HasInit) {
+				CoUninitialize();
+			}
+		}
+
+	protected:
+		bool m_HasInit;
+	};
+
+	static const ComGuard c_ComGuard;
+
+#pragma endregion
+
+
 #pragma region FileFilters
 
 	bool FileFilters::Add(const char* filter_name, std::initializer_list<const char*> il) {
@@ -16,7 +39,8 @@ namespace YYCC::DialogHelper {
 		// assign filter patterns
 		FilterModes modes;
 		for (const char* pattern : il) {
-			if (pattern != nullptr) modes.emplace_back(std::string(pattern));
+			if (pattern != nullptr)
+				modes.emplace_back(std::string(pattern));
 		}
 
 		// check filter patterns
@@ -29,8 +53,7 @@ namespace YYCC::DialogHelper {
 
 	bool FileFilters::Generate(WinFileFilters& win_result) const {
 		// clear Windows oriented data
-		win_result.m_WinDataStruct.reset();
-		win_result.m_WinFilters.clear();
+		win_result.Clear();
 
 		// build new Windows oriented string vector first
 		for (const auto& it : m_Filters) {
@@ -72,7 +95,57 @@ namespace YYCC::DialogHelper {
 #pragma region File Dialog
 
 	bool FileDialog::Generate(WinFileDialog& win_result) const {
-		return false;
+		// clear Windows oriented data
+		win_result.Clear();
+
+		// set owner
+		win_result.m_WinOwner = m_Owner;
+
+		// build file filters
+		if (!m_FileTypes.Generate(win_result.m_WinFileTypes))
+			return false;
+
+		// check default file type index
+		// check value overflow (comparing with >= because we need plus 1 for file type index later)
+		if (m_DefaultFileTypeIndex >= std::numeric_limits<UINT>::max())
+			return false;
+		// check invalid index (overflow the length or registered file types if there is file type)
+		if (m_FileTypes.Count() != 0u && m_DefaultFileTypeIndex >= m_FileTypes.Count())
+			return false;
+		// set index with additional plus according to Windows specification.
+		win_result.m_WinDefaultFileTypeIndex = static_cast<UINT>(m_DefaultFileTypeIndex + 1);
+
+		// build title and init file name
+		if (m_HasTitle) {
+			if (!YYCC::EncodingHelper::UTF8ToWchar(m_Title.c_str(), win_result.m_WinTitle))
+				return false;
+			win_result.m_HasTitle = true;
+		}
+		if (m_HasInitFileName) {
+			if (!YYCC::EncodingHelper::UTF8ToWchar(m_InitFileName.c_str(), win_result.m_WinInitFileName))
+				return false;
+			win_result.m_HasInitFileName = true;
+		}
+
+		// fetch init directory
+		if (m_HasInitDirectory) {
+			// convert to wpath
+			std::wstring w_init_directory;
+			if (!YYCC::EncodingHelper::UTF8ToWchar(m_InitDirectory.c_str(), w_init_directory))
+				return false;
+
+			// fetch IShellItem*
+			// Ref: https://stackoverflow.com/questions/76306324/how-to-set-default-folder-for-ifileopendialog-interface
+			IShellItem* init_directory = NULL;
+			HRESULT hr = SHCreateItemFromParsingName(w_init_directory.c_str(), NULL, IID_PPV_ARGS(&init_directory));
+			if (FAILED(hr)) return false;
+
+			// assign IShellItem*
+			win_result.m_WinInitDirectory.reset(init_directory);
+		}
+
+		// everything is okey
+		return true;
 	}
 
 #pragma endregion
@@ -86,7 +159,20 @@ namespace YYCC::DialogHelper {
 		OpenFolder
 	};
 
-	using SmartFileDialogPtr = std::unique_ptr<IFileDialog, std::function<void(IFileDialog*)>>;
+	bool ExtractDisplayName(IShellItem* item, std::string& ret) {
+		// fetch display name from IShellItem*
+		WCHAR* _name;
+		HRESULT hr = item->GetDisplayName(SIGDN_FILESYSPATH, &_name);
+		if (FAILED(hr)) return false;
+		SmartLPWSTR display_name(_name);
+
+		// convert result
+		if (!YYCC::EncodingHelper::WcharToUTF8(display_name.get(), ret))
+			return false;
+
+		// finished
+		return true;
+	}
 
 	template<CommonFileDialogType EDialogType>
 	bool CommonFileDialog(const FileDialog& params, std::vector<std::string>& ret) {
@@ -117,22 +203,16 @@ namespace YYCC::DialogHelper {
 			CLSCTX_INPROC_SERVER,
 			IID_PPV_ARGS(&_pfd)
 		);
-		if (!SUCCEEDED(hr)) return false;
+		if (FAILED(hr)) return false;
 		// create memory-safe dialog pointer
-		SmartFileDialogPtr pfd(
-			_pfd,
-			[](IFileDialog* instance) -> void {
-				if (instance != nullptr)
-					instance->Release();
-			}
-		);
+		SmartIFileDialog pfd(_pfd);
 
 		// set options for dialog
 		// before setting, always get the options first in order.
 		// not to override existing options.
 		DWORD dwFlags;
 		hr = pfd->GetOptions(&dwFlags);
-		if (!SUCCEEDED(hr)) return false;
+		if (FAILED(hr)) return false;
 		// modify options
 		switch (EDialogType) {
 			// We want user only can pick file system files: FOS_FORCEFILESYSTEM.
@@ -162,98 +242,109 @@ namespace YYCC::DialogHelper {
 		}
 		// set folder dialog options
 		hr = pfd->SetOptions(dwFlags);
-		if (!SUCCEEDED(hr)) return false;
+		if (FAILED(hr)) return false;
 
-		// set title
-		std::wstring wtitle, winit_filename, winit_directory;
-		if (params.GetTitle() != nullptr) {
-			EncodingHelper::UTF8ToWchar(params.GetTitle(), wtitle);
+		// build Windows used file dialog parameters
+		WinFileDialog win_params;
+		if (!params.Generate(win_params))
+			return false;
+
+		// setup title and init file name
+		if (win_params.HasTitle()) {
+			hr = pfd->SetTitle(win_params.GetTitle());
+			if (FAILED(hr)) return false;
+		}
+		if (win_params.HasInitFileName()) {
+			hr = pfd->SetFileName(win_params.GetInitFileName());
+			if (FAILED(hr)) return false;
+		}
+
+		// setup init directory
+		if (win_params.HasInitDirectory()) {
+			hr = pfd->SetFolder(win_params.GetInitDirectory());
 		}
 
 		// set file types and default file index when we picking file
-		WinFileFilters win_file_filters;
 		if constexpr (EDialogType != CommonFileDialogType::OpenFolder) {
-			// generate data from user specified file filters
-			const auto& file_filters = params.GetFileTypes();
-			if (!file_filters.Generate(win_file_filters))
-				return false;
-
 			// set file types list
-			hr = pfd->SetFileTypes(win_file_filters.GetFilterCount(), win_file_filters.GetFilterSpecs());
-			if (!SUCCEEDED(hr)) return false;
+			const auto& file_filters = win_params.GetFileTypes();
+			hr = pfd->SetFileTypes(file_filters.GetFilterCount(), file_filters.GetFilterSpecs());
+			if (FAILED(hr)) return false;
 
 			// set default file type index
-			// Windows order this is 1-based index.
-			// We plus 1 for it because we used is 0-based index.
-			hr = pfd->SetFileTypeIndex(params.GetDefaultFileTypeIndex() + 1);
-			if (!SUCCEEDED(hr)) return false;
+			hr = pfd->SetFileTypeIndex(win_params.GetDefaultFileTypeIndex());
+			if (FAILED(hr)) return false;
 		}
 
-		// CoCreate the File Open Dialog object.
-		IFileDialog* pfd = NULL;
-		HRESULT hr = CoCreateInstance(
-			CLSID_FileOpenDialog,
-			NULL,
-			CLSCTX_INPROC_SERVER,
-			IID_PPV_ARGS(&pfd)
-		);
-		if (SUCCEEDED(hr)) {
-			// Set the options on the dialog.
-			DWORD dwFlags;
+		// show the dialog
+		hr = pfd->Show(win_params.HasOwner() ? win_params.GetOwner() : nullptr);
+		if (FAILED(hr)) return false;
 
-			// Before setting, always get the options first in order 
-			// not to override existing options.
-			hr = pfd->GetOptions(&dwFlags);
-			if (SUCCEEDED(hr)) {
-				// In this case, get shell items only for file system items.
-				hr = pfd->SetOptions(dwFlags | FOS_FORCEFILESYSTEM);
-				if (SUCCEEDED(hr)) {
-					// Set the file types to display only. 
-					// Notice that this is a 1-based array.
-					hr = pfd->SetFileTypes(ARRAYSIZE(c_rgSaveTypes), c_rgSaveTypes);
-					if (SUCCEEDED(hr)) {
-						// Set the selected file type index to Word Docs for this example.
-						hr = pfd->SetFileTypeIndex(INDEX_WORDDOC);
-						if (SUCCEEDED(hr)) {
-							// Set the default extension to be ".doc" file.
-							hr = pfd->SetDefaultExtension(L"doc;docx");
-							if (SUCCEEDED(hr)) {
-								// Show the dialog
-								hr = pfd->Show(NULL);
-								if (SUCCEEDED(hr)) {
-									// Obtain the result once the user clicks 
-									// the 'Open' button.
-									// The result is an IShellItem object.
-									IShellItem* psiResult;
-									hr = pfd->GetResult(&psiResult);
-									if (SUCCEEDED(hr)) {
-										// We are just going to print out the 
-										// name of the file for sample sake.
-										PWSTR pszFilePath = NULL;
-										hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH,
-											&pszFilePath);
-										if (SUCCEEDED(hr)) {
-											TaskDialog(NULL,
-												NULL,
-												L"CommonFileDialogApp",
-												pszFilePath,
-												NULL,
-												TDCBF_OK_BUTTON,
-												TD_INFORMATION_ICON,
-												NULL);
-											CoTaskMemFree(pszFilePath);
-										}
-										psiResult->Release();
-									}
-								}
-							}
-						}
-					}
+		// obtain result when user click "OK" button.
+		switch (EDialogType) {
+			case CommonFileDialogType::OpenFile:
+			case CommonFileDialogType::OpenFolder:
+			case CommonFileDialogType::SaveFile:
+			{
+				// obtain one file entry
+				IShellItem* _item;
+				hr = pfd->GetResult(&_item);
+				if (FAILED(hr)) return false;
+				SmartIShellItem result_item(_item);
+
+				// extract display name
+				std::string result_name;
+				if (!ExtractDisplayName(result_item.get(), result_name))
+					return false;
+
+				// append result
+				ret.emplace_back(std::move(result_name));
+			}
+			break;
+			case CommonFileDialogType::OpenMultipleFiles:
+			{
+				// try casting file dialog to file open dialog
+				// Ref: https://learn.microsoft.com/en-us/windows/win32/learnwin32/asking-an-object-for-an-interface
+				IFileOpenDialog* _pfod = nullptr;
+				hr = pfd->QueryInterface(IID_PPV_ARGS(&_pfod));
+				if (FAILED(hr)) return false;
+				SmartIFileOpenDialog pfod(_pfod);
+
+				// obtain multiple file entires
+				IShellItemArray* _items;
+				hr = pfod->GetResults(&_items);
+				if (FAILED(hr)) return false;
+				SmartIShellItemArray result_items(_items);
+
+				// analyze file entries
+				// get array count first
+				DWORD result_items_count = 0u;
+				hr = result_items->GetCount(&result_items_count);
+				if (FAILED(hr)) return false;
+				// iterate array
+				for (DWORD i = 0u; i < result_items_count; ++i) {
+					// fetch item by index
+					IShellItem* _item;;
+					hr = result_items->GetItemAt(i, &_item);
+					if (FAILED(hr)) return false;
+					SmartIShellItem result_item(_item);
+
+					// extract display name
+					std::string result_name;
+					if (!ExtractDisplayName(result_item.get(), result_name))
+						return false;
+
+					// append result
+					ret.emplace_back(std::move(result_name));
 				}
 			}
-			pfd->Release();
+			break;
+			default:
+				return false;
 		}
-		return SUCCEEDED(hr);
+
+		// everything is okey
+		return true;
 	}
 
 #pragma endregion
@@ -284,159 +375,6 @@ namespace YYCC::DialogHelper {
 	}
 
 #pragma endregion
-
-
-	//template<bool TIsOpen, bool TMultiSelection>
-	//bool GeneralFileDialog(const FileDialogParameter& params, std::vector<std::string>& ret) {
-	//	// make sure multi-selection only available in open mode
-	//	static_assert(TIsOpen && (!TIsOpen && TMultiSelection == false));
-
-	//	// build filter
-	//	std::wstring w_filter;
-	//	for (const auto& filter_pair : params.m_Filter) {
-	//		w_filter += EncodingHelper::UTF8ToWchar(filter_pair.first.c_str());
-	//		w_filter += L'\0';
-	//		w_filter += EncodingHelper::UTF8ToWchar(filter_pair.second.c_str());
-	//		w_filter += L'\0';
-	//	}
-	//	// build title
-	//	std::wstring w_title(EncodingHelper::UTF8ToWchar(params.m_Title.c_str()));
-	//	// build default extension
-	//	std::wstring w_default_ext(EncodingHelper::UTF8ToWchar(params.m_DefaultExtension.c_str()));
-	//	// build initial directory
-	//	std::wstring w_init_dir(EncodingHelper::UTF8ToWchar(params.m_InitialDirectory.c_str()));
-	//	// prepare file name receiver and preset it as initial file name
-	//	std::wstring path_receiver(EncodingHelper::UTF8ToWchar(params.m_InitialFileName.c_str()));
-	//	path_receiver.resize(std::max(MAX_PATH, path_receiver.size()), L'\0');
-
-	//	// prepare the common part of file dialog struct
-	//	OPENFILENAMEW dialog_param;
-	//	ZeroMemory(&dialog_param, sizeof(OPENFILENAMEW));
-	//	dialog_param.lStructSize = sizeof(OPENFILENAMEW);
-	//	// dialog owner
-	//	dialog_param.hwndOwner = params.m_Owner;
-	//	// if no filter, we pass NULL
-	//	dialog_param.lpstrFilter = w_filter.empty() ? NULL : w_filter.c_str();
-	//	// no record to user selected filter
-	//	dialog_param.lpstrCustomFilter = NULL;
-	//	dialog_param.nMaxCustFilter = 0;
-	//	dialog_param.nFilterIndex = 0;
-	//	// path receiver, also is init filename
-	//	dialog_param.lpstrFile = path_receiver.data();
-	//	dialog_param.nMaxFile = static_caast<DWORD>(path_receiver.size());
-	//	// no selected file infos
-	//	dialog_param.lpstrFileTitle = NULL;
-	//	dialog_param.nMaxFileTitle = 0;
-	//	// initial directory
-	//	dialog_param.lpstrInitialDir = w_init_dir.empty() ? NULL : w_init_dir.c_str();
-	//	// dialog title
-	//	dialog_param.lpstrTitle = w_title.empty() ? NULL : w_title.c_str();
-	//	// setup basic flags
-	//	dialog_param.Flags = OFN_EXPLORER;
-	//	// default extension
-	//	dialog_param.lpstrDefExt = w_default_ext.empty() ? NULL : w_default_ext.c_str();
-
-	//	BOOL status;
-	//	if constexpr (TIsOpen) {
-	//		// multi-selection need add special multi-selection flags
-	//		if constexpr (TMultiSelection) {
-	//			dialog_param.Flags |= OFN_ALLOWMULTISELECT;
-	//		}
-
-	//		// call browser
-	//		status = GetOpenFileNameW(&dialog_param);
-
-	//		// only process result when success
-	//		if (status) {
-	//			if constexpr (TMultiSelection) {
-	//				// get directory part, copy from start to dialog param specified offset
-	//				std::wstring w_directory_part(path_receiver.c_str(), dialog_param.nFileOffset);
-	//				// get file names part one by one
-	//				size_t filename_cursor = dialog_param.nFileOffset;
-	//				while (path_receiver[filename_cursor] != L'\0') {
-	//					// init wstring from given offset
-	//					std::wstring w_filename_part(path_receiver.c_str() + filename_cursor);
-	//					// get eaten chars from result and increase to cursor
-	//					filename_cursor += w_filename_part.size() + 1u;
-	//					// combine 2 parts and insert into list
-	//					ret.emplace_back(std::string(EncodingHelper::WcharToUTF8(w_directory_part + w_filename_part)));
-	//				}
-	//			} else {
-	//				ret.emplace_back(std::string(EncodingHelper::WcharToUTF8(path_receiver.c_str())));
-	//			}
-	//		}
-
-	//	} else {
-	//		// call browser
-	//		status = GetSaveFileNameW(&dialog_param);
-
-	//		// only process result when success
-	//		if (status) {
-	//			ret.emplace_back(std::string(EncodingHelper::WcharToUTF8(path_receiver.c_str())));
-	//		}
-
-	//	}
-
-	//	// if failed, clear result
-	//	// and return result
-	//	if (!status) {
-	//		ret.clear();
-	//	}
-	//	return status == TRUE;
-	//}
-
-	//bool OpenFileDialog(const FileDialogParameter& params, std::string& ret) {
-	//	std::vector<std::string> cache;
-	//	bool isok = GeneralFileDialog<true, false>(params, cache);
-	//	if (isok) ret = cache.front();
-	//	return isok;
-	//}
-	//bool OpenMultipleFileDialog(const FileDialogParameter& params, std::vector<std::string>& ret) {
-	//	return GeneralFileDialog<true, true>(params, ret);
-	//}
-	//bool SaveFileDialog(const FileDialogParameter& params, std::string& ret) {
-	//	std::vector<std::string> cache;
-	//	bool isok = GeneralFileDialog<false, false>(params, cache);
-	//	if (isok) ret = cache.front();
-	//	return isok;
-	//}
-
-	//bool OpenFolderDialog(const FolderDialogParameter& params, std::string& ret) {
-	//	// create wchar string cache for windows W-tail function
-	//	std::wstring w_title(EncodingHelper::UTF8ToWchar(params.m_Title.c_str()));
-	//	// create buffer for receiving selected folder
-	//	// initialize with MAX_PATH length and content is filled with zero.
-	//	std::wstring path_receiver(MAX_PATH, L'\0');
-
-	//	// prepare folder foalog struct
-	//	BROWSEINFOW dialog_param = { 0 };
-	//	dialog_param.hwndOwner = params.m_Owner;
-	//	dialog_param.pidlRoot = nullptr;
-	//	dialog_param.pszDisplayName = path_receiver.data();
-	//	dialog_param.lpszTitle = w_title.c_str();
-	//	dialog_param.ulFlags = BIF_RETURNONLYFSDIRS | BIF_USENEWUI;
-	//	dialog_param.lpfn = nullptr;
-
-	//	// call browser
-	//	PIDLIST_ABSOLUTE place = SHBrowseForFolderW(&dialog_param);
-	//	// if browser failed, return.
-	//	if (place == nullptr) {
-	//		ret.clear();
-	//		return false;
-	//	}
-
-	//	// get path from browser result
-	//	BOOL status;
-	//	if (status = SHGetPathFromIDListW(place, path_receiver.data())) {
-	//		EncodingHelper::WcharToUTF8(path_receiver.c_str(), ret);
-	//	} else {
-	//		ret.clear();
-	//	}
-
-	//	// clear browser result and return
-	//	CoTaskMemFree(place);
-	//	return status == TRUE;
-	//}
 
 }
 

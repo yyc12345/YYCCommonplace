@@ -53,15 +53,33 @@ namespace Testbench {
 	}
 
 	static void DialogTestbench() {
-		YYCC::DialogHelper::FileFilters test;
-		test.Add("Microsoft Word (*.docx; *.doc)", {"*.docx", "*.doc"});
-		test.Add("Microsoft Excel (*.xlsx; *.xls)", {"*.xlsx", "*.xls"});
-		test.Add("Microsoft PowerPoint (*.pptx; *.ppt)", {"*.pptx", "*.ppt"});
-		test.Add("Text File (*.*)", {"*.txt"});
-		test.Add("All Files (*.*)", {"*.*"});
+		std::string ret;
+		std::vector<std::string> rets;
 
-		YYCC::DialogHelper::WinFileFilters win_file_filters;
-		bool ret = test.Generate(win_file_filters);
+		YYCC::DialogHelper::FileDialog params;
+		auto& filters = params.ConfigreFileTypes();
+		filters.Add("Microsoft Word (*.docx; *.doc)", {"*.docx", "*.doc"});
+		filters.Add("Microsoft Excel (*.xlsx; *.xls)", {"*.xlsx", "*.xls"});
+		filters.Add("Microsoft PowerPoint (*.pptx; *.ppt)", {"*.pptx", "*.ppt"});
+		filters.Add("Text File (*.txt)", {"*.txt"});
+		filters.Add("All Files (*.*)", {"*.*"});
+		params.SetDefaultFileTypeIndex(0u);
+		if (YYCC::DialogHelper::OpenFileDialog(params, ret)) {
+			YYCC::TerminalHelper::FPrintf(stdout, u8"Open File: %s\n", ret.c_str());
+		}
+		if (YYCC::DialogHelper::OpenMultipleFileDialog(params, rets)) {
+			YYCC::TerminalHelper::FPuts(u8"Open Multiple Files:\n", stdout);
+			for (const auto& item : rets) {
+				YYCC::TerminalHelper::FPrintf(stdout, u8"\t%s\n", item.c_str());
+			}
+		}
+		if (YYCC::DialogHelper::SaveFileDialog(params, ret)) {
+			YYCC::TerminalHelper::FPrintf(stdout, u8"Save File: %s\n", ret.c_str());
+		}
+		params.Clear();
+		if (YYCC::DialogHelper::OpenFolderDialog(params, ret)) {
+			YYCC::TerminalHelper::FPrintf(stdout, u8"Open Folder: %s\n", ret.c_str());
+		}
 	}
 
 }
