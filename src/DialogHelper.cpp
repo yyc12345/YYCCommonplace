@@ -8,6 +8,12 @@ namespace YYCC::DialogHelper {
 
 #pragma region COM Guard
 
+	/**
+	 * @brief The guard for initialize COM environment.
+	 * @details This class will try initializing COM environment by calling CoInitialize when constructing,
+	 * and it also will try uninitializing COM environment when destructing.
+	 * If initialization failed, uninitialization will not be executed.
+	*/
 	class ComGuard {
 	public:
 		ComGuard() : m_HasInit(false) {
@@ -24,6 +30,14 @@ namespace YYCC::DialogHelper {
 		bool m_HasInit;
 	};
 
+	/**
+	 * @brief The instance of COM environment guard.
+	 * @details Dialog related function need COM environment,
+	 * so we need initializing COM environment when loading this module,
+	 * and uninitializing COM environment when we no longer use this module.
+	 * So we use a static instance in here.
+	 * And make it be const so no one can change it.
+	*/
 	static const ComGuard c_ComGuard;
 
 #pragma endregion
@@ -159,6 +173,13 @@ namespace YYCC::DialogHelper {
 		OpenFolder
 	};
 
+	/**
+	 * @brief Extract display name from given IShellItem*.
+	 * @param item[in] The pointer to IShellItem for extracting.
+	 * @param ret[out] Extracted display name container.
+	 * @return True if success, otherwise false.
+	 * @remarks This is an assist function of CommonFileDialog.
+	*/
 	bool ExtractDisplayName(IShellItem* item, std::string& ret) {
 		// fetch display name from IShellItem*
 		LPWSTR _name;
@@ -174,6 +195,15 @@ namespace YYCC::DialogHelper {
 		return true;
 	}
 
+	/**
+	 * @brief General file dialog.
+	 * @param params[in] User specified parameter controlling the behavior of this file dialog,
+	 * including title, file types and etc.
+	 * @param ret[out] The path to user selected files or folders.
+	 * For multiple selection, the count of items >= 1. For other scenario, the count of item is 1.
+	 * @return True if success, otherwise false (input parameters is wrong or user click "Cancel" in popup window).
+	 * @remarks This function is the real underlying function of all dialog functions.
+	*/
 	template<CommonFileDialogType EDialogType>
 	bool CommonFileDialog(const FileDialog& params, std::vector<std::string>& ret) {
 		// Reference: https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog

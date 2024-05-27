@@ -16,6 +16,9 @@ namespace YYCC::DialogHelper {
 
 #pragma region COM Pointer Management
 
+	/**
+	 * @brief C++ standard deleter for every COM interfaces inheriting IUnknown.
+	*/
 	class ComPtrDeleter {
 	public:
 		ComPtrDeleter() {}
@@ -32,6 +35,9 @@ namespace YYCC::DialogHelper {
 	using SmartIShellItemArray = std::unique_ptr<IShellItemArray, ComPtrDeleter>;
 	using SmartIShellFolder = std::unique_ptr<IShellFolder, ComPtrDeleter>;
 
+	/**
+	 * @brief C++ standard deleter for almost raw pointer used in COM which need to be free by CoTaskMemFree()
+	*/
 	class CoTaskMemDeleter {
 	public:
 		CoTaskMemDeleter() {}
@@ -112,6 +118,7 @@ namespace YYCC::DialogHelper {
 		 * @brief Generate Windows dialog system used data struct.
 		 * @param win_result[out] The class holding the generated filter data struct.
 		 * @return True if generation is success, otherwise false.
+		 * @remarks User should not call this function, this function is used in internal code.
 		*/
 		bool Generate(WinFileFilters& win_result) const;
 
@@ -156,6 +163,8 @@ namespace YYCC::DialogHelper {
 		/**
 		 * @brief The default selected file type in dialog
 		 * @remarks This is 1-based index according to Windows specification.
+		 * In other words, you should plus 1 for this index when generating this struct from
+		 * user oriented file dialog parameters.
 		*/
 		UINT m_WinDefaultFileTypeIndex;
 		bool m_HasTitle, m_HasInitFileName;
@@ -205,6 +214,9 @@ namespace YYCC::DialogHelper {
 				m_InitDirectory = init_dir;
 		}
 
+		/**
+		 * @brief Clear file dialog parameters for following re-use.
+		*/
 		void Clear() {
 			m_Owner = nullptr;
 			m_HasTitle = m_HasInitFileName = m_HasInitDirectory = false;
@@ -214,7 +226,13 @@ namespace YYCC::DialogHelper {
 			m_FileTypes.Clear();
 			m_DefaultFileTypeIndex = 0u;
 		}
-
+		
+		/**
+		 * @brief Generate Windows dialog system used data struct.
+		 * @param win_result[out] The class holding the generated filter data struct.
+		 * @return True if generation is success, otherwise false.
+		 * @remarks User should not call this function, this function is used in internal code.
+		*/
 		bool Generate(WinFileDialog& win_result) const;
 
 	protected:
