@@ -1,4 +1,6 @@
 #pragma once
+#include "YYCCInternal.hpp"
+
 #include <string>
 #include <cstdarg>
 #include <functional>

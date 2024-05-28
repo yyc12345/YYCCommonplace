@@ -61,7 +61,7 @@ namespace YYCC::DialogHelper {
 		if (modes.empty()) return false;
 
 		// add into pairs and return
-		m_Filters.emplace_back(std::make_pair(name, modes));
+		m_Filters.emplace_back(std::make_pair(std::move(name), std::move(modes)));
 		return true;
 	}
 

@@ -31,7 +31,7 @@ namespace YYCC::TerminalHelper {
 		if (!SetConsoleOutputCP(CP_UTF8)) return false;
 
 		/*_setmode(_fileno(stdout), _O_U8TEXT);*/
-		int _ = _setmode(_fileno(fs), _O_U16TEXT);
+		int _ = _setmode(_fileno(fs), _O_U8TEXT);
 		return true;
 	}
 

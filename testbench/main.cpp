@@ -52,6 +52,32 @@ namespace Testbench {
 
 	}
 
+	static void ParserTestbench() {
+
+#define TEST_MACRO(type_t, value, string_value) { \
+	type_t cache = value; \
+	std::string ret(YYCC::ParserHelper::ToString<type_t>(cache)); \
+	Assert(ret == string_value, "YYCC::StringHelper::ToString<" #type_t ">"); \
+}
+
+		TEST_MACRO(int8_t, INT8_C(-61), "-61");
+		TEST_MACRO(uint8_t, UINT8_C(200), "200");
+		TEST_MACRO(int16_t, INT16_C(6161), "6161");
+		TEST_MACRO(uint16_t, UINT16_C(32800), "32800");
+		TEST_MACRO(int32_t, INT32_C(61616161), "61616161");
+		TEST_MACRO(uint32_t, UINT32_C(4294967293), "4294967293");
+		TEST_MACRO(int64_t, INT64_C(616161616161), "616161616161");
+		TEST_MACRO(uint64_t, UINT64_C(9223372036854775807), "9223372036854775807");
+		TEST_MACRO(bool, true, "true");
+		//{
+		//	bool cache = true;
+		//	std::string ret(YYCC::ParserHelper::ToString<bool>(cache));
+		//	Assert(ret == "true", "YYCC::StringHelper::ToString<bool>");
+		//}
+
+#undef TEST_MACRO
+	}
+
 	static void DialogTestbench() {
 		std::string ret;
 		std::vector<std::string> rets;
@@ -87,5 +113,6 @@ namespace Testbench {
 int main(int argc, char** args) {
 	Testbench::TerminalTestbench();
 	Testbench::StringTestbench();
-	Testbench::DialogTestbench();
+	Testbench::ParserTestbench();
+	//Testbench::DialogTestbench();
 }

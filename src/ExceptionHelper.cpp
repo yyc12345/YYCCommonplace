@@ -28,7 +28,7 @@ namespace YYCC::ExceptionHelper {
 	*/
 	LPTOP_LEVEL_EXCEPTION_FILTER g_ProcBackup;
 
-#pragma region Exception Handler Detail
+#pragma region Exception Handler Implementation
 
 	static HMODULE GetCurrentModule() {
 		// Reference: https://stackoverflow.com/questions/557081/how-do-i-get-the-hmodule-for-the-currently-executing-code
