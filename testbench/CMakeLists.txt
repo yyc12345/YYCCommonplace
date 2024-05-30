@@ -5,7 +5,7 @@ add_executable(Testbench
 # Add YYCC as its library
 target_include_directories(Testbench
 PRIVATE
-    
+    YYCCommonplace
 )
 target_link_libraries(Testbench
 PRIVATE
@@ -19,7 +19,7 @@ PROPERTIES
     CXX_EXTENSION OFF
 )
 # Order build as UTF-8 in MSVC
-target_compile_options(YYCCommonplace
+target_compile_options(Testbench
 PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )
