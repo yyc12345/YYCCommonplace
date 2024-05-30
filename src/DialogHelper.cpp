@@ -77,7 +77,7 @@ namespace YYCC::DialogHelper {
 				return false;
 
 			// convert pattern and join them
-			std::string joined_modes(YYCC::StringHelper::Join(it.second, u8";"));
+			std::string joined_modes(YYCC::StringHelper::Join(it.second, ";"));
 			WinFileFilters::WinFilterModes modes;
 			if (!YYCC::EncodingHelper::UTF8ToWchar(joined_modes.c_str(), modes))
 				return false;

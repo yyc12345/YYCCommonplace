@@ -57,7 +57,8 @@ namespace YYCC::ParserHelper {
 			return false;
 		}
 	}
-	bool TryParse(const std::string& strl, bool& num) {
+	template<typename _Ty, std::enable_if_t<std::is_same_v<_Ty, bool>, int> = 0>
+	bool TryParse(const std::string& strl, _Ty& num) {
 		if (strl == "true") num = true;
 		else if (strl == "false") num = false;
 		else return false;
