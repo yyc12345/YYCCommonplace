@@ -4,6 +4,6 @@
 
 #include "StringHelper.hpp"
 #include "EncodingHelper.hpp"
-#include "TerminalHelper.hpp"
+#include "ConsoleHelper.hpp"
 #include "DialogHelper.hpp"
 #include "ParserHelper.hpp"

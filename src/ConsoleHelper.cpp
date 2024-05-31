@@ -1,4 +1,4 @@
-#include "TerminalHelper.hpp"
+#include "ConsoleHelper.hpp"
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 #include "EncodingHelper.hpp"
@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include "WinImportSuffix.hpp"
 
-namespace YYCC::TerminalHelper {
+namespace YYCC::ConsoleHelper {
 
 	bool EnsureTerminalColor(FILE* fs) {
 		if (!_isatty(_fileno(fs))) return false;

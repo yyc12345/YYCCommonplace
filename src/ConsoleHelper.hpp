@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <string>
 
-namespace YYCC::TerminalHelper {
+namespace YYCC::ConsoleHelper {
 	
 #define YYCC_TERMCOLHDR_BLACK "\033[30m"
 #define YYCC_TERMCOLHDR_RED "\033[31m"

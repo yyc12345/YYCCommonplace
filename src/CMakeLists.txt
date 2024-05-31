@@ -1,13 +1,13 @@
 # Setup file lists up
 set(YYCC_HEADER ${CMAKE_CURRENT_LIST_DIR})
 set(YYCC_SRC
+    ConsoleHelper.cpp
     DialogHelper.cpp
     EncodingHelper.cpp
     ExceptionHelper.cpp
     IOHelper.cpp
     ParserHelper.cpp
     StringHelper.cpp
-    TerminalHelper.cpp
 )
 
 # Create static library

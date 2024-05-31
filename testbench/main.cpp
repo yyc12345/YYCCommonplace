@@ -5,23 +5,44 @@ namespace Testbench {
 
 	static void Assert(bool condition, const char* description) {
 		if (condition) {
-			YYCC::TerminalHelper::FPrintf(stdout, YYCC_TERMCOL_LIGHT_GREEN("OK: %s\n"), description);
+			YYCC::ConsoleHelper::FPrintf(stdout, YYCC_TERMCOL_LIGHT_GREEN("OK: %s\n"), description);
 		} else {
-			YYCC::TerminalHelper::FPrintf(stdout, YYCC_TERMCOL_LIGHT_RED("Failed: %s\n"), description);
+			YYCC::ConsoleHelper::FPrintf(stdout, YYCC_TERMCOL_LIGHT_RED("Failed: %s\n"), description);
 			std::abort();
 		}
 	}
 
 	static void TerminalTestbench() {
-		YYCC::TerminalHelper::EnsureTerminalUTF8(stdout);
-		YYCC::TerminalHelper::FPuts("你好世界\n", stdout);
-		YYCC::TerminalHelper::EnsureTerminalColor(stdout);
-		YYCC::TerminalHelper::FPuts(YYCC_TERMCOL_LIGHT_CYAN("Colorful Terminal\n"), stdout);
+		// UTF8 Test
+		// Ref: https://stackoverflow.com/questions/478201/how-to-test-an-application-for-correct-encoding-e-g-utf-8
+		YYCC::ConsoleHelper::EnsureTerminalUTF8(stdout);
+		YYCC::ConsoleHelper::FPuts("UTF8 Test:\n", stdout);
+		static std::vector<const char*> c_TestStrings {
+			"\u30E6\u30FC\u30B6\u30FC\u5225\u30B5\u30A4\u30C8", // JAPAN
+			"\u7B80\u4F53\u4E2D\u6587", // CHINA
+			"\uD06C\uB85C\uC2A4 \uD50C\uB7AB\uD3FC\uC73C\uB85C", // KOREA
+			"\u05DE\u05D3\u05D5\u05E8\u05D9\u05DD \u05DE\u05D1\u05D5\u05E7\u05E9\u05D9\u05DD", // ISRAEL
+			"\u0623\u0641\u0636\u0644 \u0627\u0644\u0628\u062D\u0648\u062B", // EGYPT
+			"\u03A3\u1F72 \u03B3\u03BD\u03C9\u03C1\u03AF\u03B6\u03C9 \u1F00\u03C0\u1F78", // GREECE
+			"\u0414\u0435\u0441\u044F\u0442\u0443\u044E \u041C\u0435\u0436\u0434\u0443\u043D\u0430\u0440\u043E\u0434\u043D\u0443\u044E", // RUSSIA
+			"\u0E41\u0E1C\u0E48\u0E19\u0E14\u0E34\u0E19\u0E2E\u0E31\u0E48\u0E19\u0E40\u0E2A\u0E37\u0E48\u0E2D\u0E21\u0E42\u0E17\u0E23\u0E21\u0E41\u0E2A\u0E19\u0E2A\u0E31\u0E07\u0E40\u0E27\u0E0A", // THAILAND
+			"fran\u00E7ais langue \u00E9trang\u00E8re", // FRANCE
+			"ma\u00F1ana ol\u00E9", // SPAIN
+			"\u222E E\u22C5da = Q,  n \u2192 \u221E, \u2211 f(i) = \u220F g(i)", // MATHMATICS
+			//"\xF0\x9F\x8D\xA3 \xE2\x9C\x96 \xF0\x9F\x8D\xBA", // EMOJI
+		};
+		for (const auto* ptr : c_TestStrings) {
+			YYCC::ConsoleHelper::FPrintf(stdout, "\t%s\n", ptr);
+		}
+
+		// Color Test
+		YYCC::ConsoleHelper::EnsureTerminalColor(stdout);
+		YYCC::ConsoleHelper::FPuts(YYCC_TERMCOL_LIGHT_CYAN("Colorful Terminal\n"), stdout);
 	}
 
 	static void StringTestbench() {
-		auto test_printf = YYCC::StringHelper::Printf("%s == %s", "Hello World", "你好世界");
-		Assert(test_printf == "Hello World == 你好世界", "YYCC::StringHelper::Printf");
+		auto test_printf = YYCC::StringHelper::Printf("%s == %s", "Hello World", "Hello, world");
+		Assert(test_printf == "Hello World == Hello, world", "YYCC::StringHelper::Printf");
 			
 		auto test_lower = YYCC::StringHelper::Lower("LOWER");
 		Assert(test_lower == "lower", "YYCC::StringHelper::Lower");
@@ -130,20 +151,20 @@ namespace Testbench {
 		filters.Add("All Files (*.*)", {"*.*"});
 		params.SetDefaultFileTypeIndex(0u);
 		if (YYCC::DialogHelper::OpenFileDialog(params, ret)) {
-			YYCC::TerminalHelper::FPrintf(stdout, "Open File: %s\n", ret.c_str());
+			YYCC::ConsoleHelper::FPrintf(stdout, "Open File: %s\n", ret.c_str());
 		}
 		if (YYCC::DialogHelper::OpenMultipleFileDialog(params, rets)) {
-			YYCC::TerminalHelper::FPuts("Open Multiple Files:\n", stdout);
+			YYCC::ConsoleHelper::FPuts("Open Multiple Files:\n", stdout);
 			for (const auto& item : rets) {
-				YYCC::TerminalHelper::FPrintf(stdout, "\t%s\n", item.c_str());
+				YYCC::ConsoleHelper::FPrintf(stdout, "\t%s\n", item.c_str());
 			}
 		}
 		if (YYCC::DialogHelper::SaveFileDialog(params, ret)) {
-			YYCC::TerminalHelper::FPrintf(stdout, "Save File: %s\n", ret.c_str());
+			YYCC::ConsoleHelper::FPrintf(stdout, "Save File: %s\n", ret.c_str());
 		}
 		params.Clear();
 		if (YYCC::DialogHelper::OpenFolderDialog(params, ret)) {
-			YYCC::TerminalHelper::FPrintf(stdout, "Open Folder: %s\n", ret.c_str());
+			YYCC::ConsoleHelper::FPrintf(stdout, "Open Folder: %s\n", ret.c_str());
 		}
 	}
 
