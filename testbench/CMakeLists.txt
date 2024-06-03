@@ -1,6 +1,9 @@
 # Create executable testbench
-add_executable(Testbench
-    main.cpp
+add_executable(Testbench "")
+# Setup testbench sources
+target_sources(Testbench
+PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
 )
 # Add YYCC as its library
 target_include_directories(Testbench
@@ -22,4 +25,13 @@ PROPERTIES
 target_compile_options(Testbench
 PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
+)
+
+# Install binary
+install(TARGETS Testbench
+    EXPORT TestbenchTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
 )
