@@ -29,7 +29,7 @@ namespace Testbench {
 			"fran\u00E7ais langue \u00E9trang\u00E8re", // FRANCE
 			"ma\u00F1ana ol\u00E9", // SPAIN
 			"\u222E E\u22C5da = Q,  n \u2192 \u221E, \u2211 f(i) = \u220F g(i)", // MATHMATICS
-			//"\xF0\x9F\x8D\xA3 \xE2\x9C\x96 \xF0\x9F\x8D\xBA", // EMOJI
+			"\xF0\x9F\x8D\xA3 \xE2\x9C\x96 \xF0\x9F\x8D\xBA", // EMOJI
 		};
 		for (const auto* ptr : c_TestStrings) {
 			YYCC::ConsoleHelper::FPrintf(stdout, "\t%s\n", ptr);

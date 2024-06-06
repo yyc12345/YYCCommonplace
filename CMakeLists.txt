@@ -4,9 +4,14 @@ project(YYCC
     LANGUAGES CXX
 )
 
+# Provide options
+option(YYCC_BUILD_TESTBENCH "Build testbench of YYCCommonplace." OFF)
+
 # Import 2 build targets
 add_subdirectory(src)
-add_subdirectory(testbench)
+if (YYCC_BUILD_TESTBENCH)
+    add_subdirectory(testbench)
+endif ()
 
 # Install project package infos
 # Package target
