@@ -1,22 +1,42 @@
 #include <YYCCommonplace.hpp>
 #include <cstdio>
 
-namespace Testbench {
+namespace Console = YYCC::ConsoleHelper;
+
+namespace YYCCTestbench {
 
 	static void Assert(bool condition, const char* description) {
 		if (condition) {
-			YYCC::ConsoleHelper::FPrintf(stdout, YYCC_TERMCOL_LIGHT_GREEN("OK: %s\n"), description);
+			Console::WriteLine(YYCC_COLOR_LIGHT_GREEN("OK: %s"), description);
 		} else {
-			YYCC::ConsoleHelper::FPrintf(stdout, YYCC_TERMCOL_LIGHT_RED("Failed: %s\n"), description);
+			Console::WriteLine(YYCC_COLOR_LIGHT_RED("Failed: %s\n"), description);
 			std::abort();
 		}
 	}
 
-	static void TerminalTestbench() {
-		// UTF8 Test
+	static void ConsoleTestbench() {
+		// Color Test
+		Console::EnableColorfulConsole(stdout);
+		Console::WriteLine("Color Test:");
+
+		// U+2588 is full block
+#define TEST_MACRO(col) Console::WriteLine("\t" YYCC_COLOR_ ## col ("\u2588\u2588") YYCC_COLOR_LIGHT_ ## col("\u2588\u2588") " " #col " / LIGHT " #col );
+
+		TEST_MACRO(BLACK);
+		TEST_MACRO(RED);
+		TEST_MACRO(GREEN);
+		TEST_MACRO(YELLOW);
+		TEST_MACRO(BLUE);
+		TEST_MACRO(MAGENTA);
+		TEST_MACRO(CYAN);
+		TEST_MACRO(WHITE);
+
+#undef TEST_MACRO
+
+		// UTF8 Output Test
 		// Ref: https://stackoverflow.com/questions/478201/how-to-test-an-application-for-correct-encoding-e-g-utf-8
-		YYCC::ConsoleHelper::EnsureTerminalUTF8(stdout);
-		YYCC::ConsoleHelper::FPuts("UTF8 Test:\n", stdout);
+		//Console::EnableUTF8Console(stdout);
+		Console::WriteLine("UTF8 Output Test:");
 		static std::vector<const char*> c_TestStrings {
 			"\u30E6\u30FC\u30B6\u30FC\u5225\u30B5\u30A4\u30C8", // JAPAN
 			"\u7B80\u4F53\u4E2D\u6587", // CHINA
@@ -32,12 +52,9 @@ namespace Testbench {
 			"\xF0\x9F\x8D\xA3 \xE2\x9C\x96 \xF0\x9F\x8D\xBA", // EMOJI
 		};
 		for (const auto* ptr : c_TestStrings) {
-			YYCC::ConsoleHelper::FPrintf(stdout, "\t%s\n", ptr);
+			Console::WriteLine("\t%s", ptr);
 		}
 
-		// Color Test
-		YYCC::ConsoleHelper::EnsureTerminalColor(stdout);
-		YYCC::ConsoleHelper::FPuts(YYCC_TERMCOL_LIGHT_CYAN("Colorful Terminal\n"), stdout);
 	}
 
 	static void StringTestbench() {
@@ -151,28 +168,28 @@ namespace Testbench {
 		filters.Add("All Files (*.*)", {"*.*"});
 		params.SetDefaultFileTypeIndex(0u);
 		if (YYCC::DialogHelper::OpenFileDialog(params, ret)) {
-			YYCC::ConsoleHelper::FPrintf(stdout, "Open File: %s\n", ret.c_str());
+			Console::WriteLine("Open File: %s", ret.c_str());
 		}
 		if (YYCC::DialogHelper::OpenMultipleFileDialog(params, rets)) {
-			YYCC::ConsoleHelper::FPuts("Open Multiple Files:\n", stdout);
+			Console::WriteLine("Open Multiple Files:");
 			for (const auto& item : rets) {
-				YYCC::ConsoleHelper::FPrintf(stdout, "\t%s\n", item.c_str());
+				Console::WriteLine("\t%s", item.c_str());
 			}
 		}
 		if (YYCC::DialogHelper::SaveFileDialog(params, ret)) {
-			YYCC::ConsoleHelper::FPrintf(stdout, "Save File: %s\n", ret.c_str());
+			Console::WriteLine("Save File: %s", ret.c_str());
 		}
 		params.Clear();
 		if (YYCC::DialogHelper::OpenFolderDialog(params, ret)) {
-			YYCC::ConsoleHelper::FPrintf(stdout, "Open Folder: %s\n", ret.c_str());
+			Console::WriteLine("Open Folder: %s", ret.c_str());
 		}
 	}
 
 }
 
 int main(int argc, char** args) {
-	Testbench::TerminalTestbench();
-	Testbench::StringTestbench();
-	Testbench::ParserTestbench();
-	//Testbench::DialogTestbench();
+	YYCCTestbench::ConsoleTestbench();
+	//YYCCTestbench::StringTestbench();
+	//YYCCTestbench::ParserTestbench();
+	//YYCCTestbench::DialogTestbench();
 }

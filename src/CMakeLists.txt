@@ -41,11 +41,11 @@ PROPERTIES
     CXX_STANDARD_REQUIRED 17
     CXX_EXTENSION OFF
 )
-# Disable MSVC standard library warnings
+# Order Unicode charset for private using
 target_compile_definitions(YYCCommonplace
-PUBLIC
-    $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
-    $<$<CXX_COMPILER_ID:MSVC>:_CRT_NONSTDC_NO_DEPRECATE>
+PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
+    $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>
 )
 # Order build as UTF-8 in MSVC
 target_compile_options(YYCCommonplace

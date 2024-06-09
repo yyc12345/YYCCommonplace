@@ -21,6 +21,12 @@ PROPERTIES
     CXX_STANDARD_REQUIRED 17
     CXX_EXTENSION OFF
 )
+# Order Unicode charset for private using
+target_compile_definitions(YYCCTestbench
+PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
+    $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>
+)
 # Order build as UTF-8 in MSVC
 target_compile_options(YYCCTestbench
 PRIVATE
