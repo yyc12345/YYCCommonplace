@@ -65,6 +65,37 @@ namespace YYCC::StringHelper {
 		return ret;
 	}
 
+	void Replace(std::string& strl, const char* _from_strl, const char* _to_strl)  {
+		// Reference: https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
+		
+		// check requirements
+		// from string and to string should not be nullptr.
+		if (_from_strl == nullptr || _to_strl == nullptr) return;
+		// from string should not be empty
+		std::string from_strl(_from_strl);
+		std::string to_strl(_to_strl);
+		if (from_strl.empty()) return;
+
+		// start replace one by one
+		size_t start_pos = 0;
+		while ((start_pos = strl.find(from_strl, start_pos)) != std::string::npos) {
+			strl.replace(start_pos, from_strl.size(), to_strl);
+			start_pos += to_strl.size(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+		}
+	}
+
+	std::string Replace(const char* _strl, const char* _from_strl, const char* _to_strl) {
+		// prepare result
+		std::string strl;
+		// if given string is not nullptr, assign it and process it.
+		if (_strl != nullptr) {
+			strl = _strl;
+			Replace(strl, _from_strl, _to_strl);
+		}
+		// return value
+		return strl;
+	}
+
 	std::string Join(JoinDataProvider fct_data, const char* decilmer) {
 		std::string ret;
 		bool is_first = true;
@@ -116,6 +147,7 @@ namespace YYCC::StringHelper {
 
 	template<bool bIsToLower>
 	void GeneralStringLowerUpper(std::string& strl) {
+		// References:
 		// https://en.cppreference.com/w/cpp/algorithm/transform
 		// https://en.cppreference.com/w/cpp/string/byte/tolower
 		std::transform(

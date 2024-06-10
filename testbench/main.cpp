@@ -19,8 +19,8 @@ namespace YYCCTestbench {
 		Console::EnableColorfulConsole(stdout);
 		Console::WriteLine("Color Test:");
 
-		// U+2588 is full block
 #define TEST_MACRO(col) Console::WriteLine("\t" YYCC_COLOR_ ## col ("\u2588\u2588") YYCC_COLOR_LIGHT_ ## col("\u2588\u2588") " " #col " / LIGHT " #col );
+		// U+2588 is full block
 
 		TEST_MACRO(BLACK);
 		TEST_MACRO(RED);
@@ -35,7 +35,6 @@ namespace YYCCTestbench {
 
 		// UTF8 Output Test
 		// Ref: https://stackoverflow.com/questions/478201/how-to-test-an-application-for-correct-encoding-e-g-utf-8
-		//Console::EnableUTF8Console(stdout);
 		Console::WriteLine("UTF8 Output Test:");
 		static std::vector<const char*> c_TestStrings {
 			"\u30E6\u30FC\u30B6\u30FC\u5225\u30B5\u30A4\u30C8", // JAPAN
@@ -55,18 +54,48 @@ namespace YYCCTestbench {
 			Console::WriteLine("\t%s", ptr);
 		}
 
+		// UTF8 Input Test
+		Console::WriteLine("UTF8 Input Test:");
+		for (const auto* ptr : c_TestStrings) {
+			Console::WriteLine("\tPlease type: %s", ptr);
+			Console::Write("\t> ");
+
+			std::string gotten(Console::ReadLine());
+			Assert(gotten == ptr, YYCC::StringHelper::Printf("Got: %s", gotten.c_str()).c_str());
+		}
+
 	}
 
 	static void StringTestbench() {
+		// Test Printf
 		auto test_printf = YYCC::StringHelper::Printf("%s == %s", "Hello World", "Hello, world");
 		Assert(test_printf == "Hello World == Hello, world", "YYCC::StringHelper::Printf");
-			
+		
+		// Test Replace
+		auto test_replace = YYCC::StringHelper::Replace("aabbcc", "bb", "dd"); // normal case
+		Assert(test_replace == "aaddcc", "YYCC::StringHelper::Replace");
+		test_replace = YYCC::StringHelper::Replace("aabbcc", "zz", "yy"); // no replace
+		Assert(test_replace == "aabbcc", "YYCC::StringHelper::Replace");
+		test_replace = YYCC::StringHelper::Replace("aabbcc", "", "zz"); // empty finding
+		Assert(test_replace == "aabbcc", "YYCC::StringHelper::Replace");
+		test_replace = YYCC::StringHelper::Replace("aabbcc", nullptr, "zz"); // nullptr finding
+		Assert(test_replace == "aabbcc", "YYCC::StringHelper::Replace");
+		test_replace = YYCC::StringHelper::Replace("aaaabbaa", "aa", ""); // no replaced string
+		Assert(test_replace == "bb", "YYCC::StringHelper::Replace");
+		test_replace = YYCC::StringHelper::Replace("aaxcc", "x", "yx"); // nested replacing
+		Assert(test_replace == "aayxcc", "YYCC::StringHelper::Replace");
+		test_replace = YYCC::StringHelper::Replace("", "", "xy"); // empty source string
+		Assert(test_replace == "", "YYCC::StringHelper::Replace");
+		test_replace = YYCC::StringHelper::Replace(nullptr, "", "xy"); // nullptr source string
+		Assert(test_replace == "", "YYCC::StringHelper::Replace");
+
+		// Test Upper / Lower
 		auto test_lower = YYCC::StringHelper::Lower("LOWER");
 		Assert(test_lower == "lower", "YYCC::StringHelper::Lower");
 		auto test_upper = YYCC::StringHelper::Upper("upper");
 		Assert(test_upper == "UPPER", "YYCC::StringHelper::Upper");
 
-
+		// Test Join
 		std::vector<std::string> test_join_container {
 			"", "1", "2", ""
 		};
@@ -75,6 +104,7 @@ namespace YYCCTestbench {
 		test_join = YYCC::StringHelper::Join(test_join_container, ", ", true);
 		Assert(test_join == ", 2, 1, ", "YYCC::StringHelper::Join");
 
+		// Test Split
 		auto test_split = YYCC::StringHelper::Split(", 1, 2, ", ", ");
 		Assert(test_split.size() == 4u, "YYCC::StringHelper::Split");
 		Assert(test_split[0] == "", "YYCC::StringHelper::Split");
