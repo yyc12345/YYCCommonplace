@@ -1,17 +1,22 @@
 #include "ConsoleHelper.hpp"
-#if YYCC_OS == YYCC_OS_WINDOWS
 
 #include "EncodingHelper.hpp"
 #include "StringHelper.hpp"
 #include <iostream>
 
+// Include Windows used headers in Windows.
+#if YYCC_OS == YYCC_OS_WINDOWS
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
 #include <io.h>
 #include <fcntl.h>
 #include "WinImportSuffix.hpp"
+#endif
 
 namespace YYCC::ConsoleHelper {
+
+#pragma region Windows Specific Functions
+#if YYCC_OS == YYCC_OS_WINDOWS
 
 	static bool RawEnableColorfulConsole(FILE* fs) {
 		if (!_isatty(_fileno(fs))) return false;
@@ -26,38 +31,30 @@ namespace YYCC::ConsoleHelper {
 		return true;
 	}
 
-	bool EnableColorfulConsole(FILE* fs) {
-		if (!RawEnableColorfulConsole(stdout)) return false;
-		if (!RawEnableColorfulConsole(stderr)) return false;
-		return true;
-	}
+	/*
+	Reference:
+	* https://stackoverflow.com/questions/45575863/how-to-print-utf-8-strings-to-stdcout-on-windows
+	* https://stackoverflow.com/questions/69830460/reading-utf-8-input
 
-	//template<typename _Ty, std::enable_if_t<std::is_same_v<_Ty, char> || std::is_same_v<_Ty, wchar_t>, int> = 0>
-	//static bool FetchEOL(std::basic_string<_Ty>& internal_buffer, std::basic_string<_Ty>& result_buffer) {
-	//	// try finding EOL in internal buffer
-	//	size_t pos;
-	//	if constexpr (std::is_same_v<_Ty, char>) internal_buffer.find_first_of('\n');
-	//	else internal_buffer.find_first_of(L'\n');
+	There is 3 way to make Windows console enable UTF8 mode.
 
-	//	// check finding result
-	//	if (pos == std::wstring::npos) {
-	//		// the whole string do not include EOL, fully appended to return value
-	//		result_buffer += internal_buffer;
-	//		internal_buffer.clear();
-	//		// return false mean need more data
-	//		return false;
-	//	} else {
-	//		// split result
-	//		// push into result and remain some in internal buffer.
-	//		result_buffer.append(internal_buffer, 0u, pos);
-	//		internal_buffer.erase(0u, pos + 1u); // +1 because EOL take one place.
-	//		// return true mean success finding
-	//		return true;
-	//	}
-	//}
+	First one is calling SetConsoleCP and SetConsoleOutputCP.
+	The side effect of this is std::cin and std::cout is broken,
+	however there is a patch for this issue.
+
+	Second one is calling _set_mode with _O_U8TEXT or _O_U16TEXT to enable Unicode mode for Windows console.
+	This also have side effect which is stronger than first one.
+	All puts family functions (ASCII-based output functions) will throw assertion exception.
+	You only can use putws family functions (wide-char-based output functions).
+	However these functions can not be used without calling _set_mode in Windows design.
+
+	There still is another method, using WriteConsoleW directly visiting console.
+	This function family can output correct string without calling any extra functions!
+	This method is what we adopted.
+	*/
 
 	template<bool _bIsConsole>
-	static std::string PlainRead(HANDLE hStdIn) {
+	static std::string WinConsoleRead(HANDLE hStdIn) {
 		using _TChar = std::conditional_t<_bIsConsole, wchar_t, char>;
 
 		// Prepare an internal buffer because the read data may not be fully used.
@@ -130,34 +127,7 @@ namespace YYCC::ConsoleHelper {
 		return real_return_buffer;
 	}
 
-	std::string ReadLine() {
-#if YYCC_OS == YYCC_OS_WINDOWS
-
-		// get stdin mode
-		HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
-		// use different method to get according to whether stdin is redirected
-		DWORD dwConsoleMode;
-		if (GetConsoleMode(hStdIn, &dwConsoleMode)) {
-			return PlainRead<true>(hStdIn);
-		} else {
-			return PlainRead<false>(hStdIn);
-		}
-
-#elif YYCC_OS == YYCC_OS_LINUX
-
-		// in linux, directly use C++ function to fetch.
-		std::string cmd;
-		if (std::getline(std::cin, cmd).fail()) cmd.clear();
-		return cmd;
-
-#endif
-	}
-
-	void Write(const char* u8_strl) {}
-
-	static void PlainWrite(const std::string& strl) {
-#if YYCC_OS == YYCC_OS_WINDOWS
-
+	static void WinConsoleWrite(const std::string& strl) {
 		// Prepare some Win32 variables
 		// fetch stdout handle first
 		HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -185,8 +155,56 @@ namespace YYCC::ConsoleHelper {
 				WriteFile(hStdOut, strl.c_str(), static_cast<DWORD>(strl_size), &dwWrittenNumberOfChars, NULL);
 			}
 		}
+	}
 
-#elif YYCC_OS == YYCC_OS_LINUX
+#endif
+#pragma endregion
+
+	bool EnableColorfulConsole() {
+#if YYCC_OS == YYCC_OS_WINDOWS
+
+		if (!RawEnableColorfulConsole(stdout)) return false;
+		if (!RawEnableColorfulConsole(stderr)) return false;
+		return true;
+
+#else
+
+		// just return true and do nothing
+		return true
+
+#endif
+	}
+
+	std::string ReadLine() {
+#if YYCC_OS == YYCC_OS_WINDOWS
+
+		// get stdin mode
+		HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+		// use different method to get according to whether stdin is redirected
+		DWORD dwConsoleMode;
+		if (GetConsoleMode(hStdIn, &dwConsoleMode)) {
+			return WinConsoleRead<true>(hStdIn);
+		} else {
+			return WinConsoleRead<false>(hStdIn);
+		}
+
+#else
+
+		// in linux, directly use C++ function to fetch.
+		std::string cmd;
+		if (std::getline(std::cin, cmd).fail()) cmd.clear();
+		return cmd;
+
+#endif
+	}
+
+	static void RawWrite(const std::string& strl) {
+#if YYCC_OS == YYCC_OS_WINDOWS
+
+		// call Windows specific writer
+		WinConsoleWrite(strl);
+
+#else
 
 		// in linux, directly use C function to write.
 		std::fputs(strl.c_str(), stdout);
@@ -197,7 +215,7 @@ namespace YYCC::ConsoleHelper {
 	void Write(const char* u8_fmt, ...) {
 		va_list argptr;
 		va_start(argptr, u8_fmt);
-		PlainWrite(YYCC::StringHelper::VPrintf(u8_fmt, argptr));
+		RawWrite(YYCC::StringHelper::VPrintf(u8_fmt, argptr));
 		va_end(argptr);
 	}
 
@@ -206,10 +224,9 @@ namespace YYCC::ConsoleHelper {
 		va_start(argptr, u8_fmt);
 		std::string cache(YYCC::StringHelper::VPrintf(u8_fmt, argptr));
 		cache += "\n";
-		PlainWrite(cache);
+		RawWrite(cache);
 		va_end(argptr);
 	}
 
 }
 
-#endif

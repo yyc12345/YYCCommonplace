@@ -16,7 +16,7 @@ namespace YYCCTestbench {
 
 	static void ConsoleTestbench() {
 		// Color Test
-		Console::EnableColorfulConsole(stdout);
+		Console::EnableColorfulConsole();
 		Console::WriteLine("Color Test:");
 
 #define TEST_MACRO(col) Console::WriteLine("\t" YYCC_COLOR_ ## col ("\u2588\u2588") YYCC_COLOR_LIGHT_ ## col("\u2588\u2588") " " #col " / LIGHT " #col );

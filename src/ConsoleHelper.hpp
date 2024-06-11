@@ -1,6 +1,5 @@
 #pragma once
 #include "YYCCInternal.hpp"
-#if YYCC_OS == YYCC_OS_WINDOWS
 
 #include <cstdio>
 #include <string>
@@ -47,52 +46,64 @@ namespace YYCC::ConsoleHelper {
 #define YYCC_COLOR_LIGHT_WHITE(T) "\033[97m" T "\033[0m"
 
 	/**
-	 * @brief Try letting terminal support ASCII color schema.
-	 * @param fs[in] The stream to be set.
-	 * @return true if success, otherwise false.
+	 * @brief Enable Windows console color support.
+	 * @details This actually is enable virtual console feature for stdout and stderr.
+	 * @return True if success, otherwise false.
+	 * @remarks This function only works on Windows and do nothing on other platforms such as Linux,
+	 * because we assume all terminals existing on other platform support color feature as default.
 	*/
-	bool EnableColorfulConsole(FILE* fs);
+	bool EnableColorfulConsole();
 	
-	/*
-	Reference:
-	* https://stackoverflow.com/questions/45575863/how-to-print-utf-8-strings-to-stdcout-on-windows
-	* https://stackoverflow.com/questions/69830460/reading-utf-8-input
-
-	There is 3 way to make Windows console enable UTF8 mode.
-
-	First one is calling SetConsoleCP and SetConsoleOutputCP.
-	The side effect of this is std::cin and std::cout is broken,
-	however there is a patch for this issue.
-
-	Second one is calling _set_mode with _O_U8TEXT or _O_U16TEXT to enable Unicode mode for Windows console.
-	This also have side effect which is stronger than first one.
-	All puts family functions (ASCII-based output functions) will throw assertion exception.
-	You only can use putws family functions (wide-char-based output functions).
-	However these functions can not be used without calling _set_mode in Windows design.
-
-	There still is another method, using WriteConsoleW directly visiting console.
-	This function family can output correct string without calling any extra functions!
-	This method is what we adopted.
-	*/
-
 	/**
-	 * @brief 
-	 * @return 
+	 * @brief Universal console read function
+	 * @details This function is more like C# Console.ReadLine().
+	 * It read user input with UTF8 encoding until reaching EOL.
+	 * 
+	 * This function provide an universal, platform-independent way to read UTF8 string from console, 
+	 * no matter whether it is redirected.
+	 * @return The UTF8 encoded string this function read. EOL is excluded.
+	 * @remarks In Windows, this function will try use native Win32 function for reading,
+	 * because standard C/C++ function can not handle UTF8 input on Windows normally.
+	 * In other platforms, this function will redirect request to std::readline with std::cin,
+	 * which is all programmer commonly used method.
+	 * It also mean that we assume stdin is encoded by UTF8 on these platforms.
+	 * 
+	 * Please note that EOL will automatically converted into LF on Windows platform, not CRLF.
+	 * This action is actually remove all CR chars in result string.
+	 * 
+	 * This function also can be used as ordering user press Enter key by
+	 * simply calling this function and ignoring its return value.
 	*/
 	std::string ReadLine();
 	/**
-	 * @brief 
-	 * @param u8_fmt The format, or a simple string (format related chars still need escape).
-	 * @param ...[in] The parameter for formatter.
+	 * @brief Universal console write function
+	 * @details This function is more like C# Console.Write().
+	 * It write user given UTF8 string into console.
+	 * 
+	 * This function provide an universal, platform-independent way to write UTF8 string into console, 
+	 * no matter whether it is redirected.
+	 * @param u8_fmt[in] The format string.
+	 * If you just want to write a pure string, you should escape formatter chars (%) in this string,
+	 * because this function always take this parameter as a format string.
+	 * @param ...[in] The arguments to be formatted.
+	 * @remarks In Windows, this funcion will use native Win32 function for writing,
+	 * because standard C/C++ function can not handle UTF8 output on Windows normally.
+	 * In other platforms, this function will redirect request to std::fprintf with stdout,
+	 * which is all programmer commonly used method.
+	 * It also mean that we assume stdout is encoded by UTF8 on these platforms.
 	*/
 	void Write(const char* u8_fmt, ...);
 	/**
-	 * @brief 
-	 * @param u8_fmt 
-	 * @param  
+	 * @brief Universal console write function with automatic EOL
+	 * @details This function is same as Write(const char*, ...), 
+	 * but it will automatically add EOL in output to break line.
+	 * This is commonly used.
+	 * @param u8_fmt[in] The format string.
+	 * If you just want to write a pure string, you should escape formatter chars (%) in this string,
+	 * because this function always take this parameter as a format string.
+	 * If you want to output plain string, you need escape format 
+	 * @param ...[in] The arguments to be formatted.
 	*/
 	void WriteLine(const char* u8_fmt, ...);
 
 }
-
-#endif
