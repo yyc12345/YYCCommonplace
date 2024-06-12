@@ -6,11 +6,15 @@ project(YYCC
 
 # Provide options
 option(YYCC_BUILD_TESTBENCH "Build testbench of YYCCommonplace." OFF)
+option(YYCC_BUILD_DOC "Build document of YYCCommonplace." OFF)
 
 # Import 2 build targets
 add_subdirectory(src)
 if (YYCC_BUILD_TESTBENCH)
     add_subdirectory(testbench)
+endif ()
+if (YYCC_BUILD_DOC)
+    add_subdirectory(doc)
 endif ()
 
 # Install project package infos
