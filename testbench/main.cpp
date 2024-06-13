@@ -216,7 +216,7 @@ namespace YYCCTestbench {
 	}
 
 	static void WinFctTestbench() {
-		Console::WriteLine("Current Module HANDLE: 0x%016" PRIXPTR, YYCC::WinFctHelper::GetCurrentModule());
+		Console::WriteLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, YYCC::WinFctHelper::GetCurrentModule());
 		Console::WriteLine("Temp Directory: %s", YYCC::WinFctHelper::GetTempDirectory().c_str());
 		Console::WriteLine("Current Module Name: %s", YYCC::WinFctHelper::GetModuleName(YYCC::WinFctHelper::GetCurrentModule()).c_str());
 	}

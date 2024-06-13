@@ -1,11 +1,11 @@
 #include "ExceptionHelper.hpp"
 #if YYCC_OS == YYCC_OS_WINDOWS
 
+#include "WinFctHelper.hpp"
 #include <filesystem>
 #include <cstdarg>
 #include <cstdio>
 #include <cinttypes>
-#include "WinFctHelper.hpp"
 
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
@@ -96,7 +96,7 @@ namespace YYCC::ExceptionHelper {
 		}
 	}
 
-	static void UExceptionFormat(std::FILE* fs, const char* fmt, ...) {
+	static void UExceptionBacktraceFormatLine(std::FILE* fs, const char* fmt, ...) {
 		// write to file
 		va_list arg1;
 		va_start(arg1, fmt);
@@ -109,7 +109,7 @@ namespace YYCC::ExceptionHelper {
 		va_end(arg2);
 	}
 
-	static void UExceptionPrint(std::FILE* fs, const char* strl) {
+	static void UExceptionBacktraceWriteLine(std::FILE* fs, const char* strl) {
 		// write to file
 		std::fputs(strl, fs);
 		// write to stdout
@@ -127,7 +127,7 @@ namespace YYCC::ExceptionHelper {
 		// init symbol
 		if (!SymInitialize(process, 0, TRUE)) {
 			// fail to load. return
-			UExceptionPrint(fs, "Lost symbol file!\n");
+			UExceptionBacktraceWriteLine(fs, "Lost symbol file!\n");
 			return;
 		}
 
@@ -182,7 +182,7 @@ namespace YYCC::ExceptionHelper {
 			// depth breaker
 			--maxdepth;
 			if (maxdepth < 0) {
-				UExceptionPrint(fs, "...\n");		// indicate there are some frames not listed
+				UExceptionBacktraceWriteLine(fs, "...\n");		// indicate there are some frames not listed
 				break;
 			}
 
@@ -205,7 +205,7 @@ namespace YYCC::ExceptionHelper {
 			}
 
 			// write to file
-			UExceptionFormat(fs, "0x%016llx(rel: 0x%016llx)[%s]\t%s#%llu\n",
+			UExceptionBacktraceFormatLine(fs, "0x%016llx(rel: 0x%016llx)[%s]\t%s#%llu\n",
 				frame.AddrPC.Offset, frame.AddrPC.Offset - module_base, module_name,
 				source_file, source_file_line
 			);
@@ -216,6 +216,10 @@ namespace YYCC::ExceptionHelper {
 
 		// free symbol
 		SymCleanup(process);
+	}
+
+	static void UExceptionErrorLog(const std::wstring& filename, LPEXCEPTION_POINTERS info) {
+
 	}
 
 	static void UExceptionCoreDump(LPCWSTR filename, LPEXCEPTION_POINTERS info) {
@@ -236,11 +240,13 @@ namespace YYCC::ExceptionHelper {
 		}
 	}
 
+	static void UExceptionFetchRecordPath(std::wstring& log_path, std::wstring& coredump_path) {
+
+	}
+
 	static LONG WINAPI UExceptionImpl(LPEXCEPTION_POINTERS info) {
 		// detect loop calling
-		if (g_IsProcessing) {
-			goto end_proc;
-		}
+		if (g_IsProcessing) goto end_proc;
 		// start process
 		g_IsProcessing = true;
 
