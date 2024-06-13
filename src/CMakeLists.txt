@@ -12,6 +12,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/IOHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ParserHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/StringHelper.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/WinFctHelper.hpp
     # Windows including guard pair
     ${CMAKE_CURRENT_LIST_DIR}/WinImportPrefix.hpp
     ${CMAKE_CURRENT_LIST_DIR}/WinImportSuffix.hpp
@@ -27,6 +28,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/IOHelper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ParserHelper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/StringHelper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/WinFctHelper.cpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace

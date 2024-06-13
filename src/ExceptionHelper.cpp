@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cinttypes>
+#include "WinFctHelper.hpp"
 
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
@@ -12,34 +13,41 @@
 #include "WinImportSuffix.hpp"
 
 namespace YYCC::ExceptionHelper {
-
+	
 	/**
-	 * @brief true if the exception handler already registered.
-	 * This variable is served for singleton.
+	 * @brief True if the exception handler already registered, otherwise false.
+	 * @details
+	 * This variable is designed to prevent multiple register operation
+	 * because unhandled exception handler should only be registered once.
+	 * \n
+	 * Register function should check whether this variable is false before registering,
+	 * and set this variable to true after registing.
+	 * Unregister as well as should do the same check.
 	*/
 	static bool g_IsRegistered = false;
 	/**
-	 * @brief true if a exception handler is running.
+	 * @brief True if a exception handler is running, otherwise false.
+	 * @details 
 	 * This variable is served for blocking possible infinity recursive exception handling.
+	 * \n
+	 * When entering unhandled exception handler, we must check whether this variable is true.
+	 * If it is true, it mean that there is another unhandled exception handler running.
+	 * Then we should exit immediately.
+	 * Otherwise, this variable should be set to true indicating we are processing unhandled exception.
+	 * After processing exception, at the end of unhandled exception handler,
+	 * we should restore this value to false.
+	 * 
 	*/
 	static bool g_IsProcessing = false;
 	/**
 	 * @brief The backup of original exception handler.
+	 * @details
+	 * This variable was set when registering unhandled exception handler.
+	 * And will be used when unregistering for restoring.
 	*/
-	LPTOP_LEVEL_EXCEPTION_FILTER g_ProcBackup;
+	static LPTOP_LEVEL_EXCEPTION_FILTER g_ProcBackup;
 
 #pragma region Exception Handler Implementation
-
-	static HMODULE GetCurrentModule() {
-		// Reference: https://stackoverflow.com/questions/557081/how-do-i-get-the-hmodule-for-the-currently-executing-code
-		HMODULE hModule = NULL;
-		GetModuleHandleExW(
-			GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,	// get address and do not inc ref counter.
-			(LPCWSTR)GetCurrentModule,
-			&hModule);
-
-		return hModule;
-	}
 
 	static const char* UExceptionGetCodeName(DWORD code) {
 		switch (code) {
@@ -241,7 +249,7 @@ namespace YYCC::ExceptionHelper {
 			std::filesystem::path ironpad_path;
 			WCHAR module_path[MAX_PATH];
 			std::memset(module_path, 0, sizeof(module_path));
-			if (GetModuleFileNameW(GetCurrentModule(), module_path, MAX_PATH) == 0) {
+			if (GetModuleFileNameW(WinFctHelper::GetCurrentModule(), module_path, MAX_PATH) == 0) {
 				goto failed;
 			}
 			ironpad_path = module_path;
