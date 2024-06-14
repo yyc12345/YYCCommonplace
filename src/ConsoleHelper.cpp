@@ -127,10 +127,10 @@ namespace YYCC::ConsoleHelper {
 		return real_return_buffer;
 	}
 
-	static void WinConsoleWrite(const std::string& strl) {
+	static void WinConsoleWrite(const std::string& strl, bool to_stderr) {
 		// Prepare some Win32 variables
 		// fetch stdout handle first
-		HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		HANDLE hStdOut = GetStdHandle(to_stderr ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
 		DWORD dwConsoleMode;
 		DWORD dwWrittenNumberOfChars;
 
@@ -198,34 +198,79 @@ namespace YYCC::ConsoleHelper {
 #endif
 	}
 
-	static void RawWrite(const std::string& strl) {
+	template<bool bNeedFmt, bool bIsErr, bool bHasEOL>
+	static void RawWrite(const char* u8_fmt, va_list argptr) {
+		// Buiild string need to be written first
+		// If no format string or plain string for writing, return.
+		if (u8_fmt == nullptr) return;
+		// Build or simply copy string
+		std::string strl;
+		if constexpr (bNeedFmt) {
+			// treat as format string
+			va_list argcpy;
+			va_copy(argcpy, argptr);
+			strl = YYCC::StringHelper::VPrintf(u8_fmt, argcpy);
+			va_end(argcpy);
+		} else {
+			// treat as plain string
+			strl = u8_fmt;
+		}
+		// Checkout whether add EOL
+		if constexpr (bHasEOL) {
+			strl += "\n";
+		}
+
 #if YYCC_OS == YYCC_OS_WINDOWS
-
 		// call Windows specific writer
-		WinConsoleWrite(strl);
-
+		WinConsoleWrite(strl, bIsErr);
 #else
-
 		// in linux, directly use C function to write.
-		std::fputs(strl.c_str(), stdout);
-
+		std::fputs(strl.c_str(), to_stderr ? stderr : stdout);
 #endif
 	}
 
-	void Write(const char* u8_fmt, ...) {
+	void Format(const char* u8_fmt, ...) {
 		va_list argptr;
 		va_start(argptr, u8_fmt);
-		RawWrite(YYCC::StringHelper::VPrintf(u8_fmt, argptr));
+		RawWrite<true, false, false>(u8_fmt, argptr);
 		va_end(argptr);
 	}
 
-	void WriteLine(const char* u8_fmt, ...) {
+	void FormatLine(const char* u8_fmt, ...) {
 		va_list argptr;
 		va_start(argptr, u8_fmt);
-		std::string cache(YYCC::StringHelper::VPrintf(u8_fmt, argptr));
-		cache += "\n";
-		RawWrite(cache);
+		RawWrite<true, false, true>(u8_fmt, argptr);
 		va_end(argptr);
+	}
+
+	void Write(const char* u8_strl) {
+		RawWrite<false, false, false>(u8_strl, va_list());
+	}
+	
+	void WriteLine(const char* u8_strl) {
+		RawWrite<false, false, true>(u8_strl, va_list());
+	}
+	
+	void ErrFormat(const char* u8_fmt, ...) {
+		va_list argptr;
+		va_start(argptr, u8_fmt);
+		RawWrite<true, true, false>(u8_fmt, argptr);
+		va_end(argptr);
+	}
+
+	void ErrFormatLine(const char* u8_fmt, ...) {
+		va_list argptr;
+		va_start(argptr, u8_fmt);
+		RawWrite<true, true, true>(u8_fmt, argptr);
+		va_end(argptr);
+	}
+
+	void ErrWrite(const char* u8_strl) {
+		RawWrite<false, true, false>(u8_strl, va_list());
+	}
+	
+	void ErrWriteLine(const char* u8_strl) {
+		RawWrite<false, true, true>(u8_strl, va_list());
 	}
 
 }

@@ -7,9 +7,9 @@ namespace YYCCTestbench {
 
 	static void Assert(bool condition, const char* description) {
 		if (condition) {
-			Console::WriteLine(YYCC_COLOR_LIGHT_GREEN("OK: %s"), description);
+			Console::FormatLine(YYCC_COLOR_LIGHT_GREEN("OK: %s"), description);
 		} else {
-			Console::WriteLine(YYCC_COLOR_LIGHT_RED("Failed: %s\n"), description);
+			Console::FormatLine(YYCC_COLOR_LIGHT_RED("Failed: %s\n"), description);
 			std::abort();
 		}
 	}
@@ -51,13 +51,13 @@ namespace YYCCTestbench {
 			"\xF0\x9F\x8D\xA3 \xE2\x9C\x96 \xF0\x9F\x8D\xBA", // EMOJI
 		};
 		for (const auto* ptr : c_TestStrings) {
-			Console::WriteLine("\t%s", ptr);
+			Console::FormatLine("\t%s", ptr);
 		}
 
 		// UTF8 Input Test
 		Console::WriteLine("UTF8 Input Test:");
 		for (const auto* ptr : c_TestStrings) {
-			Console::WriteLine("\tPlease type: %s", ptr);
+			Console::FormatLine("\tPlease type: %s", ptr);
 			Console::Write("\t> ");
 
 			std::string gotten(Console::ReadLine());
@@ -198,27 +198,27 @@ namespace YYCCTestbench {
 		filters.Add("All Files (*.*)", {"*.*"});
 		params.SetDefaultFileTypeIndex(0u);
 		if (YYCC::DialogHelper::OpenFileDialog(params, ret)) {
-			Console::WriteLine("Open File: %s", ret.c_str());
+			Console::FormatLine("Open File: %s", ret.c_str());
 		}
 		if (YYCC::DialogHelper::OpenMultipleFileDialog(params, rets)) {
 			Console::WriteLine("Open Multiple Files:");
 			for (const auto& item : rets) {
-				Console::WriteLine("\t%s", item.c_str());
+				Console::FormatLine("\t%s", item.c_str());
 			}
 		}
 		if (YYCC::DialogHelper::SaveFileDialog(params, ret)) {
-			Console::WriteLine("Save File: %s", ret.c_str());
+			Console::FormatLine("Save File: %s", ret.c_str());
 		}
 		params.Clear();
 		if (YYCC::DialogHelper::OpenFolderDialog(params, ret)) {
-			Console::WriteLine("Open Folder: %s", ret.c_str());
+			Console::FormatLine("Open Folder: %s", ret.c_str());
 		}
 	}
 
 	static void WinFctTestbench() {
-		Console::WriteLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, YYCC::WinFctHelper::GetCurrentModule());
-		Console::WriteLine("Temp Directory: %s", YYCC::WinFctHelper::GetTempDirectory().c_str());
-		Console::WriteLine("Current Module Name: %s", YYCC::WinFctHelper::GetModuleName(YYCC::WinFctHelper::GetCurrentModule()).c_str());
+		Console::FormatLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, YYCC::WinFctHelper::GetCurrentModule());
+		Console::FormatLine("Temp Directory: %s", YYCC::WinFctHelper::GetTempDirectory().c_str());
+		Console::FormatLine("Current Module Name: %s", YYCC::WinFctHelper::GetModuleName(YYCC::WinFctHelper::GetCurrentModule()).c_str());
 	}
 
 }

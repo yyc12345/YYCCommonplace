@@ -4,8 +4,66 @@
 #include <cstdio>
 #include <string>
 
+/**
+ * @brief The namespace providing universal Console visiting functions like C-Sharp Console class.
+ * @details
+ * \par Why this Namespace
+ * Windows console doesn't support UTF8 very well.
+ * The standard input output functions can not work properly on Windows with UTF8.
+ * So we create this namespace and provide various console-related functions
+ * to patch Windows console and let it more like the console in other platforms.
+ * \par
+ * The function provided in this function can be called in any platforms.
+ * In Windows, the implementation will use Windows native function,
+ * and in other platform, the implementation will redirect request to standard C function
+ * like std::fputs and etc.
+ * So the programmer do not need to be worried about which function should they use,
+ * and don't need to use macro to use different IO function in different platforms.
+ * It is just enough that fully use the functions provided in this namespace.
+ * \par
+ * All IO functions this namespace provided are UTF8-based.
+ * It also means that input output string should always be UTF8 encoded.
+ * 
+ * \par Input Functions
+ * Please note that EOL will automatically converted into LF on Windows platform, not CRLF.
+ * This action actually is removing all CR chars in result string.
+ * This behavior affect nothing in most cases but it still is possible break something in some special case.
+ * \par
+ * Due to implementation, if you decide to use this function,
+ * you should give up using any other function to read stdin stream,
+ * such as std::gets() and std::cin.
+ * Because this function may read chars which is more than needed.
+ * These extra chars will be stored in this function and can be used next calling.
+ * But these chars can not be visited by stdin again.
+ * This behavior may cause bug.
+ * So if you decide using this function, stick on it and do not change.
+ * \par
+ * Due to implementation, this function do not support hot switch of stdin.
+ * It means that stdin can be redirected before first calling of this function,
+ * but it should not be redirected during program running.
+ * The reason is the same one introduced above.
+ * 
+ * \par Output Functions
+ * In current implementation, EOL will not be converted automatically to CRLF.
+ * This is different with other stream read functions provided in this namespace.
+ * \par
+ * Comparing with other stream read functions provided in this namespace,
+ * stream write function support hot switch of stdout and stderr.
+ * Because they do not have internal buffer storing something.
+ * \par
+ * In this namespace, there are various stream write function.
+ * There is a list telling you how to choose one from them for using:
+ * \li Functions with leading "Err" will write data into stderr,
+ * otherwise they will write data into stdout.
+ * \li Functions with embedded "Format" are output functions with format feature
+ * like std::fprintf(), otherwise the functions with embedded "Write" will
+ * only write plain string like std::fputs().
+ * \li Functions with trailing "Line" will write extra EOL to break current line.
+ * This is commonly used, otherwise functions will only write the text provided by arguments,
+ * without adding something.
+*/
 namespace YYCC::ConsoleHelper {
-	
+
 #define YYCC_COLORHDR_BLACK "\033[30m"
 #define YYCC_COLORHDR_RED "\033[31m"
 #define YYCC_COLORHDR_GREEN "\033[32m"
@@ -53,57 +111,65 @@ namespace YYCC::ConsoleHelper {
 	 * because we assume all terminals existing on other platform support color feature as default.
 	*/
 	bool EnableColorfulConsole();
-	
+
 	/**
 	 * @brief Universal console read function
-	 * @details This function is more like C# Console.ReadLine().
+	 * @return
+	 * The UTF8 encoded string this function read. EOL is excluded.
+	 * Empty string if user just press Enter key or function failed.
+	 * @remarks
+	 * This function is more like C# Console.ReadLine().
 	 * It read user input with UTF8 encoding until reaching EOL.
-	 * 
-	 * This function provide an universal, platform-independent way to read UTF8 string from console, 
-	 * no matter whether it is redirected.
-	 * @return The UTF8 encoded string this function read. EOL is excluded.
-	 * @remarks In Windows, this function will try use native Win32 function for reading,
-	 * because standard C/C++ function can not handle UTF8 input on Windows normally.
-	 * In other platforms, this function will redirect request to std::readline with std::cin,
-	 * which is all programmer commonly used method.
-	 * It also mean that we assume stdin is encoded by UTF8 on these platforms.
-	 * 
-	 * Please note that EOL will automatically converted into LF on Windows platform, not CRLF.
-	 * This action is actually remove all CR chars in result string.
-	 * 
+	 * \par
 	 * This function also can be used as ordering user press Enter key by
 	 * simply calling this function and ignoring its return value.
 	*/
 	std::string ReadLine();
+
 	/**
-	 * @brief Universal console write function
-	 * @details This function is more like C# Console.Write().
-	 * It write user given UTF8 string into console.
-	 * 
-	 * This function provide an universal, platform-independent way to write UTF8 string into console, 
-	 * no matter whether it is redirected.
-	 * @param u8_fmt[in] The format string.
-	 * If you just want to write a pure string, you should escape formatter chars (%) in this string,
-	 * because this function always take this parameter as a format string.
-	 * @param ...[in] The arguments to be formatted.
-	 * @remarks In Windows, this funcion will use native Win32 function for writing,
-	 * because standard C/C++ function can not handle UTF8 output on Windows normally.
-	 * In other platforms, this function will redirect request to std::fprintf with stdout,
-	 * which is all programmer commonly used method.
-	 * It also mean that we assume stdout is encoded by UTF8 on these platforms.
+	 * @brief Universal console write function with format feature.
+	 * @param[in] u8_fmt The format string.
+	 * @param[in] ... The arguments to be formatted.
 	*/
-	void Write(const char* u8_fmt, ...);
+	void Format(const char* u8_fmt, ...);
 	/**
-	 * @brief Universal console write function with automatic EOL
-	 * @details This function is same as Write(const char*, ...), 
-	 * but it will automatically add EOL in output to break line.
-	 * This is commonly used.
-	 * @param u8_fmt[in] The format string.
-	 * If you just want to write a pure string, you should escape formatter chars (%) in this string,
-	 * because this function always take this parameter as a format string.
-	 * If you want to output plain string, you need escape format 
-	 * @param ...[in] The arguments to be formatted.
+	 * @brief Universal console write function with format and auto EOL feature.
+	 * @param[in] u8_fmt The format string.
+	 * @param[in] ... The arguments to be formatted.
 	*/
-	void WriteLine(const char* u8_fmt, ...);
+	void FormatLine(const char* u8_fmt, ...);
+	/**
+	 * @brief Universal console write function.
+	 * @param[in] u8_strl The string to be written.
+	*/
+	void Write(const char* u8_strl);
+	/**
+	 * @brief Universal console write function with auto EOL feature.
+	 * @param[in] u8_strl The string to be written.
+	*/
+	void WriteLine(const char* u8_strl);
+
+	/**
+	 * @brief Universal console error write function with format and feature.
+	 * @param[in] u8_fmt The format string.
+	 * @param[in] ... The arguments to be formatted.
+	*/
+	void ErrFormat(const char* u8_fmt, ...);
+	/**
+	 * @brief Universal console error write function with format and auto EOL feature.
+	 * @param[in] u8_fmt The format string.
+	 * @param[in] ... The arguments to be formatted.
+	*/
+	void ErrFormatLine(const char* u8_fmt, ...);
+	/**
+	 * @brief Universal console error write function.
+	 * @param[in] u8_strl The string to be written.
+	*/
+	void ErrWrite(const char* u8_strl);
+	/**
+	 * @brief Universal console error write function with auto EOL feature.
+	 * @param[in] u8_strl The string to be written.
+	*/
+	void ErrWriteLine(const char* u8_strl);
 
 }

@@ -8,6 +8,13 @@
 #include <Windows.h>
 #include "WinImportSuffix.hpp"
 
+/**
+ * @brief The helper providing assistance to Win32 functions.
+ * @details
+ * This helper is Windows specific.
+ * If current environment is not Windows, 
+ * the whole namespace will disappear.
+*/
 namespace YYCC::WinFctHelper {
 	
 	/**
@@ -15,7 +22,7 @@ namespace YYCC::WinFctHelper {
 	 * @details
 	 * If your target is EXE, the current module simply is your program self.
 	 * However, if your target is DLL, the current module is your DLL, not the EXE loading your DLL.
-	 * \n
+	 * 
 	 * This function is frequently used by DLL.
 	 * Because some design need the HANDLE of current module, not the host EXE loading your DLL.
 	 * For example, you may want to get the name of your built DLL at runtime, then you should pass current module HANDLE, not the HANDLE of EXE.
@@ -32,9 +39,9 @@ namespace YYCC::WinFctHelper {
 
 	/**
 	 * @brief Get the file name of given module HANDLE
-	 * @param hModule[in] 
+	 * @param[in] hModule 
 	 * The HANDLE to the module where we want get file name.
-	 * It is same as the HANDLE parameter of GetModuleFileName.
+	 * It is same as the HANDLE parameter of \c GetModuleFileName.
 	 * @return UTF8 encoded file name of given module. Empty string if failed.
 	*/
 	std::string GetModuleName(HINSTANCE hModule);

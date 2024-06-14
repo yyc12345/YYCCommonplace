@@ -180,7 +180,7 @@ namespace YYCC::DialogHelper {
 	 * @return True if success, otherwise false.
 	 * @remarks This is an assist function of CommonFileDialog.
 	*/
-	bool ExtractDisplayName(IShellItem* item, std::string& ret) {
+	static bool ExtractDisplayName(IShellItem* item, std::string& ret) {
 		// fetch display name from IShellItem*
 		LPWSTR _name;
 		HRESULT hr = item->GetDisplayName(SIGDN_FILESYSPATH, &_name);
@@ -205,7 +205,7 @@ namespace YYCC::DialogHelper {
 	 * @remarks This function is the real underlying function of all dialog functions.
 	*/
 	template<CommonFileDialogType EDialogType>
-	bool CommonFileDialog(const FileDialog& params, std::vector<std::string>& ret) {
+	static bool CommonFileDialog(const FileDialog& params, std::vector<std::string>& ret) {
 		// Reference: https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
 		// prepare result variable
 		HRESULT hr;

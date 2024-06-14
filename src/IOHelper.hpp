@@ -14,7 +14,7 @@ namespace YYCC::IOHelper {
 	 * @details
 	 * When printing a pointer with HEX style, we always hope it can be left-padded with some zero for easy reading.
 	 * In different architecture, the size of this padding is differnet too so we create this macro.
-	 * \n
+	 * 
 	 * In 32-bit environment, it will be "08" meaning left pad zero until 8 number position.
 	 * In 64-bit environment, it will be "016" meaning left pad zero until 16 number position.
 	*/
@@ -25,8 +25,8 @@ namespace YYCC::IOHelper {
 
 	/**
 	 * @brief The UTF8 version of std::fopen.
-	 * @param u8_filepath[in] The UTF8 encoded path to the file to be opened.
-	 * @param u8_mode[in] UTF8 encoded mode string of the file to be opened.
+	 * @param[in] u8_filepath The UTF8 encoded path to the file to be opened.
+	 * @param[in] u8_mode UTF8 encoded mode string of the file to be opened.
 	 * @remarks
 	 * This function is suit for Windows because std::fopen do not support UTF8 on Windows.
 	 * On other platforms, this function will delegate request directly to std::fopen.
@@ -36,7 +36,7 @@ namespace YYCC::IOHelper {
 	
 	/**
 	 * @brief Build std::filesystem::path from UTF8 string.
-	 * @param u8_path[in] UTF8 path string for building this std::filesystem::path.
+	 * @param[in] u8_path UTF8 path string for building this std::filesystem::path.
 	 * @return std::filesystem::path instance.
 	 * @exception std::invalid_argument Fail to parse given UTF8 string (maybe invalid?).
 	 * @remarks
