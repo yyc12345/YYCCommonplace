@@ -9,6 +9,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/DialogHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/EncodingHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ExceptionHelper.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/FsPathPatch.hpp
     ${CMAKE_CURRENT_LIST_DIR}/IOHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ParserHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/StringHelper.hpp
@@ -25,6 +26,7 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/DialogHelper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/EncodingHelper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ExceptionHelper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/FsPathPatch.cpp
     ${CMAKE_CURRENT_LIST_DIR}/IOHelper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ParserHelper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/StringHelper.cpp
@@ -72,9 +74,11 @@ FILES
     ${CMAKE_CURRENT_LIST_DIR}/DialogHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/EncodingHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ExceptionHelper.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/FsPathPatch.hpp
     ${CMAKE_CURRENT_LIST_DIR}/IOHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ParserHelper.hpp
     ${CMAKE_CURRENT_LIST_DIR}/StringHelper.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/WinFctHelper.hpp
     # Windows including guard pair
     ${CMAKE_CURRENT_LIST_DIR}/WinImportPrefix.hpp
     ${CMAKE_CURRENT_LIST_DIR}/WinImportSuffix.hpp

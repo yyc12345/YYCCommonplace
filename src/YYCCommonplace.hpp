@@ -10,3 +10,4 @@
 #include "ExceptionHelper.hpp"
 #include "IOHelper.hpp"
 #include "WinFctHelper.hpp"
+#include "FsPathPatch.hpp"

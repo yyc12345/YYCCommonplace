@@ -32,22 +32,5 @@ namespace YYCC::IOHelper {
 #endif
 	}
 
-	std::filesystem::path UTF8Path(const char* u8_path) {
-#if YYCC_OS == YYCC_OS_WINDOWS
-
-		// convert path to wchar
-		std::wstring wpath;
-		if (!YYCC::EncodingHelper::UTF8ToWchar(u8_path, wpath))
-			throw std::invalid_argument("Fail to convert given UTF8 string.");
-
-		// call microsoft specified fopen which support wchar as argument.
-		return std::filesystem::path(wpath);
-
-#else
-		return std::filesystem::path(u8_path);
-#endif
-	}
-
-
 }
 

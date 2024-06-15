@@ -34,15 +34,4 @@ namespace YYCC::IOHelper {
 	*/
 	FILE* UTF8FOpen(const char* u8_filepath, const char* u8_mode);
 	
-	/**
-	 * @brief Build std::filesystem::path from UTF8 string.
-	 * @param[in] u8_path UTF8 path string for building this std::filesystem::path.
-	 * @return std::filesystem::path instance.
-	 * @exception std::invalid_argument Fail to parse given UTF8 string (maybe invalid?).
-	 * @remarks
-	 * This function is suit for Windows.
-	 * On other platforms, it will simply call the constructor of std::filesystem::path.
-	*/
-	std::filesystem::path UTF8Path(const char* u8_path);
-
 }
