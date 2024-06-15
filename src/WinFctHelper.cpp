@@ -16,7 +16,7 @@ namespace YYCC::WinFctHelper {
 		return hModule;
 	}
 
-	std::string GetTempDirectory() {
+	bool GetTempDirectory(std::string& ret) {
 		// create wchar buffer for receiving the temp path.
 		std::wstring wpath(MAX_PATH + 1u, L'\0');
 		DWORD expected_size;
@@ -25,9 +25,7 @@ namespace YYCC::WinFctHelper {
 		while (true) {
 			if ((expected_size = GetTempPathW(static_cast<DWORD>(wpath.size()), wpath.data())) == 0) {
 				// failed, set to empty
-				expected_size = 0;
-				// and break while
-				break;
+				return false;
 			}
 
 			if (expected_size > static_cast<DWORD>(wpath.size())) {
@@ -42,19 +40,18 @@ namespace YYCC::WinFctHelper {
 		// resize result
 		wpath.resize(expected_size);
 		// convert to utf8 and return
-		return YYCC::EncodingHelper::WcharToUTF8(wpath.c_str());
+		return YYCC::EncodingHelper::WcharToUTF8(wpath.c_str(), ret);
 	}
 
-	std::string GetModuleName(HINSTANCE hModule) {
+	bool GetModuleName(HINSTANCE hModule, std::string& ret) {
 		// create wchar buffer for receiving the temp path.
 		std::wstring wpath(MAX_PATH + 1u, L'\0');
 		DWORD copied_size;
 
 		while (true) {
 			if ((copied_size = GetModuleFileNameW(hModule, wpath.data(), static_cast<DWORD>(wpath.size()))) == 0) {
-				// failed, return empty string
-				copied_size = 0;
-				break;
+				// failed, return
+				return false;
 			}
 
 			// check insufficient buffer
@@ -70,7 +67,7 @@ namespace YYCC::WinFctHelper {
 		// resize result
 		wpath.resize(copied_size);
 		// convert to utf8 and return
-		return YYCC::EncodingHelper::WcharToUTF8(wpath.c_str());
+		return YYCC::EncodingHelper::WcharToUTF8(wpath.c_str(), ret);
 	}
 
 }

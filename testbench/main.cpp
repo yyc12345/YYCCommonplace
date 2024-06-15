@@ -217,8 +217,14 @@ namespace YYCCTestbench {
 
 	static void WinFctTestbench() {
 		Console::FormatLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, YYCC::WinFctHelper::GetCurrentModule());
-		Console::FormatLine("Temp Directory: %s", YYCC::WinFctHelper::GetTempDirectory().c_str());
-		Console::FormatLine("Current Module Name: %s", YYCC::WinFctHelper::GetModuleName(YYCC::WinFctHelper::GetCurrentModule()).c_str());
+
+		std::string test_temp;
+		Assert(YYCC::WinFctHelper::GetTempDirectory(test_temp), "YYCC::WinFctHelper::GetTempDirectory");
+		Console::FormatLine("Temp Directory: %s", test_temp.c_str());
+
+		std::string test_module_name;
+		Assert(YYCC::WinFctHelper::GetModuleName(YYCC::WinFctHelper::GetCurrentModule(), test_module_name), "YYCC::WinFctHelper::GetModuleName");
+		Console::FormatLine("Current Module Name: %s", test_module_name.c_str());
 	}
 
 }

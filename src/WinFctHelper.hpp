@@ -33,18 +33,22 @@ namespace YYCC::WinFctHelper {
 
 	/**
 	 * @brief Get path to Windows temp folder.
-	 * @return UTF8 encoded path to Windows temp folder. Empty string if failed.
+	 * @param[out] ret 
+	 * The variable receiving UTF8 encoded path to Windows temp folder.
+	 * @return True if success, otherwise false.
 	*/
-	std::string GetTempDirectory();
+	bool GetTempDirectory(std::string& ret);
 
 	/**
 	 * @brief Get the file name of given module HANDLE
 	 * @param[in] hModule 
 	 * The HANDLE to the module where we want get file name.
 	 * It is same as the HANDLE parameter of \c GetModuleFileName.
-	 * @return UTF8 encoded file name of given module. Empty string if failed.
+	 * @param[out] ret 
+	 * The variable receiving UTF8 encoded file name of given module.
+	 * @return True if success, otherwise false.
 	*/
-	std::string GetModuleName(HINSTANCE hModule);
+	bool GetModuleName(HINSTANCE hModule, std::string& ret);
 }
 
 #endif

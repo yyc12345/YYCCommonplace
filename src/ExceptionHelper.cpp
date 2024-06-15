@@ -2,6 +2,10 @@
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 #include "WinFctHelper.hpp"
+#include "ConsoleHelper.hpp"
+#include "StringHelper.hpp"
+#include "IOHelper.hpp"
+#include "EncodingHelper.hpp"
 #include <filesystem>
 #include <cstdarg>
 #include <cstdio>
@@ -13,7 +17,7 @@
 #include "WinImportSuffix.hpp"
 
 namespace YYCC::ExceptionHelper {
-	
+
 	/**
 	 * @brief True if the exception handler already registered, otherwise false.
 	 * @details
@@ -27,7 +31,7 @@ namespace YYCC::ExceptionHelper {
 	static bool g_IsRegistered = false;
 	/**
 	 * @brief True if a exception handler is running, otherwise false.
-	 * @details 
+	 * @details
 	 * This variable is served for blocking possible infinity recursive exception handling.
 	 * \n
 	 * When entering unhandled exception handler, we must check whether this variable is true.
@@ -36,7 +40,7 @@ namespace YYCC::ExceptionHelper {
 	 * Otherwise, this variable should be set to true indicating we are processing unhandled exception.
 	 * After processing exception, at the end of unhandled exception handler,
 	 * we should restore this value to false.
-	 * 
+	 *
 	*/
 	static bool g_IsProcessing = false;
 	/**
@@ -49,6 +53,11 @@ namespace YYCC::ExceptionHelper {
 
 #pragma region Exception Handler Implementation
 
+	/**
+	 * @brief Get human-readable exception string from given exception code.
+	 * @param[in] code Exception code
+	 * @return The const string pointer to corresponding exception explanation string.
+	*/
 	static const char* UExceptionGetCodeName(DWORD code) {
 		switch (code) {
 			case EXCEPTION_ACCESS_VIOLATION:
@@ -96,24 +105,50 @@ namespace YYCC::ExceptionHelper {
 		}
 	}
 
+	/**
+	 * @brief Backtrace used output function with format feature
+	 * @details
+	 * This function will format message first.
+	 * And write them into given file stream and stderr.
+	 * @param[in] fs 
+	 * The file stream where we write.
+	 * If it is nullptr, function will skip writing for file stream.
+	 * @param[in] fmt The format string.
+	 * @param[in] ... The argument to be formatted.
+	*/
 	static void UExceptionBacktraceFormatLine(std::FILE* fs, const char* fmt, ...) {
 		// write to file
-		va_list arg1;
-		va_start(arg1, fmt);
-		std::vfprintf(fs, fmt, arg1);
-		va_end(arg1);
-		// write to stdout
+		if (fs != nullptr) {
+			va_list arg1;
+			va_start(arg1, fmt);
+			std::vfprintf(fs, fmt, arg1);
+			std::fputs("\n", fs);
+			va_end(arg1);
+		}
+		// write to stderr
 		va_list arg2;
 		va_start(arg2, fmt);
-		std::vfprintf(stdout, fmt, arg2);
+		ConsoleHelper::ErrWriteLine(YYCC::StringHelper::VPrintf(fmt, arg2).c_str());
 		va_end(arg2);
 	}
 
+	/**
+	 * @brief Backtrace used output function
+	 * @details
+	 * This function will write given string into given file stream and stderr.
+	 * @param[in] fs 
+	 * The file stream where we write.
+	 * If it is nullptr, function will skip writing for file stream.
+	 * @param[in] strl The string to be written.
+	*/
 	static void UExceptionBacktraceWriteLine(std::FILE* fs, const char* strl) {
 		// write to file
-		std::fputs(strl, fs);
-		// write to stdout
-		std::fputs(strl, stdout);
+		if (fs != nullptr) {
+			std::fputs(strl, fs);
+			std::fputs("\n", fs);
+		}
+		// write to stderr
+		ConsoleHelper::ErrWriteLine(strl);
 	}
 
 	static void UExceptionBacktrace(FILE* fs, LPCONTEXT context, int maxdepth) {
@@ -126,8 +161,8 @@ namespace YYCC::ExceptionHelper {
 
 		// init symbol
 		if (!SymInitialize(process, 0, TRUE)) {
-			// fail to load. return
-			UExceptionBacktraceWriteLine(fs, "Lost symbol file!\n");
+			// fail to init. return
+			UExceptionBacktraceWriteLine(fs, "Fail to initialize symbol handle for process!");
 			return;
 		}
 
@@ -172,9 +207,6 @@ namespace YYCC::ExceptionHelper {
 		frame.AddrStack.Mode = AddrModeFlat;
 		frame.AddrFrame.Mode = AddrModeFlat;
 
-		// other variables
-		char module_name_raw[MAX_PATH];
-
 		// stack walker
 		while (StackWalk64(machine_type, process, thread, &frame, context,
 			0, SymFunctionTableAccess64, SymGetModuleBase64, 0)) {
@@ -187,14 +219,17 @@ namespace YYCC::ExceptionHelper {
 			}
 
 			// get module name
-			DWORD64 module_base = SymGetModuleBase64(process, frame.AddrPC.Offset);
-			const char* module_name = "[unknown module]";
-			if (module_base && GetModuleFileNameA((HINSTANCE)module_base, module_name_raw, MAX_PATH)) {
-				module_name = module_name_raw;
+			const char* module_name = "<unknown module>";
+			std::string module_name_raw;
+			DWORD64 module_base;
+			if (module_base = SymGetModuleBase64(process, frame.AddrPC.Offset)) {
+				if (WinFctHelper::GetModuleName((HINSTANCE)module_base, module_name_raw)) {
+					module_name = module_name_raw.c_str();
+				}
 			}
 
 			// get source file and line
-			const char* source_file = "[unknow_source_file]";
+			const char* source_file = "<unknown source>";
 			DWORD64 source_file_line = 0;
 			DWORD dwDisplacement;
 			IMAGEHLP_LINE64 winline;
@@ -205,9 +240,10 @@ namespace YYCC::ExceptionHelper {
 			}
 
 			// write to file
-			UExceptionBacktraceFormatLine(fs, "0x%016llx(rel: 0x%016llx)[%s]\t%s#%llu\n",
-				frame.AddrPC.Offset, frame.AddrPC.Offset - module_base, module_name,
-				source_file, source_file_line
+			UExceptionBacktraceFormatLine(fs, "0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "[%s+0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "]\t%s#L%" PRIu64 "\n",
+				frame.AddrPC.Offset, // memory adress
+				module_name, frame.AddrPC.Offset - module_base, // module name + relative address
+				source_file, source_file_line // source file + source line
 			);
 
 		}
@@ -218,13 +254,20 @@ namespace YYCC::ExceptionHelper {
 		SymCleanup(process);
 	}
 
-	static void UExceptionErrorLog(const std::wstring& filename, LPEXCEPTION_POINTERS info) {
+	static void UExceptionErrorLog(const std::string& u8_filename, LPEXCEPTION_POINTERS info) {
 
 	}
 
-	static void UExceptionCoreDump(LPCWSTR filename, LPEXCEPTION_POINTERS info) {
+	static void UExceptionCoreDump(const std::string& u8_filename, LPEXCEPTION_POINTERS info) {
+		// convert file encoding
+		std::wstring filename;
+		if (u8_filename.empty()) 
+			return; // if no given file name, return
+		if (!YYCC::EncodingHelper::UTF8ToWchar(u8_filename.c_str(), filename))
+			return; // if convertion failed, return
+
 		// open file and write
-		HANDLE hFile = CreateFileW(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE hFile = CreateFileW(filename.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (hFile != INVALID_HANDLE_VALUE) {
 			MINIDUMP_EXCEPTION_INFORMATION exception_info;
 			exception_info.ThreadId = GetCurrentThreadId();
@@ -241,6 +284,24 @@ namespace YYCC::ExceptionHelper {
 	}
 
 	static void UExceptionFetchRecordPath(std::wstring& log_path, std::wstring& coredump_path) {
+		// get self name first
+		std::string self_name;
+
+		std::filesystem::path ironpad_path;
+		WCHAR module_path[MAX_PATH];
+		std::memset(module_path, 0, sizeof(module_path));
+		if (GetModuleFileNameW(WinFctHelper::GetCurrentModule(), module_path, MAX_PATH) == 0) {
+			//goto failed;
+		}
+		ironpad_path = module_path;
+		ironpad_path = ironpad_path.parent_path();
+
+		// create 2 filename
+		auto logfilename = ironpad_path / "IronPad.log";
+		auto dmpfilename = ironpad_path / "IronPad.dmp";
+		ConsoleHelper::ErrWriteLine("");
+		ConsoleHelper::ErrFormatLine("Exception Log: %s\n", logfilename.string().c_str());
+		ConsoleHelper::ErrFormatLine("Exception Coredump: %s\n", dmpfilename.string().c_str());
 
 	}
 
@@ -302,7 +363,7 @@ namespace YYCC::ExceptionHelper {
 
 			// output minidump
 			{
-				UExceptionCoreDump(dmpfilename.wstring().c_str(), info);
+				//UExceptionCoreDump(dmpfilename.wstring().c_str(), info);
 			}
 
 		}
