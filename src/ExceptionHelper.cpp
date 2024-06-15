@@ -223,7 +223,7 @@ namespace YYCC::ExceptionHelper {
 			std::string module_name_raw;
 			DWORD64 module_base;
 			if (module_base = SymGetModuleBase64(process, frame.AddrPC.Offset)) {
-				if (WinFctHelper::GetModuleName((HINSTANCE)module_base, module_name_raw)) {
+				if (WinFctHelper::GetModuleFileName((HINSTANCE)module_base, module_name_raw)) {
 					module_name = module_name_raw.c_str();
 				}
 			}

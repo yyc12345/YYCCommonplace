@@ -163,9 +163,10 @@ namespace YYCC::ConsoleHelper {
 	bool EnableColorfulConsole() {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
-		if (!RawEnableColorfulConsole(stdout)) return false;
-		if (!RawEnableColorfulConsole(stderr)) return false;
-		return true;
+		bool ret = true;
+		ret &= RawEnableColorfulConsole(stdout);
+		ret &= RawEnableColorfulConsole(stderr);
+		return ret;
 
 #else
 

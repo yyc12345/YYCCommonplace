@@ -48,7 +48,7 @@ namespace YYCC::WinFctHelper {
 	 * The variable receiving UTF8 encoded file name of given module.
 	 * @return True if success, otherwise false.
 	*/
-	bool GetModuleName(HINSTANCE hModule, std::string& ret);
+	bool GetModuleFileName(HINSTANCE hModule, std::string& ret);
 }
 
 #endif

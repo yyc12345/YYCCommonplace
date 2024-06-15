@@ -43,7 +43,7 @@ namespace YYCC::WinFctHelper {
 		return YYCC::EncodingHelper::WcharToUTF8(wpath.c_str(), ret);
 	}
 
-	bool GetModuleName(HINSTANCE hModule, std::string& ret) {
+	bool GetModuleFileName(HINSTANCE hModule, std::string& ret) {
 		// create wchar buffer for receiving the temp path.
 		std::wstring wpath(MAX_PATH + 1u, L'\0');
 		DWORD copied_size;

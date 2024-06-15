@@ -15,5 +15,6 @@
 #undef GetClassName
 #undef LoadImage
 #undef GetTempPath
+#undef GetModuleFileName
 
 #endif
