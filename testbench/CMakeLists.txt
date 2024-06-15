@@ -3,7 +3,7 @@ add_executable(YYCCTestbench "")
 # Setup testbench sources
 target_sources(YYCCTestbench
 PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+    main.cpp
 )
 # Add YYCC as its library
 target_include_directories(YYCCTestbench

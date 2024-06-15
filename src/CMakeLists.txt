@@ -3,35 +3,40 @@ add_library(YYCCommonplace STATIC "")
 # Setup static library sources
 target_sources(YYCCommonplace
 PRIVATE
+    # Sources
+    ConsoleHelper.cpp
+    DialogHelper.cpp
+    EncodingHelper.cpp
+    ExceptionHelper.cpp
+    FsPathPatch.cpp
+    IOHelper.cpp
+    ParserHelper.cpp
+    StringHelper.cpp
+    WinFctHelper.cpp
+)
+target_sources(YYCCommonplace 
+PUBLIC
+FILE_SET HEADERS
+FILES
     # Headers
     # Common headers
-    ${CMAKE_CURRENT_LIST_DIR}/ConsoleHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/DialogHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/EncodingHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/ExceptionHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/FsPathPatch.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/IOHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/ParserHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/StringHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/WinFctHelper.hpp
+    ConsoleHelper.hpp
+    DialogHelper.hpp
+    EncodingHelper.hpp
+    ExceptionHelper.hpp
+    FsPathPatch.hpp
+    IOHelper.hpp
+    ParserHelper.hpp
+    StringHelper.hpp
+    WinFctHelper.hpp
     # Windows including guard pair
-    ${CMAKE_CURRENT_LIST_DIR}/WinImportPrefix.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/WinImportSuffix.hpp
+    WinImportPrefix.hpp
+    WinImportSuffix.hpp
     # Misc
-    ${CMAKE_CURRENT_LIST_DIR}/YYCCInternal.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/YYCCommonplace.hpp
-
-    # Sources
-    ${CMAKE_CURRENT_LIST_DIR}/ConsoleHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/DialogHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/EncodingHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/ExceptionHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/FsPathPatch.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/IOHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/ParserHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/StringHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/WinFctHelper.cpp
+    YYCCInternal.hpp
+    YYCCommonplace.hpp
 )
+
 # Setup header infomations
 target_include_directories(YYCCommonplace
 PUBLIC
@@ -65,25 +70,5 @@ install(TARGETS YYCCommonplace
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
-)
-# Install headers
-install(
-FILES
-    # Common headers
-    ${CMAKE_CURRENT_LIST_DIR}/ConsoleHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/DialogHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/EncodingHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/ExceptionHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/FsPathPatch.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/IOHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/ParserHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/StringHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/WinFctHelper.hpp
-    # Windows including guard pair
-    ${CMAKE_CURRENT_LIST_DIR}/WinImportPrefix.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/WinImportSuffix.hpp
-    # Misc
-    ${CMAKE_CURRENT_LIST_DIR}/YYCCInternal.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/YYCCommonplace.hpp
-DESTINATION include
+    FILE_SET HEADERS DESTINATION include
 )
