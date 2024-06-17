@@ -37,12 +37,16 @@ FILES
     YYCCInternal.hpp
     YYCCommonplace.hpp
 )
-
 # Setup header infomations
 target_include_directories(YYCCommonplace
 PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+)
+# Link with DbgHelp.lib on Windows
+target_link_libraries(YYCCommonplace
+PRIVATE
+    $<$<BOOL:${WIN32}>:DbgHelp.lib>
 )
 # Setup C++ standard
 set_target_properties(YYCCommonplace

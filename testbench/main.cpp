@@ -237,6 +237,10 @@ namespace YYCCTestbench {
 		std::string test_module_name;
 		Assert(YYCC::WinFctHelper::GetModuleFileName(YYCC::WinFctHelper::GetCurrentModule(), test_module_name), "YYCC::WinFctHelper::GetModuleFileName");
 		Console::FormatLine("Current Module File Name: %s", test_module_name.c_str());
+
+		std::string test_localappdata_path;
+		Assert(YYCC::WinFctHelper::GetLocalAppData(test_localappdata_path), "YYCC::WinFctHelper::GetLocalAppData");
+		Console::FormatLine("Local AppData: %s", test_localappdata_path.c_str());
 	}
 
 	static void FsPathPatch() {
@@ -266,7 +270,7 @@ int main(int argc, char** args) {
 	//YYCCTestbench::StringTestbench();
 	//YYCCTestbench::ParserTestbench();
 	//YYCCTestbench::DialogTestbench();
-	//YYCCTestbench::ExceptionTestbench();
+	YYCCTestbench::ExceptionTestbench();
 	//YYCCTestbench::WinFctTestbench();
 	//YYCCTestbench::FsPathPatch();
 }

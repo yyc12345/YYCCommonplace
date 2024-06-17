@@ -6,6 +6,7 @@
 #include "StringHelper.hpp"
 #include "IOHelper.hpp"
 #include "EncodingHelper.hpp"
+#include "FsPathPatch.hpp"
 #include <filesystem>
 #include <cstdarg>
 #include <cstdio>
@@ -106,17 +107,17 @@ namespace YYCC::ExceptionHelper {
 	}
 
 	/**
-	 * @brief Backtrace used output function with format feature
+	 * @brief Error log (including backtrace) used output function with format feature
 	 * @details
 	 * This function will format message first.
 	 * And write them into given file stream and stderr.
-	 * @param[in] fs 
+	 * @param[in] fs
 	 * The file stream where we write.
 	 * If it is nullptr, function will skip writing for file stream.
 	 * @param[in] fmt The format string.
 	 * @param[in] ... The argument to be formatted.
 	*/
-	static void UExceptionBacktraceFormatLine(std::FILE* fs, const char* fmt, ...) {
+	static void UExceptionErrLogFormatLine(std::FILE* fs, const char* fmt, ...) {
 		// write to file
 		if (fs != nullptr) {
 			va_list arg1;
@@ -133,15 +134,15 @@ namespace YYCC::ExceptionHelper {
 	}
 
 	/**
-	 * @brief Backtrace used output function
+	 * @brief Error log (including backtrace) used output function
 	 * @details
 	 * This function will write given string into given file stream and stderr.
-	 * @param[in] fs 
+	 * @param[in] fs
 	 * The file stream where we write.
 	 * If it is nullptr, function will skip writing for file stream.
 	 * @param[in] strl The string to be written.
 	*/
-	static void UExceptionBacktraceWriteLine(std::FILE* fs, const char* strl) {
+	static void UExceptionErrLogWriteLine(std::FILE* fs, const char* strl) {
 		// write to file
 		if (fs != nullptr) {
 			std::fputs(strl, fs);
@@ -162,7 +163,7 @@ namespace YYCC::ExceptionHelper {
 		// init symbol
 		if (!SymInitialize(process, 0, TRUE)) {
 			// fail to init. return
-			UExceptionBacktraceWriteLine(fs, "Fail to initialize symbol handle for process!");
+			UExceptionErrLogWriteLine(fs, "Fail to initialize symbol handle for process!");
 			return;
 		}
 
@@ -214,7 +215,7 @@ namespace YYCC::ExceptionHelper {
 			// depth breaker
 			--maxdepth;
 			if (maxdepth < 0) {
-				UExceptionBacktraceWriteLine(fs, "...\n");		// indicate there are some frames not listed
+				UExceptionErrLogWriteLine(fs, "...");		// indicate there are some frames not listed
 				break;
 			}
 
@@ -240,7 +241,7 @@ namespace YYCC::ExceptionHelper {
 			}
 
 			// write to file
-			UExceptionBacktraceFormatLine(fs, "0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "[%s+0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "]\t%s#L%" PRIu64 "\n",
+			UExceptionErrLogFormatLine(fs, "0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "[%s+0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "]\t%s#L%" PRIu64,
 				frame.AddrPC.Offset, // memory adress
 				module_name, frame.AddrPC.Offset - module_base, // module name + relative address
 				source_file, source_file_line // source file + source line
@@ -255,13 +256,44 @@ namespace YYCC::ExceptionHelper {
 	}
 
 	static void UExceptionErrorLog(const std::string& u8_filename, LPEXCEPTION_POINTERS info) {
+		// open file stream if we have file name
+		std::FILE* fs = nullptr;
+		if (!u8_filename.empty()) {
+			fs = IOHelper::UTF8FOpen(u8_filename.c_str(), "wb");
+		}
 
+		// record exception type first
+		PEXCEPTION_RECORD rec = info->ExceptionRecord;
+		UExceptionErrLogFormatLine(fs, "Unhandled exception occured at 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR ": %s (%" PRIu32 ").",
+			rec->ExceptionAddress,
+			UExceptionGetCodeName(rec->ExceptionCode),
+			rec->ExceptionCode
+		);
+
+		// special proc for 2 exceptions
+		if (rec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION || rec->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) {
+			if (rec->NumberParameters >= 2) {
+				const char* op =
+					rec->ExceptionInformation[0] == 0 ? "read" :
+					rec->ExceptionInformation[0] == 1 ? "written" : "executed";
+				UExceptionErrLogFormatLine(fs, "The data at memory address 0x%" PRI_XPTR_LEFT_PADDING PRIxPTR " could not be %s.",
+					rec->ExceptionInformation[1], op);
+			}
+		}
+
+		// output stacktrace
+		UExceptionBacktrace(fs, info->ContextRecord, 1024);
+
+		// close file if necessary
+		if (fs != nullptr) {
+			std::fclose(fs);
+		}
 	}
 
 	static void UExceptionCoreDump(const std::string& u8_filename, LPEXCEPTION_POINTERS info) {
 		// convert file encoding
 		std::wstring filename;
-		if (u8_filename.empty()) 
+		if (u8_filename.empty())
 			return; // if no given file name, return
 		if (!YYCC::EncodingHelper::UTF8ToWchar(u8_filename.c_str(), filename))
 			return; // if convertion failed, return
@@ -283,26 +315,55 @@ namespace YYCC::ExceptionHelper {
 		}
 	}
 
-	static void UExceptionFetchRecordPath(std::wstring& log_path, std::wstring& coredump_path) {
-		// get self name first
-		std::string self_name;
-
-		std::filesystem::path ironpad_path;
-		WCHAR module_path[MAX_PATH];
-		std::memset(module_path, 0, sizeof(module_path));
-		if (GetModuleFileNameW(WinFctHelper::GetCurrentModule(), module_path, MAX_PATH) == 0) {
-			//goto failed;
+	static bool UExceptionFetchRecordPath(std::string& log_path, std::string& coredump_path) {
+		// build two file names like: "module.dll.1234.log" and "module.dll.1234.dmp".
+		// "module.dll" is the name of current module. "1234" is current process id.
+		// get self module name
+		std::string u8_self_module_name;
+		{
+			// get module handle
+			HMODULE hSelfModule = YYCC::WinFctHelper::GetCurrentModule();
+			if (hSelfModule == nullptr)
+				return false;
+			// get full path of self module
+			std::string u8_self_module_path;
+			if (!YYCC::WinFctHelper::GetModuleFileName(hSelfModule, u8_self_module_path))
+				return false;
+			// extract file name from full path by std::filesystem::path
+			std::filesystem::path self_module_path(FsPathPatch::FromUTF8Path(u8_self_module_path.c_str()));
+			u8_self_module_name = FsPathPatch::ToUTF8Path(self_module_path.filename());
 		}
-		ironpad_path = module_path;
-		ironpad_path = ironpad_path.parent_path();
+		// then get process id
+		DWORD process_id = GetCurrentProcessId();
+		// conbine them as a file name prefix
+		std::string u8_filename_prefix;
+		if (!YYCC::StringHelper::Printf(u8_filename_prefix, "%s.%" PRIu32, u8_self_module_name.c_str(), process_id))
+			return false;
+		// then get file name for log and minidump
+		std::string u8_log_filename = u8_filename_prefix + ".log";
+		std::string u8_coredump_filename = u8_filename_prefix + ".dmp";
 
-		// create 2 filename
-		auto logfilename = ironpad_path / "IronPad.log";
-		auto dmpfilename = ironpad_path / "IronPad.dmp";
-		ConsoleHelper::ErrWriteLine("");
-		ConsoleHelper::ErrFormatLine("Exception Log: %s\n", logfilename.string().c_str());
-		ConsoleHelper::ErrFormatLine("Exception Coredump: %s\n", dmpfilename.string().c_str());
+		// fetch crash report path
+		// get local appdata folder
+		std::string u8_localappdata_path;
+		if (!WinFctHelper::GetLocalAppData(u8_localappdata_path))
+			return false;
+		// convert to std::filesystem::path
+		std::filesystem::path crash_report_path(FsPathPatch::FromUTF8Path(u8_localappdata_path.c_str()));
+		// slash into crash report folder
+		crash_report_path /= FsPathPatch::FromUTF8Path("CrashDumps");
+		// use create function to make sure it is existing
+		std::filesystem::create_directories(crash_report_path);
 
+		// build log path and coredump path
+		// build std::filesystem::path first
+		std::filesystem::path log_filepath = crash_report_path / FsPathPatch::FromUTF8Path(u8_log_filename.c_str());
+		std::filesystem::path coredump_filepath = crash_report_path / FsPathPatch::FromUTF8Path(u8_coredump_filename.c_str());
+		// output to result
+		log_path = FsPathPatch::ToUTF8Path(log_filepath);
+		coredump_path = FsPathPatch::ToUTF8Path(coredump_filepath);
+
+		return true;
 	}
 
 	static LONG WINAPI UExceptionImpl(LPEXCEPTION_POINTERS info) {
@@ -311,60 +372,27 @@ namespace YYCC::ExceptionHelper {
 		// start process
 		g_IsProcessing = true;
 
+		// core implementation
 		{
-			// get main folder first
-			std::filesystem::path ironpad_path;
-			WCHAR module_path[MAX_PATH];
-			std::memset(module_path, 0, sizeof(module_path));
-			if (GetModuleFileNameW(WinFctHelper::GetCurrentModule(), module_path, MAX_PATH) == 0) {
-				goto failed;
-			}
-			ironpad_path = module_path;
-			ironpad_path = ironpad_path.parent_path();
-
-			// create 2 filename
-			auto logfilename = ironpad_path / "IronPad.log";
-			auto dmpfilename = ironpad_path / "IronPad.dmp";
-			std::fputc('\n', stdout);
-			std::fprintf(stdout, "Exception Log: %s\n", logfilename.string().c_str());
-			std::fprintf(stdout, "Exception Coredump: %s\n", dmpfilename.string().c_str());
-
-			// output log file
-			{
-				std::FILE* fs = _wfopen(logfilename.wstring().c_str(), L"w");
-				if (fs == nullptr) {
-					goto failed;
-				}
-
-				// record exception type first
-				PEXCEPTION_RECORD rec = info->ExceptionRecord;
-				fprintf(fs, "Unhandled exception occured at 0x%08p: %s (%lu).\n",
-					rec->ExceptionAddress,
-					UExceptionGetCodeName(rec->ExceptionCode),
-					rec->ExceptionCode
-				);
-
-				// special proc for 2 exceptions
-				if (rec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION || rec->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) {
-					if (rec->NumberParameters >= 2) {
-						const char* op =
-							rec->ExceptionInformation[0] == 0 ? "read" :
-							rec->ExceptionInformation[0] == 1 ? "written" : "executed";
-						fprintf(fs, "The data at memory address 0x%016" PRIxPTR " could not be %s.\n",
-							rec->ExceptionInformation[1], op);
-					}
-				}
-
-				// output stacktrace
-				UExceptionBacktrace(fs, info->ContextRecord, 1024);
-
-				std::fclose(fs);
+			// fetch error report path first
+			std::string log_path, coredump_path;
+			if (!UExceptionFetchRecordPath(log_path, coredump_path)) {
+				// fail to fetch path, clear them.
+				// we still can handle crash without them
+				log_path.clear();
+				coredump_path.clear();
+				// and tell user we can not output file
+				ConsoleHelper::ErrWriteLine("Crash occurs, but we can not create crash log and coredump!");
+			} else {
+				// okey. output file path to tell user the path where you can find.
+				ConsoleHelper::ErrFormatLine("Crash Log: %s", log_path.c_str());
+				ConsoleHelper::ErrFormatLine("Crash Coredump: %s", coredump_path.c_str());
 			}
 
-			// output minidump
-			{
-				//UExceptionCoreDump(dmpfilename.wstring().c_str(), info);
-			}
+			// write crash log
+			UExceptionErrorLog(log_path, info);
+			// write crash coredump
+			UExceptionCoreDump(coredump_path, info);
 
 		}
 
