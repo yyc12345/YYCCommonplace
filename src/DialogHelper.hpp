@@ -2,10 +2,10 @@
 #include "YYCCInternal.hpp"
 #if YYCC_OS == YYCC_OS_WINDOWS
 
+#include "COMHelper.hpp"
 #include <string>
 #include <vector>
 #include <initializer_list>
-#include <memory>
 
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
@@ -13,44 +13,6 @@
 #include "WinImportSuffix.hpp"
 
 namespace YYCC::DialogHelper {
-
-#pragma region COM Pointer Management
-
-	/**
-	 * @brief C++ standard deleter for every COM interfaces inheriting IUnknown.
-	*/
-	class ComPtrDeleter {
-	public:
-		ComPtrDeleter() {}
-		void operator() (IUnknown* com_ptr) {
-			if (com_ptr != nullptr) {
-				com_ptr->Release();
-			}
-		}
-	};
-
-	using SmartIFileDialog = std::unique_ptr<IFileDialog, ComPtrDeleter>;
-	using SmartIFileOpenDialog = std::unique_ptr<IFileOpenDialog, ComPtrDeleter>;
-	using SmartIShellItem = std::unique_ptr<IShellItem, ComPtrDeleter>;
-	using SmartIShellItemArray = std::unique_ptr<IShellItemArray, ComPtrDeleter>;
-	using SmartIShellFolder = std::unique_ptr<IShellFolder, ComPtrDeleter>;
-
-	/**
-	 * @brief C++ standard deleter for almost raw pointer used in COM which need to be free by CoTaskMemFree()
-	*/
-	class CoTaskMemDeleter {
-	public:
-		CoTaskMemDeleter() {}
-		void operator() (void* com_ptr) {
-			if (com_ptr != nullptr) {
-				CoTaskMemFree(com_ptr);
-			}
-		}
-	};
-
-	using SmartLPWSTR = std::unique_ptr<std::remove_pointer_t<LPWSTR>, CoTaskMemDeleter>;
-
-#pragma endregion
 
 	/**
 	 * @brief The class represent the file types region in file dialog
@@ -169,7 +131,7 @@ namespace YYCC::DialogHelper {
 		UINT m_WinDefaultFileTypeIndex;
 		bool m_HasTitle, m_HasInitFileName;
 		std::wstring m_WinTitle, m_WinInitFileName;
-		SmartIShellItem m_WinInitDirectory;
+		COMHelper::SmartIShellItem m_WinInitDirectory;
 
 		void Clear() {
 			m_WinOwner = nullptr;

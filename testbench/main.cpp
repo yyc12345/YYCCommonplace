@@ -217,6 +217,16 @@ namespace YYCCTestbench {
 		}
 	}
 
+	static void ExceptionTestbench() {
+		YYCC::ExceptionHelper::Register();
+
+		// Perform a div zero exception.
+		int i = 1, j = 0;
+		int k = i / j;
+
+		YYCC::ExceptionHelper::Unregister();
+	}
+
 	static void WinFctTestbench() {
 		Console::FormatLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, YYCC::WinFctHelper::GetCurrentModule());
 
@@ -256,6 +266,7 @@ int main(int argc, char** args) {
 	//YYCCTestbench::StringTestbench();
 	//YYCCTestbench::ParserTestbench();
 	//YYCCTestbench::DialogTestbench();
+	//YYCCTestbench::ExceptionTestbench();
 	//YYCCTestbench::WinFctTestbench();
-	YYCCTestbench::FsPathPatch();
+	//YYCCTestbench::FsPathPatch();
 }

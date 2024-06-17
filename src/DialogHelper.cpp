@@ -6,43 +6,6 @@
 
 namespace YYCC::DialogHelper {
 
-#pragma region COM Guard
-
-	/**
-	 * @brief The guard for initialize COM environment.
-	 * @details This class will try initializing COM environment by calling CoInitialize when constructing,
-	 * and it also will try uninitializing COM environment when destructing.
-	 * If initialization failed, uninitialization will not be executed.
-	*/
-	class ComGuard {
-	public:
-		ComGuard() : m_HasInit(false) {
-			HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-			if (SUCCEEDED(hr)) m_HasInit = true;
-		}
-		~ComGuard() {
-			if (m_HasInit) {
-				CoUninitialize();
-			}
-		}
-
-	protected:
-		bool m_HasInit;
-	};
-
-	/**
-	 * @brief The instance of COM environment guard.
-	 * @details Dialog related function need COM environment,
-	 * so we need initializing COM environment when loading this module,
-	 * and uninitializing COM environment when we no longer use this module.
-	 * So we use a static instance in here.
-	 * And make it be const so no one can change it.
-	*/
-	static const ComGuard c_ComGuard;
-
-#pragma endregion
-
-
 #pragma region FileFilters
 
 	bool FileFilters::Add(const char* filter_name, std::initializer_list<const char*> il) {
@@ -185,7 +148,7 @@ namespace YYCC::DialogHelper {
 		LPWSTR _name;
 		HRESULT hr = item->GetDisplayName(SIGDN_FILESYSPATH, &_name);
 		if (FAILED(hr)) return false;
-		SmartLPWSTR display_name(_name);
+		COMHelper::SmartLPWSTR display_name(_name);
 
 		// convert result
 		if (!YYCC::EncodingHelper::WcharToUTF8(display_name.get(), ret))
@@ -235,7 +198,7 @@ namespace YYCC::DialogHelper {
 		);
 		if (FAILED(hr)) return false;
 		// create memory-safe dialog pointer
-		SmartIFileDialog pfd(_pfd);
+		COMHelper::SmartIFileDialog pfd(_pfd);
 
 		// set options for dialog
 		// before setting, always get the options first in order.
@@ -320,7 +283,7 @@ namespace YYCC::DialogHelper {
 				IShellItem* _item;
 				hr = pfd->GetResult(&_item);
 				if (FAILED(hr)) return false;
-				SmartIShellItem result_item(_item);
+				COMHelper::SmartIShellItem result_item(_item);
 
 				// extract display name
 				std::string result_name;
@@ -338,13 +301,13 @@ namespace YYCC::DialogHelper {
 				IFileOpenDialog* _pfod = nullptr;
 				hr = pfd->QueryInterface(IID_PPV_ARGS(&_pfod));
 				if (FAILED(hr)) return false;
-				SmartIFileOpenDialog pfod(_pfod);
+				COMHelper::SmartIFileOpenDialog pfod(_pfod);
 
 				// obtain multiple file entires
 				IShellItemArray* _items;
 				hr = pfod->GetResults(&_items);
 				if (FAILED(hr)) return false;
-				SmartIShellItemArray result_items(_items);
+				COMHelper::SmartIShellItemArray result_items(_items);
 
 				// analyze file entries
 				// get array count first
@@ -357,7 +320,7 @@ namespace YYCC::DialogHelper {
 					IShellItem* _item;;
 					hr = result_items->GetItemAt(i, &_item);
 					if (FAILED(hr)) return false;
-					SmartIShellItem result_item(_item);
+					COMHelper::SmartIShellItem result_item(_item);
 
 					// extract display name
 					std::string result_name;

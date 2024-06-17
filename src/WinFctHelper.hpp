@@ -49,6 +49,16 @@ namespace YYCC::WinFctHelper {
 	 * @return True if success, otherwise false.
 	*/
 	bool GetModuleFileName(HINSTANCE hModule, std::string& ret);
+
+	/**
+	 * @brief Get the path to LOCALAPPDATA.
+	 * @details LOCALAPPDATA usually was used as putting local app data files
+	 * @param[out] ret 
+	 * The variable receiving UTF8 encoded path to LOCALAPPDATA.
+	 * @return 
+	*/
+	bool GetLocalAppData(std::string& ret);
+
 }
 
 #endif

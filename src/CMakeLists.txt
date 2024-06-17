@@ -4,13 +4,13 @@ add_library(YYCCommonplace STATIC "")
 target_sources(YYCCommonplace
 PRIVATE
     # Sources
+    COMHelper.cpp
     ConsoleHelper.cpp
     DialogHelper.cpp
     EncodingHelper.cpp
     ExceptionHelper.cpp
     FsPathPatch.cpp
     IOHelper.cpp
-    ParserHelper.cpp
     StringHelper.cpp
     WinFctHelper.cpp
 )
@@ -20,6 +20,7 @@ FILE_SET HEADERS
 FILES
     # Headers
     # Common headers
+    COMHelper.hpp
     ConsoleHelper.hpp
     DialogHelper.hpp
     EncodingHelper.hpp

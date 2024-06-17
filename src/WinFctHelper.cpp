@@ -2,6 +2,7 @@
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 #include "EncodingHelper.hpp"
+#include "COMHelper.hpp"
 
 namespace YYCC::WinFctHelper {
 	
@@ -68,6 +69,17 @@ namespace YYCC::WinFctHelper {
 		wpath.resize(copied_size);
 		// convert to utf8 and return
 		return YYCC::EncodingHelper::WcharToUTF8(wpath.c_str(), ret);
+	}
+
+	bool GetLocalAppData(std::string& ret) {
+		// fetch path
+		LPWSTR _known_path;
+		HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, NULL, &_known_path);
+		if (FAILED(hr)) return false;
+		COMHelper::SmartLPWSTR known_path(_known_path);
+
+		// convert to utf8
+		return YYCC::EncodingHelper::WcharToUTF8(known_path.get(), ret);
 	}
 
 }
