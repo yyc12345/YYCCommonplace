@@ -71,7 +71,7 @@ namespace YYCC::EncodingHelper {
 #endif
 
 	template<typename _TChar, std::enable_if_t<std::is_same_v<_TChar, char16_t> || std::is_same_v<_TChar, char32_t>, int> = 0>
-	bool UTF8ToUTFOther(const char* src, std::basic_string<_TChar>& dest) {
+	static bool UTF8ToUTFOther(const char* src, std::basic_string<_TChar>& dest) {
 		// Reference: 
 		// https://zh.cppreference.com/w/cpp/string/multibyte/mbrtoc32
 		// https://zh.cppreference.com/w/cpp/string/multibyte/mbrtoc16
@@ -146,7 +146,7 @@ namespace YYCC::EncodingHelper {
 	}
 
 	template<typename _TChar, std::enable_if_t<std::is_same_v<_TChar, char16_t> || std::is_same_v<_TChar, char32_t>, int> = 0>
-	bool UTFOtherToUTF8(const _TChar* src, std::string& dest) {
+	static bool UTFOtherToUTF8(const _TChar* src, std::string& dest) {
 		// Reference:
 		// https://zh.cppreference.com/w/cpp/string/multibyte/c32rtomb
 		// https://zh.cppreference.com/w/cpp/string/multibyte/c16rtomb

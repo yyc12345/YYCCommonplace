@@ -12,8 +12,7 @@
  * @brief The helper providing assistance to Win32 functions.
  * @details
  * This helper is Windows specific.
- * If current environment is not Windows, 
- * the whole namespace will disappear.
+ * If current environment is not Windows, the whole namespace will be unavailable.
 */
 namespace YYCC::WinFctHelper {
 	

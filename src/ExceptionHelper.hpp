@@ -2,6 +2,16 @@
 #include "YYCCInternal.hpp"
 #if YYCC_OS == YYCC_OS_WINDOWS
 
+/**
+ * @brief Windows specific unhandled exception processor.
+ * @details
+ * This namespace is Windows specific. On other platforms, the whole namespace is unavailable.
+ * 
+ * This namespace allow user register unhandled exception handler on Windows
+ * to output error log into \c stderr and log file, and generate coredump if possible.
+ * This is useful for bug tracing on Windows, especially most Windows user are naive and don't know how to report bug.
+ * 
+*/
 namespace YYCC::ExceptionHelper {
 	
 	/**
@@ -15,7 +25,6 @@ namespace YYCC::ExceptionHelper {
 	 * in temp folder (for convenient debugging of developer when reporting bugs) if it can.
 	 * 
 	 * This function usually is called at the start of program.
-	 * @remarks This function is Windows only.
 	*/
 	void Register();
 	/**
@@ -27,7 +36,6 @@ namespace YYCC::ExceptionHelper {
 	 * You must call this function if you have called Register() before.
 	 * 
 	 * This function usually is called at the end of program.
-	 * @remarks This function is Windows only.
 	*/
 	void Unregister();
 

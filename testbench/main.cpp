@@ -4,7 +4,8 @@
 namespace Console = YYCC::ConsoleHelper;
 
 namespace YYCCTestbench {
-#pragma region UNICODE Test Data
+
+#pragma region Unicode Test Data
 
 	// UNICODE Test Strings
 	// Ref: https://stackoverflow.com/questions/478201/how-to-test-an-application-for-correct-encoding-e-g-utf-8
@@ -25,6 +26,7 @@ namespace YYCCTestbench {
 #define CPP_U8_LITERAL(strl) strl
 #define CPP_U16_LITERAL(strl) CONCAT(u, strl)
 #define CPP_U32_LITERAL(strl) CONCAT(U, strl)
+#define CPP_WSTR_LITERAL(strl) CONCAT(L, strl)
 
 	static std::vector<std::string> c_UTF8TestStrTable {
 		CPP_U8_LITERAL(TEST_UNICODE_STR_JAPAN),
@@ -39,6 +41,20 @@ namespace YYCCTestbench {
 		CPP_U8_LITERAL(TEST_UNICODE_STR_SPAIN),
 		CPP_U8_LITERAL(TEST_UNICODE_STR_MATHMATICS),
 		CPP_U8_LITERAL(TEST_UNICODE_STR_EMOJI),
+	};
+	static std::vector<std::wstring> c_WStrTestStrTable {
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_JAPAN),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_CHINA),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_KOREA),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_ISRAEL),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_EGYPT),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_GREECE),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_RUSSIA),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_THAILAND),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_FRANCE),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_SPAIN),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_MATHMATICS),
+		CPP_WSTR_LITERAL(TEST_UNICODE_STR_EMOJI),
 	};
 	static std::vector<std::u16string> c_UTF16TestStrTable {
 		CPP_U16_LITERAL(TEST_UNICODE_STR_JAPAN),
@@ -69,15 +85,13 @@ namespace YYCCTestbench {
 		CPP_U32_LITERAL(TEST_UNICODE_STR_EMOJI),
 	};
 
+#undef CPP_WSTR_LITERAL
 #undef CPP_U32_LITERAL
 #undef CPP_U16_LITERAL
 #undef CPP_U8_LITERAL
 #undef CONCAT
 
 #pragma endregion
-
-
-
 
 	static void Assert(bool condition, const char* description) {
 		if (condition) {
@@ -126,9 +140,10 @@ namespace YYCCTestbench {
 	}
 
 	static void EncodingTestbench() {
+		// get test tuple size
+		size_t count = c_UTF8TestStrTable.size();
 
 		// check the convertion between given string
-		size_t count = c_UTF8TestStrTable.size();
 		for (size_t i = 0u; i < count; ++i) {
 			// get item
 			const auto& u8str = c_UTF8TestStrTable[i];
@@ -141,17 +156,26 @@ namespace YYCCTestbench {
 			std::u32string u32cache;
 
 			// do convertion check
-			Assert(YYCC::EncodingHelper::UTF8ToUTF16(u8str.c_str(), u16cache), "YYCC::EncodingHelper::UTF8ToUTF16");
-			Assert(u16cache == u16str, "YYCC::EncodingHelper::UTF8ToUTF16");
+			Assert(YYCC::EncodingHelper::UTF8ToUTF16(u8str.c_str(), u16cache) && u16cache == u16str, "YYCC::EncodingHelper::UTF8ToUTF16");
+			Assert(YYCC::EncodingHelper::UTF8ToUTF32(u8str.c_str(), u32cache) && u32cache == u32str, "YYCC::EncodingHelper::UTF8ToUTF32");
 
-			Assert(YYCC::EncodingHelper::UTF8ToUTF32(u8str.c_str(), u32cache), "YYCC::EncodingHelper::UTF8ToUTF32");
-			Assert(u32cache == u32str, "YYCC::EncodingHelper::UTF8ToUTF32");
+			Assert(YYCC::EncodingHelper::UTF16ToUTF8(u16str.c_str(), u8cache) && u8cache == u8str, "YYCC::EncodingHelper::UTF16ToUTF8");
+			Assert(YYCC::EncodingHelper::UTF32ToUTF8(u32str.c_str(), u8cache) && u8cache == u8str, "YYCC::EncodingHelper::UTF32ToUTF8");
+		}
 
-			Assert(YYCC::EncodingHelper::UTF16ToUTF8(u16str.c_str(), u8cache), "YYCC::EncodingHelper::UTF16ToUTF8");
-			Assert(u8cache == u8str, "YYCC::EncodingHelper::UTF16ToUTF8");
+		// check wstring convertion on windows
+		for (size_t i = 0u; i < count; ++i) {
+			// get item
+			const auto& u8str = c_UTF8TestStrTable[i];
+			const auto& wstr = c_WStrTestStrTable[i];
 
-			Assert(YYCC::EncodingHelper::UTF32ToUTF8(u32str.c_str(), u8cache), "YYCC::EncodingHelper::UTF32ToUTF8");
-			Assert(u8cache == u8str, "YYCC::EncodingHelper::UTF32ToUTF8");
+			// create cache variables
+			std::string u8cache;
+			std::wstring wcache;
+
+			// do convertion check
+			Assert(YYCC::EncodingHelper::UTF8ToWchar(u8str.c_str(), wcache) && wcache == wstr, "YYCC::EncodingHelper::UTF8ToWchar");
+			Assert(YYCC::EncodingHelper::WcharToUTF8(wstr.c_str(), u8cache) && u8cache == u8str, "YYCC::EncodingHelper::WcharToUTF8");
 		}
 
 	}
