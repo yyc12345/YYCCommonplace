@@ -4,23 +4,80 @@
 namespace Console = YYCC::ConsoleHelper;
 
 namespace YYCCTestbench {
+#pragma region UNICODE Test Data
 
-	// UTF8 Test String Table
+	// UNICODE Test Strings
 	// Ref: https://stackoverflow.com/questions/478201/how-to-test-an-application-for-correct-encoding-e-g-utf-8
+#define TEST_UNICODE_STR_JAPAN "\u30E6\u30FC\u30B6\u30FC\u5225\u30B5\u30A4\u30C8"
+#define TEST_UNICODE_STR_CHINA "\u7B80\u4F53\u4E2D\u6587"
+#define TEST_UNICODE_STR_KOREA "\uD06C\uB85C\uC2A4 \uD50C\uB7AB\uD3FC\uC73C\uB85C"
+#define TEST_UNICODE_STR_ISRAEL "\u05DE\u05D3\u05D5\u05E8\u05D9\u05DD \u05DE\u05D1\u05D5\u05E7\u05E9\u05D9\u05DD"
+#define TEST_UNICODE_STR_EGYPT "\u0623\u0641\u0636\u0644 \u0627\u0644\u0628\u062D\u0648\u062B"
+#define TEST_UNICODE_STR_GREECE "\u03A3\u1F72 \u03B3\u03BD\u03C9\u03C1\u03AF\u03B6\u03C9 \u1F00\u03C0\u1F78"
+#define TEST_UNICODE_STR_RUSSIA "\u0414\u0435\u0441\u044F\u0442\u0443\u044E \u041C\u0435\u0436\u0434\u0443\u043D\u0430\u0440\u043E\u0434\u043D\u0443\u044E"
+#define TEST_UNICODE_STR_THAILAND "\u0E41\u0E1C\u0E48\u0E19\u0E14\u0E34\u0E19\u0E2E\u0E31\u0E48\u0E19\u0E40\u0E2A\u0E37\u0E48\u0E2D\u0E21\u0E42\u0E17\u0E23\u0E21\u0E41\u0E2A\u0E19\u0E2A\u0E31\u0E07\u0E40\u0E27\u0E0A"
+#define TEST_UNICODE_STR_FRANCE "fran\u00E7ais langue \u00E9trang\u00E8re"
+#define TEST_UNICODE_STR_SPAIN "ma\u00F1ana ol\u00E9"
+#define TEST_UNICODE_STR_MATHMATICS "\u222E E\u22C5da = Q,  n \u2192 \u221E, \u2211 f(i) = \u220F g(i)"
+#define TEST_UNICODE_STR_EMOJI "\U0001F363 \u2716 \U0001F37A" // sushi x beer mug
+
+#define CONCAT(prefix, strl) prefix ## strl
+#define CPP_U8_LITERAL(strl) strl
+#define CPP_U16_LITERAL(strl) CONCAT(u, strl)
+#define CPP_U32_LITERAL(strl) CONCAT(U, strl)
+
 	static std::vector<std::string> c_UTF8TestStrTable {
-		"\u30E6\u30FC\u30B6\u30FC\u5225\u30B5\u30A4\u30C8", // JAPAN
-		"\u7B80\u4F53\u4E2D\u6587", // CHINA
-		"\uD06C\uB85C\uC2A4 \uD50C\uB7AB\uD3FC\uC73C\uB85C", // KOREA
-		"\u05DE\u05D3\u05D5\u05E8\u05D9\u05DD \u05DE\u05D1\u05D5\u05E7\u05E9\u05D9\u05DD", // ISRAEL
-		"\u0623\u0641\u0636\u0644 \u0627\u0644\u0628\u062D\u0648\u062B", // EGYPT
-		"\u03A3\u1F72 \u03B3\u03BD\u03C9\u03C1\u03AF\u03B6\u03C9 \u1F00\u03C0\u1F78", // GREECE
-		"\u0414\u0435\u0441\u044F\u0442\u0443\u044E \u041C\u0435\u0436\u0434\u0443\u043D\u0430\u0440\u043E\u0434\u043D\u0443\u044E", // RUSSIA
-		"\u0E41\u0E1C\u0E48\u0E19\u0E14\u0E34\u0E19\u0E2E\u0E31\u0E48\u0E19\u0E40\u0E2A\u0E37\u0E48\u0E2D\u0E21\u0E42\u0E17\u0E23\u0E21\u0E41\u0E2A\u0E19\u0E2A\u0E31\u0E07\u0E40\u0E27\u0E0A", // THAILAND
-		"fran\u00E7ais langue \u00E9trang\u00E8re", // FRANCE
-		"ma\u00F1ana ol\u00E9", // SPAIN
-		"\u222E E\u22C5da = Q,  n \u2192 \u221E, \u2211 f(i) = \u220F g(i)", // MATHMATICS
-		"\xF0\x9F\x8D\xA3 \xE2\x9C\x96 \xF0\x9F\x8D\xBA", // EMOJI
+		CPP_U8_LITERAL(TEST_UNICODE_STR_JAPAN),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_CHINA),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_KOREA),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_ISRAEL),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_EGYPT),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_GREECE),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_RUSSIA),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_THAILAND),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_FRANCE),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_SPAIN),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_MATHMATICS),
+		CPP_U8_LITERAL(TEST_UNICODE_STR_EMOJI),
 	};
+	static std::vector<std::u16string> c_UTF16TestStrTable {
+		CPP_U16_LITERAL(TEST_UNICODE_STR_JAPAN),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_CHINA),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_KOREA),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_ISRAEL),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_EGYPT),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_GREECE),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_RUSSIA),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_THAILAND),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_FRANCE),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_SPAIN),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_MATHMATICS),
+		CPP_U16_LITERAL(TEST_UNICODE_STR_EMOJI),
+	};
+	static std::vector<std::u32string> c_UTF32TestStrTable {
+		CPP_U32_LITERAL(TEST_UNICODE_STR_JAPAN),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_CHINA),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_KOREA),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_ISRAEL),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_EGYPT),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_GREECE),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_RUSSIA),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_THAILAND),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_FRANCE),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_SPAIN),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_MATHMATICS),
+		CPP_U32_LITERAL(TEST_UNICODE_STR_EMOJI),
+	};
+
+#undef CPP_U32_LITERAL
+#undef CPP_U16_LITERAL
+#undef CPP_U8_LITERAL
+#undef CONCAT
+
+#pragma endregion
+
+
+
 
 	static void Assert(bool condition, const char* description) {
 		if (condition) {
@@ -64,6 +121,37 @@ namespace YYCCTestbench {
 
 			std::string gotten(Console::ReadLine());
 			Assert(gotten == strl, YYCC::StringHelper::Printf("Got: %s", gotten.c_str()).c_str());
+		}
+
+	}
+
+	static void EncodingTestbench() {
+
+		// check the convertion between given string
+		size_t count = c_UTF8TestStrTable.size();
+		for (size_t i = 0u; i < count; ++i) {
+			// get item
+			const auto& u8str = c_UTF8TestStrTable[i];
+			const auto& u16str = c_UTF16TestStrTable[i];
+			const auto& u32str = c_UTF32TestStrTable[i];
+
+			// create cache variables
+			std::string u8cache;
+			std::u16string u16cache;
+			std::u32string u32cache;
+
+			// do convertion check
+			Assert(YYCC::EncodingHelper::UTF8ToUTF16(u8str.c_str(), u16cache), "YYCC::EncodingHelper::UTF8ToUTF16");
+			Assert(u16cache == u16str, "YYCC::EncodingHelper::UTF8ToUTF16");
+
+			Assert(YYCC::EncodingHelper::UTF8ToUTF32(u8str.c_str(), u32cache), "YYCC::EncodingHelper::UTF8ToUTF32");
+			Assert(u32cache == u32str, "YYCC::EncodingHelper::UTF8ToUTF32");
+
+			Assert(YYCC::EncodingHelper::UTF16ToUTF8(u16str.c_str(), u8cache), "YYCC::EncodingHelper::UTF16ToUTF8");
+			Assert(u8cache == u8str, "YYCC::EncodingHelper::UTF16ToUTF8");
+
+			Assert(YYCC::EncodingHelper::UTF32ToUTF8(u32str.c_str(), u8cache), "YYCC::EncodingHelper::UTF32ToUTF8");
+			Assert(u8cache == u8str, "YYCC::EncodingHelper::UTF32ToUTF8");
 		}
 
 	}
@@ -267,10 +355,11 @@ namespace YYCCTestbench {
 
 int main(int argc, char** args) {
 	//YYCCTestbench::ConsoleTestbench();
+	YYCCTestbench::EncodingTestbench();
 	//YYCCTestbench::StringTestbench();
 	//YYCCTestbench::ParserTestbench();
 	//YYCCTestbench::DialogTestbench();
-	YYCCTestbench::ExceptionTestbench();
+	//YYCCTestbench::ExceptionTestbench();
 	//YYCCTestbench::WinFctTestbench();
 	//YYCCTestbench::FsPathPatch();
 }
