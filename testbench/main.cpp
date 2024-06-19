@@ -164,6 +164,7 @@ namespace YYCCTestbench {
 		}
 
 		// check wstring convertion on windows
+#if YYCC_OS == YYCC_OS_WINDOWS
 		for (size_t i = 0u; i < count; ++i) {
 			// get item
 			const auto& u8str = c_UTF8TestStrTable[i];
@@ -177,6 +178,7 @@ namespace YYCCTestbench {
 			Assert(YYCC::EncodingHelper::UTF8ToWchar(u8str.c_str(), wcache) && wcache == wstr, "YYCC::EncodingHelper::UTF8ToWchar");
 			Assert(YYCC::EncodingHelper::WcharToUTF8(wstr.c_str(), u8cache) && u8cache == u8str, "YYCC::EncodingHelper::WcharToUTF8");
 		}
+#endif
 
 	}
 
@@ -300,6 +302,8 @@ namespace YYCCTestbench {
 	}
 
 	static void DialogTestbench() {
+#if YYCC_OS == YYCC_OS_WINDOWS
+
 		std::string ret;
 		std::vector<std::string> rets;
 
@@ -327,9 +331,13 @@ namespace YYCCTestbench {
 		if (YYCC::DialogHelper::OpenFolderDialog(params, ret)) {
 			Console::FormatLine("Open Folder: %s", ret.c_str());
 		}
+
+#endif
 	}
 
 	static void ExceptionTestbench() {
+#if YYCC_OS == YYCC_OS_WINDOWS
+
 		YYCC::ExceptionHelper::Register();
 
 		// Perform a div zero exception.
@@ -337,9 +345,13 @@ namespace YYCCTestbench {
 		int k = i / j;
 
 		YYCC::ExceptionHelper::Unregister();
+
+#endif
 	}
 
 	static void WinFctTestbench() {
+#if YYCC_OS == YYCC_OS_WINDOWS
+
 		Console::FormatLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, YYCC::WinFctHelper::GetCurrentModule());
 
 		std::string test_temp;
@@ -353,6 +365,8 @@ namespace YYCCTestbench {
 		std::string test_localappdata_path;
 		Assert(YYCC::WinFctHelper::GetLocalAppData(test_localappdata_path), "YYCC::WinFctHelper::GetLocalAppData");
 		Console::FormatLine("Local AppData: %s", test_localappdata_path.c_str());
+
+#endif
 	}
 
 	static void FsPathPatch() {
