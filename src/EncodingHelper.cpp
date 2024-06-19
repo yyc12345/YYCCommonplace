@@ -1,6 +1,7 @@
 #include "EncodingHelper.hpp"
 
 #include <cuchar>
+#include <climits>
 
 namespace YYCC::EncodingHelper {
 

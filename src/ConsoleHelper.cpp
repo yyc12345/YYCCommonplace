@@ -171,7 +171,7 @@ namespace YYCC::ConsoleHelper {
 #else
 
 		// just return true and do nothing
-		return true
+		return true;
 
 #endif
 	}
@@ -226,7 +226,7 @@ namespace YYCC::ConsoleHelper {
 		WinConsoleWrite(strl, bIsErr);
 #else
 		// in linux, directly use C function to write.
-		std::fputs(strl.c_str(), to_stderr ? stderr : stdout);
+		std::fputs(strl.c_str(), bIsErr ? stderr : stdout);
 #endif
 	}
 
@@ -245,11 +245,13 @@ namespace YYCC::ConsoleHelper {
 	}
 
 	void Write(const char* u8_strl) {
-		RawWrite<false, false, false>(u8_strl, va_list());
+		va_list empty;
+		RawWrite<false, false, false>(u8_strl, empty);
 	}
 	
 	void WriteLine(const char* u8_strl) {
-		RawWrite<false, false, true>(u8_strl, va_list());
+		va_list empty;
+		RawWrite<false, false, true>(u8_strl, empty);
 	}
 	
 	void ErrFormat(const char* u8_fmt, ...) {
@@ -267,11 +269,13 @@ namespace YYCC::ConsoleHelper {
 	}
 
 	void ErrWrite(const char* u8_strl) {
-		RawWrite<false, true, false>(u8_strl, va_list());
+		va_list empty;
+		RawWrite<false, true, false>(u8_strl, empty);
 	}
 	
 	void ErrWriteLine(const char* u8_strl) {
-		RawWrite<false, true, true>(u8_strl, va_list());
+		va_list empty;
+		RawWrite<false, true, true>(u8_strl, empty);
 	}
 
 }

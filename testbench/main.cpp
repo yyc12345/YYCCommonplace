@@ -23,7 +23,7 @@ namespace YYCCTestbench {
 #define TEST_UNICODE_STR_EMOJI "\U0001F363 \u2716 \U0001F37A" // sushi x beer mug
 
 #define CONCAT(prefix, strl) prefix ## strl
-#define CPP_U8_LITERAL(strl) strl
+#define CPP_U8_LITERAL(strl) reinterpret_cast<const char*>(CONCAT(u8, strl))
 #define CPP_U16_LITERAL(strl) CONCAT(u, strl)
 #define CPP_U32_LITERAL(strl) CONCAT(U, strl)
 #define CPP_WSTR_LITERAL(strl) CONCAT(L, strl)
@@ -394,10 +394,10 @@ namespace YYCCTestbench {
 int main(int argc, char** args) {
 	//YYCCTestbench::ConsoleTestbench();
 	YYCCTestbench::EncodingTestbench();
-	//YYCCTestbench::StringTestbench();
-	//YYCCTestbench::ParserTestbench();
-	//YYCCTestbench::DialogTestbench();
-	//YYCCTestbench::ExceptionTestbench();
-	//YYCCTestbench::WinFctTestbench();
-	//YYCCTestbench::FsPathPatch();
+	YYCCTestbench::StringTestbench();
+	YYCCTestbench::ParserTestbench();
+	YYCCTestbench::DialogTestbench();
+	YYCCTestbench::ExceptionTestbench();
+	YYCCTestbench::WinFctTestbench();
+	YYCCTestbench::FsPathPatch();
 }
