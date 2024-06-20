@@ -1,7 +1,6 @@
 #include "EncodingHelper.hpp"
 
-#include <cuchar>
-#include <climits>
+#include <locale>
 
 namespace YYCC::EncodingHelper {
 
@@ -71,61 +70,49 @@ namespace YYCC::EncodingHelper {
 
 #endif
 
+#if defined(__cpp_char8_t)
+	using CodecvtUTF8Char_t = char8_t;
+#else
+	using CodecvtUTF8Char_t = char;
+#endif
 	template<typename _TChar, std::enable_if_t<std::is_same_v<_TChar, char16_t> || std::is_same_v<_TChar, char32_t>, int> = 0>
-	static bool UTF8ToUTFOther(const char* src, std::basic_string<_TChar>& dest) {
-		// Reference: 
-		// https://zh.cppreference.com/w/cpp/string/multibyte/mbrtoc32
-		// https://zh.cppreference.com/w/cpp/string/multibyte/mbrtoc16
-		// https://learn.microsoft.com/zh-cn/cpp/c-runtime-library/reference/mbrtoc16-mbrtoc323?view=msvc-170
-		// 
-		// Due to the same reason introduced in UTFOtherToUTF8,
-		// we use these function as convertion function.
+	using CodecvtFacet_t = std::codecvt<_TChar, CodecvtUTF8Char_t, std::mbstate_t>;
+
+	template<typename _TChar, std::enable_if_t<std::is_same_v<_TChar, char16_t> || std::is_same_v<_TChar, char32_t>, int> = 0>
+	static bool UTF8ToUTFOther(const char* _src, std::basic_string<_TChar>& dest) {
+		// Reference:
+		// https://zh.cppreference.com/w/cpp/locale/codecvt/in
 		
 		// init src string
-		if (src == nullptr) return false;
-		std::string src_string(src);
-		// init result string
-		dest.clear();
+		if (_src == nullptr) return false;
+		std::string src(_src);
 
-		// init essential cvt variables
-		std::mbstate_t state {};
-		_TChar c1632;
-		const char* ptr = src_string.c_str();
-		const char* end = src_string.c_str() + src_string.size() + 1;
+		// init locale and get codecvt facet
+		// same reason in UTFOtherToUTF8 to keeping reference to locale
+		const auto& this_locale = std::locale::classic();
+		const auto& this_codecvt = std::use_facet<CodecvtFacet_t<_TChar>>(this_locale);
+		
+		// convertion preparation
+		std::mbstate_t mb{};
+		dest.resize(src.size());
+		const CodecvtUTF8Char_t* intern_from = reinterpret_cast<const CodecvtUTF8Char_t*>(src.c_str()),
+			*intern_from_end = reinterpret_cast<const CodecvtUTF8Char_t*>(src.c_str() + src.size()),
+			*intern_from_next = nullptr;
+		_TChar* extern_to = dest.data(),
+			*extern_to_end = dest.data() + dest.size(),
+			*extern_to_next = nullptr;
+		// do convertion
+		auto result = this_codecvt.in(
+			mb,
+			intern_from, intern_from_end, intern_from_next,
+			extern_to, extern_to_end, extern_to_next
+		);
 
-		// start convertion
-		while (true) {
-			// do convertion
-			size_t rc;
-			if constexpr (std::is_same_v<_TChar, char16_t>) {
-				rc = std::mbrtoc16(&c1632, ptr, end - ptr, &state);
-			} else {
-				rc = std::mbrtoc32(&c1632, ptr, end - ptr, &state);
-			}
-			if (!rc) break;
-
-			// check result
-			if (rc == static_cast<size_t>(-1)) {
-				// encoding error, return false
-				return false;
-			} else if (rc == static_cast<size_t>(-2)) {
-				// insufficient sequence, return false
-				return false;
-			} else if (rc == static_cast<size_t>(-3)) {
-				// UTF16 pair case (usually is emoji, one emoji is represented by 2 UTF16)
-				// 
-				// only push result char but do not increase pointer
-				// because this char is output from state.
-				dest.push_back(c1632);
-			} else {
-				// normal case
-				// append to result
-				dest.push_back(c1632);
-				// inc ptr
-				ptr += rc;
-			}
-		}
-
+		// check result
+		if (result != CodecvtFacet_t<_TChar>::ok)
+			return false;
+		// resize result and return
+		dest.resize(extern_to_next - dest.data());
 		return true;
 	}
 
@@ -147,40 +134,41 @@ namespace YYCC::EncodingHelper {
 	}
 
 	template<typename _TChar, std::enable_if_t<std::is_same_v<_TChar, char16_t> || std::is_same_v<_TChar, char32_t>, int> = 0>
-	static bool UTFOtherToUTF8(const _TChar* src, std::string& dest) {
+	static bool UTFOtherToUTF8(const _TChar* _src, std::string& dest) {
 		// Reference:
-		// https://zh.cppreference.com/w/cpp/string/multibyte/c32rtomb
-		// https://zh.cppreference.com/w/cpp/string/multibyte/c16rtomb
-		// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/c16rtomb-c32rtomb1?view=msvc-170
-		// 
-		// Due to Microsoft implementation, c16rtomb and c32rtomb 
-		// always convert UTF32 and UTF16 string into UTF8 string no matter current c locale.
-		// At the same time, most Linux use UTF8 as their locale.
-		// So using c16rtomb and c32rtomb do the convertion from UTF32 or UTF16 to UTF8 is reasonable.
-
+		// https://zh.cppreference.com/w/cpp/locale/codecvt/out
+		
 		// initialize src string
-		if (src == nullptr) return false;
-		std::basic_string<_TChar> src_string(src);
-		// init result string
-		dest.clear();
+		if (_src == nullptr) return false;
+		std::basic_string<_TChar> src(_src);
 
-		// init essential cvt variables
-		std::mbstate_t state {};
-		char out[MB_LEN_MAX] {};
-		for (_TChar c : src_string) {
-			// do convertion
-			std::size_t rc;
-			if constexpr (std::is_same_v<_TChar, char16_t>) {
-				rc = std::c16rtomb(out, c, &state);
-			} else {
-				rc = std::c32rtomb(out, c, &state);
-			}
-			// convertion failed
-			if (rc == static_cast<size_t>(-1)) return false;
-			// otherwise append result
-			dest.append(out, rc);
-		}
+		// init locale and get codecvt facet
+		// the reference to locale must be preserved until convertion done.
+		// because the life time of codecvt facet is equal to the reference to locale.
+		const auto& this_locale = std::locale::classic();
+		const auto& this_codecvt = std::use_facet<CodecvtFacet_t<_TChar>>(this_locale);
 
+		// do convertion preparation
+		std::mbstate_t mb{};
+		dest.resize(src.size() * this_codecvt.max_length());
+		const _TChar* intern_from = src.c_str(),
+			*intern_from_end = src.c_str() + src.size(),
+			*intern_from_next = nullptr;
+		CodecvtUTF8Char_t* extern_to = reinterpret_cast<CodecvtUTF8Char_t*>(dest.data()),
+			*extern_to_end = reinterpret_cast<CodecvtUTF8Char_t*>(dest.data() + dest.size()),
+			*extern_to_next = nullptr;
+		// do convertion
+		auto result = this_codecvt.out(
+			mb,
+			intern_from, intern_from_end, intern_from_next,
+			extern_to, extern_to_end, extern_to_next
+		);
+
+		// check result
+		if (result != CodecvtFacet_t<_TChar>::ok)
+			return false;
+		// resize result and retuen
+		dest.resize(extern_to_next - reinterpret_cast<CodecvtUTF8Char_t*>(dest.data()));
 		return true;
 	}
 

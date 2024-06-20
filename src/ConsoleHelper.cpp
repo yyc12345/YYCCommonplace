@@ -245,12 +245,12 @@ namespace YYCC::ConsoleHelper {
 	}
 
 	void Write(const char* u8_strl) {
-		va_list empty;
+		va_list empty{};
 		RawWrite<false, false, false>(u8_strl, empty);
 	}
 	
 	void WriteLine(const char* u8_strl) {
-		va_list empty;
+		va_list empty{};
 		RawWrite<false, false, true>(u8_strl, empty);
 	}
 	
@@ -269,12 +269,12 @@ namespace YYCC::ConsoleHelper {
 	}
 
 	void ErrWrite(const char* u8_strl) {
-		va_list empty;
+		va_list empty{};
 		RawWrite<false, true, false>(u8_strl, empty);
 	}
 	
 	void ErrWriteLine(const char* u8_strl) {
-		va_list empty;
+		va_list empty{};
 		RawWrite<false, true, true>(u8_strl, empty);
 	}
 

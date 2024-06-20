@@ -21,6 +21,10 @@ namespace YYCC::COMHelper {
 			}
 		}
 
+		bool IsInitialized() const {
+			return m_HasInit;
+		}
+
 	protected:
 		bool m_HasInit;
 	};
@@ -33,7 +37,11 @@ namespace YYCC::COMHelper {
 	 * So we use a static instance in here.
 	 * And make it be const so no one can change it.
 	*/
-	static const ComGuard c_ComGuard;
+	static const ComGuard c_ComGuard {};
+
+	bool IsInitialized() {
+		return c_ComGuard.IsInitialized();
+	}
 
 }
 

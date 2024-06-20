@@ -173,6 +173,9 @@ namespace YYCC::DialogHelper {
 		// prepare result variable
 		HRESULT hr;
 
+		// check whether COM environment has been initialized
+		if (!COMHelper::IsInitialized()) return false;
+
 		// create file dialog instance
 		// fetch dialog CLSID first
 		CLSID dialog_clsid;

@@ -64,6 +64,17 @@ namespace YYCC::COMHelper {
 
 	using SmartLPWSTR = std::unique_ptr<std::remove_pointer_t<LPWSTR>, CoTaskMemDeleter>;
 
+	/**
+	 * @brief Check whether COM environment has been initialized.
+	 * @return True if it is, otherwise false.
+	 * @remarks
+	 * This function will call corresponding function of COM Guard.
+	 * Do not remove this function and you must preserve at least one reference to this function in final program.
+	 * Some compiler will try to drop COM Guard in final program if no reference to it and it will cause the initialization of COM environment failed.
+	 * This is the reason why I order you do the things said above.
+	*/
+	bool IsInitialized();
+
 }
 
 #endif
