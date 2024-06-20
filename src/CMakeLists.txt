@@ -67,13 +67,11 @@ PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )
 
-# Install project
-# Install binary
+# Install binary and headers
 install(TARGETS YYCCommonplace
     EXPORT YYCCommonplaceTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION ${YYCC_INSTALL_PATH_LIB}
+    ARCHIVE DESTINATION ${YYCC_INSTALL_PATH_LIB}
     INCLUDES DESTINATION include
     FILE_SET HEADERS DESTINATION include
 )

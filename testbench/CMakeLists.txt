@@ -33,11 +33,9 @@ PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )
 
-# Install binary
+# Install testbench only on Release mode
 install(TARGETS YYCCTestbench
     EXPORT YYCCTestbenchTargets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
+    CONFIGURATIONS Release
+    RUNTIME DESTINATION ${YYCC_INSTALL_PATH_BIN}
 )

@@ -8,6 +8,18 @@ project(YYCC
 option(YYCC_BUILD_TESTBENCH "Build testbench of YYCCommonplace." OFF)
 option(YYCC_BUILD_DOC "Build document of YYCCommonplace." OFF)
 
+# Detect MSVC IDE environment.
+# If we in it, we should add configuration and build type in install path.
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    # Do Visual Studio specific
+    set(YYCC_INSTALL_PATH_LIB lib/${CMAKE_VS_PLATFORM_NAME}/$<CONFIG>)
+    set(YYCC_INSTALL_PATH_BIN bin/${CMAKE_VS_PLATFORM_NAME})
+else()
+    # Other stuff
+    set(YYCC_INSTALL_PATH_LIB lib)
+    set(YYCC_INSTALL_PATH_BIN bin)
+endif()
+
 # Import 2 build targets
 add_subdirectory(src)
 if (YYCC_BUILD_TESTBENCH)

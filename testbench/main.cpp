@@ -352,7 +352,9 @@ namespace YYCCTestbench {
 	static void WinFctTestbench() {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
-		Console::FormatLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, YYCC::WinFctHelper::GetCurrentModule());
+		HMODULE test_current_module;
+		Assert((test_current_module = YYCC::WinFctHelper::GetCurrentModule()) != nullptr, "YYCC::WinFctHelper::GetCurrentModule");
+		Console::FormatLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, test_current_module);
 
 		std::string test_temp;
 		Assert(YYCC::WinFctHelper::GetTempDirectory(test_temp), "YYCC::WinFctHelper::GetTempDirectory");
