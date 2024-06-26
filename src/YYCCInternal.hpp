@@ -24,14 +24,23 @@
 
 #endif
 
-//// Decide the char type we used
-//#include <string>
-//namespace YYCC {
-//#if defined(__cpp_char8_t)
-//	using u8char = char8_t;
-//	using u8string = std::std::string
-//#else
-//	using u8char = char;
-//	using u8string = std::string;
-//#endif
-//}
+// Define the UTF8 char type we used.
+// Also define an universal macro to create UTF8 string literal.
+// And do a polyfill if no embedded char8_t type.
+#include <string>
+namespace YYCC {
+#if defined(__cpp_char8_t)
+	using yycc_char8_t = char8_t;
+	using yycc_u8string = std::u8string;
+
+#define _YYCC_U8(strl) u8 ## strl
+#define YYCC_U8(strl) (_YYCC_U8(strl))
+#else
+	using yycc_char8_t = unsigned char;
+	using yycc_u8string = std::basic_string<yycc_char8_t>;
+
+#define _YYCC_U8(strl) u8 ## strl
+#define YYCC_U8(strl) (reinterpret_cast<const yycc_char8_t*>(_YYCC_U8(strl)))
+#endif
+}
+
