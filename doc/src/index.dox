@@ -4,7 +4,8 @@
 
 This manual is organized into the following chapters and appendices:
 
-\subpage intro
+\li \subpage intro
 
+\li \subpage library_encoding
 
 */
