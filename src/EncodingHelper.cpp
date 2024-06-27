@@ -4,10 +4,40 @@
 
 namespace YYCC::EncodingHelper {
 
+#pragma region UTF8 Native Convertion
+	
+	const yycc_char8_t* ToUTF8(const char* src) {
+		return reinterpret_cast<const yycc_char8_t*>(src);
+	}
+	yycc_char8_t* ToUTF8(char* src) {
+		return reinterpret_cast<yycc_char8_t*>(src);
+	}
+	yycc_u8string ToUTF8(const std::string_view& src) {
+		return yycc_u8string(reinterpret_cast<const yycc_char8_t*>(src.data()), src.size());
+	}
+	yycc_u8string_view ToUTF8View(const std::string_view& src) {
+		return yycc_u8string_view(reinterpret_cast<const yycc_char8_t*>(src.data()), src.size());
+	}
+	
+	const char* ToNative(const yycc_char8_t* src) {
+		return reinterpret_cast<const char*>(src);
+	}
+	char* ToNative(yycc_char8_t* src) {
+		return reinterpret_cast<char*>(src);
+	}
+	std::string ToNative(const yycc_u8string_view& src) {
+		return std::string(reinterpret_cast<const char*>(src.data()), src.size());
+	}
+	std::string_view ToNativeView(const yycc_u8string_view& src) {
+		return std::string_view(reinterpret_cast<const char*>(src.data()), src.size());
+	}
+
+#pragma endregion
+
 	/* Define some assistant macros for easy writing. */
 
 #define CONVFCT_TYPE2(fct_name, src_char_type, dst_char_type, ...) if (src == nullptr) return false; \
-std::basic_string<src_char_type> cache(src); \
+std::basic_string_view<src_char_type> cache(src); \
 return fct_name(cache, dst, ##__VA_ARGS__);
 
 #define CONVFCT_TYPE3(fct_name, src_char_type, dst_char_type, ...) std::basic_string<dst_char_type> ret; \
@@ -23,7 +53,7 @@ return ret;
 
 #pragma region WcharToChar
 	
-	bool WcharToChar(const std::wstring& src, std::string& dst, UINT code_page) {
+	bool WcharToChar(const std::wstring_view& src, std::string& dst, UINT code_page) {
 		// if src is empty, direct output
 		if (src.empty()) {
 			dst.clear();
@@ -32,7 +62,7 @@ return ret;
 
 		// init WideCharToMultiByte used variables
 		// setup src pointer
-		LPCWCH lpWideCharStr =  reinterpret_cast<LPCWCH>(src.c_str());
+		LPCWCH lpWideCharStr =  reinterpret_cast<LPCWCH>(src.data());
 		// check whether source string is too large.
 		size_t cSrcSize = src.size();
 		if (cSrcSize > std::numeric_limits<int>::max()) return false;
@@ -53,7 +83,7 @@ return ret;
 	bool WcharToChar(const wchar_t* src, std::string& dst, UINT code_page) {
 		CONVFCT_TYPE2(WcharToChar, wchar_t, char, code_page);
 	}
-	std::string WcharToChar(const std::wstring& src, UINT code_page) {
+	std::string WcharToChar(const std::wstring_view& src, UINT code_page) {
 		CONVFCT_TYPE3(WcharToChar, wchar_t, char, code_page);
 	}
 	std::string WcharToChar(const wchar_t* src, UINT code_page) {
@@ -64,7 +94,7 @@ return ret;
 	
 #pragma region CharToWchar
 
-	bool CharToWchar(const std::string& src, std::wstring& dst, UINT code_page) {
+	bool CharToWchar(const std::string_view& src, std::wstring& dst, UINT code_page) {
 		// if src is empty, direct output
 		if (src.empty()) {
 			dst.clear();
@@ -73,7 +103,7 @@ return ret;
 
 		// init WideCharToMultiByte used variables
 		// setup src pointer
-		LPCCH lpMultiByteStr = reinterpret_cast<LPCCH>(src.c_str());
+		LPCCH lpMultiByteStr = reinterpret_cast<LPCCH>(src.data());
 		// check whether source string is too large.
 		size_t cSrcSize = src.size();
 		if (cSrcSize > std::numeric_limits<int>::max()) return false;
@@ -94,7 +124,7 @@ return ret;
 	bool CharToWchar(const char* src, std::wstring& dst, UINT code_page) {
 		CONVFCT_TYPE2(CharToWchar, char, wchar_t, code_page);
 	}
-	std::wstring CharToWchar(const std::string& src, UINT code_page) {
+	std::wstring CharToWchar(const std::string_view& src, UINT code_page) {
 		CONVFCT_TYPE3(CharToWchar, char, wchar_t, code_page);
 	}
 	std::wstring CharToWchar(const char* src, UINT code_page) {
@@ -105,16 +135,16 @@ return ret;
 
 #pragma region CharToChar
 	
-	bool CharToChar(const std::string& src, std::string& dst, UINT src_code_page, UINT dst_code_page) {
+	bool CharToChar(const std::string_view& src, std::string& dst, UINT src_code_page, UINT dst_code_page) {
 		std::wstring intermediary;
 		if (!CharToWchar(src, intermediary, src_code_page)) return false;
-		if (!WcharToChar(intermediary.c_str(), dst, dst_code_page)) return false;
+		if (!WcharToChar(intermediary, dst, dst_code_page)) return false;
 		return true;
 	}
 	bool CharToChar(const char* src, std::string& dst, UINT src_code_page, UINT dst_code_page) {
 		CONVFCT_TYPE2(CharToChar, char, char, src_code_page, dst_code_page);
 	}
-	std::string CharToChar(const std::string& src, UINT src_code_page, UINT dst_code_page) {
+	std::string CharToChar(const std::string_view& src, UINT src_code_page, UINT dst_code_page) {
 		CONVFCT_TYPE3(CharToChar, char, char, src_code_page, dst_code_page);
 	}
 	std::string CharToChar(const char* src, UINT src_code_page, UINT dst_code_page) {
@@ -125,16 +155,16 @@ return ret;
 
 #pragma region WcharToUTF8
 	
-	bool WcharToUTF8(const std::wstring& src, yycc_u8string& dst) {
+	bool WcharToUTF8(const std::wstring_view& src, yycc_u8string& dst) {
 		std::string adapted_dst;
 		bool ret = WcharToChar(src, adapted_dst, CP_UTF8);
-		if (ret) dst.assign(reinterpret_cast<const yycc_char8_t*>(adapted_dst.c_str()), adapted_dst.size());
+		if (ret) dst = ToUTF8(adapted_dst);
 		return ret;
 	}
 	bool WcharToUTF8(const wchar_t* src, yycc_u8string& dst) {
 		CONVFCT_TYPE2(WcharToUTF8, wchar_t, yycc_char8_t);
 	}
-	yycc_u8string WcharToUTF8(const std::wstring& src) {
+	yycc_u8string WcharToUTF8(const std::wstring_view& src) {
 		CONVFCT_TYPE3(WcharToUTF8, wchar_t, yycc_char8_t);
 	}
 	yycc_u8string WcharToUTF8(const wchar_t* src) {
@@ -145,14 +175,14 @@ return ret;
 
 #pragma region UTF8ToWchar
 	
-	bool UTF8ToWchar(const yycc_u8string& src, std::wstring& dst) {
-		std::string adapted_src(reinterpret_cast<const char*>(src.c_str()), src.size());
+	bool UTF8ToWchar(const yycc_u8string_view& src, std::wstring& dst) {
+		std::string_view adapted_src(ToNativeView(src));
 		return CharToWchar(adapted_src, dst, CP_UTF8);
 	}
 	bool UTF8ToWchar(const yycc_char8_t* src, std::wstring& dst) {
 		CONVFCT_TYPE2(UTF8ToWchar, yycc_char8_t, wchar_t);
 	}
-	std::wstring UTF8ToWchar(const yycc_u8string& src) {
+	std::wstring UTF8ToWchar(const yycc_u8string_view& src) {
 		CONVFCT_TYPE3(UTF8ToWchar, yycc_char8_t, wchar_t);
 	}
 	std::wstring UTF8ToWchar(const yycc_char8_t* src) {
@@ -183,10 +213,16 @@ return ret;
 	using CodecvtFacet_t = std::codecvt<_TChar, CodecvtUTF8Char_t, std::mbstate_t>;
 
 	template<typename _TChar, std::enable_if_t<std::is_same_v<_TChar, char16_t> || std::is_same_v<_TChar, char32_t>, int> = 0>
-	static bool UTF8ToUTFOther(const yycc_u8string& src, std::basic_string<_TChar>& dst) {
+	static bool UTF8ToUTFOther(const yycc_u8string_view& src, std::basic_string<_TChar>& dst) {
 		// Reference:
 		// https://zh.cppreference.com/w/cpp/locale/codecvt/in
 		
+		// if src is empty, return directly
+		if (src.empty()) {
+			dst.clear();
+			return true;
+		}
+
 		// init locale and get codecvt facet
 		// same reason in UTFOtherToUTF8 to keeping reference to locale
 		const auto& this_locale = std::locale::classic();
@@ -195,8 +231,8 @@ return ret;
 		// convertion preparation
 		std::mbstate_t mb{};
 		dst.resize(src.size());
-		const CodecvtUTF8Char_t* intern_from = reinterpret_cast<const CodecvtUTF8Char_t*>(src.c_str()),
-			*intern_from_end = reinterpret_cast<const CodecvtUTF8Char_t*>(src.c_str() + src.size()),
+		const CodecvtUTF8Char_t* intern_from = reinterpret_cast<const CodecvtUTF8Char_t*>(src.data()),
+			*intern_from_end = reinterpret_cast<const CodecvtUTF8Char_t*>(src.data() + src.size()),
 			*intern_from_next = nullptr;
 		_TChar* extern_to = dst.data(),
 			*extern_to_end = dst.data() + dst.size(),
@@ -217,10 +253,16 @@ return ret;
 	}
 
 	template<typename _TChar, std::enable_if_t<std::is_same_v<_TChar, char16_t> || std::is_same_v<_TChar, char32_t>, int> = 0>
-	static bool UTFOtherToUTF8(const std::basic_string<_TChar>& src, yycc_u8string& dst) {
+	static bool UTFOtherToUTF8(const std::basic_string_view<_TChar>& src, yycc_u8string& dst) {
 		// Reference:
 		// https://zh.cppreference.com/w/cpp/locale/codecvt/out
 		
+		// if src is empty, return directly
+		if (src.empty()) {
+			dst.clear();
+			return true;
+		}
+
 		// init locale and get codecvt facet
 		// the reference to locale must be preserved until convertion done.
 		// because the life time of codecvt facet is equal to the reference to locale.
@@ -230,8 +272,8 @@ return ret;
 		// do convertion preparation
 		std::mbstate_t mb{};
 		dst.resize(src.size() * this_codecvt.max_length());
-		const _TChar* intern_from = src.c_str(),
-			*intern_from_end = src.c_str() + src.size(),
+		const _TChar* intern_from = src.data(),
+			*intern_from_end = src.data() + src.size(),
 			*intern_from_next = nullptr;
 		CodecvtUTF8Char_t* extern_to = reinterpret_cast<CodecvtUTF8Char_t*>(dst.data()),
 			*extern_to_end = reinterpret_cast<CodecvtUTF8Char_t*>(dst.data() + dst.size()),
@@ -255,13 +297,13 @@ return ret;
 
 #pragma region UTF8ToUTF16
 	
-	bool UTF8ToUTF16(const yycc_u8string& src, std::u16string& dst) {
+	bool UTF8ToUTF16(const yycc_u8string_view& src, std::u16string& dst) {
 		return UTF8ToUTFOther<char16_t>(src, dst);
 	}
 	bool UTF8ToUTF16(const yycc_char8_t* src, std::u16string& dst) {
 		CONVFCT_TYPE2(UTF8ToUTF16, yycc_char8_t, char16_t);
 	}
-	std::u16string UTF8ToUTF16(const yycc_u8string& src) {
+	std::u16string UTF8ToUTF16(const yycc_u8string_view& src) {
 		CONVFCT_TYPE3(UTF8ToUTF16, yycc_char8_t, char16_t);
 	}
 	std::u16string UTF8ToUTF16(const yycc_char8_t* src) {
@@ -272,13 +314,13 @@ return ret;
 
 #pragma region UTF16ToUTF8
 	
-	bool UTF16ToUTF8(const std::u16string& src, yycc_u8string& dst) {
+	bool UTF16ToUTF8(const std::u16string_view& src, yycc_u8string& dst) {
 		return UTFOtherToUTF8<char16_t>(src, dst);
 	}
 	bool UTF16ToUTF8(const char16_t* src, yycc_u8string& dst) {
 		CONVFCT_TYPE2(UTF16ToUTF8, char16_t, yycc_char8_t);
 	}
-	yycc_u8string UTF16ToUTF8(const std::u16string& src) {
+	yycc_u8string UTF16ToUTF8(const std::u16string_view& src) {
 		CONVFCT_TYPE3(UTF16ToUTF8, char16_t, yycc_char8_t);
 	}
 	yycc_u8string UTF16ToUTF8(const char16_t* src) {
@@ -289,13 +331,13 @@ return ret;
 	
 #pragma region UTF8ToUTF32
 	
-	bool UTF8ToUTF32(const yycc_u8string& src, std::u32string& dst) {
+	bool UTF8ToUTF32(const yycc_u8string_view& src, std::u32string& dst) {
 		return UTF8ToUTFOther<char32_t>(src, dst);
 	}
 	bool UTF8ToUTF32(const yycc_char8_t* src, std::u32string& dst) {
 		CONVFCT_TYPE2(UTF8ToUTF32, yycc_char8_t, char32_t);
 	}
-	std::u32string UTF8ToUTF32(const yycc_u8string& src) {
+	std::u32string UTF8ToUTF32(const yycc_u8string_view& src) {
 		CONVFCT_TYPE3(UTF8ToUTF32, yycc_char8_t, char32_t);
 	}
 	std::u32string UTF8ToUTF32(const yycc_char8_t* src) {
@@ -306,13 +348,13 @@ return ret;
 
 #pragma region UTF32ToUTF8
 	
-	bool UTF32ToUTF8(const std::u32string& src, yycc_u8string& dst) {
+	bool UTF32ToUTF8(const std::u32string_view& src, yycc_u8string& dst) {
 		return UTFOtherToUTF8<char32_t>(src, dst);
 	}
 	bool UTF32ToUTF8(const char32_t* src, yycc_u8string& dst) {
 		CONVFCT_TYPE2(UTF32ToUTF8, char32_t, yycc_char8_t);
 	}
-	yycc_u8string UTF32ToUTF8(const std::u32string& src) {
+	yycc_u8string UTF32ToUTF8(const std::u32string_view& src) {
 		CONVFCT_TYPE3(UTF32ToUTF8, char32_t, yycc_char8_t);
 	}
 	yycc_u8string UTF32ToUTF8(const char32_t* src) {
