@@ -93,11 +93,11 @@ namespace YYCCTestbench {
 
 #pragma endregion
 
-	static void Assert(bool condition, const char* description) {
+	static void Assert(bool condition, const YYCC::yycc_char8_t* description) {
 		if (condition) {
-			Console::FormatLine(YYCC_COLOR_LIGHT_GREEN("OK: %s"), description);
+			Console::FormatLine(YYCC_U8(YYCC_COLOR_LIGHT_GREEN("OK: %s")), description);
 		} else {
-			Console::FormatLine(YYCC_COLOR_LIGHT_RED("Failed: %s\n"), description);
+			Console::FormatLine(YYCC_U8(YYCC_COLOR_LIGHT_RED("Failed: %s\n")), description);
 			std::abort();
 		}
 	}
@@ -105,9 +105,9 @@ namespace YYCCTestbench {
 	static void ConsoleTestbench() {
 		// Color Test
 		Console::EnableColorfulConsole();
-		Console::WriteLine("Color Test:");
+		Console::WriteLine(YYCC_U8("Color Test:"));
 
-#define TEST_MACRO(col) Console::WriteLine("\t" YYCC_COLOR_ ## col ("\u2588\u2588") YYCC_COLOR_LIGHT_ ## col("\u2588\u2588") " " #col " / LIGHT " #col );
+#define TEST_MACRO(col) Console::WriteLine(YYCC_U8("\t" YYCC_COLOR_ ## col ("\u2588\u2588") YYCC_COLOR_LIGHT_ ## col("\u2588\u2588") " " #col " / LIGHT " #col ));
 		// U+2588 is full block
 
 		TEST_MACRO(BLACK);
@@ -122,19 +122,19 @@ namespace YYCCTestbench {
 #undef TEST_MACRO
 
 		// UTF8 Output Test
-		Console::WriteLine("UTF8 Output Test:");
+		Console::WriteLine(YYCC_U8("UTF8 Output Test:"));
 		for (const auto& strl : c_UTF8TestStrTable) {
-			Console::FormatLine("\t%s", strl.c_str());
+			Console::FormatLine(YYCC_U8("\t%s"), strl.c_str());
 		}
 
 		// UTF8 Input Test
-		Console::WriteLine("UTF8 Input Test:");
+		Console::WriteLine(YYCC_U8("UTF8 Input Test:"));
 		for (const auto& strl : c_UTF8TestStrTable) {
-			Console::FormatLine("\tPlease type: %s", strl.c_str());
-			Console::Write("\t> ");
+			Console::FormatLine(YYCC_U8("\tPlease type: %s"), strl.c_str());
+			Console::Write(YYCC_U8("\t> "));
 
-			std::string gotten(Console::ReadLine());
-			Assert(gotten == strl, YYCC::StringHelper::Printf("Got: %s", gotten.c_str()).c_str());
+			YYCC::yycc_u8string gotten(Console::ReadLine());
+			Assert(gotten == strl, YYCC::StringHelper::Printf(YYCC_U8("Got: %s"), gotten.c_str()).c_str());
 		}
 
 	}
@@ -151,16 +151,16 @@ namespace YYCCTestbench {
 			const auto& u32str = c_UTF32TestStrTable[i];
 
 			// create cache variables
-			std::string u8cache;
+			YYCC::yycc_u8string u8cache;
 			std::u16string u16cache;
 			std::u32string u32cache;
 
 			// do convertion check
-			Assert(YYCC::EncodingHelper::UTF8ToUTF16(u8str.c_str(), u16cache) && u16cache == u16str, "YYCC::EncodingHelper::UTF8ToUTF16");
-			Assert(YYCC::EncodingHelper::UTF8ToUTF32(u8str.c_str(), u32cache) && u32cache == u32str, "YYCC::EncodingHelper::UTF8ToUTF32");
+			Assert(YYCC::EncodingHelper::UTF8ToUTF16(u8str, u16cache) && u16cache == u16str, YYCC_U8("YYCC::EncodingHelper::UTF8ToUTF16"));
+			Assert(YYCC::EncodingHelper::UTF8ToUTF32(u8str, u32cache) && u32cache == u32str, YYCC_U8("YYCC::EncodingHelper::UTF8ToUTF32"));
 
-			Assert(YYCC::EncodingHelper::UTF16ToUTF8(u16str.c_str(), u8cache) && u8cache == u8str, "YYCC::EncodingHelper::UTF16ToUTF8");
-			Assert(YYCC::EncodingHelper::UTF32ToUTF8(u32str.c_str(), u8cache) && u8cache == u8str, "YYCC::EncodingHelper::UTF32ToUTF8");
+			Assert(YYCC::EncodingHelper::UTF16ToUTF8(u16str, u8cache) && u8cache == u8str, YYCC_U8("YYCC::EncodingHelper::UTF16ToUTF8"));
+			Assert(YYCC::EncodingHelper::UTF32ToUTF8(u32str, u8cache) && u8cache == u8str, YYCC_U8("YYCC::EncodingHelper::UTF32ToUTF8"));
 		}
 
 		// check wstring convertion on windows
@@ -171,12 +171,12 @@ namespace YYCCTestbench {
 			const auto& wstr = c_WStrTestStrTable[i];
 
 			// create cache variables
-			std::string u8cache;
+			YYCC::yycc_u8string u8cache;
 			std::wstring wcache;
 
 			// do convertion check
-			Assert(YYCC::EncodingHelper::UTF8ToWchar(u8str.c_str(), wcache) && wcache == wstr, "YYCC::EncodingHelper::UTF8ToWchar");
-			Assert(YYCC::EncodingHelper::WcharToUTF8(wstr.c_str(), u8cache) && u8cache == u8str, "YYCC::EncodingHelper::WcharToUTF8");
+			Assert(YYCC::EncodingHelper::UTF8ToWchar(u8str.c_str(), wcache) && wcache == wstr, YYCC_U8("YYCC::EncodingHelper::UTF8ToWchar"));
+			Assert(YYCC::EncodingHelper::WcharToUTF8(wstr.c_str(), u8cache) && u8cache == u8str, YYCC_U8("YYCC::EncodingHelper::WcharToUTF8"));
 		}
 #endif
 
@@ -184,55 +184,55 @@ namespace YYCCTestbench {
 
 	static void StringTestbench() {
 		// Test Printf
-		auto test_printf = YYCC::StringHelper::Printf("%s == %s", "Hello World", "Hello, world");
-		Assert(test_printf == "Hello World == Hello, world", "YYCC::StringHelper::Printf");
+		auto test_printf = YYCC::StringHelper::Printf(YYCC_U8("%s == %s"), YYCC_U8("Hello World"), YYCC_U8("Hello, world"));
+		Assert(test_printf == YYCC_U8("Hello World == Hello, world"), YYCC_U8("YYCC::StringHelper::Printf"));
 
 		// Test Replace
-		auto test_replace = YYCC::StringHelper::Replace("aabbcc", "bb", "dd"); // normal case
-		Assert(test_replace == "aaddcc", "YYCC::StringHelper::Replace");
-		test_replace = YYCC::StringHelper::Replace("aabbcc", "zz", "yy"); // no replace
-		Assert(test_replace == "aabbcc", "YYCC::StringHelper::Replace");
-		test_replace = YYCC::StringHelper::Replace("aabbcc", "", "zz"); // empty finding
-		Assert(test_replace == "aabbcc", "YYCC::StringHelper::Replace");
-		test_replace = YYCC::StringHelper::Replace("aabbcc", nullptr, "zz"); // nullptr finding
-		Assert(test_replace == "aabbcc", "YYCC::StringHelper::Replace");
-		test_replace = YYCC::StringHelper::Replace("aaaabbaa", "aa", ""); // no replaced string
-		Assert(test_replace == "bb", "YYCC::StringHelper::Replace");
-		test_replace = YYCC::StringHelper::Replace("aaxcc", "x", "yx"); // nested replacing
-		Assert(test_replace == "aayxcc", "YYCC::StringHelper::Replace");
-		test_replace = YYCC::StringHelper::Replace("", "", "xy"); // empty source string
-		Assert(test_replace == "", "YYCC::StringHelper::Replace");
-		test_replace = YYCC::StringHelper::Replace(nullptr, "", "xy"); // nullptr source string
-		Assert(test_replace == "", "YYCC::StringHelper::Replace");
+		auto test_replace = YYCC::StringHelper::Replace(YYCC_U8("aabbcc"), YYCC_U8("bb"), YYCC_U8("dd")); // normal case
+		Assert(test_replace == YYCC_U8("aaddcc"), YYCC_U8("YYCC::StringHelper::Replace"));
+		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aabbcc"), YYCC_U8("zz"), YYCC_U8("yy")); // no replace
+		Assert(test_replace == YYCC_U8("aabbcc"), YYCC_U8("YYCC::StringHelper::Replace"));
+		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aabbcc"), YYCC_U8(""), YYCC_U8("zz")); // empty finding
+		Assert(test_replace == YYCC_U8("aabbcc"), YYCC_U8("YYCC::StringHelper::Replace"));
+		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aabbcc"), nullptr, YYCC_U8("zz")); // nullptr finding
+		Assert(test_replace == YYCC_U8("aabbcc"), YYCC_U8("YYCC::StringHelper::Replace"));
+		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aaaabbaa"), YYCC_U8("aa"), YYCC_U8("")); // no replaced string
+		Assert(test_replace == YYCC_U8("bb"), YYCC_U8("YYCC::StringHelper::Replace"));
+		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aaxcc"), YYCC_U8("x"), YYCC_U8("yx")); // nested replacing
+		Assert(test_replace == YYCC_U8("aayxcc"), YYCC_U8("YYCC::StringHelper::Replace"));
+		test_replace = YYCC::StringHelper::Replace(YYCC_U8(""), YYCC_U8(""), YYCC_U8("xy")); // empty source string
+		Assert(test_replace == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Replace"));
+		test_replace = YYCC::StringHelper::Replace(nullptr, YYCC_U8(""), YYCC_U8("xy")); // nullptr source string
+		Assert(test_replace == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Replace"));
 
 		// Test Upper / Lower
-		auto test_lower = YYCC::StringHelper::Lower("LOWER");
-		Assert(test_lower == "lower", "YYCC::StringHelper::Lower");
-		auto test_upper = YYCC::StringHelper::Upper("upper");
-		Assert(test_upper == "UPPER", "YYCC::StringHelper::Upper");
+		auto test_lower = YYCC::StringHelper::Lower(YYCC_U8("LOWER"));
+		Assert(test_lower == YYCC_U8("lower"), YYCC_U8("YYCC::StringHelper::Lower"));
+		auto test_upper = YYCC::StringHelper::Upper(YYCC_U8("upper"));
+		Assert(test_upper == YYCC_U8("UPPER"), YYCC_U8("YYCC::StringHelper::Upper"));
 
 		// Test Join
-		std::vector<std::string> test_join_container {
-			"", "1", "2", ""
+		std::vector<YYCC::yycc_u8string> test_join_container {
+			YYCC_U8(""), YYCC_U8("1"), YYCC_U8("2"), YYCC_U8("")
 		};
-		auto test_join = YYCC::StringHelper::Join(test_join_container, ", ");
-		Assert(test_join == ", 1, 2, ", "YYCC::StringHelper::Join");
-		test_join = YYCC::StringHelper::Join(test_join_container, ", ", true);
-		Assert(test_join == ", 2, 1, ", "YYCC::StringHelper::Join");
+		auto test_join = YYCC::StringHelper::Join(test_join_container, YYCC_U8(", "));
+		Assert(test_join == YYCC_U8(", 1, 2, "), YYCC_U8("YYCC::StringHelper::Join"));
+		test_join = YYCC::StringHelper::Join(test_join_container, YYCC_U8(", "), true);
+		Assert(test_join == YYCC_U8(", 2, 1, "), YYCC_U8("YYCC::StringHelper::Join"));
 
 		// Test Split
-		auto test_split = YYCC::StringHelper::Split(", 1, 2, ", ", ");
-		Assert(test_split.size() == 4u, "YYCC::StringHelper::Split");
-		Assert(test_split[0] == "", "YYCC::StringHelper::Split");
-		Assert(test_split[1] == "1", "YYCC::StringHelper::Split");
-		Assert(test_split[2] == "2", "YYCC::StringHelper::Split");
-		Assert(test_split[3] == "", "YYCC::StringHelper::Split");
-		test_split = YYCC::StringHelper::Split("test", "-");
-		Assert(test_split.size() == 1u, "YYCC::StringHelper::Split");
-		Assert(test_split[0] == "test", "YYCC::StringHelper::Split");
-		test_split = YYCC::StringHelper::Split("test", "");
-		Assert(test_split.size() == 1u, "YYCC::StringHelper::Split");
-		Assert(test_split[0] == "test", "YYCC::StringHelper::Split");
+		auto test_split = YYCC::StringHelper::Split(YYCC_U8(", 1, 2, "), YYCC_U8(", "));
+		Assert(test_split.size() == 4u, YYCC_U8("YYCC::StringHelper::Split"));
+		Assert(test_split[0] == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Split"));
+		Assert(test_split[1] == YYCC_U8("1"), YYCC_U8("YYCC::StringHelper::Split"));
+		Assert(test_split[2] == YYCC_U8("2"), YYCC_U8("YYCC::StringHelper::Split"));
+		Assert(test_split[3] == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Split"));
+		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8("-"));
+		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
+		Assert(test_split[0] == YYCC_U8("test"), YYCC_U8("YYCC::StringHelper::Split"));
+		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8(""));
+		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
+		Assert(test_split[0] == YYCC_U8("test"), YYCC_U8("YYCC::StringHelper::Split"));
 
 	}
 
@@ -240,9 +240,9 @@ namespace YYCCTestbench {
 
 		// Test success TryParse
 #define TEST_MACRO(type_t, value, string_value) { \
-	std::string cache_string(string_value); \
+	YYCC::yycc_u8string cache_string(YYCC_U8(string_value)); \
 	type_t cache; \
-	Assert(YYCC::ParserHelper::TryParse<type_t>(cache_string, cache) && cache == value, "YYCC::StringHelper::TryParse<" #type_t ">"); \
+	Assert(YYCC::ParserHelper::TryParse<type_t>(cache_string, cache) && cache == value, YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
 }
 
 		TEST_MACRO(int8_t, INT8_C(-61), "-61");
@@ -259,9 +259,9 @@ namespace YYCCTestbench {
 
 		// Test failed TryParse
 #define TEST_MACRO(type_t, value, string_value) { \
-	std::string cache_string(string_value); \
+	YYCC::yycc_u8string cache_string(YYCC_U8(string_value)); \
 	type_t cache; \
-	Assert(!YYCC::ParserHelper::TryParse<type_t>(cache_string, cache), "YYCC::StringHelper::TryParse<" #type_t ">"); \
+	Assert(!YYCC::ParserHelper::TryParse<type_t>(cache_string, cache), YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
 }
 
 		TEST_MACRO(int8_t, INT8_C(-61), "6161");
@@ -279,8 +279,8 @@ namespace YYCCTestbench {
 		// Test ToString
 #define TEST_MACRO(type_t, value, string_value) { \
 	type_t cache = value; \
-	std::string ret(YYCC::ParserHelper::ToString<type_t>(cache)); \
-	Assert(ret == string_value, "YYCC::StringHelper::ToString<" #type_t ">"); \
+	YYCC::yycc_u8string ret(YYCC::ParserHelper::ToString<type_t>(cache)); \
+	Assert(ret == YYCC_U8(string_value), YYCC_U8("YYCC::StringHelper::ToString<" #type_t ">")); \
 }
 
 		TEST_MACRO(int8_t, INT8_C(-61), "-61");
@@ -292,11 +292,7 @@ namespace YYCCTestbench {
 		TEST_MACRO(int64_t, INT64_C(616161616161), "616161616161");
 		TEST_MACRO(uint64_t, UINT64_C(9223372036854775807), "9223372036854775807");
 		TEST_MACRO(bool, true, "true");
-		//{
-		//	bool cache = true;
-		//	std::string ret(YYCC::ParserHelper::ToString<bool>(cache));
-		//	Assert(ret == "true", "YYCC::StringHelper::ToString<bool>");
-		//}
+
 
 #undef TEST_MACRO
 	}
@@ -304,32 +300,32 @@ namespace YYCCTestbench {
 	static void DialogTestbench() {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
-		std::string ret;
-		std::vector<std::string> rets;
+		YYCC::yycc_u8string ret;
+		std::vector<YYCC::yycc_u8string> rets;
 
 		YYCC::DialogHelper::FileDialog params;
 		auto& filters = params.ConfigreFileTypes();
-		filters.Add("Microsoft Word (*.docx; *.doc)", { "*.docx", "*.doc" });
-		filters.Add("Microsoft Excel (*.xlsx; *.xls)", { "*.xlsx", "*.xls" });
-		filters.Add("Microsoft PowerPoint (*.pptx; *.ppt)", { "*.pptx", "*.ppt" });
-		filters.Add("Text File (*.txt)", { "*.txt" });
-		filters.Add("All Files (*.*)", { "*.*" });
+		filters.Add(YYCC_U8("Microsoft Word (*.docx; *.doc)"), { YYCC_U8("*.docx"), YYCC_U8("*.doc") });
+		filters.Add(YYCC_U8("Microsoft Excel (*.xlsx; *.xls)"), { YYCC_U8("*.xlsx"), YYCC_U8("*.xls") });
+		filters.Add(YYCC_U8("Microsoft PowerPoint (*.pptx; *.ppt)"), { YYCC_U8("*.pptx"), YYCC_U8("*.ppt") });
+		filters.Add(YYCC_U8("Text File (*.txt)"), { YYCC_U8("*.txt") });
+		filters.Add(YYCC_U8("All Files (*.*)"), { YYCC_U8("*.*") });
 		params.SetDefaultFileTypeIndex(0u);
 		if (YYCC::DialogHelper::OpenFileDialog(params, ret)) {
-			Console::FormatLine("Open File: %s", ret.c_str());
+			Console::FormatLine(YYCC_U8("Open File: %s"), ret.c_str());
 		}
 		if (YYCC::DialogHelper::OpenMultipleFileDialog(params, rets)) {
-			Console::WriteLine("Open Multiple Files:");
+			Console::WriteLine(YYCC_U8("Open Multiple Files:"));
 			for (const auto& item : rets) {
-				Console::FormatLine("\t%s", item.c_str());
+				Console::FormatLine(YYCC_U8("\t%s"), item.c_str());
 			}
 		}
 		if (YYCC::DialogHelper::SaveFileDialog(params, ret)) {
-			Console::FormatLine("Save File: %s", ret.c_str());
+			Console::FormatLine(YYCC_U8("Save File: %s"), ret.c_str());
 		}
 		params.Clear();
 		if (YYCC::DialogHelper::OpenFolderDialog(params, ret)) {
-			Console::FormatLine("Open Folder: %s", ret.c_str());
+			Console::FormatLine(YYCC_U8("Open Folder: %s"), ret.c_str());
 		}
 
 #endif
@@ -353,20 +349,20 @@ namespace YYCCTestbench {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 		HMODULE test_current_module;
-		Assert((test_current_module = YYCC::WinFctHelper::GetCurrentModule()) != nullptr, "YYCC::WinFctHelper::GetCurrentModule");
-		Console::FormatLine("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, test_current_module);
+		Assert((test_current_module = YYCC::WinFctHelper::GetCurrentModule()) != nullptr, YYCC_U8("YYCC::WinFctHelper::GetCurrentModule"));
+		Console::FormatLine(YYCC_U8("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR), test_current_module);
 
-		std::string test_temp;
-		Assert(YYCC::WinFctHelper::GetTempDirectory(test_temp), "YYCC::WinFctHelper::GetTempDirectory");
-		Console::FormatLine("Temp Directory: %s", test_temp.c_str());
+		YYCC::yycc_u8string test_temp;
+		Assert(YYCC::WinFctHelper::GetTempDirectory(test_temp), YYCC_U8("YYCC::WinFctHelper::GetTempDirectory"));
+		Console::FormatLine(YYCC_U8("Temp Directory: %s"), test_temp.c_str());
 
-		std::string test_module_name;
-		Assert(YYCC::WinFctHelper::GetModuleFileName(YYCC::WinFctHelper::GetCurrentModule(), test_module_name), "YYCC::WinFctHelper::GetModuleFileName");
-		Console::FormatLine("Current Module File Name: %s", test_module_name.c_str());
+		YYCC::yycc_u8string test_module_name;
+		Assert(YYCC::WinFctHelper::GetModuleFileName(YYCC::WinFctHelper::GetCurrentModule(), test_module_name), YYCC_U8("YYCC::WinFctHelper::GetModuleFileName"));
+		Console::FormatLine(YYCC_U8("Current Module File Name: %s"), test_module_name.c_str());
 
-		std::string test_localappdata_path;
-		Assert(YYCC::WinFctHelper::GetLocalAppData(test_localappdata_path), "YYCC::WinFctHelper::GetLocalAppData");
-		Console::FormatLine("Local AppData: %s", test_localappdata_path.c_str());
+		YYCC::yycc_u8string test_localappdata_path;
+		Assert(YYCC::WinFctHelper::GetLocalAppData(test_localappdata_path), YYCC_U8("YYCC::WinFctHelper::GetLocalAppData"));
+		Console::FormatLine(YYCC_U8("Local AppData: %s"), test_localappdata_path.c_str());
 
 #endif
 	}
@@ -377,17 +373,17 @@ namespace YYCCTestbench {
 		for (const auto& strl : c_UTF8TestStrTable) {
 			test_path /= YYCC::FsPathPatch::FromUTF8Path(strl.c_str());
 		}
-		std::string test_slashed_path(YYCC::FsPathPatch::ToUTF8Path(test_path));
+		YYCC::yycc_u8string test_slashed_path(YYCC::FsPathPatch::ToUTF8Path(test_path));
 
 #if YYCC_OS == YYCC_OS_WINDOWS
 		std::wstring wdecilmer(1u, std::filesystem::path::preferred_separator);
-		std::string decilmer(YYCC::EncodingHelper::WcharToUTF8(wdecilmer.c_str()));
+		YYCC::yycc_u8string decilmer(YYCC::EncodingHelper::WcharToUTF8(wdecilmer.c_str()));
 #else
-		std::string decilmer(1u, std::filesystem::path::preferred_separator);
+		YYCC::yycc_u8string decilmer(1u, std::filesystem::path::preferred_separator);
 #endif
-		std::string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable, decilmer.c_str()));
+		YYCC::yycc_u8string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable, decilmer.c_str()));
 
-		Assert(test_slashed_path == test_joined_path, "YYCC::FsPathPatch");
+		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::FsPathPatch"));
 
 	}
 
