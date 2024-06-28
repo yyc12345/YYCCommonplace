@@ -1,9 +1,12 @@
 #include "StringHelper.hpp"
+#include "EncodingHelper.hpp"
 #include <algorithm>
 
 namespace YYCC::StringHelper {
 
-	bool Printf(std::string& strl, const char* format, ...) {
+#pragma region Printf VPrintf
+
+	bool Printf(yycc_u8string& strl, const yycc_char8_t* format, ...) {
 		va_list argptr;
 		va_start(argptr, format);
 		bool ret = VPrintf(strl, format, argptr);
@@ -11,7 +14,7 @@ namespace YYCC::StringHelper {
 		return ret;
 	}
 
-	bool VPrintf(std::string& strl, const char* format, va_list argptr) {
+	bool VPrintf(yycc_u8string& strl, const yycc_char8_t* format, va_list argptr) {
 		va_list args1;
 		va_copy(args1, argptr);
 		va_list args2;
@@ -19,7 +22,12 @@ namespace YYCC::StringHelper {
 
 		// the return value is desired char count without NULL terminal.
 		// minus number means error
-		int count = std::vsnprintf(nullptr, 0, format, args1);
+		int count = std::vsnprintf(
+			nullptr, 
+			0, 
+			EncodingHelper::ToNative(format), 
+			args1
+		);
 		if (count < 0) {
 			// invalid length returned by vsnprintf.
 			return false;
@@ -31,7 +39,12 @@ namespace YYCC::StringHelper {
 		// because std::vsnprintf only can write "buf_size - 1" chars with a trailing NULL.
 		// however std::vsnprintf already have a trailing NULL, so we plus 1 for it.
 		strl.resize(count);
-		int write_result = std::vsnprintf(strl.data(), strl.size() + 1, format, args2);
+		int write_result = std::vsnprintf(
+			EncodingHelper::ToNative(strl.data()),
+			strl.size() + 1, 
+			EncodingHelper::ToNative(format), 
+			args2
+		);
 		va_end(args2);
 
 		if (write_result < 0 || write_result > count) {
@@ -42,9 +55,8 @@ namespace YYCC::StringHelper {
 		return true;
 	}
 
-
-	std::string Printf(const char* format, ...) {
-		std::string ret;
+	yycc_u8string Printf(const yycc_char8_t* format, ...) {
+		yycc_u8string ret;
 
 		va_list argptr;
 		va_start(argptr, format);
@@ -54,8 +66,8 @@ namespace YYCC::StringHelper {
 		return ret;
 	}
 
-	std::string VPrintf(const char* format, va_list argptr) {
-		std::string ret;
+	yycc_u8string VPrintf(const yycc_char8_t* format, va_list argptr) {
+		yycc_u8string ret;
 
 		va_list argcpy;
 		va_copy(argcpy, argptr);
@@ -65,28 +77,32 @@ namespace YYCC::StringHelper {
 		return ret;
 	}
 
-	void Replace(std::string& strl, const char* _from_strl, const char* _to_strl)  {
+#pragma endregion
+
+#pragma region Replace
+
+	void Replace(yycc_u8string& strl, const yycc_char8_t* _from_strl, const yycc_char8_t* _to_strl)  {
 		// Reference: https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
 		
 		// check requirements
 		// from string and to string should not be nullptr.
 		if (_from_strl == nullptr || _to_strl == nullptr) return;
 		// from string should not be empty
-		std::string from_strl(_from_strl);
-		std::string to_strl(_to_strl);
+		yycc_u8string from_strl(_from_strl);
+		yycc_u8string to_strl(_to_strl);
 		if (from_strl.empty()) return;
 
 		// start replace one by one
 		size_t start_pos = 0;
-		while ((start_pos = strl.find(from_strl, start_pos)) != std::string::npos) {
+		while ((start_pos = strl.find(from_strl, start_pos)) != yycc_u8string::npos) {
 			strl.replace(start_pos, from_strl.size(), to_strl);
 			start_pos += to_strl.size(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
 		}
 	}
 
-	std::string Replace(const char* _strl, const char* _from_strl, const char* _to_strl) {
+	yycc_u8string Replace(const yycc_char8_t* _strl, const yycc_char8_t* _from_strl, const yycc_char8_t* _to_strl) {
 		// prepare result
-		std::string strl;
+		yycc_u8string strl;
 		// if given string is not nullptr, assign it and process it.
 		if (_strl != nullptr) {
 			strl = _strl;
@@ -96,13 +112,17 @@ namespace YYCC::StringHelper {
 		return strl;
 	}
 
-	std::string Join(JoinDataProvider fct_data, const char* decilmer) {
-		std::string ret;
+#pragma endregion
+
+#pragma region Join
+
+	yycc_u8string Join(JoinDataProvider fct_data, const yycc_char8_t* decilmer) {
+		yycc_u8string ret;
 		bool is_first = true;
-		const char* element;
+		yycc_u8string_view element;
 
 		// fetch element
-		while ((element = fct_data()) != nullptr) {
+		while (fct_data(element)) {
 			// insert decilmer
 			if (is_first) is_first = false;
 			else {
@@ -111,42 +131,46 @@ namespace YYCC::StringHelper {
 					ret.append(decilmer);
 			}
 
-			// insert element
-			ret.append(element);
+			// insert element if it is not empty
+			if (!element.empty())
+				ret.append(element);
 		}
 
 		return ret;
 	}
 
-	std::string Join(const std::vector<std::string>& data, const char* decilmer, bool reversed) {
+	yycc_u8string Join(const std::vector<yycc_u8string>& data, const yycc_char8_t* decilmer, bool reversed) {
 		if (reversed) {
 			auto iter = data.crbegin();
 			auto stop = data.crend();
-			return Join([&iter, &stop]() -> const char* {
-				// if we reach tail, return nullptr
-				if (iter == stop) return nullptr;
+			return Join([&iter, &stop](yycc_u8string_view& view) -> bool {
+				// if we reach tail, return false
+				if (iter == stop) return false;
 				// otherwise fetch data, inc iterator and return.
-				const char* ret = iter->c_str();
+				view = *iter;
 				++iter;
-				return ret;
+				return true;
 				}, decilmer);
 		} else {
 			auto iter = data.cbegin();
 			auto stop = data.cend();
-			return Join([&iter, &stop]() -> const char* {
+			return Join([&iter, &stop](yycc_u8string_view& view) -> bool {
 				// if we reach tail, return nullptr
-				if (iter == stop) return nullptr;
+				if (iter == stop) return false;
 				// otherwise fetch data, inc iterator and return.
-				const char* ret = iter->c_str();
+				view = *iter;
 				++iter;
-				return ret;
+				return true;
 				}, decilmer);
 		}
 	}
 
+#pragma endregion
+
+#pragma region Upper Lower
 
 	template<bool bIsToLower>
-	void GeneralStringLowerUpper(std::string& strl) {
+	void GeneralStringLowerUpper(yycc_u8string& strl) {
 		// References:
 		// https://en.cppreference.com/w/cpp/algorithm/transform
 		// https://en.cppreference.com/w/cpp/string/byte/tolower
@@ -159,43 +183,47 @@ namespace YYCC::StringHelper {
 		);
 	}
 
-	std::string Lower(const char* strl) {
-		std::string ret;
+	yycc_u8string Lower(const yycc_char8_t* strl) {
+		yycc_u8string ret;
 		if (strl == nullptr) return ret;
 		else ret = strl;
 		Lower(ret);
 		return ret;
 	}
 
-	void Lower(std::string& strl) {
+	void Lower(yycc_u8string& strl) {
 		GeneralStringLowerUpper<true>(strl);
 	}
 
-	std::string Upper(const char* strl) {
+	yycc_u8string Upper(const yycc_char8_t* strl) {
 		// same as Lower, just replace char transform function.
-		std::string ret;
+		yycc_u8string ret;
 		if (strl == nullptr) return ret;
 		else ret = strl;
 		Upper(ret);
 		return ret;
 	}
 
-	void Upper(std::string& strl) {
+	void Upper(yycc_u8string& strl) {
 		GeneralStringLowerUpper<false>(strl);
 	}
 
-	std::vector<std::string> Split(const char* _strl, const char* _decilmer) {
+#pragma endregion
+
+#pragma region Split
+
+	std::vector<yycc_u8string> Split(const yycc_char8_t* _strl, const yycc_char8_t* _decilmer) {
 		// Reference: 
 		// https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 		
 		// prepare return value
-		std::vector<std::string> elems;
+		std::vector<yycc_u8string> elems;
 
 		// if the string need to be splitted is nullptr, return empty result.
 		if (_strl == nullptr) return elems;
-		std::string strl(_strl);
+		yycc_u8string strl(_strl);
 		// if decilmer is nullptr, or decilmer is zero length, return original string
-		std::string decilmer;
+		yycc_u8string decilmer;
 		if (_decilmer == nullptr || (decilmer = _decilmer, decilmer.empty())) {
 			elems.push_back(strl);
 			return elems;
@@ -203,7 +231,7 @@ namespace YYCC::StringHelper {
 
 		// start spliting
 		std::size_t previous = 0, current;
-		while ((current = strl.find(decilmer.c_str(), previous)) != std::string::npos) {
+		while ((current = strl.find(decilmer.c_str(), previous)) != yycc_u8string::npos) {
 			elems.push_back(strl.substr(previous, current - previous));
 			previous = current + decilmer.size();
 		}
@@ -213,5 +241,8 @@ namespace YYCC::StringHelper {
 		}
 		return elems;
 	}
+
+#pragma endregion
+
 
 }

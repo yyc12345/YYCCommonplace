@@ -2,8 +2,8 @@
 
 #include "YYCCInternal.hpp"
 
-#include "StringHelper.hpp"
 #include "EncodingHelper.hpp"
+#include "StringHelper.hpp"
 #include "ConsoleHelper.hpp"
 #include "COMHelper.hpp"
 #include "DialogHelper.hpp"

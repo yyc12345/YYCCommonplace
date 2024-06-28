@@ -8,21 +8,22 @@
 
 namespace YYCC::StringHelper {
 
-	bool Printf(std::string& strl, const char* format, ...);
-	bool VPrintf(std::string& strl, const char* format, va_list argptr);
+	bool Printf(yycc_u8string& strl, const yycc_char8_t* format, ...);
+	bool VPrintf(yycc_u8string& strl, const yycc_char8_t* format, va_list argptr);
+	yycc_u8string Printf(const yycc_char8_t* format, ...);
+	yycc_u8string VPrintf(const yycc_char8_t* format, va_list argptr);
 
-	std::string Printf(const char* format, ...);
-	std::string VPrintf(const char* format, va_list argptr);
-
-	void Replace(std::string& strl, const char* _from_strl, const char* _to_strl);
-	std::string Replace(const char* _strl, const char* _from_strl, const char* _to_strl);
+	void Replace(yycc_u8string& strl, const yycc_char8_t* _from_strl, const yycc_char8_t* _to_strl);
+	yycc_u8string Replace(const yycc_char8_t* _strl, const yycc_char8_t* _from_strl, const yycc_char8_t* _to_strl);
 
 	/**
 	 * @brief The data provider of general Join function.
-	 * This function pointer return non-null string pointer to represent a element of joined series.
-	 * otherwise return nullptr to terminate the joining process.
+	 * For the implementation of this function:
+	 * Function return true to continue join. otherwise return false to terminate join. 
+	 * The argument assigned in the calling returning false is not included.
+	 * During calling, implementation should assign the string view to the string need to be joined in given argument.
 	*/
-	using JoinDataProvider = std::function<const char* ()>;
+	using JoinDataProvider = std::function<bool(yycc_u8string_view&)>;
 	/**
 	 * @brief General Join function.
 	 * @details This function use function pointer as a general data provider interface,
@@ -31,7 +32,7 @@ namespace YYCC::StringHelper {
 	 * @param decilmer[in] The decilmer.
 	 * @return A std::string instance which containing the join result.
 	*/
-	std::string Join(JoinDataProvider fct_data, const char* decilmer);
+	yycc_u8string Join(JoinDataProvider fct_data, const yycc_char8_t* decilmer);
 	/**
 	 * @brief Specialized Join function for common used container.
 	 * @param data
@@ -39,22 +40,12 @@ namespace YYCC::StringHelper {
 	 * @param reversed
 	 * @return
 	*/
-	std::string Join(const std::vector<std::string>& data, const char* decilmer, bool reversed = false);
+	yycc_u8string Join(const std::vector<yycc_u8string>& data, const yycc_char8_t* decilmer, bool reversed = false);
 
-	/**
-	 * @brief Transform string to lower.
-	 * @param strl
-	 * @return
-	*/
-	std::string Lower(const char* strl);
-	void Lower(std::string& strl);
-	/**
-	 * @brief Transform string to upper.
-	 * @param strl
-	 * @return
-	*/
-	std::string Upper(const char* strl);
-	void Upper(std::string& strl);
+	yycc_u8string Lower(const yycc_char8_t* strl);
+	void Lower(yycc_u8string& strl);
+	yycc_u8string Upper(const yycc_char8_t* strl);
+	void Upper(yycc_u8string& strl);
 
 	/**
 	 * @brief General Split function.
@@ -67,5 +58,5 @@ namespace YYCC::StringHelper {
 	 * It can works in most toy cases but not suit for high performance scenario.
 	 * Also, this function will produce a copy of original string because it is not zero copy.
 	*/
-	std::vector<std::string> Split(const char* _strl, const char* _decilmer);
+	std::vector<yycc_u8string> Split(const yycc_char8_t* _strl, const yycc_char8_t* _decilmer);
 }
