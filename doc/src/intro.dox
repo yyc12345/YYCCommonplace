@@ -2,10 +2,75 @@
 
 \page intro Introduction to YYCCommonplace
 
-work in progress
+YYCCommonplace, or YYC Commonplace (abbr. YYCC), is a static library providing various useful C++ functions when programming with standard library or Windows environment.
 
-\section intro_wip Work in Progress
+Actually YYCC provides the functions which I frequently used in my personal projects.
+Thus I do not need copy these functions from one project to another project.
+I can write them once and use them everywhere.
+It's also good for bug fix.
+If I found bug in these code, I only need to fix it in this project.
+Otherwise I need to fix them one by one in each project because they share the same code.
 
-work in progress
+\section intro_why Why YYCCommonplace
+
+\subsection intro_why_windows Windows Issues
+
+I frequently program on Windows environment because the software I programming for, Virtools, is Windows-only software.
+During programming, I found Windows is super lack in UTF8 supports.
+Programmer loves UTF8, because it can handle all charcaters over the world in one encoding and is still compatible with C-Style string.
+However, Windows use a weird way to achieve internationalization, 2 different function trailing, A and W for legacy code and modern code respectively.
+The worst things is that the char type W trailing function used, \c WCHAR, is defined as 2 bytes long, not 4 bytes long as Linux does (\c wchar_t).
+It mean that one emoji charcater will be torn into 2 \c WCHAR on Windows because emoji code unit is higher than the manimum value of \c WCHAR.
+
+Also, there are various issues which should not be presented.
+For example, Microsoft invents various \e safe standard library functions to prevent possible overflow issues raised by \c std::fgets and etc.
+also, MSVC may throw weird error when you using some specific standard library functions.
+You need to define some weird macro to disable this shitty behavior.
+
+There are various non-standard issue you may faced on Windows programming. 
+All in all, programming on Windows is a tough work.
+This is one of the reasons why I create this library.
+I create much wrappers for these weird Windows functions.
+Thus I can have a similar Linux C++ programming experience on Windows.
+
+\subsection intro_why_std Standard Library Issues
+
+The eccentric decision of standard commission also is the reason why I create this library.
+
+\li C++ standard commission loves to bring one feature with N concepts and P assistant classes.
+\li C++ standard commission seems doesn't want to bring any features the programmer urgent needed.
+\li C++ standard commission loves delete programmer loved convenient functions and classes.
+\li etc...
+
+There is not a proper way to \e format a string in C++ until C++ 20 (\c std::format).
+String related functions, such as split, lower, higher, replace, now still not be included in standard library.
+Programmer loved, easy to used UTF8 procession functions and classes was deprecate now and will be removed in future.
+
+That's why I create this library.
+I bring these function in this library.
+Not industrial level, but easy to use and have enough performance in my project.
+
+\subsection intro_why_boost Boost Issues
+
+Bosst is a powerful C++ library. But the shortcoming is overt. It's tooooo big.
+This drawback will be more obvious considering the bad dependency mechanism of C++.
+Although the most of Boost sub-library is header-only, but some library still need to link with Boost.
+It order you download the whole Boost library and extract it in your hard disk.
+Cost more than half hours, 5+ GB disk space and the life time of your disk.
+
+The functions belonging to Boost is industrial level.
+But what I want is not industrial level functions.
+I only need a function which can barely finish my work. That's enough.
+I don't need extreme performance. I just want my code works.
+
+So I create this library, bring some Boost functions with ordinary but not bad implementation.
+
+\section intro_usage Library Usage
+
+Before using this library, I suggest you read this manual fully to have a full overview of this library.
+Otherwise you may make mistake during using this library.
+I suggest you read this manual from top to bottom in the left tree panel, one by one.
+
+This library is a static library.
 
 */

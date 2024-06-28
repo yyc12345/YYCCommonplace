@@ -1,11 +1,45 @@
 /**
 
-\mainpage YYCCommonplace Library Manual
+\mainpage YYCCommonplace Programming Manual
 
-This manual is organized into the following chapters and appendices:
+<TABLE CELLPADDING="8" CELLSPACING="0" SUMMARY="TITLE BAR" WIDTH="100%" BORDER="0">
+<TR>
+  <TD><CENTER>
+    \image html yycc_icon.png
+  </CENTER></TD>
+  <TD><CENTER>
+    <B>YYCCommonplace Programming Manual</B>
 
-\li \subpage intro
+    Copyright 2024 by yyc12345.
+  </CENTER></TD>
+</TR>
+</TABLE>
+<TABLE CELLPADDING="8" CELLSPACING="0" SUMMARY="TITLE BAR" WIDTH="100%" BORDER="0">
+<TR>
+  <TD>
+    This software and manual are provided under the terms of the MIT License.
+  </TD>
+</TR>
+</TABLE>
+<TABLE CELLPADDING="8" CELLSPACING="0" SUMMARY="Table of Contents" WIDTH="100%" BORDER="0">
+<TR>
+  <TD ALIGN="LEFT" VALIGN="TOP">
 
-\li \subpage library_encoding
+    \subpage intro
+
+    \subpage library_encoding
+
+    \subpage encoding_helper
+
+    \subpage string_helper
+
+  </TD>
+  <TD ALIGN="LEFT" VALIGN="TOP">
+
+    placeholder
+
+  </TD>
+</TR>
+</TABLE>
 
 */

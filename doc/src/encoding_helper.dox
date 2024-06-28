@@ -1,0 +1,11 @@
+/**
+
+\page encoding_helper Encoding Helper
+
+YYCC::EncodingHelper namespace include all encoding related functions:
+
+\li The convertion between native string and UTF8 string which has been introduced in chapter \ref library_encoding.
+\li Windows specific convertion between \c WCHAR, UTF8 string and string encoded by other encoding.
+\li The convertion among UTF8, UTF16 and UTF32.
+
+*/
