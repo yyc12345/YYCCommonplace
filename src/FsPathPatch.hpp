@@ -28,7 +28,7 @@ namespace YYCC::FsPathPatch {
 	 * @return std::filesystem::path instance.
 	 * @exception std::invalid_argument Fail to parse given UTF8 string (maybe invalid?).
 	*/
-	std::filesystem::path FromUTF8Path(const char* u8_path);
+	std::filesystem::path FromUTF8Path(const yycc_char8_t* u8_path);
 
 	/**
 	 * @brief Returns the UTF8 representation of the pathname
@@ -36,6 +36,6 @@ namespace YYCC::FsPathPatch {
 	 * @return UTF8 encoded string representing given path.
 	 * @exception std::invalid_argument Fail to parse to UTF8 string.
 	*/
-	std::string ToUTF8Path(const std::filesystem::path& path);
+	yycc_u8string ToUTF8Path(const std::filesystem::path& path);
 
 }

@@ -23,12 +23,12 @@ namespace YYCCTestbench {
 #define TEST_UNICODE_STR_EMOJI "\U0001F363 \u2716 \U0001F37A" // sushi x beer mug
 
 #define CONCAT(prefix, strl) prefix ## strl
-#define CPP_U8_LITERAL(strl) reinterpret_cast<const char*>(CONCAT(u8, strl))
+#define CPP_U8_LITERAL(strl) YYCC_U8(strl)
 #define CPP_U16_LITERAL(strl) CONCAT(u, strl)
 #define CPP_U32_LITERAL(strl) CONCAT(U, strl)
 #define CPP_WSTR_LITERAL(strl) CONCAT(L, strl)
 
-	static std::vector<std::string> c_UTF8TestStrTable {
+	static std::vector<YYCC::yycc_u8string> c_UTF8TestStrTable {
 		CPP_U8_LITERAL(TEST_UNICODE_STR_JAPAN),
 		CPP_U8_LITERAL(TEST_UNICODE_STR_CHINA),
 		CPP_U8_LITERAL(TEST_UNICODE_STR_KOREA),

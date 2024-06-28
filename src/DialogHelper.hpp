@@ -65,7 +65,7 @@ namespace YYCC::DialogHelper {
 		 * @remarks This function allow you register multiple filter patterns for single friendly name.
 		 * For example: `Add("Microsoft Word (*.doc; *.docx)", {"*.doc", "*.docx"})`
 		*/
-		bool Add(const char* filter_name, std::initializer_list<const char*> il);
+		bool Add(const yycc_char8_t* filter_name, std::initializer_list<const yycc_char8_t*> il);
 		/**
 		 * @brief Clear filter pairs for following re-use.
 		*/
@@ -85,8 +85,8 @@ namespace YYCC::DialogHelper {
 		bool Generate(WinFileFilters& win_result) const;
 
 	protected:
-		using FilterModes = std::vector<std::string>;
-		using FilterName = std::string;
+		using FilterModes = std::vector<yycc_u8string>;
+		using FilterName = yycc_u8string;
 		using FilterPair = std::pair<FilterName, FilterModes>;
 
 		std::vector<FilterPair> m_Filters;
@@ -159,7 +159,7 @@ namespace YYCC::DialogHelper {
 			m_HasTitle(false), m_HasInitFileName(false), m_HasInitDirectory(false) {}
 
 		void SetOwner(HWND owner) { m_Owner = owner; }
-		void SetTitle(const char* title) {
+		void SetTitle(const yycc_char8_t* title) {
 			if (m_HasTitle = title != nullptr)
 				m_Title = title;
 		}
@@ -167,11 +167,11 @@ namespace YYCC::DialogHelper {
 			return m_FileTypes;
 		}
 		void SetDefaultFileTypeIndex(size_t idx) { m_DefaultFileTypeIndex = idx; }
-		void SetInitFileName(const char* init_filename) {
+		void SetInitFileName(const yycc_char8_t* init_filename) {
 			if (m_HasInitFileName = init_filename != nullptr)
 				m_InitFileName = init_filename;
 		}
-		void SetInitDirectory(const char* init_dir) {
+		void SetInitDirectory(const yycc_char8_t* init_dir) {
 			if (m_HasInitDirectory = init_dir != nullptr)
 				m_InitDirectory = init_dir;
 		}
@@ -200,7 +200,7 @@ namespace YYCC::DialogHelper {
 	protected:
 		HWND m_Owner;
 		bool m_HasTitle, m_HasInitFileName, m_HasInitDirectory;
-		std::string m_Title, m_InitFileName, m_InitDirectory;
+		yycc_u8string m_Title, m_InitFileName, m_InitDirectory;
 		FileFilters m_FileTypes;
 		/**
 		 * @brief The default selected file type in dialog
@@ -210,11 +210,11 @@ namespace YYCC::DialogHelper {
 		size_t m_DefaultFileTypeIndex;
 	};
 
-	bool OpenFileDialog(const FileDialog& params, std::string& ret);
-	bool OpenMultipleFileDialog(const FileDialog& params, std::vector<std::string>& ret);
-	bool SaveFileDialog(const FileDialog& params, std::string& ret);
+	bool OpenFileDialog(const FileDialog& params, yycc_u8string& ret);
+	bool OpenMultipleFileDialog(const FileDialog& params, std::vector<yycc_u8string>& ret);
+	bool SaveFileDialog(const FileDialog& params, yycc_u8string& ret);
 
-	bool OpenFolderDialog(const FileDialog& params, std::string& ret);
+	bool OpenFolderDialog(const FileDialog& params, yycc_u8string& ret);
 
 }
 

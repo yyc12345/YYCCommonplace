@@ -59,50 +59,50 @@ namespace YYCC::ExceptionHelper {
 	 * @param[in] code Exception code
 	 * @return The const string pointer to corresponding exception explanation string.
 	*/
-	static const char* UExceptionGetCodeName(DWORD code) {
+	static const yycc_char8_t* UExceptionGetCodeName(DWORD code) {
 		switch (code) {
 			case EXCEPTION_ACCESS_VIOLATION:
-				return "access violation";
+				return YYCC_U8("access violation");
 			case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-				return "array index out of bound";
+				return YYCC_U8("array index out of bound");
 			case EXCEPTION_BREAKPOINT:
-				return "breakpoint reached";
+				return YYCC_U8("breakpoint reached");
 			case EXCEPTION_DATATYPE_MISALIGNMENT:
-				return "misaligned data access";
+				return YYCC_U8("misaligned data access");
 			case EXCEPTION_FLT_DENORMAL_OPERAND:
-				return "operand had denormal value";
+				return YYCC_U8("operand had denormal value");
 			case EXCEPTION_FLT_DIVIDE_BY_ZERO:
-				return "floating-point division by zero";
+				return YYCC_U8("floating-point division by zero");
 			case EXCEPTION_FLT_INEXACT_RESULT:
-				return "no decimal fraction representation for value";
+				return YYCC_U8("no decimal fraction representation for value");
 			case EXCEPTION_FLT_INVALID_OPERATION:
-				return "invalid floating-point operation";
+				return YYCC_U8("invalid floating-point operation");
 			case EXCEPTION_FLT_OVERFLOW:
-				return "floating-point overflow";
+				return YYCC_U8("floating-point overflow");
 			case EXCEPTION_FLT_STACK_CHECK:
-				return "floating-point stack corruption";
+				return YYCC_U8("floating-point stack corruption");
 			case EXCEPTION_FLT_UNDERFLOW:
-				return "floating-point underflow";
+				return YYCC_U8("floating-point underflow");
 			case EXCEPTION_ILLEGAL_INSTRUCTION:
-				return "illegal instruction";
+				return YYCC_U8("illegal instruction");
 			case EXCEPTION_IN_PAGE_ERROR:
-				return "inaccessible page";
+				return YYCC_U8("inaccessible page");
 			case EXCEPTION_INT_DIVIDE_BY_ZERO:
-				return "integer division by zero";
+				return YYCC_U8("integer division by zero");
 			case EXCEPTION_INT_OVERFLOW:
-				return "integer overflow";
+				return YYCC_U8("integer overflow");
 			case EXCEPTION_INVALID_DISPOSITION:
-				return "documentation says this should never happen";
+				return YYCC_U8("documentation says this should never happen");
 			case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-				return "can't continue after a noncontinuable exception";
+				return YYCC_U8("can't continue after a noncontinuable exception");
 			case EXCEPTION_PRIV_INSTRUCTION:
-				return "attempted to execute a privileged instruction";
+				return YYCC_U8("attempted to execute a privileged instruction");
 			case EXCEPTION_SINGLE_STEP:
-				return "one instruction has been executed";
+				return YYCC_U8("one instruction has been executed");
 			case EXCEPTION_STACK_OVERFLOW:
-				return "stack overflow";
+				return YYCC_U8("stack overflow");
 			default:
-				return "unknown exception";
+				return YYCC_U8("unknown exception");
 		}
 	}
 
@@ -117,12 +117,12 @@ namespace YYCC::ExceptionHelper {
 	 * @param[in] fmt The format string.
 	 * @param[in] ... The argument to be formatted.
 	*/
-	static void UExceptionErrLogFormatLine(std::FILE* fs, const char* fmt, ...) {
+	static void UExceptionErrLogFormatLine(std::FILE* fs, const yycc_char8_t* fmt, ...) {
 		// write to file
 		if (fs != nullptr) {
 			va_list arg1;
 			va_start(arg1, fmt);
-			std::vfprintf(fs, fmt, arg1);
+			std::vfprintf(fs, EncodingHelper::ToNative(fmt), arg1);
 			std::fputs("\n", fs);
 			va_end(arg1);
 		}
@@ -142,10 +142,10 @@ namespace YYCC::ExceptionHelper {
 	 * If it is nullptr, function will skip writing for file stream.
 	 * @param[in] strl The string to be written.
 	*/
-	static void UExceptionErrLogWriteLine(std::FILE* fs, const char* strl) {
+	static void UExceptionErrLogWriteLine(std::FILE* fs, const yycc_char8_t* strl) {
 		// write to file
 		if (fs != nullptr) {
-			std::fputs(strl, fs);
+			std::fputs(EncodingHelper::ToNative(strl), fs);
 			std::fputs("\n", fs);
 		}
 		// write to stderr
@@ -163,7 +163,7 @@ namespace YYCC::ExceptionHelper {
 		// init symbol
 		if (!SymInitialize(process, 0, TRUE)) {
 			// fail to init. return
-			UExceptionErrLogWriteLine(fs, "Fail to initialize symbol handle for process!");
+			UExceptionErrLogWriteLine(fs, YYCC_U8("Fail to initialize symbol handle for process!"));
 			return;
 		}
 
@@ -215,13 +215,13 @@ namespace YYCC::ExceptionHelper {
 			// depth breaker
 			--maxdepth;
 			if (maxdepth < 0) {
-				UExceptionErrLogWriteLine(fs, "...");		// indicate there are some frames not listed
+				UExceptionErrLogWriteLine(fs, YYCC_U8("..."));		// indicate there are some frames not listed
 				break;
 			}
 
 			// get module name
-			const char* module_name = "<unknown module>";
-			std::string module_name_raw;
+			const yycc_char8_t* module_name = YYCC_U8("<unknown module>");
+			yycc_u8string module_name_raw;
 			DWORD64 module_base;
 			if (module_base = SymGetModuleBase64(process, frame.AddrPC.Offset)) {
 				if (WinFctHelper::GetModuleFileName((HINSTANCE)module_base, module_name_raw)) {
@@ -230,18 +230,18 @@ namespace YYCC::ExceptionHelper {
 			}
 
 			// get source file and line
-			const char* source_file = "<unknown source>";
+			const yycc_char8_t* source_file = YYCC_U8("<unknown source>");
 			DWORD64 source_file_line = 0;
 			DWORD dwDisplacement;
 			IMAGEHLP_LINE64 winline;
 			winline.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 			if (SymGetLineFromAddr64(process, frame.AddrPC.Offset, &dwDisplacement, &winline)) {
-				source_file = winline.FileName;
+				source_file = EncodingHelper::ToUTF8(winline.FileName); // TODO: check whether there is UNICODE file name.
 				source_file_line = winline.LineNumber;
 			}
 
 			// write to file
-			UExceptionErrLogFormatLine(fs, "0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "[%s+0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "]\t%s#L%" PRIu64,
+			UExceptionErrLogFormatLine(fs, YYCC_U8("0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "[%s+0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "]\t%s#L%" PRIu64),
 				frame.AddrPC.Offset, // memory adress
 				module_name, frame.AddrPC.Offset - module_base, // module name + relative address
 				source_file, source_file_line // source file + source line
@@ -255,16 +255,16 @@ namespace YYCC::ExceptionHelper {
 		SymCleanup(process);
 	}
 
-	static void UExceptionErrorLog(const std::string& u8_filename, LPEXCEPTION_POINTERS info) {
+	static void UExceptionErrorLog(const yycc_u8string& u8_filename, LPEXCEPTION_POINTERS info) {
 		// open file stream if we have file name
 		std::FILE* fs = nullptr;
 		if (!u8_filename.empty()) {
-			fs = IOHelper::UTF8FOpen(u8_filename.c_str(), "wb");
+			fs = IOHelper::UTF8FOpen(u8_filename.c_str(), YYCC_U8("wb"));
 		}
 
 		// record exception type first
 		PEXCEPTION_RECORD rec = info->ExceptionRecord;
-		UExceptionErrLogFormatLine(fs, "Unhandled exception occured at 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR ": %s (%" PRIu32 ").",
+		UExceptionErrLogFormatLine(fs, YYCC_U8("Unhandled exception occured at 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR ": %s (%" PRIu32 ")."),
 			rec->ExceptionAddress,
 			UExceptionGetCodeName(rec->ExceptionCode),
 			rec->ExceptionCode
@@ -276,7 +276,7 @@ namespace YYCC::ExceptionHelper {
 				const char* op =
 					rec->ExceptionInformation[0] == 0 ? "read" :
 					rec->ExceptionInformation[0] == 1 ? "written" : "executed";
-				UExceptionErrLogFormatLine(fs, "The data at memory address 0x%" PRI_XPTR_LEFT_PADDING PRIxPTR " could not be %s.",
+				UExceptionErrLogFormatLine(fs, YYCC_U8("The data at memory address 0x%" PRI_XPTR_LEFT_PADDING PRIxPTR " could not be %s."),
 					rec->ExceptionInformation[1], op);
 			}
 		}
@@ -290,12 +290,12 @@ namespace YYCC::ExceptionHelper {
 		}
 	}
 
-	static void UExceptionCoreDump(const std::string& u8_filename, LPEXCEPTION_POINTERS info) {
+	static void UExceptionCoreDump(const yycc_u8string& u8_filename, LPEXCEPTION_POINTERS info) {
 		// convert file encoding
 		std::wstring filename;
 		if (u8_filename.empty())
 			return; // if no given file name, return
-		if (!YYCC::EncodingHelper::UTF8ToWchar(u8_filename.c_str(), filename))
+		if (!YYCC::EncodingHelper::UTF8ToWchar(u8_filename, filename))
 			return; // if convertion failed, return
 
 		// open file and write
@@ -315,18 +315,18 @@ namespace YYCC::ExceptionHelper {
 		}
 	}
 
-	static bool UExceptionFetchRecordPath(std::string& log_path, std::string& coredump_path) {
+	static bool UExceptionFetchRecordPath(yycc_u8string& log_path, yycc_u8string& coredump_path) {
 		// build two file names like: "module.dll.1234.log" and "module.dll.1234.dmp".
 		// "module.dll" is the name of current module. "1234" is current process id.
 		// get self module name
-		std::string u8_self_module_name;
+		yycc_u8string u8_self_module_name;
 		{
 			// get module handle
 			HMODULE hSelfModule = YYCC::WinFctHelper::GetCurrentModule();
 			if (hSelfModule == nullptr)
 				return false;
 			// get full path of self module
-			std::string u8_self_module_path;
+			yycc_u8string u8_self_module_path;
 			if (!YYCC::WinFctHelper::GetModuleFileName(hSelfModule, u8_self_module_path))
 				return false;
 			// extract file name from full path by std::filesystem::path
@@ -336,22 +336,22 @@ namespace YYCC::ExceptionHelper {
 		// then get process id
 		DWORD process_id = GetCurrentProcessId();
 		// conbine them as a file name prefix
-		std::string u8_filename_prefix;
-		if (!YYCC::StringHelper::Printf(u8_filename_prefix, "%s.%" PRIu32, u8_self_module_name.c_str(), process_id))
+		yycc_u8string u8_filename_prefix;
+		if (!YYCC::StringHelper::Printf(u8_filename_prefix, YYCC_U8("%s.%" PRIu32), u8_self_module_name.c_str(), process_id))
 			return false;
 		// then get file name for log and minidump
-		std::string u8_log_filename = u8_filename_prefix + ".log";
-		std::string u8_coredump_filename = u8_filename_prefix + ".dmp";
+		yycc_u8string u8_log_filename = u8_filename_prefix + YYCC_U8(".log");
+		yycc_u8string u8_coredump_filename = u8_filename_prefix + YYCC_U8(".dmp");
 
 		// fetch crash report path
 		// get local appdata folder
-		std::string u8_localappdata_path;
+		yycc_u8string u8_localappdata_path;
 		if (!WinFctHelper::GetLocalAppData(u8_localappdata_path))
 			return false;
 		// convert to std::filesystem::path
 		std::filesystem::path crash_report_path(FsPathPatch::FromUTF8Path(u8_localappdata_path.c_str()));
 		// slash into crash report folder
-		crash_report_path /= FsPathPatch::FromUTF8Path("CrashDumps");
+		crash_report_path /= FsPathPatch::FromUTF8Path(YYCC_U8("CrashDumps"));
 		// use create function to make sure it is existing
 		std::filesystem::create_directories(crash_report_path);
 
@@ -375,18 +375,18 @@ namespace YYCC::ExceptionHelper {
 		// core implementation
 		{
 			// fetch error report path first
-			std::string log_path, coredump_path;
+			yycc_u8string log_path, coredump_path;
 			if (!UExceptionFetchRecordPath(log_path, coredump_path)) {
 				// fail to fetch path, clear them.
 				// we still can handle crash without them
 				log_path.clear();
 				coredump_path.clear();
 				// and tell user we can not output file
-				ConsoleHelper::ErrWriteLine("Crash occurs, but we can not create crash log and coredump!");
+				ConsoleHelper::ErrWriteLine(YYCC_U8("Crash occurs, but we can not create crash log and coredump!"));
 			} else {
 				// okey. output file path to tell user the path where you can find.
-				ConsoleHelper::ErrFormatLine("Crash Log: %s", log_path.c_str());
-				ConsoleHelper::ErrFormatLine("Crash Coredump: %s", coredump_path.c_str());
+				ConsoleHelper::ErrFormatLine(YYCC_U8("Crash Log: %s"), log_path.c_str());
+				ConsoleHelper::ErrFormatLine(YYCC_U8("Crash Coredump: %s"), coredump_path.c_str());
 			}
 
 			// write crash log

@@ -50,7 +50,7 @@
 */
 namespace YYCC::EncodingHelper {
 
-#define YYCC_U8(strl) (reinterpret_cast<const yycc_char8_t*>(u8 ## strl))
+#define YYCC_U8(strl) (reinterpret_cast<const ::YYCC::yycc_char8_t*>(u8 ## strl))
 
 	const yycc_char8_t* ToUTF8(const char* src);
 	yycc_char8_t* ToUTF8(char* src);

@@ -17,7 +17,7 @@ namespace YYCC::WinFctHelper {
 		return hModule;
 	}
 
-	bool GetTempDirectory(std::string& ret) {
+	bool GetTempDirectory(yycc_u8string& ret) {
 		// create wchar buffer for receiving the temp path.
 		std::wstring wpath(MAX_PATH + 1u, L'\0');
 		DWORD expected_size;
@@ -41,10 +41,10 @@ namespace YYCC::WinFctHelper {
 		// resize result
 		wpath.resize(expected_size);
 		// convert to utf8 and return
-		return YYCC::EncodingHelper::WcharToUTF8(wpath.c_str(), ret);
+		return YYCC::EncodingHelper::WcharToUTF8(wpath, ret);
 	}
 
-	bool GetModuleFileName(HINSTANCE hModule, std::string& ret) {
+	bool GetModuleFileName(HINSTANCE hModule, yycc_u8string& ret) {
 		// create wchar buffer for receiving the temp path.
 		std::wstring wpath(MAX_PATH + 1u, L'\0');
 		DWORD copied_size;
@@ -68,10 +68,13 @@ namespace YYCC::WinFctHelper {
 		// resize result
 		wpath.resize(copied_size);
 		// convert to utf8 and return
-		return YYCC::EncodingHelper::WcharToUTF8(wpath.c_str(), ret);
+		return YYCC::EncodingHelper::WcharToUTF8(wpath, ret);
 	}
 
-	bool GetLocalAppData(std::string& ret) {
+	bool GetLocalAppData(yycc_u8string& ret) {
+		// check whether com initialized
+		if (!COMHelper::IsInitialized()) return false;
+
 		// fetch path
 		LPWSTR _known_path;
 		HRESULT hr = SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, NULL, &_known_path);

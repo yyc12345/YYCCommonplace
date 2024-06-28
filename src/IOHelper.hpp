@@ -32,6 +32,6 @@ namespace YYCC::IOHelper {
 	 * On other platforms, this function will delegate request directly to std::fopen.
 	 * @return FILE* of the file to be opened, or nullptr if failed.
 	*/
-	FILE* UTF8FOpen(const char* u8_filepath, const char* u8_mode);
+	FILE* UTF8FOpen(const yycc_char8_t* u8_filepath, const yycc_char8_t* u8_mode);
 	
 }

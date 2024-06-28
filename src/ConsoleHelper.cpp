@@ -54,7 +54,7 @@ namespace YYCC::ConsoleHelper {
 	*/
 
 	template<bool _bIsConsole>
-	static std::string WinConsoleRead(HANDLE hStdIn) {
+	static yycc_u8string WinConsoleRead(HANDLE hStdIn) {
 		using _TChar = std::conditional_t<_bIsConsole, wchar_t, char>;
 
 		// Prepare an internal buffer because the read data may not be fully used.
@@ -113,21 +113,21 @@ namespace YYCC::ConsoleHelper {
 		}
 
 		// post-process for return value
-		std::string real_return_buffer;
+		yycc_u8string real_return_buffer;
 		if constexpr (_bIsConsole) {
 			// console mode need convert wchar to utf8
-			YYCC::EncodingHelper::WcharToUTF8(return_buffer.c_str(), real_return_buffer);
+			YYCC::EncodingHelper::WcharToUTF8(return_buffer, real_return_buffer);
 		} else {
 			// non-console just copt the result
-			real_return_buffer = return_buffer;
+			real_return_buffer = EncodingHelper::ToUTF8(return_buffer);
 		}
 		// every mode need delete \r words
-		YYCC::StringHelper::Replace(real_return_buffer, "\r", "");
+		YYCC::StringHelper::Replace(real_return_buffer, YYCC_U8("\r"), YYCC_U8(""));
 		// return value
 		return real_return_buffer;
 	}
 
-	static void WinConsoleWrite(const std::string& strl, bool to_stderr) {
+	static void WinConsoleWrite(const yycc_u8string& strl, bool to_stderr) {
 		// Prepare some Win32 variables
 		// fetch stdout handle first
 		HANDLE hStdOut = GetStdHandle(to_stderr ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
@@ -139,7 +139,7 @@ namespace YYCC::ConsoleHelper {
 		if (GetConsoleMode(hStdOut, &dwConsoleMode)) {
 			// console handle, use WriteConsoleW.
 			// convert utf8 string to wide char first
-			std::wstring wstrl(YYCC::EncodingHelper::UTF8ToWchar(strl.c_str()));
+			std::wstring wstrl(YYCC::EncodingHelper::UTF8ToWchar(strl));
 			size_t wstrl_size = wstrl.size();
 			// write string with size check
 			if (wstrl_size <= std::numeric_limits<DWORD>::max()) {
@@ -176,7 +176,7 @@ namespace YYCC::ConsoleHelper {
 #endif
 	}
 
-	std::string ReadLine() {
+	yycc_u8string ReadLine() {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 		// get stdin mode
@@ -188,24 +188,24 @@ namespace YYCC::ConsoleHelper {
 		} else {
 			return WinConsoleRead<false>(hStdIn);
 		}
-
+		
 #else
 
 		// in linux, directly use C++ function to fetch.
 		std::string cmd;
 		if (std::getline(std::cin, cmd).fail()) cmd.clear();
-		return cmd;
+		return EncodingHelper::ToUTF8(cmd);
 
 #endif
 	}
 
 	template<bool bNeedFmt, bool bIsErr, bool bHasEOL>
-	static void RawWrite(const char* u8_fmt, va_list argptr) {
+	static void RawWrite(const yycc_char8_t* u8_fmt, va_list argptr) {
 		// Buiild string need to be written first
 		// If no format string or plain string for writing, return.
 		if (u8_fmt == nullptr) return;
 		// Build or simply copy string
-		std::string strl;
+		yycc_u8string strl;
 		if constexpr (bNeedFmt) {
 			// treat as format string
 			va_list argcpy;
@@ -218,62 +218,62 @@ namespace YYCC::ConsoleHelper {
 		}
 		// Checkout whether add EOL
 		if constexpr (bHasEOL) {
-			strl += "\n";
+			strl += YYCC_U8("\n");
 		}
-
+		
 #if YYCC_OS == YYCC_OS_WINDOWS
 		// call Windows specific writer
 		WinConsoleWrite(strl, bIsErr);
 #else
 		// in linux, directly use C function to write.
-		std::fputs(strl.c_str(), bIsErr ? stderr : stdout);
+		std::fputs(EncodingHelper::ToNative(strl.c_str()), bIsErr ? stderr : stdout);
 #endif
 	}
 
-	void Format(const char* u8_fmt, ...) {
+	void Format(const yycc_char8_t* u8_fmt, ...) {
 		va_list argptr;
 		va_start(argptr, u8_fmt);
 		RawWrite<true, false, false>(u8_fmt, argptr);
 		va_end(argptr);
 	}
 
-	void FormatLine(const char* u8_fmt, ...) {
+	void FormatLine(const yycc_char8_t* u8_fmt, ...) {
 		va_list argptr;
 		va_start(argptr, u8_fmt);
 		RawWrite<true, false, true>(u8_fmt, argptr);
 		va_end(argptr);
 	}
 
-	void Write(const char* u8_strl) {
+	void Write(const yycc_char8_t* u8_strl) {
 		va_list empty{};
 		RawWrite<false, false, false>(u8_strl, empty);
 	}
 	
-	void WriteLine(const char* u8_strl) {
+	void WriteLine(const yycc_char8_t* u8_strl) {
 		va_list empty{};
 		RawWrite<false, false, true>(u8_strl, empty);
 	}
 	
-	void ErrFormat(const char* u8_fmt, ...) {
+	void ErrFormat(const yycc_char8_t* u8_fmt, ...) {
 		va_list argptr;
 		va_start(argptr, u8_fmt);
 		RawWrite<true, true, false>(u8_fmt, argptr);
 		va_end(argptr);
 	}
 
-	void ErrFormatLine(const char* u8_fmt, ...) {
+	void ErrFormatLine(const yycc_char8_t* u8_fmt, ...) {
 		va_list argptr;
 		va_start(argptr, u8_fmt);
 		RawWrite<true, true, true>(u8_fmt, argptr);
 		va_end(argptr);
 	}
 
-	void ErrWrite(const char* u8_strl) {
+	void ErrWrite(const yycc_char8_t* u8_strl) {
 		va_list empty{};
 		RawWrite<false, true, false>(u8_strl, empty);
 	}
 	
-	void ErrWriteLine(const char* u8_strl) {
+	void ErrWriteLine(const yycc_char8_t* u8_strl) {
 		va_list empty{};
 		RawWrite<false, true, true>(u8_strl, empty);
 	}

@@ -8,7 +8,7 @@
 #include "COMHelper.hpp"
 #include "DialogHelper.hpp"
 #include "ParserHelper.hpp"
-#include "ExceptionHelper.hpp"
 #include "IOHelper.hpp"
 #include "WinFctHelper.hpp"
 #include "FsPathPatch.hpp"
+#include "ExceptionHelper.hpp"

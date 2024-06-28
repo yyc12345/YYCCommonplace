@@ -14,7 +14,7 @@
 
 namespace YYCC::IOHelper {
 
-	FILE* UTF8FOpen(const char* u8_filepath, const char* u8_mode) {
+	FILE* UTF8FOpen(const yycc_char8_t* u8_filepath, const yycc_char8_t* u8_mode) {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 		// convert mode and file path to wchar

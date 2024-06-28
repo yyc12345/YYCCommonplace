@@ -124,52 +124,52 @@ namespace YYCC::ConsoleHelper {
 	 * This function also can be used as ordering user press Enter key by
 	 * simply calling this function and ignoring its return value.
 	*/
-	std::string ReadLine();
+	yycc_u8string ReadLine();
 
 	/**
 	 * @brief Universal console write function with format feature.
 	 * @param[in] u8_fmt The format string.
 	 * @param[in] ... The arguments to be formatted.
 	*/
-	void Format(const char* u8_fmt, ...);
+	void Format(const yycc_char8_t* u8_fmt, ...);
 	/**
 	 * @brief Universal console write function with format and auto EOL feature.
 	 * @param[in] u8_fmt The format string.
 	 * @param[in] ... The arguments to be formatted.
 	*/
-	void FormatLine(const char* u8_fmt, ...);
+	void FormatLine(const yycc_char8_t* u8_fmt, ...);
 	/**
 	 * @brief Universal console write function.
 	 * @param[in] u8_strl The string to be written.
 	*/
-	void Write(const char* u8_strl);
+	void Write(const yycc_char8_t* u8_strl);
 	/**
 	 * @brief Universal console write function with auto EOL feature.
 	 * @param[in] u8_strl The string to be written.
 	*/
-	void WriteLine(const char* u8_strl);
+	void WriteLine(const yycc_char8_t* u8_strl);
 
 	/**
 	 * @brief Universal console error write function with format and feature.
 	 * @param[in] u8_fmt The format string.
 	 * @param[in] ... The arguments to be formatted.
 	*/
-	void ErrFormat(const char* u8_fmt, ...);
+	void ErrFormat(const yycc_char8_t* u8_fmt, ...);
 	/**
 	 * @brief Universal console error write function with format and auto EOL feature.
 	 * @param[in] u8_fmt The format string.
 	 * @param[in] ... The arguments to be formatted.
 	*/
-	void ErrFormatLine(const char* u8_fmt, ...);
+	void ErrFormatLine(const yycc_char8_t* u8_fmt, ...);
 	/**
 	 * @brief Universal console error write function.
 	 * @param[in] u8_strl The string to be written.
 	*/
-	void ErrWrite(const char* u8_strl);
+	void ErrWrite(const yycc_char8_t* u8_strl);
 	/**
 	 * @brief Universal console error write function with auto EOL feature.
 	 * @param[in] u8_strl The string to be written.
 	*/
-	void ErrWriteLine(const char* u8_strl);
+	void ErrWriteLine(const yycc_char8_t* u8_strl);
 
 }

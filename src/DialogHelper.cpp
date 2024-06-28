@@ -8,16 +8,16 @@ namespace YYCC::DialogHelper {
 
 #pragma region FileFilters
 
-	bool FileFilters::Add(const char* filter_name, std::initializer_list<const char*> il) {
+	bool FileFilters::Add(const yycc_char8_t* filter_name, std::initializer_list<const yycc_char8_t*> il) {
 		// assign filter name
 		if (filter_name == nullptr) return false;
 		FilterName name(filter_name);
 
 		// assign filter patterns
 		FilterModes modes;
-		for (const char* pattern : il) {
+		for (const yycc_char8_t* pattern : il) {
 			if (pattern != nullptr)
-				modes.emplace_back(std::string(pattern));
+				modes.emplace_back(yycc_u8string(pattern));
 		}
 
 		// check filter patterns
@@ -36,13 +36,13 @@ namespace YYCC::DialogHelper {
 		for (const auto& it : m_Filters) {
 			// convert name to wchar
 			WinFileFilters::WinFilterName name;
-			if (!YYCC::EncodingHelper::UTF8ToWchar(it.first.c_str(), name))
+			if (!YYCC::EncodingHelper::UTF8ToWchar(it.first, name))
 				return false;
 
 			// convert pattern and join them
-			std::string joined_modes(YYCC::StringHelper::Join(it.second, ";"));
+			yycc_u8string joined_modes(YYCC::StringHelper::Join(it.second, YYCC_U8(";")));
 			WinFileFilters::WinFilterModes modes;
-			if (!YYCC::EncodingHelper::UTF8ToWchar(joined_modes.c_str(), modes))
+			if (!YYCC::EncodingHelper::UTF8ToWchar(joined_modes, modes))
 				return false;
 
 			// append new pair
@@ -94,12 +94,12 @@ namespace YYCC::DialogHelper {
 
 		// build title and init file name
 		if (m_HasTitle) {
-			if (!YYCC::EncodingHelper::UTF8ToWchar(m_Title.c_str(), win_result.m_WinTitle))
+			if (!YYCC::EncodingHelper::UTF8ToWchar(m_Title, win_result.m_WinTitle))
 				return false;
 			win_result.m_HasTitle = true;
 		}
 		if (m_HasInitFileName) {
-			if (!YYCC::EncodingHelper::UTF8ToWchar(m_InitFileName.c_str(), win_result.m_WinInitFileName))
+			if (!YYCC::EncodingHelper::UTF8ToWchar(m_InitFileName, win_result.m_WinInitFileName))
 				return false;
 			win_result.m_HasInitFileName = true;
 		}
@@ -108,7 +108,7 @@ namespace YYCC::DialogHelper {
 		if (m_HasInitDirectory) {
 			// convert to wpath
 			std::wstring w_init_directory;
-			if (!YYCC::EncodingHelper::UTF8ToWchar(m_InitDirectory.c_str(), w_init_directory))
+			if (!YYCC::EncodingHelper::UTF8ToWchar(m_InitDirectory, w_init_directory))
 				return false;
 
 			// fetch IShellItem*
@@ -143,7 +143,7 @@ namespace YYCC::DialogHelper {
 	 * @return True if success, otherwise false.
 	 * @remarks This is an assist function of CommonFileDialog.
 	*/
-	static bool ExtractDisplayName(IShellItem* item, std::string& ret) {
+	static bool ExtractDisplayName(IShellItem* item, yycc_u8string& ret) {
 		// fetch display name from IShellItem*
 		LPWSTR _name;
 		HRESULT hr = item->GetDisplayName(SIGDN_FILESYSPATH, &_name);
@@ -168,7 +168,7 @@ namespace YYCC::DialogHelper {
 	 * @remarks This function is the real underlying function of all dialog functions.
 	*/
 	template<CommonFileDialogType EDialogType>
-	static bool CommonFileDialog(const FileDialog& params, std::vector<std::string>& ret) {
+	static bool CommonFileDialog(const FileDialog& params, std::vector<yycc_u8string>& ret) {
 		// Reference: https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
 		// prepare result variable
 		HRESULT hr;
@@ -289,7 +289,7 @@ namespace YYCC::DialogHelper {
 				COMHelper::SmartIShellItem result_item(_item);
 
 				// extract display name
-				std::string result_name;
+				yycc_u8string result_name;
 				if (!ExtractDisplayName(result_item.get(), result_name))
 					return false;
 
@@ -326,7 +326,7 @@ namespace YYCC::DialogHelper {
 					COMHelper::SmartIShellItem result_item(_item);
 
 					// extract display name
-					std::string result_name;
+					yycc_u8string result_name;
 					if (!ExtractDisplayName(result_item.get(), result_name))
 						return false;
 
@@ -347,24 +347,24 @@ namespace YYCC::DialogHelper {
 
 #pragma region Wrapper Functions
 
-	bool OpenFileDialog(const FileDialog& params, std::string& ret) {
-		std::vector<std::string> cache;
+	bool OpenFileDialog(const FileDialog& params, yycc_u8string& ret) {
+		std::vector<yycc_u8string> cache;
 		bool isok = CommonFileDialog<CommonFileDialogType::OpenFile>(params, cache);
 		if (isok) ret = cache.front();
 		return isok;
 	}
-	bool OpenMultipleFileDialog(const FileDialog& params, std::vector<std::string>& ret) {
+	bool OpenMultipleFileDialog(const FileDialog& params, std::vector<yycc_u8string>& ret) {
 		return CommonFileDialog<CommonFileDialogType::OpenMultipleFiles>(params, ret);
 	}
-	bool SaveFileDialog(const FileDialog& params, std::string& ret) {
-		std::vector<std::string> cache;
+	bool SaveFileDialog(const FileDialog& params, yycc_u8string& ret) {
+		std::vector<yycc_u8string> cache;
 		bool isok = CommonFileDialog<CommonFileDialogType::SaveFile>(params, cache);
 		if (isok) ret = cache.front();
 		return isok;
 	}
 
-	bool OpenFolderDialog(const FileDialog& params, std::string& ret) {
-		std::vector<std::string> cache;
+	bool OpenFolderDialog(const FileDialog& params, yycc_u8string& ret) {
+		std::vector<yycc_u8string> cache;
 		bool isok = CommonFileDialog<CommonFileDialogType::OpenFolder>(params, cache);
 		if (isok) ret = cache.front();
 		return isok;

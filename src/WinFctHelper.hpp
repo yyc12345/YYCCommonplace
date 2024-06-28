@@ -36,7 +36,7 @@ namespace YYCC::WinFctHelper {
 	 * The variable receiving UTF8 encoded path to Windows temp folder.
 	 * @return True if success, otherwise false.
 	*/
-	bool GetTempDirectory(std::string& ret);
+	bool GetTempDirectory(yycc_u8string& ret);
 
 	/**
 	 * @brief Get the file name of given module HANDLE
@@ -47,7 +47,7 @@ namespace YYCC::WinFctHelper {
 	 * The variable receiving UTF8 encoded file name of given module.
 	 * @return True if success, otherwise false.
 	*/
-	bool GetModuleFileName(HINSTANCE hModule, std::string& ret);
+	bool GetModuleFileName(HINSTANCE hModule, yycc_u8string& ret);
 
 	/**
 	 * @brief Get the path to LOCALAPPDATA.
@@ -56,7 +56,7 @@ namespace YYCC::WinFctHelper {
 	 * The variable receiving UTF8 encoded path to LOCALAPPDATA.
 	 * @return 
 	*/
-	bool GetLocalAppData(std::string& ret);
+	bool GetLocalAppData(yycc_u8string& ret);
 
 }
 

@@ -14,11 +14,15 @@ namespace YYCC::ParserHelper {
 	// Reference: https://zh.cppreference.com/w/cpp/utility/from_chars
 
 	template<typename _Ty, std::enable_if_t<std::is_floating_point_v<_Ty>, int> = 0>
-	bool TryParse(const std::string& strl, _Ty& num) {
-		auto [ptr, ec] = std::from_chars(strl.c_str(), strl.c_str() + strl.size(), num, std::chars_format::general);
+	bool TryParse(const yycc_u8string_view& strl, _Ty& num) {
+		auto [ptr, ec] = std::from_chars(
+			EncodingHelper::ToNative(strl.data()), 
+			EncodingHelper::ToNative(strl.data() + strl.size()), 
+			num, std::chars_format::general
+		);
 		if (ec == std::errc()) {
 			// check whether the full string is matched
-			return ptr == strl.c_str() + strl.size();
+			return ptr == EncodingHelper::ToNative(strl.data() + strl.size());
 		} else if (ec == std::errc::invalid_argument) {
 			// given string is invalid
 			return false;
@@ -31,11 +35,15 @@ namespace YYCC::ParserHelper {
 		}
 	}
 	template<typename _Ty, std::enable_if_t<std::is_integral_v<_Ty> && !std::is_same_v<_Ty, bool>, int> = 0>
-	bool TryParse(const std::string& strl, _Ty& num, int base = 10) {
-		auto [ptr, ec] = std::from_chars(strl.c_str(), strl.c_str() + strl.size(), num, base);
+	bool TryParse(const yycc_u8string_view& strl, _Ty& num, int base = 10) {
+		auto [ptr, ec] = std::from_chars(
+			EncodingHelper::ToNative(strl.data()), 
+			EncodingHelper::ToNative(strl.data() + strl.size()), 
+			num, base
+		);
 		if (ec == std::errc()) {
 			// check whether the full string is matched
-			return ptr == strl.c_str() + strl.size();
+			return ptr == EncodingHelper::ToNative(strl.data() + strl.size());
 		} else if (ec == std::errc::invalid_argument) {
 			// given string is invalid
 			return false;
@@ -48,15 +56,15 @@ namespace YYCC::ParserHelper {
 		}
 	}
 	template<typename _Ty, std::enable_if_t<std::is_same_v<_Ty, bool>, int> = 0>
-	bool TryParse(const std::string& strl, _Ty& num) {
-		if (strl == "true") num = true;
-		else if (strl == "false") num = false;
+	bool TryParse(const yycc_u8string_view& strl, _Ty& num) {
+		if (strl == YYCC_U8("true")) num = true;
+		else if (strl == YYCC_U8("false")) num = false;
 		else return false;
 		return true;
 	}
 
 	template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty>, int> = 0>
-	_Ty Parse(const std::string& strl) {
+	_Ty Parse(const yycc_u8string_view& strl) {
 		_Ty ret;
 		TryParse(strl, ret);
 		return ret;
@@ -65,11 +73,15 @@ namespace YYCC::ParserHelper {
 	// Reference: https://en.cppreference.com/w/cpp/utility/to_chars
 
 	template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty> && !std::is_same_v<_Ty, bool>, int> = 0>
-	std::string ToString(_Ty num) {
-		std::array<char, 64> buffer;
-		auto [ptr, ec] = std::to_chars(buffer.data(), buffer.data() + buffer.size(), num);
+	yycc_u8string ToString(_Ty num) {
+		std::array<yycc_char8_t, 64> buffer;
+		auto [ptr, ec] = std::to_chars(
+			EncodingHelper::ToNative(buffer.data()), 
+			EncodingHelper::ToNative(buffer.data() + buffer.size()), 
+			num
+		);
 		if (ec == std::errc()) {
-			return std::string(buffer.data(), ptr - buffer.data());
+			return yycc_u8string(buffer.data(), ptr - buffer.data());
 		} else if (ec == std::errc::value_too_large) {
 			// too short buffer
 			// this should not happend
@@ -80,9 +92,9 @@ namespace YYCC::ParserHelper {
 		}
 	}
 	template<typename _Ty, std::enable_if_t<std::is_same_v<_Ty, bool>, int> = 0>
-	std::string ToString(_Ty num) {
-		if (num) return std::string("true");
-		else return std::string("false");
+	yycc_u8string ToString(_Ty num) {
+		if (num) return yycc_u8string(YYCC_U8("true"));
+		else return yycc_u8string(YYCC_U8("false"));
 	}
 
 }
