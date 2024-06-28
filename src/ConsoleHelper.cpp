@@ -149,7 +149,7 @@ namespace YYCC::ConsoleHelper {
 			// anything else, use WriteFile instead.
 			// WriteFile do not need extra convertion, because it is direct writing.
 			// check whether string length is overflow
-			size_t strl_size = strl.size() * sizeof(std::string::value_type);
+			size_t strl_size = strl.size() * sizeof(yycc_u8string::value_type);
 			// write string with size check
 			if (strl_size <= std::numeric_limits<DWORD>::max()) {
 				WriteFile(hStdOut, strl.c_str(), static_cast<DWORD>(strl_size), &dwWrittenNumberOfChars, NULL);

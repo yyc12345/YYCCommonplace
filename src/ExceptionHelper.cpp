@@ -273,9 +273,9 @@ namespace YYCC::ExceptionHelper {
 		// special proc for 2 exceptions
 		if (rec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION || rec->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) {
 			if (rec->NumberParameters >= 2) {
-				const char* op =
-					rec->ExceptionInformation[0] == 0 ? "read" :
-					rec->ExceptionInformation[0] == 1 ? "written" : "executed";
+				const yycc_char8_t* op =
+					rec->ExceptionInformation[0] == 0 ? YYCC_U8("read") :
+					rec->ExceptionInformation[0] == 1 ? YYCC_U8("written") : YYCC_U8("executed");
 				UExceptionErrLogFormatLine(fs, YYCC_U8("The data at memory address 0x%" PRI_XPTR_LEFT_PADDING PRIxPTR " could not be %s."),
 					rec->ExceptionInformation[1], op);
 			}

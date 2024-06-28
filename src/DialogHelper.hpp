@@ -58,7 +58,7 @@ namespace YYCC::DialogHelper {
 		 * @brief Add a filter pair in file types list.
 		 * @param filter_name[in] The friendly name of the filter.
 		 * @param il[in] A C++ initialize list.
-		 * Every entries must be `const char*` represent a single filter pattern.
+		 * Every entries must be `const yycc_char8_t*` represent a single filter pattern.
 		 * The list at least should have one valid pattern.
 		 * This function will not validate these filter patterns, so please write them carefully.
 		 * @return True if added success, otherwise false.
