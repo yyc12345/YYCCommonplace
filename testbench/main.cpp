@@ -221,18 +221,21 @@ namespace YYCCTestbench {
 		Assert(test_join == YYCC_U8(", 2, 1, "), YYCC_U8("YYCC::StringHelper::Join"));
 
 		// Test Split
-		auto test_split = YYCC::StringHelper::Split(YYCC_U8(", 1, 2, "), YYCC_U8(", "));
+		auto test_split = YYCC::StringHelper::Split(YYCC_U8(", 1, 2, "), YYCC_U8(", ")); // normal
 		Assert(test_split.size() == 4u, YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[0] == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[1] == YYCC_U8("1"), YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[2] == YYCC_U8("2"), YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[3] == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Split"));
-		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8("-"));
+		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8("-")); // no matched decilmer
 		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[0] == YYCC_U8("test"), YYCC_U8("YYCC::StringHelper::Split"));
-		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8(""));
+		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8("")); // empty decilmer
 		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[0] == YYCC_U8("test"), YYCC_U8("YYCC::StringHelper::Split"));
+		test_split = YYCC::StringHelper::Split(YYCC::yycc_u8string_view(), YYCC_U8("")); // empty source string
+		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
+		Assert(test_split[0].empty(), YYCC_U8("YYCC::StringHelper::Split"));
 
 	}
 

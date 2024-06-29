@@ -212,32 +212,43 @@ namespace YYCC::StringHelper {
 
 #pragma region Split
 
-	std::vector<yycc_u8string> Split(const yycc_char8_t* _strl, const yycc_char8_t* _decilmer) {
+	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_char8_t* _decilmer) {
+		// call split view
+		auto view_result = SplitView(strl, _decilmer);
+
+		// copy string view result to string
+		std::vector<yycc_u8string> elems;
+		for (const auto& strl_view : view_result) {
+			elems.emplace_back(yycc_u8string(strl_view));
+		}
+		// return copied result
+		return elems;
+	}
+
+	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_char8_t* _decilmer) {
 		// Reference: 
 		// https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 		
 		// prepare return value
-		std::vector<yycc_u8string> elems;
+		std::vector<yycc_u8string_view> elems;
 
-		// if the string need to be splitted is nullptr, return empty result.
-		if (_strl == nullptr) return elems;
-		yycc_u8string strl(_strl);
-		// if decilmer is nullptr, or decilmer is zero length, return original string
+		// if string need to be splitted is empty, return original string (empty item).
+		// if decilmer is nullptr, or decilmer is zero length, return original string.
 		yycc_u8string decilmer;
-		if (_decilmer == nullptr || (decilmer = _decilmer, decilmer.empty())) {
-			elems.push_back(strl);
+		if (strl.empty() || _decilmer == nullptr || (decilmer = _decilmer, decilmer.empty())) {
+			elems.emplace_back(strl);
 			return elems;
 		}
 
 		// start spliting
 		std::size_t previous = 0, current;
 		while ((current = strl.find(decilmer.c_str(), previous)) != yycc_u8string::npos) {
-			elems.push_back(strl.substr(previous, current - previous));
+			elems.emplace_back(strl.substr(previous, current - previous));
 			previous = current + decilmer.size();
 		}
 		// try insert last part but prevent possible out of range exception
 		if (previous <= strl.size()) {
-			elems.push_back(strl.substr(previous));
+			elems.emplace_back(strl.substr(previous));
 		}
 		return elems;
 	}

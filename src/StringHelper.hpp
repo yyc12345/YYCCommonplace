@@ -49,7 +49,7 @@ namespace YYCC::StringHelper {
 
 	/**
 	 * @brief General Split function.
-	 * @param _strl[in] The string need to be splitting.
+	 * @param strl[in] The string need to be splitting.
 	 * If this is nullptr, the result will be empty.
 	 * @param _decilmer[in] The decilmer for splitting.
 	 * If decilmer is nullptr or zero length, the result will only have 1 element which is original string.
@@ -58,5 +58,7 @@ namespace YYCC::StringHelper {
 	 * It can works in most toy cases but not suit for high performance scenario.
 	 * Also, this function will produce a copy of original string because it is not zero copy.
 	*/
-	std::vector<yycc_u8string> Split(const yycc_char8_t* _strl, const yycc_char8_t* _decilmer);
+	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_char8_t* _decilmer);
+	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_char8_t* _decilmer);
+
 }

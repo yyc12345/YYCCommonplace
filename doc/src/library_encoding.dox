@@ -8,31 +8,94 @@ for example, function explicitly order the encoding of input parameters.
 
 In following content of this article, you will know the details about how we use UTF8 in this library.
 
-\section library_encoding_utf8_type UTF8 Type
+\section library_encoding__utf8_type UTF8 Type
+
+YYCC uses custom UTF8 char type, string container and string view all over the library, from parameters to return value.
+Following content will introduce how we define them.
+
+\subsection library_encoding__utf8_type__char_type Char Type
 
 YYCC library has its own UTF8 char type, \c yycc_char8_t.
-You may notice C++ standard library also has a UTF8 char type called \c char8_t. You are right.
+This is how we define it:
+
+\code
+#if defined(__cpp_char8_t)
+using yycc_char8_t = char8_t;
+#else
+using yycc_char8_t = unsigned char;
+#endif
+\endcode
+
 If your environment (higher or equal to C++ 20) supports \c char8_t provided by standard library, \c yycc_char8_t is just an alias to \c char8_t,
 otherwise (lower than C++ 20, e.g. C++ 17), \c yycc_char8_t will be defined as \c unsigned \c char like C++ 20 does (this can be seen as a polyfill).
 
-After confirming the UTF8 char type, other derived types also will be decided.
-YYCC also defines \c yycc_u8string to \c std::basic_string<yycc_char8_t> and \c yycc_u8string_view to \c std::basic_string_view<yycc_char8_t>.
-In \c char8_t environment, they are just the alias to \c std::u8string and \c std::u8string_view respectively.
+This means that if you already have used \c char8_t provided by standard library,
+you do not need to do any extra modification before using this library.
+Because all types are compatible.
 
-Now, library has all essential UTF8 related types.
-These types are used in library everywhere, from parameters to return value.
+\subsection library_encoding__utf8_type__container_type String Container and View
+
+We define string container and string view like this:
+
+\code
+using yycc_u8string = std::basic_string<yycc_char8_t>;
+using yycc_u8string_view = std::basic_string_view<yycc_char8_t>;
+\endcode
+
+The real code written in library may be slightly different with this but they have same meanings.
+
+In \c char8_t environment, they are just the alias to \c std::u8string and \c std::u8string_view respectively.
+So if you have already used them, no need to any modification for your code before using this library.
+
+\subsection library_encoding__utf8_type__why Why?
 
 You may curious why I create a new UTF8 char type, rather than using standard library UTF8 char type directly. There are 2 reasons.
+
 First, It was too late that I notice I can use standard library UTF8 char type.
 My UTF8 char type has been used in library everywhere and its tough to fully replace them into standard library UTF8 char type.
+
 Second, UTF8 related content of standard library is \e volatile.
 I notice standard library change UTF8 related functions frequently and its API are not stable.
 For example, standard library brings \c std::codecvt_utf8 in C++ 11, deprecate it in C++ 17 and even remove it in C++ 26.
 That's unacceptable! So I create my own UTF8 type to avoid the scenario that standard library remove \c char8_t in future.
 
-\section library_encoding_utf8_literal UTF8 Literal
+\section library_encoding__utf8_literal UTF8 Literal
 
-C++ standard allows programmer declare an UTF8 literal explicitly by writing code like this:
+String literal is a C++ concept.
+If you are not familar with it, please browse related article first, such as CppReference.
+
+\subsection library_encoding__utf8_literal__single Single Literal
+
+In short words, YYCC allow you declare an UTF8 literal like this:
+
+\code
+YYCC_U8("This is UTF8 literal.")
+\endcode
+
+YYCC_U8 is macro.
+You don't need add extra \c u8 prefix in string given to the macro.
+This macro will do this automatically.
+
+In detail, this macro do a \c reinterpret_cast to change the type of given argument to \c const \c yycc_char8_t* forcely.
+This ensure that declared UTF8 literal is compatible with YYCC UTF8 types.
+
+\subsection library_encoding__utf8_literal__concatenation Literal Concatenation
+
+YYCC_U8 macro also works for string literal concatenation:
+
+\code
+YYCC_U8("Error code: " PRIu32 ". Please contact me.");
+\endcode
+
+According to C++ standard for string literal concatenation, 
+<I>"If one of the strings has an encoding prefix and the other does not, the one that does not will be considered to have the same encoding prefix as the other."</I>
+At the same time, YYCC_U8 macro will automatically add \c u8 prefix for the first component of this string literal concatenation.
+So the whole string will be UTF8 literal.
+It also order you should \b not add any prefix for other components of this string literal concatenation.
+
+\subsection library_encoding__utf8_literal__why Why?
+
+You may know that C++ standard allows programmer declare an UTF8 literal explicitly by writing code like this:
 
 \code
 u8"foo bar"
@@ -44,27 +107,12 @@ otherwise it will return \c const \c char*.
 This behavior cause that you can not assign this UTF8 literal to \c yycc_u8string if you are in the environment which do not support \c char8_t, 
 because their types are different.
 Thereas you can not use the functions provided by this library because they are all use YYCC defined UTF8 char type.
-So I will tell you how to correctly create UTF8 literal in the following content.
 
-YYCC provides a macro \c YYCC_U8 to resolve this issue.
-You can declare UTF8 literal like this:
+\section library_encoding__utf8_pointer UTF8 String Pointer
 
-\code
-YYCC_U8("This is UTF8 literal.")
-\endcode
+String pointer means the raw pointer pointing to a string, such as \c const \c char*, \c char*, \c char32_t* and etc.
 
-You don't need add extra \c u8 prefix in string given to the macro.
-This macro will do this automatically.
-
-In detail, this macro do a \c reinterpret_cast to change the type of given argument to \c const \c yycc_char8_t* forcely.
-This ensure that declared UTF8 literal is compatible with YYCC UTF8 types.
-
-\section library_encoding_utf8_pointer UTF8 String Pointer
-
-Besides UTF8 literal, another issue you may be faced is how to convert native UTF8 string pointer to YYCC UTF8 type
-(\e native means \c const \c char* or \c char*, the string using char as its char type).
-Many legacy code assume \c char* is encoded with UTF8 (the exception is Windows). But \c char* is incompatible with yycc_char8_t.
-
+Many legacy code assume \c char* is encoded with UTF8 (the exception is Windows). But \c char* is incompatible with \c yycc_char8_t.
 YYCC provides YYCC::EncodingHelper::ToUTF8 to resolve this issue. There is an exmaple:
 
 \code
@@ -77,7 +125,7 @@ yycc_char8_t* mutable_converted = YYCC::EncodingHelper::ToUTF8(mutable_utf8);
 
 YYCC::EncodingHelper::ToUTF8 has 2 overloads which can handle const and mutable stirng pointer convertion respectively.
 
-YYCC also provide ability that convert YYCC UTF8 char type to native char type by YYCC::EncodingHelper::ToNative.
+YYCC also has ability that convert YYCC UTF8 char type to native char type by YYCC::EncodingHelper::ToNative.
 Here is an exmaple:
 
 \code
@@ -90,15 +138,14 @@ char* mutable_converted = YYCC::EncodingHelper::ToNative(mutable_yycc_utf8);
 
 Same as YYCC::EncodingHelper::ToUTF8, YYCC::EncodingHelper::ToNative also has 2 overloads to handle const and mutable string pointer.
 
-\section library_encoding_utf8_container UTF8 String Container
+\section library_encoding__utf8_container UTF8 String Container
 
-The final issue you faced is string container.
+String container usually means the standard library string container, such as \c std::string, \c std::wstring, \c std::u32string and etc.
+
 In many personal project, programmer may use \c std::string everywhere because \c std::u8string may not be presented when writing peoject.
 How to do convertion between native string container and YYCC UTF8 string container?
-
 It is definitely illegal that directly do force convertion. Because they may have different class layout.
 Calm down and I will tell you how to do correct convertion.
-
 YYCC provides YYCC::EncodingHelper::ToUTF8 to convert native string container to YYCC UTF8 string container.
 There is an exmaple:
 
@@ -129,7 +176,7 @@ Same as UTF8 string pointer, we also have YYCC::EncodingHelper::ToNative and YYC
 Try to do your own research and figure out how to use them.
 It's pretty easy.
 
-\section library_encoding_windows Warnings to Windows Programmer
+\section library_encoding__windows Warnings to Windows Programmer
 
 Due to the legacy of MSVC, the encoding of \c char* may not be UTF8 in most cases.
 If you run the convertion code introduced in this article with the string which is not encoded with UTF8, it may cause undefined behavior.

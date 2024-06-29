@@ -11,9 +11,9 @@ It's also good for bug fix.
 If I found bug in these code, I only need to fix it in this project.
 Otherwise I need to fix them one by one in each project because they share the same code.
 
-\section intro_why Why YYCCommonplace
+\section intro__why Why YYCCommonplace
 
-\subsection intro_why_windows Windows Issues
+\subsection intro__why__windows Windows Issues
 
 I frequently program on Windows environment because the software I programming for, Virtools, is Windows-only software.
 During programming, I found Windows is super lack in UTF8 supports.
@@ -33,7 +33,7 @@ This is one of the reasons why I create this library.
 I create much wrappers for these weird Windows functions.
 Thus I can have a similar Linux C++ programming experience on Windows.
 
-\subsection intro_why_std Standard Library Issues
+\subsection intro__why__std Standard Library Issues
 
 The eccentric decision of standard commission also is the reason why I create this library.
 
@@ -50,7 +50,7 @@ That's why I create this library.
 I bring these function in this library.
 Not industrial level, but easy to use and have enough performance in my project.
 
-\subsection intro_why_boost Boost Issues
+\subsection intro__why__boost Boost Issues
 
 Bosst is a powerful C++ library. But the shortcoming is overt. It's tooooo big.
 This drawback will be more obvious considering the bad dependency mechanism of C++.
@@ -65,7 +65,7 @@ I don't need extreme performance. I just want my code works.
 
 So I create this library, bring some Boost functions with ordinary but not bad implementation.
 
-\section intro_usage Library Usage
+\section intro__usage Library Usage
 
 Before using this library, I suggest you read this manual fully to have a full overview of this library.
 Otherwise you may make mistake during using this library.
