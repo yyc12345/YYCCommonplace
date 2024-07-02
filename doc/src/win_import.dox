@@ -1,0 +1,56 @@
+/**
+
+\page win_import Windows Import Guard
+
+Windows is shitty for the programmer who is familiar with UNIX programming.
+Due to legacy reason, Windows defines various things which are not compatible with UNIX or standard C++ programming.
+YYCC has a way to solve this issue.
+
+\code
+#include <WinImportPrefix.hpp>
+#include <Windows.h>
+#include "other_header_depend_on_windows.h"
+#include <WinImportSuffix.hpp>
+\endcode
+
+The including of WinImportPrefix.hpp and WinImportSuffix.hpp is a pair.
+They just like a guard bracket the include operation of Windows related headers,
+to keep all Windows shitty contents will not be leaked outside.
+
+This guard can solve following issues:
+
+<UL>
+    <LI>
+    Programmer can not use \c std::max and \c std::min normally.
+    <UL>
+        <LI>Windows defines \c MAX and \c MIN as macros for personal use. This is why this happend.</LI>
+        <LI>Guard defines some special macros to tell Windows do not create these 2 macros.</LI>
+    </UL>
+    </LI>
+    <LI>
+    Programmer will not be affected by the automatical rename of \c GetObject, \c GetClassName and etc.
+    <UL>
+        <LI>These are all macros for Windows personal use to automatically redirect calling to A function and W function by compiling environment.</LI>
+        <LI>Guard \c #undef these annoy macros.</LI>
+    </UL>
+    </LI>
+    <LI>
+    Compiler throw annoy warnings and errors when using specific standard library functions.
+    <UL>
+        <LI>MSVC will throw warnings and errors when you are using Microsoft so-called \e depracted or \e unsafe standard library functions.</LI>
+        <LI>YYCCInternal.hpp, which has been included by this pair, defines some macros to purge these warnings and errors out.</LI>
+    </UL>
+    </LI>
+</UL>
+
+If you have other header files which are strongly depend on Windows header,
+you should put them into this bracket at the same time like example did.
+Because this guard operate some Windows macros as we introduced above.
+The headers depending on Windows may throw error if you put them outside of this pair.
+
+Please note WinImportPrefix.hpp and WinImportSuffix.hpp can be included multiple times.
+Because they do not have the proprocessor command like <I>#pragma once</I> or etc to make sure they only can be included once.
+That's by design. Because we actually may use this pair multiple times.
+The only thing you should pledge is that you must make sure they are presented by pair.
+
+*/

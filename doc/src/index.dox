@@ -33,10 +33,12 @@
 
     \subpage string_helper
 
+    \subpage win_import
+
   </TD>
   <TD ALIGN="LEFT" VALIGN="TOP">
 
-    placeholder
+    \subpage config_manager
 
   </TD>
 </TR>
