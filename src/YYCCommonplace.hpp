@@ -12,3 +12,5 @@
 #include "WinFctHelper.hpp"
 #include "FsPathPatch.hpp"
 #include "ExceptionHelper.hpp"
+
+#include "ConfigManager.hpp"

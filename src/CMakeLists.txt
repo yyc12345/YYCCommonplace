@@ -5,6 +5,7 @@ target_sources(YYCCommonplace
 PRIVATE
     # Sources
     COMHelper.cpp
+    ConfigManager.cpp
     ConsoleHelper.cpp
     DialogHelper.cpp
     EncodingHelper.cpp
@@ -21,6 +22,7 @@ FILES
     # Headers
     # Common headers
     COMHelper.hpp
+    ConfigManager.hpp
     ConsoleHelper.hpp
     DialogHelper.hpp
     EncodingHelper.hpp
