@@ -25,20 +25,28 @@
 <TR>
   <TD ALIGN="LEFT" VALIGN="TOP">
 
-    \subpage intro
+    <B>General Features</B>
 
-    \subpage library_encoding
+    \li \subpage intro
 
-    \subpage encoding_helper
+    \li \subpage library_encoding
 
-    \subpage string_helper
+    \li \subpage encoding_helper
 
-    \subpage win_import
+    \li \subpage string_helper
+
+    <B>Advanced Features</B>
+
+    \li \subpage config_manager
 
   </TD>
   <TD ALIGN="LEFT" VALIGN="TOP">
 
-    \subpage config_manager
+    <B>Windows Specific Features</B>
+
+    \li \subpage win_import
+
+    \li \subpage dialog_helper
 
   </TD>
 </TR>

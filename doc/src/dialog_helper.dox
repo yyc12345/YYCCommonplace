@@ -1,0 +1,78 @@
+/**
+
+\page dialog_helper Dialog Helper
+
+Picking files and folders is an important and essential operation under Windows.
+However the functions picking files and folders are so complex.
+This helper provides universal dialog picker by simple classes and functions.
+In following contents we will tell you how to call them.
+
+This helper is Windows specific.
+It will be totally invisible if you are in other platforms.
+
+\section dialog_helper__file_dialog Configure File Dialog
+
+The first thing is that we should initialize YYCC::DialogHelper::FileDialog, 
+and configure it according to your requirements.
+
+This class is the data struct representing all aspects of file dialog.
+It also one of the arguments in final dialog function.
+
+\code
+YYCC::DialogHelper::FileDialog params;
+params.SetOwner(owner_getter());
+params.SetTitle(YYCC_U8("My File Picker"));
+params.SetInitFileName(YYCC_U8("test.txt"));
+params.SetInitDirectory(initial_directory_getter());
+\endcode
+
+\subsection dialog_helper__file_dialog__owner Owner
+
+YYCC::DialogHelper::FileDialog::SetOwner will set owner of this dialog.
+It accepts a Microsoft defined \c HWND as argument which should be familiar with Windows programmer.
+If you pass \c NULL to it or skip calling this function, it indicate that there is no owner of this dialog.
+<I>
+I don't what whill happend if there is no owner for it.
+But it would be better to have an owner if possible.
+</I>
+
+\subsection dialog_helper__file_dialog__title Title
+
+YYCC::DialogHelper::FileDialog::SetTitle will set dialog title of this dialog.
+If you pass \c nullptr or skip calling it,
+the title of dialog will be filled by system and the function type you calling.
+For example, the title will be "Open..." if you call open file function,
+and will be "Save As..." if you call save file function.
+At the same time, the language of this title filled by system is system UI dependent.
+It means that you do not need to do any extra I18N work for it.
+So I suggest you do not set title except you really want to modify title.
+
+\subsection dialog_helper__file_dialog__init_file_name Initial File Name
+
+YYCC::DialogHelper::FileDialog::SetInitFileName will set the initial file name presented in dialog file name input box.
+If you pass \c nullptr or skip calling it, the text in dialog file name input box will be empty.
+
+User can modify the name presented in input box later.
+But if you assign this value, the dialog will lose the ability that remember the previous name user input in previous calling.
+In normal case, dialog will try remembering the file name user input in dialog, and represent it in the next calling.
+However, if you specify this field, the dialog will always presented your specified value in every calling.
+
+\subsection dialog_helper__file_dialog__init_directory Initial Directory
+
+YYCC::DialogHelper::FileDialog::SetInitDirectory will set the initial directory (startup directory) when opening dialog.
+
+In following cases, initial directory will fall back to system behavior:
+
+\li Pass \c nullptr to this function.
+\li Skip calling this function.
+\li Given directory path is invalid.
+
+The system default behavior of initial directory is similar with initial file name.
+The dialog will try remembering the last directory you just entering, and will back into it in the next calling.
+The directory we meeting in the first launch is system defined.
+
+\section dialog_helper__file_filters Configure File Filters
+
+\section dialog_helper__result Create Dialog and Get Result
+
+*/
