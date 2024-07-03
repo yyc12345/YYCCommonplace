@@ -35,7 +35,7 @@ namespace YYCC::ConfigManager {
 
 		// fetch version info
 		uint64_t version_info;
-		if (std::fread(&version_info, sizeof(version_info), 1u, fs.get()) != sizeof(version_info))
+		if (std::fread(&version_info, 1u, sizeof(version_info), fs.get()) != sizeof(version_info))
 			return false;
 		// check version
 		// if read version is greater than we expected,
@@ -51,19 +51,19 @@ namespace YYCC::ConfigManager {
 			// try fetch setting name
 			// fetch name length
 			size_t name_length;
-			if (std::fread(&name_length, sizeof(name_length), 1u, fs.get()) != sizeof(name_length)) {
+			if (std::fread(&name_length, 1u, sizeof(name_length), fs.get()) != sizeof(name_length)) {
 				// we also check whether reach EOF at there.
 				if (std::feof(fs.get())) break;
 				else return false;
 			}
 			// fetch name body
 			name_cache.resize(name_length);
-			if (std::fread(name_cache.data(), name_length, 1u, fs.get()) != name_length)
+			if (std::fread(name_cache.data(), 1u, name_length, fs.get()) != name_length)
 				return false;
 
 			// get setting data length
 			size_t data_length;
-			if (std::fread(&data_length, sizeof(data_length), 1u, fs.get()) != sizeof(data_length))
+			if (std::fread(&data_length, 1u, sizeof(data_length), fs.get()) != sizeof(data_length))
 				return false;
 
 			// get matched setting first
@@ -71,7 +71,7 @@ namespace YYCC::ConfigManager {
 			if (found != m_Settings.end()) {
 				// found. read data for it
 				found->second->ResizeData(data_length);
-				if (std::fread(found->second->GetDataPtr(), data_length, 1u, fs.get()) != data_length)
+				if (std::fread(found->second->GetDataPtr(), 1u, data_length, fs.get()) != data_length)
 					return false;
 				// call user defined load function
 				// if fail to parse, reset to default value
@@ -95,7 +95,7 @@ namespace YYCC::ConfigManager {
 
 		// write config data
 		uint64_t version_info = m_VersionIdentifier;
-		if (std::fwrite(&version_info, sizeof(version_info), 1u, fs.get()) != sizeof(version_info))
+		if (std::fwrite(&version_info, 1u, sizeof(version_info), fs.get()) != sizeof(version_info))
 			return false;
 
 		// iterate all data for writing
@@ -108,19 +108,19 @@ namespace YYCC::ConfigManager {
 			// write setting name
 			// write name length
 			size_t name_length = pair.first.size();
-			if (std::fwrite(&name_length, sizeof(name_length), 1u, fs.get()) != sizeof(name_length))
+			if (std::fwrite(&name_length, 1u, sizeof(name_length), fs.get()) != sizeof(name_length))
 				return false;
 			// write name body
-			if (std::fwrite(pair.first.c_str(), name_length, 1u, fs.get()) != name_length)
+			if (std::fwrite(pair.first.c_str(), 1u, name_length, fs.get()) != name_length)
 				return false;
 
 			// write setting daat
 			// write data length
 			size_t data_length = pair.second->GetDataSize();
-			if (std::fwrite(&data_length, sizeof(data_length), 1u, fs.get()) != sizeof(data_length))
+			if (std::fwrite(&data_length, 1u, sizeof(data_length), fs.get()) != sizeof(data_length))
 				return false;
 			// write data body
-			if (std::fwrite(pair.second->GetDataPtr(), data_length, 1u, fs.get()) != data_length)
+			if (std::fwrite(pair.second->GetDataPtr(), 1u, data_length, fs.get()) != data_length)
 				return false;
 		}
 

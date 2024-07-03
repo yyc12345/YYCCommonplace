@@ -390,15 +390,112 @@ namespace YYCCTestbench {
 
 	}
 
+	class TestConfigManager {
+	public:
+		enum class TestEnum : int8_t {
+			Test1, Test2, Test3
+		};
+
+		TestConfigManager() :
+			m_IntSetting(YYCC_U8("int-setting"), INT32_C(0)),
+			m_FloatSetting(YYCC_U8("float-setting"), 0.0f),
+			m_StringSetting(YYCC_U8("string-setting"), YYCC_U8("")),
+			m_BoolSetting(YYCC_U8("bool-setting"), false),
+			m_ClampedFloatSetting(YYCC_U8("clamped-float-setting"), 0.0f, YYCC::ConfigManager::ConstrainPresets::GetNumberRangeConstrain<float>(-1.0f, 1.0f)),
+			m_EnumSetting(YYCC_U8("enum-setting"), TestEnum::Test1),
+			m_CoreManager(YYCC_U8("test.cfg"), UINT64_C(0), {
+				&m_IntSetting, &m_FloatSetting, &m_StringSetting, &m_BoolSetting, &m_ClampedFloatSetting, &m_EnumSetting
+			})
+		{}
+		~TestConfigManager() {}
+
+		void PrintSettings() {
+			Console::WriteLine(YYCC_U8("Config Manager Settings:"));
+
+			Console::FormatLine(YYCC_U8("\tint-setting: %" PRIi32), m_IntSetting.Get());
+			Console::FormatLine(YYCC_U8("\tfloat-setting: %f"), m_FloatSetting.Get());
+			Console::FormatLine(YYCC_U8("\tstring-setting: %s"), m_StringSetting.Get().c_str());
+
+			Console::FormatLine(YYCC_U8("\tbool-setting: %s"), m_BoolSetting.Get() ? YYCC_U8("true") : YYCC_U8("false"));
+			Console::FormatLine(YYCC_U8("\tfloat-setting: %f"), m_ClampedFloatSetting.Get());
+			Console::FormatLine(YYCC_U8("\tenum-setting: %" PRIi8), static_cast<std::underlying_type_t<TestEnum>>(m_EnumSetting.Get()));
+		}
+
+		YYCC::ConfigManager::NumberSetting<int32_t> m_IntSetting;
+		YYCC::ConfigManager::NumberSetting<float> m_FloatSetting;
+		YYCC::ConfigManager::StringSetting m_StringSetting;
+
+		YYCC::ConfigManager::NumberSetting<bool> m_BoolSetting;
+		YYCC::ConfigManager::NumberSetting<float> m_ClampedFloatSetting;
+		YYCC::ConfigManager::NumberSetting<TestEnum> m_EnumSetting;
+
+		YYCC::ConfigManager::CoreManager m_CoreManager;
+	};
+
+	static void ConfigManagerTestbench() {
+		// init cfg manager
+		TestConfigManager test;
+
+		// test constrain works
+		Assert(!test.m_ClampedFloatSetting.Set(2.0f), YYCC_U8("YYCC::ConfigManager::Constraint"));
+		Assert(test.m_ClampedFloatSetting.Get() == 0.0f, YYCC_U8("YYCC::ConfigManager::Constraint"));
+
+		// test modify settings
+#define TEST_MACRO(member_name, set_val) { \
+	Assert(test.member_name.Set(set_val), YYCC_U8("YYCC::ConfigManager::AbstractSetting::Set")); \
+	Assert(test.member_name.Get() == set_val, YYCC_U8("YYCC::ConfigManager::AbstractSetting::Set")); \
+}
+
+		TEST_MACRO(m_IntSetting, INT32_C(114));
+		TEST_MACRO(m_FloatSetting, 2.0f);
+		TEST_MACRO(m_StringSetting, YYCC_U8("fuck"));
+		TEST_MACRO(m_BoolSetting, true);
+		TEST_MACRO(m_ClampedFloatSetting, 0.5f);
+		TEST_MACRO(m_EnumSetting, TestConfigManager::TestEnum::Test2);
+
+#undef TEST_MACRO
+		
+		// test save
+		test.PrintSettings();
+		Assert(test.m_CoreManager.Save(), YYCC_U8("YYCC::ConfigManager::CoreManager::Save"));
+
+		// test reset
+		test.m_CoreManager.Reset();
+		test.PrintSettings();
+		Assert(test.m_IntSetting.Get() == INT32_C(0), YYCC_U8("YYCC::ConfigManager::CoreManager::Reset"));
+		Assert(test.m_FloatSetting.Get() == 0.0f, YYCC_U8("YYCC::ConfigManager::CoreManager::Reset"));
+		Assert(test.m_StringSetting.Get() == YYCC_U8(""), YYCC_U8("YYCC::ConfigManager::CoreManager::Reset"));
+		Assert(test.m_BoolSetting.Get() == false, YYCC_U8("YYCC::ConfigManager::CoreManager::Reset"));
+		Assert(test.m_ClampedFloatSetting.Get() == 0.0f, YYCC_U8("YYCC::ConfigManager::CoreManager::Reset"));
+		Assert(test.m_EnumSetting.Get() == TestConfigManager::TestEnum::Test1, YYCC_U8("YYCC::ConfigManager::CoreManager::Reset"));
+
+		// test load
+		Assert(test.m_CoreManager.Load(), YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
+		test.PrintSettings();
+		Assert(test.m_IntSetting.Get() == INT32_C(114), YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
+		Assert(test.m_FloatSetting.Get() == 2.0f, YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
+		Assert(test.m_StringSetting.Get() == YYCC_U8("fuck"), YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
+		Assert(test.m_BoolSetting.Get() == true, YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
+		Assert(test.m_ClampedFloatSetting.Get() == 0.5f, YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
+		Assert(test.m_EnumSetting.Get() == TestConfigManager::TestEnum::Test2, YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
+		
+	}
+
 }
 
 int main(int argc, char** args) {
-	//YYCCTestbench::ConsoleTestbench();
+	// common testbench
+	// normal
 	YYCCTestbench::EncodingTestbench();
 	YYCCTestbench::StringTestbench();
 	YYCCTestbench::ParserTestbench();
-	YYCCTestbench::DialogTestbench();
-	YYCCTestbench::ExceptionTestbench();
 	YYCCTestbench::WinFctTestbench();
 	YYCCTestbench::FsPathPatch();
+	// advanced
+	YYCCTestbench::ConfigManagerTestbench();
+
+	// testbench which may terminal app or ordering input
+	YYCCTestbench::ConsoleTestbench();
+	YYCCTestbench::DialogTestbench();
+	YYCCTestbench::ExceptionTestbench();
 }

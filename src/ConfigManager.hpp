@@ -26,7 +26,7 @@ namespace YYCC::ConfigManager {
 
 	namespace ConstrainPresets {
 
-		template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty>, int> = 0>
+		template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty> && !std::is_enum_v<_Ty> && !std::is_same_v<_Ty, bool>, int> = 0>
 		Constrain<_Ty> GetNumberRangeConstrain(_Ty min_value, _Ty max_value) {
 			if (min_value > max_value)
 				throw std::invalid_argument("invalid min max value for NumberRangeConstrain");
@@ -93,7 +93,7 @@ namespace YYCC::ConfigManager {
 
 #pragma region Setting Presets
 
-	template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty>, int> = 0>
+	template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty> || std::is_enum_v<_Ty>, int> = 0>
 	class NumberSetting : public AbstractSetting {
 	public:
 		NumberSetting(const yycc_char8_t* name, _Ty default_value, Constrain<_Ty> constrain = Constrain<_Ty> {}) :
@@ -103,7 +103,7 @@ namespace YYCC::ConfigManager {
 		_Ty Get() const { return m_Data; }
 		bool Set(_Ty new_data) { 
 			// validate data
-			if (m_Constrain.IsValid() && !m_Constrain.m_CheckFct(m_Data))
+			if (m_Constrain.IsValid() && !m_Constrain.m_CheckFct(new_data))
 				return false;
 			// assign data
 			m_Data = new_data;
@@ -188,6 +188,9 @@ namespace YYCC::ConfigManager {
 			// assign string body
 			std::memcpy(ptr + sizeof(string_length), m_Data.data(), string_length);
 			return true;
+		}
+		virtual void UserReset() override {
+			m_Data = m_DefaultData;
 		}
 
 		yycc_u8string m_Data, m_DefaultData;
