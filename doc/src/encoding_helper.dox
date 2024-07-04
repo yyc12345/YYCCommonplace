@@ -8,4 +8,99 @@ YYCC::EncodingHelper namespace include all encoding related functions:
 \li Windows specific convertion between \c WCHAR, UTF8 string and string encoded by other encoding.
 \li The convertion among UTF8, UTF16 and UTF32.
 
+
+\section encoding_helper__native_utf8_conv Native & UTF8 Convertion
+
+These convertion functions have been introduced in previous page.
+See \ref library_encoding for more infomation.
+
+\section encoding_helper__win_conv Windows Specific Convertion
+
+
+\section encoding_helper__utf_conv UTF8 UTF16 UTF32 Convertion
+
+
+\section encoding_helper__overloads Function Overloads
+
+Every encoding convertion functions (except the convertion between UTF8 and native string) have 4 different overloads for different scenarios.
+Take YYCC::EncodingHelper::WcharToChar for example.
+There are following 4 overloads:
+
+\code
+bool WcharToChar(const std::wstring_view& src, std::string& dst, UINT code_page);
+bool WcharToChar(const wchar_t* src, std::string& dst, UINT code_page);
+std::string WcharToChar(const std::wstring_view& src, UINT code_page);
+std::string WcharToChar(const wchar_t* src, UINT code_page);
+\endcode
+
+\subsection encoding_helper__overloads_destination Destination String
+
+According to the return value, these 4 overload can be divided into 2 types.
+The first type returns bool. The second type returns \c std::string instance.
+
+For the first type, it always return bool to indicate whether the convertion is success.
+Due to this, the function must require an argument for holding the result string.
+So you can see the functions belonging to this type always require a reference to \c std::string in argument.
+
+Oppositely, the second directly returns result by return value.
+It doesn't care the success of convertion and will return empty string if convertion failed.
+Programmer can more naturally use it because the retuen value itself is the result.
+There is no need to declare a variable before calling convertion function for holding result.
+
+All in all, the first type overload should be used in strict scope.
+The success of convertion will massively affect the behavior of your following code.
+For example, the convertion code is delivered to some system function and it should not be empty and etc.
+The second type overload usually is used in lossen scenarios.
+For exmaple, this overload usually is used in console output because it usually doesn't matter.
+There is no risk even if the convertion failed (just output a blank string).
+
+For the first type, please note that there is \b NO guarantee that the argument holding return value is not changed.
+Even the convertion is failed, the argument holding return value may still be changed by function itself.
+
+In this case, the type of result is \c std::string because this is function required.
+In other functions, such as YYCC::EncodingHelper::WcharToUTF8, the type of result can be \c yycc_u8string or etc.
+So please note the type of result is decided by convertion function itself, not only \c std::string.
+
+\subsection encoding_helper__overloads__source Source String
+
+According to the way providing source string,
+these 4 overload also can be divided into 2 types.
+The first type take a reference to constant \c std::wstring_view.
+The second type take a pointer to constant wchar_t.
+
+For first type, it will take the whole string for convertion, including \b embedded NUL terminal.
+Please note we use string view as argument.
+It is compatible with corresponding raw string pointer and string container.
+So it is safe to directly pass \c std::wstring for this function.
+
+For second type, it will assume that you passed argument is a NUL terminated string and send it for convertion.
+
+The result is clear.
+If you want to process string with \b embedded NUL terminal, please choose first type overload.
+Otherwise the second type overload is enough.
+
+Same as destination string, the type of source is also decided by the convertion function itself.
+For exmaple, the type of source in YYCC::EncodingHelper::UTF8ToWchar is \c yycc_u8string and \c yycc_char8_t, 
+not \c std::wstring and \c wchar_t.
+
+\subsection encoding_helper__overloads__extra Extra Argument
+
+There is an extra argument called \c code_page for YYCC::EncodingHelper::WcharToChar.
+It indicate the code page of destination string,
+because this function will convert \c wchar_t string to the string with specified code page encoding.
+
+Some convertion functions have extra argument like this,
+because they need more infomations to decide what they need to do.
+Some convertion functions don't have these extra argument.
+For exmaple, the convertion between \c wchar_t string and UTF8 string.
+Because both source string and destination string are concrete.
+There is no need to provide any more infomations.
+
+\subsection encoding_helper__overloads__conclusion Conclusion
+
+Mixing 2 types of source string and 2 types of destination string,
+we have 4 different overload as we illustrated before.
+Programmer can use them freely according to your requirements.
+And don't forget to provide extra argument if function required.
+
 */
