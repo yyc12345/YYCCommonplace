@@ -59,6 +59,23 @@ I notice standard library change UTF8 related functions frequently and its API a
 For example, standard library brings \c std::codecvt_utf8 in C++ 11, deprecate it in C++ 17 and even remove it in C++ 26.
 That's unacceptable! So I create my own UTF8 type to avoid the scenario that standard library remove \c char8_t in future.
 
+\section library_encoding__concept Concepts
+
+In following content, you may be face with 2 words: ordinary string and UTF8 string.
+
+UTF8 string, as its name, is the string encoded with UTF8.
+The char type of it must is \c yycc_char8_t.
+(equivalent to \c char8_t after C++ 20.)
+
+Ordinary string means the plain, native string.
+The result of C++ string literal without any prefix \c "foo bar" is a rdinary string.
+The char type of it is \c char.
+Its encoding depends on compiler and environment.
+(UTF8 in Linux, or system code page in Windows if UTF8 switch was not enabled in MSVC.)
+
+For more infomation, please browse CppReference:
+https://en.cppreference.com/w/cpp/language/string_literal
+
 \section library_encoding__utf8_literal UTF8 Literal
 
 String literal is a C++ concept.
@@ -123,35 +140,35 @@ char* mutable_utf8 = const_cast<char*>(absolutely_is_utf8); // This is not safe.
 yycc_char8_t* mutable_converted = YYCC::EncodingHelper::ToUTF8(mutable_utf8);
 \endcode
 
-YYCC::EncodingHelper::ToUTF8 has 2 overloads which can handle const and mutable stirng pointer convertion respectively.
+YYCC::EncodingHelper::ToUTF8 has 2 overloads which can handle constant and mutable stirng pointer convertion respectively.
 
-YYCC also has ability that convert YYCC UTF8 char type to native char type by YYCC::EncodingHelper::ToNative.
+YYCC also has ability that convert YYCC UTF8 char type to ordinary char type by YYCC::EncodingHelper::ToOrdinary.
 Here is an exmaple:
 
 \code
 const yycc_char8_t* yycc_utf8 = YYCC_U8("I am UTF8 string.");
-const char* converted = YYCC::EncodingHelper::ToNative(yycc_utf8);
+const char* converted = YYCC::EncodingHelper::ToOrdinary(yycc_utf8);
 
 yycc_char8_t* mutable_yycc_utf8 = const_cast<char*>(yycc_utf8); // Not safe. Also just for example.
-char* mutable_converted = YYCC::EncodingHelper::ToNative(mutable_yycc_utf8);
+char* mutable_converted = YYCC::EncodingHelper::ToOrdinary(mutable_yycc_utf8);
 \endcode
 
-Same as YYCC::EncodingHelper::ToUTF8, YYCC::EncodingHelper::ToNative also has 2 overloads to handle const and mutable string pointer.
+Same as YYCC::EncodingHelper::ToUTF8, YYCC::EncodingHelper::ToOrdinary also has 2 overloads to handle constant and mutable string pointer.
 
 \section library_encoding__utf8_container UTF8 String Container
 
 String container usually means the standard library string container, such as \c std::string, \c std::wstring, \c std::u32string and etc.
 
 In many personal project, programmer may use \c std::string everywhere because \c std::u8string may not be presented when writing peoject.
-How to do convertion between native string container and YYCC UTF8 string container?
+How to do convertion between ordinary string container and YYCC UTF8 string container?
 It is definitely illegal that directly do force convertion. Because they may have different class layout.
 Calm down and I will tell you how to do correct convertion.
-YYCC provides YYCC::EncodingHelper::ToUTF8 to convert native string container to YYCC UTF8 string container.
+YYCC provides YYCC::EncodingHelper::ToUTF8 to convert ordinary string container to YYCC UTF8 string container.
 There is an exmaple:
 
 \code
-std::string native_string("I am UTF8");
-yycc_u8string yycc_string = YYCC::EncodingHelper::ToUTF8(native_string);
+std::string ordinary_string("I am UTF8");
+yycc_u8string yycc_string = YYCC::EncodingHelper::ToUTF8(ordinary_string);
 auto result = YYCC::EncodingHelper::UTF8ToUTF32(yycc_string);
 \endcode
 
@@ -160,19 +177,19 @@ However, there is a implicit convertion from \c std::string to \c std::string_vi
 so you can directly pass a \c std::string instance to it.
 
 String view will reduce unnecessary memory copy.
-If you just want to pass native string container to function, and this function accepts \c yycc_u8string_view as its argument,
+If you just want to pass ordinary string container to function, and this function accepts \c yycc_u8string_view as its argument,
 you can use alternative YYCC::EncodingHelper::ToUTF8View.
 
 \code
-std::string native_string("I am UTF8");
-yycc_u8string_view yycc_string = YYCC::EncodingHelper::ToUTF8View(native_string);
+std::string ordinary_string("I am UTF8");
+yycc_u8string_view yycc_string = YYCC::EncodingHelper::ToUTF8View(ordinary_string);
 auto result = YYCC::EncodingHelper::UTF8ToUTF32(yycc_string);
 \endcode
 
 Comparing with previous one, this example use less memory.
 The reduced memory is the content of \c yycc_string because string view is a view, not the copy of original string.
 
-Same as UTF8 string pointer, we also have YYCC::EncodingHelper::ToNative and YYCC::EncodingHelper::ToNativeView do correspondant reverse convertion.
+Same as UTF8 string pointer, we also have YYCC::EncodingHelper::ToOrdinary and YYCC::EncodingHelper::ToOrdinaryView do correspondant reverse convertion.
 Try to do your own research and figure out how to use them.
 It's pretty easy.
 

@@ -18,7 +18,7 @@ namespace YYCC::FsPathPatch {
 		return std::filesystem::path(wpath);
 		
 #else
-		return std::filesystem::path(EncodingHelper::ToNative(u8_path));
+		return std::filesystem::path(EncodingHelper::ToOrdinary(u8_path));
 #endif
 	}
 

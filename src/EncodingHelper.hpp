@@ -58,10 +58,10 @@ namespace YYCC::EncodingHelper {
 	yycc_u8string ToUTF8(const std::string_view& src);
 	yycc_u8string_view ToUTF8View(const std::string_view& src);
 
-	const char* ToNative(const yycc_char8_t* src);
-	char* ToNative(yycc_char8_t* src);
-	std::string ToNative(const yycc_u8string_view& src);
-	std::string_view ToNativeView(const yycc_u8string_view& src);
+	const char* ToOrdinary(const yycc_char8_t* src);
+	char* ToOrdinary(yycc_char8_t* src);
+	std::string ToOrdinary(const yycc_u8string_view& src);
+	std::string_view ToOrdinaryView(const yycc_u8string_view& src);
 
 #if YYCC_OS == YYCC_OS_WINDOWS
 

@@ -25,7 +25,7 @@ namespace YYCC::StringHelper {
 		int count = std::vsnprintf(
 			nullptr, 
 			0, 
-			EncodingHelper::ToNative(format), 
+			EncodingHelper::ToOrdinary(format), 
 			args1
 		);
 		if (count < 0) {
@@ -40,9 +40,9 @@ namespace YYCC::StringHelper {
 		// however std::vsnprintf already have a trailing NULL, so we plus 1 for it.
 		strl.resize(count);
 		int write_result = std::vsnprintf(
-			EncodingHelper::ToNative(strl.data()),
+			EncodingHelper::ToOrdinary(strl.data()),
 			strl.size() + 1, 
-			EncodingHelper::ToNative(format), 
+			EncodingHelper::ToOrdinary(format), 
 			args2
 		);
 		va_end(args2);

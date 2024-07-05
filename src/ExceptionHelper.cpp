@@ -122,7 +122,7 @@ namespace YYCC::ExceptionHelper {
 		if (fs != nullptr) {
 			va_list arg1;
 			va_start(arg1, fmt);
-			std::vfprintf(fs, EncodingHelper::ToNative(fmt), arg1);
+			std::vfprintf(fs, EncodingHelper::ToOrdinary(fmt), arg1);
 			std::fputs("\n", fs);
 			va_end(arg1);
 		}
@@ -145,7 +145,7 @@ namespace YYCC::ExceptionHelper {
 	static void UExceptionErrLogWriteLine(std::FILE* fs, const yycc_char8_t* strl) {
 		// write to file
 		if (fs != nullptr) {
-			std::fputs(EncodingHelper::ToNative(strl), fs);
+			std::fputs(EncodingHelper::ToOrdinary(strl), fs);
 			std::fputs("\n", fs);
 		}
 		// write to stderr

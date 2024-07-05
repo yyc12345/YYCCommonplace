@@ -226,7 +226,7 @@ namespace YYCC::ConsoleHelper {
 		WinConsoleWrite(strl, bIsErr);
 #else
 		// in linux, directly use C function to write.
-		std::fputs(EncodingHelper::ToNative(strl.c_str()), bIsErr ? stderr : stdout);
+		std::fputs(EncodingHelper::ToOrdinary(strl.c_str()), bIsErr ? stderr : stdout);
 #endif
 	}
 

@@ -4,15 +4,21 @@
 
 YYCC::EncodingHelper namespace include all encoding related functions:
 
-\li The convertion between native string and UTF8 string which has been introduced in chapter \ref library_encoding.
+\li The convertion between ordinary string and UTF8 string which has been introduced in chapter \ref library_encoding.
 \li Windows specific convertion between \c WCHAR, UTF8 string and string encoded by other encoding.
 \li The convertion among UTF8, UTF16 and UTF32.
 
-
-\section encoding_helper__native_utf8_conv Native & UTF8 Convertion
+\section encoding_helper__ordinary_utf8_conv Ordinary & UTF8 Convertion
 
 These convertion functions have been introduced in previous page.
 See \ref library_encoding for more infomation.
+
+YYCC supports following convertions:
+
+\li YYCC::EncodingHelper::ToUTF8: Convert ordinary string to UTF8 string.
+\li YYCC::EncodingHelper::ToUTF8View: Same as ToUTF8, but return string view instead.
+\li YYCC::EncodingHelper::ToOrdinary: Convert UTF8 string to ordinary string.
+\li YYCC::EncodingHelper::ToOrdinaryView: Same as ToOrdinary, but return string view instead.
 
 \section encoding_helper__win_conv Windows Specific Convertion
 
@@ -26,11 +32,11 @@ Please use them carefully (make sure that you are using them only in Windows env
 
 YYCC supports following convertions:
 
-\li \c WcharToChar: Convert \c wchar_t string to code page specified string.
-\li \c CharToWchar: The reversed convertion of WcharToChar.
-\li \c CharToChar: Convert string between 2 different code pages. It's a shortcut of calling CharToWchar and WcharToChar successively.
-\li \c WcharToUTF8: Convert \c wchar_t string to UTF8 string.
-\li \c UTF8ToWchar: The reversed convertion of WcharToUTF8.
+\li YYCC::EncodingHelper::WcharToChar: Convert \c wchar_t string to code page specified string.
+\li YYCC::EncodingHelper::CharToWchar: The reversed convertion of WcharToChar.
+\li YYCC::EncodingHelper::CharToChar: Convert string between 2 different code pages. It's a shortcut of calling CharToWchar and WcharToChar successively.
+\li YYCC::EncodingHelper::WcharToUTF8: Convert \c wchar_t string to UTF8 string.
+\li YYCC::EncodingHelper::UTF8ToWchar: The reversed convertion of WcharToUTF8.
 
 Code Page is a Windows concept.
 If you don't understand it, please view corresponding Microsoft documentation.
@@ -47,14 +53,14 @@ They can be used in any platform, not confined in Windows platforms.
 
 YYCC supports following convertions:
 
-\li \c UTF8ToUTF16: Convert UTF8 string to UTF16 string.
-\li \c UTF16ToUTF8: The reversed convertion of UTF8ToUTF16.
-\li \c UTF8ToUTF32: Convert UTF8 string to UTF32 string.
-\li \c UTF32ToUTF8: The reversed convertion of UTF8ToUTF32.
+\li YYCC::EncodingHelper::UTF8ToUTF16: Convert UTF8 string to UTF16 string.
+\li YYCC::EncodingHelper::UTF16ToUTF8: The reversed convertion of UTF8ToUTF16.
+\li YYCC::EncodingHelper::UTF8ToUTF32: Convert UTF8 string to UTF32 string.
+\li YYCC::EncodingHelper::UTF32ToUTF8: The reversed convertion of UTF8ToUTF32.
 
 \section encoding_helper__overloads Function Overloads
 
-Every encoding convertion functions (except the convertion between UTF8 and native string) have 4 different overloads for different scenarios.
+Every encoding convertion functions (except the convertion between UTF8 and ordinary string) have 4 different overloads for different scenarios.
 Take YYCC::EncodingHelper::WcharToChar for example.
 There are following 4 overloads:
 

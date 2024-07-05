@@ -4,7 +4,7 @@
 
 namespace YYCC::EncodingHelper {
 
-#pragma region UTF8 Native Convertion
+#pragma region UTF8 Ordinary Convertion
 	
 	const yycc_char8_t* ToUTF8(const char* src) {
 		return reinterpret_cast<const yycc_char8_t*>(src);
@@ -19,16 +19,16 @@ namespace YYCC::EncodingHelper {
 		return yycc_u8string_view(reinterpret_cast<const yycc_char8_t*>(src.data()), src.size());
 	}
 	
-	const char* ToNative(const yycc_char8_t* src) {
+	const char* ToOrdinary(const yycc_char8_t* src) {
 		return reinterpret_cast<const char*>(src);
 	}
-	char* ToNative(yycc_char8_t* src) {
+	char* ToOrdinary(yycc_char8_t* src) {
 		return reinterpret_cast<char*>(src);
 	}
-	std::string ToNative(const yycc_u8string_view& src) {
+	std::string ToOrdinary(const yycc_u8string_view& src) {
 		return std::string(reinterpret_cast<const char*>(src.data()), src.size());
 	}
-	std::string_view ToNativeView(const yycc_u8string_view& src) {
+	std::string_view ToOrdinaryView(const yycc_u8string_view& src) {
 		return std::string_view(reinterpret_cast<const char*>(src.data()), src.size());
 	}
 
@@ -176,7 +176,7 @@ return ret;
 #pragma region UTF8ToWchar
 	
 	bool UTF8ToWchar(const yycc_u8string_view& src, std::wstring& dst) {
-		std::string_view adapted_src(ToNativeView(src));
+		std::string_view adapted_src(ToOrdinaryView(src));
 		return CharToWchar(adapted_src, dst, CP_UTF8);
 	}
 	bool UTF8ToWchar(const yycc_char8_t* src, std::wstring& dst) {
