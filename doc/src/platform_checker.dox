@@ -30,6 +30,6 @@ blabla();
 #endif
 \endcode
 
-It's enough and simple that use \c #if to bracket the Windows specified code.
+It's enough and simple that use \c \#if to bracket the Windows specified code.
 
 */

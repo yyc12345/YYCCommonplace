@@ -36,7 +36,7 @@ This guard can solve following issues:
     Programmer will not be affected by the automatical rename of \c GetObject, \c GetClassName and etc.
     <UL>
         <LI>These are all macros for Windows personal use to automatically redirect calling to A function and W function by compiling environment.</LI>
-        <LI>Guard \c #undef these annoy macros.</LI>
+        <LI>Guard \c \#undef these annoy macros.</LI>
     </UL>
     </LI>
     <LI>
@@ -56,13 +56,13 @@ Because this guard operate some Windows macros as we introduced above.
 The headers depending on Windows may throw error if you put them outside of this pair.
 
 Please note WinImportPrefix.hpp and WinImportSuffix.hpp can be included multiple times.
-Because they do not have the proprocessor command like <I>#pragma once</I> or etc to make sure they only can be included once.
+Because they do not have the proprocessor command like <I>\#pragma once</I> or etc to make sure they only can be included once.
 That's by design. Because we actually may use this pair multiple times.
 The only thing you should pledge is that you must make sure they are presented by pair.
 
 This guard is Windows specific.
 It does nothing if you accidently use it in other platforms such as Linux,
-because the headers use \c #if to check environment out and will do nothing in non-Windows environment.
+because the headers use \c \#if to check environment out and will do nothing in non-Windows environment.
 However, we still highly recommend you use this pair with platform checker bracket like example does,
 if your program need to be run on multiple platforms.
 

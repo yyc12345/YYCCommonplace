@@ -13,7 +13,7 @@
 namespace YYCC::ConfigManager {
 
 	template<typename _Ty>
-	struct Constrain {
+	struct Constraint {
 		using CheckFct_t = std::function<bool(const _Ty&)>;
 		//using CorrectFct_t = std::function<_Ty(const _Ty&)>;
 		CheckFct_t m_CheckFct;
@@ -24,13 +24,13 @@ namespace YYCC::ConfigManager {
 		}
 	};
 
-	namespace ConstrainPresets {
+	namespace ConstraintPresets {
 
 		template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty> && !std::is_enum_v<_Ty> && !std::is_same_v<_Ty, bool>, int> = 0>
-		Constrain<_Ty> GetNumberRangeConstrain(_Ty min_value, _Ty max_value) {
+		Constraint<_Ty> GetNumberRangeConstraint(_Ty min_value, _Ty max_value) {
 			if (min_value > max_value)
-				throw std::invalid_argument("invalid min max value for NumberRangeConstrain");
-			return Constrain<_Ty> {
+				throw std::invalid_argument("invalid min max value for NumberRangeConstraint");
+			return Constraint<_Ty> {
 				[min_value, max_value](const _Ty& val) -> bool { return (val <= max_value) && (val >= min_value); }
 					/*[min_value, max_value](const _Ty& val) -> _Ty { return std::clamp(val, min_value, max_value); }*/
 			};
@@ -96,14 +96,14 @@ namespace YYCC::ConfigManager {
 	template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty> || std::is_enum_v<_Ty>, int> = 0>
 	class NumberSetting : public AbstractSetting {
 	public:
-		NumberSetting(const yycc_char8_t* name, _Ty default_value, Constrain<_Ty> constrain = Constrain<_Ty> {}) :
-			AbstractSetting(name), m_Data(default_value), m_DefaultData(default_value), m_Constrain(constrain) {}
+		NumberSetting(const yycc_char8_t* name, _Ty default_value, Constraint<_Ty> constraint = Constraint<_Ty> {}) :
+			AbstractSetting(name), m_Data(default_value), m_DefaultData(default_value), m_Constraint(constraint) {}
 		virtual ~NumberSetting() {}
 
 		_Ty Get() const { return m_Data; }
 		bool Set(_Ty new_data) { 
 			// validate data
-			if (m_Constrain.IsValid() && !m_Constrain.m_CheckFct(new_data))
+			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(new_data))
 				return false;
 			// assign data
 			m_Data = new_data;
@@ -117,7 +117,7 @@ namespace YYCC::ConfigManager {
 				return false;
 			m_Data = *reinterpret_cast<const _Ty*>(GetDataPtr());
 			// check data
-			if (m_Constrain.IsValid() && !m_Constrain.m_CheckFct(m_Data))
+			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(m_Data))
 				return false;
 			return true;
 		}
@@ -132,13 +132,13 @@ namespace YYCC::ConfigManager {
 		}
 
 		_Ty m_Data, m_DefaultData;
-		Constrain<_Ty> m_Constrain;
+		Constraint<_Ty> m_Constraint;
 	};
 
 	class StringSetting : public AbstractSetting {
 	public:
-		StringSetting(const yycc_char8_t* name, const yycc_char8_t* default_value, Constrain<yycc_u8string> constrain = Constrain<yycc_u8string> {}) :
-			AbstractSetting(name), m_Data(), m_DefaultData(), m_Constrain(constrain) {
+		StringSetting(const yycc_char8_t* name, const yycc_char8_t* default_value, Constraint<yycc_u8string> constraint = Constraint<yycc_u8string> {}) :
+			AbstractSetting(name), m_Data(), m_DefaultData(), m_Constraint(constraint) {
 			if (default_value != nullptr) {
 				m_Data = default_value;
 				m_DefaultData = default_value;
@@ -151,7 +151,7 @@ namespace YYCC::ConfigManager {
 			// check data validation
 			if (new_data == nullptr) 
 				return false;
-			if (m_Constrain.IsValid() && !m_Constrain.m_CheckFct(m_Data))
+			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(m_Data))
 				return false;
 			// assign data
 			m_Data = new_data;
@@ -173,7 +173,7 @@ namespace YYCC::ConfigManager {
 				string_length
 			);
 			// check data
-			if (m_Constrain.IsValid() && !m_Constrain.m_CheckFct(m_Data))
+			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(m_Data))
 				return false;
 			return true;
 		}
@@ -194,7 +194,7 @@ namespace YYCC::ConfigManager {
 		}
 
 		yycc_u8string m_Data, m_DefaultData;
-		Constrain<yycc_u8string> m_Constrain;
+		Constraint<yycc_u8string> m_Constraint;
 	};
 
 #pragma endregion
