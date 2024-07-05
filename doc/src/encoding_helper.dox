@@ -16,9 +16,41 @@ See \ref library_encoding for more infomation.
 
 \section encoding_helper__win_conv Windows Specific Convertion
 
+During Windows programming, the convertion between Microsoft specified \c wchar_t and \c char is an essential operation.
+Because Windows has 2 different function system, the functions ended with A and the functions ended with W.
+(Microsoft specified \c wchar_t is \c 2 bytes long. It's different with Linux defined common 4 bytes long).
+Thus YYCC provides these convertion functions in Windows to help programmer have better programming experience.
+
+These functions are Windows specific, so they will be invisible in other platforms.
+Please use them carefully (make sure that you are using them only in Windows environment).
+
+YYCC supports following convertions:
+
+\li \c WcharToChar: Convert \c wchar_t string to code page specified string.
+\li \c CharToWchar: The reversed convertion of WcharToChar.
+\li \c CharToChar: Convert string between 2 different code pages. It's a shortcut of calling CharToWchar and WcharToChar successively.
+\li \c WcharToUTF8: Convert \c wchar_t string to UTF8 string.
+\li \c UTF8ToWchar: The reversed convertion of WcharToUTF8.
+
+Code Page is a Windows concept.
+If you don't understand it, please view corresponding Microsoft documentation.
 
 \section encoding_helper__utf_conv UTF8 UTF16 UTF32 Convertion
 
+The convertion between UTF8, UTF16 and UTF32 is not common but essential.
+These convertions can be achieved by standard library functions and classes.
+(they are actually done by standard library functions in our implementation)
+But we provided functions are easy to use and have clear interface.
+
+These functions are different with the functions introduced above.
+They can be used in any platform, not confined in Windows platforms.
+
+YYCC supports following convertions:
+
+\li \c UTF8ToUTF16: Convert UTF8 string to UTF16 string.
+\li \c UTF16ToUTF8: The reversed convertion of UTF8ToUTF16.
+\li \c UTF8ToUTF32: Convert UTF8 string to UTF32 string.
+\li \c UTF32ToUTF8: The reversed convertion of UTF8ToUTF32.
 
 \section encoding_helper__overloads Function Overloads
 
@@ -80,18 +112,18 @@ If you want to process string with \b embedded NUL terminal, please choose first
 Otherwise the second type overload is enough.
 
 Same as destination string, the type of source is also decided by the convertion function itself.
-For exmaple, the type of source in YYCC::EncodingHelper::UTF8ToWchar is \c yycc_u8string and \c yycc_char8_t, 
+For exmaple, the type of source in YYCC::EncodingHelper::UTF8ToWchar is \c yycc_u8string_view and \c yycc_char8_t, 
 not \c std::wstring and \c wchar_t.
 
 \subsection encoding_helper__overloads__extra Extra Argument
 
 There is an extra argument called \c code_page for YYCC::EncodingHelper::WcharToChar.
-It indicate the code page of destination string,
+It indicates the code page of destination string,
 because this function will convert \c wchar_t string to the string with specified code page encoding.
 
 Some convertion functions have extra argument like this,
 because they need more infomations to decide what they need to do.
-Some convertion functions don't have these extra argument.
+Some convertion functions don't have extra argument.
 For exmaple, the convertion between \c wchar_t string and UTF8 string.
 Because both source string and destination string are concrete.
 There is no need to provide any more infomations.

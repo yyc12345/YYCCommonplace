@@ -29,6 +29,8 @@
 
     \li \subpage intro
 
+    \li \subpage platform_checker
+
     \li \subpage library_encoding
 
     \li \subpage encoding_helper
