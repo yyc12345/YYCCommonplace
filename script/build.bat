@@ -12,6 +12,7 @@ MKDIR bin
 CD bin
 MKDIR Win32
 MKDIR x64
+MKDIR documentation
 MKDIR install
 
 :: Build for Win32
@@ -30,6 +31,13 @@ cmake --build . --config Debug
 cmake --install . --prefix=../install --config Debug
 cmake --build . --config Release
 cmake --install . --prefix=../install --config Release
+CD ..
+
+:: Build for documentation
+CD documentation
+cmake -DYYCC_BUILD_DOC=ON ../..
+cmake --build . --config Release
+:: cmake --install . --prefix=../install --config Release
 CD ..
 
 ECHO DONE
