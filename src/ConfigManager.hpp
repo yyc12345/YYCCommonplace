@@ -101,7 +101,7 @@ namespace YYCC::ConfigManager {
 		virtual ~NumberSetting() {}
 
 		_Ty Get() const { return m_Data; }
-		bool Set(_Ty new_data) { 
+		bool Set(_Ty new_data) {
 			// validate data
 			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(new_data))
 				return false;
@@ -137,21 +137,17 @@ namespace YYCC::ConfigManager {
 
 	class StringSetting : public AbstractSetting {
 	public:
-		StringSetting(const yycc_char8_t* name, const yycc_char8_t* default_value, Constraint<yycc_u8string> constraint = Constraint<yycc_u8string> {}) :
+		StringSetting(const yycc_char8_t* name, const yycc_u8string_view& default_value, Constraint<yycc_u8string_view> constraint = Constraint<yycc_u8string_view> {}) :
 			AbstractSetting(name), m_Data(), m_DefaultData(), m_Constraint(constraint) {
-			if (default_value != nullptr) {
-				m_Data = default_value;
-				m_DefaultData = default_value;
-			}
+			m_Data = default_value;
+			m_DefaultData = default_value;
 		}
 		virtual ~StringSetting() {}
 
 		const yycc_u8string& Get() const { return m_Data; }
-		bool Set(const yycc_char8_t* new_data) {
+		bool Set(const yycc_u8string_view& new_data) {
 			// check data validation
-			if (new_data == nullptr) 
-				return false;
-			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(m_Data))
+			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(new_data))
 				return false;
 			// assign data
 			m_Data = new_data;
@@ -194,7 +190,7 @@ namespace YYCC::ConfigManager {
 		}
 
 		yycc_u8string m_Data, m_DefaultData;
-		Constraint<yycc_u8string> m_Constraint;
+		Constraint<yycc_u8string_view> m_Constraint;
 	};
 
 #pragma endregion
