@@ -2,6 +2,7 @@
 
 #include "EncodingHelper.hpp"
 #include "IOHelper.hpp"
+#include <stdexcept>
 
 namespace YYCC::ConfigManager {
 
@@ -17,7 +18,11 @@ namespace YYCC::ConfigManager {
 			m_CfgFilePath = cfg_file_path;
 		// assign settings
 		for (auto* setting : settings) {
-			m_Settings.try_emplace(setting->GetName(), setting);
+			auto result = m_Settings.try_emplace(setting->GetName(), setting);
+			if (!result.second) {
+				// if not inserted because duplicated, raise exception
+				throw std::invalid_argument("Duplicated setting name");
+			}
 		}
 	}
 
