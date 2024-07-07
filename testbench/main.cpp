@@ -134,7 +134,8 @@ namespace YYCCTestbench {
 			Console::Write(YYCC_U8("\t> "));
 
 			YYCC::yycc_u8string gotten(Console::ReadLine());
-			Assert(gotten == strl, YYCC::StringHelper::Printf(YYCC_U8("Got: %s"), gotten.c_str()).c_str());
+			if (gotten == strl) Console::FormatLine(YYCC_U8(YYCC_COLOR_LIGHT_GREEN("\tMatched! Got: %s")), gotten.c_str());
+			else Console::FormatLine(YYCC_U8(YYCC_COLOR_LIGHT_RED("\tNOT Matched! Got: %s")), gotten.c_str());
 		}
 
 	}

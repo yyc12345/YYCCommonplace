@@ -11,6 +11,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cinttypes>
+#include <mutex>
 
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
@@ -19,38 +20,153 @@
 
 namespace YYCC::ExceptionHelper {
 
-	/**
-	 * @brief True if the exception handler already registered, otherwise false.
-	 * @details
-	 * This variable is designed to prevent multiple register operation
-	 * because unhandled exception handler should only be registered once.
-	 * \n
-	 * Register function should check whether this variable is false before registering,
-	 * and set this variable to true after registing.
-	 * Unregister as well as should do the same check.
-	*/
-	static bool g_IsRegistered = false;
-	/**
-	 * @brief True if a exception handler is running, otherwise false.
-	 * @details
-	 * This variable is served for blocking possible infinity recursive exception handling.
-	 * \n
-	 * When entering unhandled exception handler, we must check whether this variable is true.
-	 * If it is true, it mean that there is another unhandled exception handler running.
-	 * Then we should exit immediately.
-	 * Otherwise, this variable should be set to true indicating we are processing unhandled exception.
-	 * After processing exception, at the end of unhandled exception handler,
-	 * we should restore this value to false.
-	 *
-	*/
-	static bool g_IsProcessing = false;
-	/**
-	 * @brief The backup of original exception handler.
-	 * @details
-	 * This variable was set when registering unhandled exception handler.
-	 * And will be used when unregistering for restoring.
-	*/
-	static LPTOP_LEVEL_EXCEPTION_FILTER g_ProcBackup;
+	static LONG WINAPI UExceptionImpl(LPEXCEPTION_POINTERS);
+	class ExceptionRegister {
+	public:
+		ExceptionRegister() :
+			m_CoreMutex(),
+			m_IsRegistered(false), m_IsProcessing(false), m_PrevProcHandler(nullptr),
+			m_SingletonMutex(NULL) {}
+		~ExceptionRegister() {
+			Unregister();
+		}
+
+	public:
+		/**
+		 * @brief Try to register unhandled exception handler.
+		*/
+		void Register() {
+			std::lock_guard<std::mutex> locker(m_CoreMutex);
+			// if we have registered, return
+			if (m_IsRegistered) return;
+
+			// check singleton
+			// build mutex string first
+			yycc_u8string mutex_name;
+			if (!StringHelper::Printf(mutex_name, YYCC_U8("Global\\%" PRIu32 ".{61634294-d23c-43f9-8490-b5e09837eede}"), GetCurrentProcessId()))
+				return;
+			std::wstring mutex_wname;
+			if (!EncodingHelper::UTF8ToWchar(mutex_name, mutex_wname))
+				return;
+			// create mutex
+			m_SingletonMutex = CreateMutexW(NULL, FALSE, mutex_wname.c_str());
+			DWORD errcode = GetLastError();
+			// check whether be created
+			if (m_SingletonMutex == NULL)
+				return;
+			if (errcode == ERROR_ALREADY_EXISTS) {
+				CloseHandle(m_SingletonMutex);
+				m_SingletonMutex = NULL;
+				return;
+			}
+
+			// okey, we can register it.
+			// backup old handler
+			m_PrevProcHandler = SetUnhandledExceptionFilter(UExceptionImpl);
+			// mark registered
+			m_IsRegistered = true;
+		}
+		/**
+		 * @brief Try to unregister unhandled exception handler.
+		*/
+		void Unregister() {
+			std::lock_guard<std::mutex> locker(m_CoreMutex);
+			// if we are not registered, skip
+			if (!m_IsRegistered) return;
+
+			// unregister handler
+			// restore old handler
+			SetUnhandledExceptionFilter(m_PrevProcHandler);
+			m_PrevProcHandler = nullptr;
+
+			// release singleton handler
+			if (m_SingletonMutex != NULL) {
+				CloseHandle(m_SingletonMutex);
+				m_SingletonMutex = NULL;
+			}
+
+			// mark unregistered
+			m_IsRegistered = false;
+		}
+
+
+	public:
+		/**
+		 * @brief Check whether handler is registered.
+		 * @return True if it is, otherwise false.
+		*/
+		bool IsRegistered() const {
+			std::lock_guard<std::mutex> locker(m_CoreMutex);
+			return m_IsRegistered;
+		}
+		/**
+		 * @brief Check whether we are processing unhandled exception.
+		 * @return True if it is, otherwise false.
+		*/
+		bool IsProcessing() const {
+			std::lock_guard<std::mutex> locker(m_CoreMutex);
+			return m_IsProcessing;
+		}
+		/**
+		 * @brief Get the old unhandled exception handler before registering.
+		 * @return The fucntion pointer to old unhandled exception handler. May be nullptr.
+		*/
+		LPTOP_LEVEL_EXCEPTION_FILTER GetPrevProcHandler() const {
+			std::lock_guard<std::mutex> locker(m_CoreMutex);
+			return m_PrevProcHandler;
+		}
+
+		/**
+		 * @brief Try to start process unhandled exception.
+		 * @return True if you can start to process.
+		 * False means there is already a process running. You should not process it now.
+		*/
+		bool StartProcessing() {
+			std::lock_guard<std::mutex> locker(m_CoreMutex);
+			if (m_IsProcessing) return false;
+			else {
+				m_IsProcessing = true;
+				return true;
+			}
+		}
+		/**
+		 * @brief Mark current process of unhandled exception has done.
+		 * @details This should only be called when StartProcessing() return true.
+		*/
+		void StopProcessing() {
+			std::lock_guard<std::mutex> locker(m_CoreMutex);
+			m_IsProcessing = false;
+		}
+
+	private:
+		/**
+		 * @brief The core mutex for keeping this class is in synchronized.
+		*/
+		mutable std::mutex m_CoreMutex;
+
+		/**
+		 * @brief Whether we have registered unhandled exception handler.
+		 * True if it is, otherwise false.
+		*/
+		bool m_IsRegistered;
+		/**
+		 * @brief Whether we are processing unhandled exception.
+		 * True if it is, otherwise false.
+		*/
+		bool m_IsProcessing;
+		/**
+		 * @brief The backup of old unhandled exception handler.
+		*/
+		LPTOP_LEVEL_EXCEPTION_FILTER m_PrevProcHandler;
+		/**
+		 * @brief The Windows mutex handle for singleton implementation.
+		 * Because we may have many DLLs using YYCC in the same process.
+		 * But the unhandled exception handler only need to be registered once.
+		*/
+		HANDLE m_SingletonMutex;
+	};
+
+	static ExceptionRegister g_ExceptionRegister;
 
 #pragma region Exception Handler Implementation
 
@@ -316,28 +432,24 @@ namespace YYCC::ExceptionHelper {
 	}
 
 	static bool UExceptionFetchRecordPath(yycc_u8string& log_path, yycc_u8string& coredump_path) {
-		// build two file names like: "module.dll.1234.log" and "module.dll.1234.dmp".
-		// "module.dll" is the name of current module. "1234" is current process id.
-		// get self module name
-		yycc_u8string u8_self_module_name;
+		// build two file names like: "error.exe.1234.log" and "error.exe.1234.dmp".
+		// "error.exe" is the name of current process. "1234" is current process id.
+		// get process name
+		yycc_u8string u8_process_name;
 		{
-			// get module handle
-			HMODULE hSelfModule = YYCC::WinFctHelper::GetCurrentModule();
-			if (hSelfModule == nullptr)
-				return false;
-			// get full path of self module
-			yycc_u8string u8_self_module_path;
-			if (!YYCC::WinFctHelper::GetModuleFileName(hSelfModule, u8_self_module_path))
+			// get full path of process
+			yycc_u8string u8_process_path;
+			if (!YYCC::WinFctHelper::GetModuleFileName(NULL, u8_process_path))
 				return false;
 			// extract file name from full path by std::filesystem::path
-			std::filesystem::path self_module_path(FsPathPatch::FromUTF8Path(u8_self_module_path.c_str()));
-			u8_self_module_name = FsPathPatch::ToUTF8Path(self_module_path.filename());
+			std::filesystem::path process_path(FsPathPatch::FromUTF8Path(u8_process_path.c_str()));
+			u8_process_name = FsPathPatch::ToUTF8Path(process_path.filename());
 		}
 		// then get process id
 		DWORD process_id = GetCurrentProcessId();
 		// conbine them as a file name prefix
 		yycc_u8string u8_filename_prefix;
-		if (!YYCC::StringHelper::Printf(u8_filename_prefix, YYCC_U8("%s.%" PRIu32), u8_self_module_name.c_str(), process_id))
+		if (!YYCC::StringHelper::Printf(u8_filename_prefix, YYCC_U8("%s.%" PRIu32), u8_process_name.c_str(), process_id))
 			return false;
 		// then get file name for log and minidump
 		yycc_u8string u8_log_filename = u8_filename_prefix + YYCC_U8(".log");
@@ -367,10 +479,9 @@ namespace YYCC::ExceptionHelper {
 	}
 
 	static LONG WINAPI UExceptionImpl(LPEXCEPTION_POINTERS info) {
-		// detect loop calling
-		if (g_IsProcessing) goto end_proc;
-		// start process
-		g_IsProcessing = true;
+		// try to start process current unhandled exception
+		// to prevent any possible recursive calling.
+		if (!g_ExceptionRegister.StartProcessing()) goto end_proc;
 
 		// core implementation
 		{
@@ -396,14 +507,15 @@ namespace YYCC::ExceptionHelper {
 
 		}
 
-		// end process
-	failed:
-		g_IsProcessing = false;
+		// stop process
+		g_ExceptionRegister.StartProcessing();
+
+	end_proc:
 		// if backup proc can be run, run it
 		// otherwise directly return.
-	end_proc:
-		if (g_ProcBackup != nullptr) {
-			return g_ProcBackup(info);
+		auto prev_proc = g_ExceptionRegister.GetPrevProcHandler();
+		if (prev_proc != nullptr) {
+			return prev_proc(info);
 		} else {
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
@@ -412,15 +524,11 @@ namespace YYCC::ExceptionHelper {
 #pragma endregion
 
 	void Register() {
-		if (g_IsRegistered) return;
-		g_ProcBackup = SetUnhandledExceptionFilter(UExceptionImpl);
-		g_IsRegistered = true;
+		g_ExceptionRegister.Register();
 	}
 
 	void Unregister() {
-		if (!g_IsRegistered) return;
-		SetUnhandledExceptionFilter(g_ProcBackup);
-		g_IsRegistered = false;
+		g_ExceptionRegister.Unregister();
 	}
 
 }
