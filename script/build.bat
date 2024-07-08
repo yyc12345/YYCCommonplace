@@ -36,8 +36,8 @@ CD ..
 :: Build for documentation
 CD documentation
 cmake -DYYCC_BUILD_DOC=ON ../..
-cmake --build . --config Release
-:: cmake --install . --prefix=../install --config Release
+cmake --build . --target YYCCDocumentation
+cmake --install . --prefix=../install
 CD ..
 
 ECHO DONE
