@@ -50,6 +50,8 @@
 
     \li \subpage dialog_helper
 
+    \li \subpage exception_helper
+
   </TD>
 </TR>
 </TABLE>
