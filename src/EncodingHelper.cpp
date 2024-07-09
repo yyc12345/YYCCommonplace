@@ -191,6 +191,44 @@ return ret;
 
 #pragma endregion
 	
+#pragma region CharToUTF8
+
+	bool CharToUTF8(const std::string_view& src, yycc_u8string& dst, UINT code_page) {
+		std::string adapted_dst;
+		bool ret = CharToChar(src, adapted_dst, code_page, CP_UTF8);
+		if (ret) dst = ToUTF8(adapted_dst);
+		return ret;
+	}
+	bool CharToUTF8(const char* src, yycc_u8string& dst, UINT code_page) {
+		CONVFCT_TYPE2(CharToUTF8, char, yycc_char8_t, code_page);
+	}
+	yycc_u8string CharToUTF8(const std::string_view& src, UINT code_page) {
+		CONVFCT_TYPE3(CharToUTF8, char, yycc_char8_t, code_page);
+	}
+	yycc_u8string CharToUTF8(const char* src, UINT code_page) {
+		CONVFCT_TYPE4(CharToUTF8, char, yycc_char8_t, code_page);
+	}
+
+#pragma endregion
+
+#pragma region UTF8ToChar
+
+	bool UTF8ToChar(const yycc_u8string_view& src, std::string& dst, UINT code_page) {
+		std::string_view adapted_src(ToOrdinaryView(src));
+		return CharToChar(adapted_src, dst, CP_UTF8, code_page);
+	}
+	bool UTF8ToChar(const yycc_char8_t* src, std::string& dst, UINT code_page) {
+		CONVFCT_TYPE2(UTF8ToChar, yycc_char8_t, char, code_page);
+	}
+	std::string UTF8ToChar(const yycc_u8string_view& src, UINT code_page) {
+		CONVFCT_TYPE3(UTF8ToChar, yycc_char8_t, char, code_page);
+	}
+	std::string UTF8ToChar(const yycc_char8_t* src, UINT code_page) {
+		CONVFCT_TYPE4(UTF8ToChar, yycc_char8_t, char, code_page);
+	}
+
+#pragma endregion
+
 #endif
 
 	

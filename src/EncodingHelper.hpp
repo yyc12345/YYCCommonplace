@@ -57,6 +57,16 @@ namespace YYCC::EncodingHelper {
 	bool UTF8ToWchar(const yycc_char8_t* src, std::wstring& dst);
 	std::wstring UTF8ToWchar(const yycc_u8string_view& src);
 	std::wstring UTF8ToWchar(const yycc_char8_t* src);
+	
+	bool CharToUTF8(const std::string_view& src, yycc_u8string& dst, UINT code_page);
+	bool CharToUTF8(const char* src, yycc_u8string& dst, UINT code_page);
+	yycc_u8string CharToUTF8(const std::string_view& src, UINT code_page);
+	yycc_u8string CharToUTF8(const char* src, UINT code_page);
+
+	bool UTF8ToChar(const yycc_u8string_view& src, std::string& dst, UINT code_page);
+	bool UTF8ToChar(const yycc_char8_t* src, std::string& dst, UINT code_page);
+	std::string UTF8ToChar(const yycc_u8string_view& src, UINT code_page);
+	std::string UTF8ToChar(const yycc_char8_t* src, UINT code_page);
 
 #endif
 
