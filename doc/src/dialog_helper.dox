@@ -73,6 +73,95 @@ The directory we meeting in the first launch is system defined.
 
 \section dialog_helper__file_filters Configure File Filters
 
+File filters is a drop down list represented in file dialog which allow user filter files by their extensions.
+It is beneficial to let user get the file which they want in a directory including massive different files.
+
+<B>For file dialog picking a directory,</B> you can skip this step.
+Because the file dialog picking directory does not have file filter drop down box.
+Directory can not be filtered.
+
+YYCC::DialogHelper::FileFilters takes responsibility for this feature:
+
+\code
+auto& filters = params.ConfigreFileTypes();
+filters.Add(YYCC_U8("Microsoft Word (*.docx; *.doc)"), { YYCC_U8("*.docx"), YYCC_U8("*.doc") });
+filters.Add(YYCC_U8("Microsoft Excel (*.xlsx; *.xls)"), { YYCC_U8("*.xlsx"), YYCC_U8("*.xls") });
+filters.Add(YYCC_U8("Microsoft PowerPoint (*.pptx; *.ppt)"), { YYCC_U8("*.pptx"), YYCC_U8("*.ppt") });
+filters.Add(YYCC_U8("Text File (*.txt)"), { YYCC_U8("*.txt") });
+filters.Add(YYCC_U8("All Files (*.*)"), { YYCC_U8("*.*") });
+params.SetDefaultFileTypeIndex(0u);
+\endcode
+
+\subsection dialog_helper__file_filters__setup File Filters
+
+We don't need to initialize YYCC::DialogHelper::FileFilters by ourselves.
+Oppositely, we fetch it from YYCC::DialogHelper::FileDialog instance by calling YYCC::DialogHelper::FileDialog::ConfigreFileTypes.
+After fetching, we can call YYCC::DialogHelper::FileFilters::Add to add a filter pair for file filters.
+
+The first argument is the display text which user will see in file filter drop down box.
+
+The second argument is a \c std::initializer_list.
+Every items are Windows used wildcard string instructing which file should be shown in file dialog.
+It is okey to use multiple wildcard string in list.
+This is suit for those file types involving multiple file extensions, such as the old and new file types of Microsoft Office as we illustracted.
+Empty list not allowed
+
+YYCC::DialogHelper::FileFilters::Add also will return a bool to indicate the success of this adding.
+
+It should at least has one file filter in file dialog.
+I don't know the consequence if you don't provide any file filter.
+
+\subsection dialog_helper__file_filters__default_filter Default File Type
+
+YYCC::DialogHelper::FileDialog::SetDefaultFileTypeIndex will set the default selected file filter of this dialog.
+It accepts an index pointing to the file filter which you want to show in default for this file dialog.
+The index of file filters is the order where you call YYCC::DialogHelper::FileFilters::Add above.
+If you pass \c NULL to it or skip calling this function, the first one will be default.
+
 \section dialog_helper__result Create Dialog and Get Result
+
+Finally, we can call file dialog functions by we initialized YYCC::DialogHelper::FileDialog
+
+\code
+YYCC::yycc_u8string single_selection;
+std::vector<YYCC::yycc_u8string> multiple_selection;
+
+YYCC::DialogHelper::OpenFileDialog(params, single_selection);
+YYCC::DialogHelper::OpenMultipleFileDialog(params, multiple_selection);
+YYCC::DialogHelper::SaveFileDialog(params, single_selection);
+YYCC::DialogHelper::OpenFolderDialog(params, single_selection);
+\endcode
+
+There are 4 file dialogs you can choose:
+
+\li YYCC::DialogHelper::OpenFileDialog:  Open single file
+\li YYCC::DialogHelper::OpenMultipleFileDialog: Open multiple files
+\li YYCC::DialogHelper::SaveFileDialog: Save single file
+\li YYCC::DialogHelper::OpenFolderDialog: Open single directory
+
+\subsection dialog_helper__result__arguments Arguments
+
+Among these 4 functions, the first argument always is the reference to YYCC::DialogHelper::FileDialog.
+Function will use it to decide what should be shown in this file dialog.
+
+The second argument always is the reference to the container receiving the result.
+For single selection, the return type is \c yycc_u8string.
+For multiple selection, the return type is a list of strings: \c std::vector<yycc_u8string>.
+
+\subsection dialog_helper__result__return_value Return Value
+
+Please note among these 4 functions will return a bool as its return value to indicate the success of function.
+If they return false, it means that the execution of functions are failed or user click Cancel button.
+In this case, there is no guaranteen to the content of second argument (the real return value).
+
+\section dialog_helper__notes Notes
+
+You may notice there are various classes which we never introduce.
+Because they are intermediate classes and should not be used by programmer.
+For example:
+
+\li YYCC::DialogHelper::WinFileDialog: The converted YYCC::DialogHelper::FileDialog passed to Windows.
+\li YYCC::DialogHelper::WinFileFilters: Same as YYCC::DialogHelper::WinFileDialog. It will be passed to Windows functions.
+\li etc...
 
 */

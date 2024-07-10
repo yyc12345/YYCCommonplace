@@ -37,6 +37,8 @@ YYCC supports following convertions:
 \li YYCC::EncodingHelper::CharToChar: Convert string between 2 different code pages. It's a shortcut of calling CharToWchar and WcharToChar successively.
 \li YYCC::EncodingHelper::WcharToUTF8: Convert \c wchar_t string to UTF8 string.
 \li YYCC::EncodingHelper::UTF8ToWchar: The reversed convertion of WcharToUTF8.
+\li YYCC::EncodingHelper::CharToUTF8: Convert code page specified string to UTF8 string.
+\li YYCC::EncodingHelper::UTF8ToChar: The reversed convertion of CharToUTF8.
 
 Code Page is a Windows concept.
 If you don't understand it, please view corresponding Microsoft documentation.
