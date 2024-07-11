@@ -37,6 +37,10 @@
 
     \li \subpage string_helper
 
+    \li \subpage io_helper
+
+    \li \subpage fs_path_patch
+
     <B>Advanced Features</B>
 
     \li \subpage config_manager

@@ -1,0 +1,43 @@
+/**
+
+\page io_helper IO Helper
+
+YYCC::IOHelper currently only has one function and one macro.
+
+\section io_helper__ptr_pri_padding Pointer Print Padding
+
+When printing pointer on screen, programmer usually left-pad zero to make it looks good.
+However, the count of zero for padding is different in x86 and x64 architecture (8 for x86 and 16 for x64).
+Macro \c PRI_XPTR_LEFT_PADDING will help you to resolve this issue.
+
+Macro \c PRI_XPTR_LEFT_PADDING will be defined to following value according to the target system architecture.
+
+\li \c "08": On x86 system.
+\li \c "016": On x64 system.
+
+There is an example for how to use it:
+
+\code
+void* raw_ptr = blabla();
+std::printf(stdout, "Raw Pointer 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, raw_ptr);
+\endcode
+
+Note \c PRIXPTR is defined by standard library for formatting pointer as hexadecimal style.
+
+\section io_helper__utf8_fopen UTF8 fopen
+
+In Windows, standard \c std::fopen can not handle UTF8 file name in common environment.
+So we create this function to give programmer an universal \c fopen in UTF8 style.
+
+In Windows platform, this function will try to convert its argument to \c wchar_t
+and calling Microsoft specific \c _wfopen function to open file.
+If encoding convertion or \c _wfopen failed, this function will return \c nullptr like \c std::fopen does.
+In other platforms, it will simply redirect calling to \c std::fopen.
+
+There is a simple example:
+
+\code
+FILE* fs = YYCC::IOHelper::FOpen(YYCC_U8("/path/to/file"), YYCC_U8("rb"));
+\endcode
+
+*/

@@ -28,7 +28,7 @@ namespace YYCC::IOHelper {
 		return _wfopen(wpath.c_str(), wmode.c_str());
 
 #else
-		return std::fopen(u8_filepath, u8_mode);
+		return std::fopen(EncodingHelper::ToOrdinary(u8_filepath), EncodingHelper::ToOrdinary(u8_mode));
 #endif
 	}
 
