@@ -3,23 +3,6 @@
 
 #include <filesystem>
 
-/**
- * @brief The patch namespace resolving \c std::filesystem::path encoding issue.
- * @details
- * This patch is Windows oriented.
- * If you are in Windows, this patch will perform extra operations to achieve goals,
- * and in other platforms, they just redirect request to corresponding vanilla C++ functions.
- * 
- * As you know, the underlying char type of \c std::filesystem::path is \c wchar_t on Windows,
- * and in other platforms, it is simple \c char.
- * Due to this, if you passing UTF8 char sequence to \c std::filesystem::path on Windows,
- * the library implementation will assume your input is based on current Windows code page, not UTF8.
- * And the final path stored in \c std::filesystem::path is not what you expcected.
- * 
- * This patch namespace always use UTF8 as its argument. There is no ambiguous issue.
- * You should use the functions provided by this namespace on any platforms 
- * instead of vanilla \c std::filesystem::path functions.
-*/
 namespace YYCC::FsPathPatch {
 	
 	/**

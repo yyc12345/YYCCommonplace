@@ -54,6 +54,8 @@
 
     \li \subpage dialog_helper
 
+    \li \subpage win_fct_helper
+
     \li \subpage exception_helper
 
   </TD>

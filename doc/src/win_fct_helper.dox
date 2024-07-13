@@ -1,0 +1,17 @@
+/**
+
+\page win_fct_helper Windows Function Helper
+
+This helper give a more convenient way to call Windows functions.
+
+This namespace is Windows specific.
+It will be entirely invisible in other platforms.
+
+Currently this namespace has following functions:
+
+\li YYCC::WinFctHelper::GetCurrentModule: Get the handle to current module.
+\li YYCC::WinFctHelper::GetTempDirectory: Get temporary directory in Windows.
+\li YYCC::WinFctHelper::GetModuleFileName: Get the path to module in file system by given handle.
+\li YYCC::WinFctHelper::GetLocalAppData: Get the path inside \%LOCALAPPDATA\%
+
+*/

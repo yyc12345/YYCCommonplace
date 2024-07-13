@@ -19,6 +19,7 @@ namespace YYCC::EncodingHelper {
 
 #define _YYCC_U8(strl) u8 ## strl ///< The assistant macro for YYCC_U8.
 #define YYCC_U8(strl) (reinterpret_cast<const ::YYCC::yycc_char8_t*>(_YYCC_U8(strl))) ///< The macro for creating UTF8 string literal. See \ref library_encoding.
+#define YYCC_U8_CHAR(chr) (static_cast<YYCC::yycc_char8_t>(chr)) ///< The macro for casting normal char into YYCC UTF8 char type.
 
 	const yycc_char8_t* ToUTF8(const char* src);
 	yycc_char8_t* ToUTF8(char* src);

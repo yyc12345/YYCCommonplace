@@ -96,6 +96,24 @@ This macro will do this automatically.
 In detail, this macro do a \c reinterpret_cast to change the type of given argument to \c const \c yycc_char8_t* forcely.
 This ensure that declared UTF8 literal is compatible with YYCC UTF8 types.
 
+\subsection library_encoding__utf8_literal__char Single Char
+
+Same as UTF8 literal, YYCC allow you cast normal \c char into \c yycc_char8_t as following code:
+
+\code
+YYCC_U8_CHAR('A')
+\endcode
+
+YYCC_U8_CHAR is a macro.
+It just simply use \c static_cast to cast given value to \c yycc_char8_t.
+It doesn't mean that you can cast non-ASCII characters,
+because the space these characters occupied usually more than the maximum value of \c char.
+For example, following code is \b invalid:
+
+\code
+YYCC_U8_CHAR('文') // INVALID!
+\endcode
+
 \subsection library_encoding__utf8_literal__concatenation Literal Concatenation
 
 YYCC_U8 macro also works for string literal concatenation:
