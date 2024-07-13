@@ -1,9 +1,16 @@
 # YYC Commonplace
 
-During the development of a few projects, I gradually understand how Windows make the compromise with the code written by its old developers, and what is developer wanted in contemporary C++ standard library under Windows environment. So I create this static library for all of my C++ project, After this, I do not need to write these duplicated code in each project. I can use a clear and easy way to manage these codes. I can easily fix issues found in project using this library by updating a single project, rather than fixing these duplicated code in each project one by one because all of them share the same implementations.
+YYC Commonplace, or YYCCommonplace (abbr. YYCC) is a static library specifically resolving my requirements in C++ and Windows scope.
 
-This project mainly is served for my personal use. But I would be honored if you would like to use this in your project. Almost of my projects, except some critical projects (they will copy this project implementations into their own project scope to eliminate non-common library dependency), will gradually adapt to this project and drop their own individual implementations.
+## Usage
 
-This project includes Visual Studio project file and CMake support at the same time. So that at least I can use one of them freely.
+For more usage about this library, please build documentation of this project via Doxygen and read it.
 
-**WIP. Do not use it now.**
+And I also highly recommend that you read documentation first before writing with this library.
+
+## Build
+
+This project require at least CMake 3.23 to build. We suggest that you only use stable version (tagged commit). The latest commit may still work in progress and not stable.
+
+For Windows builing, you can browse GitHub action script to have a preview. It actually is a simple calling to script file.
+For other platforms building (e.g. Linux), you can following common builing way of CMake project.

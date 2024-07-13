@@ -2,14 +2,23 @@
 
 \page intro Introduction to YYCCommonplace
 
-YYCCommonplace, or YYC Commonplace (abbr. YYCC), is a static library providing various useful C++ functions when programming with standard library or Windows environment.
+YYCCommonplace, or YYC Commonplace (abbr. YYCC), 
+is a static library providing various useful C++ functions 
+when programming with standard library or Windows environment.
 
-Actually YYCC provides the functions which I frequently used in my personal projects.
-Thus I do not need copy these functions from one project to another project.
-I can write them once and use them everywhere.
-It's also good for bug fix.
-If I found bug in these code, I only need to fix it in this project.
-Otherwise I need to fix them one by one in each project because they share the same code.
+During the development of a few projects, 
+I gradually understand how Windows make the compromise with the code written by its old developers, 
+and what is developer wanted in contemporary C++ standard library under Windows environment. 
+So I create this static library for all of my C++ project.
+After this, I do not need to write these duplicated code in each project. 
+I can use a clear and easy way to manage these codes. 
+I can easily fix issues found in project using this library by updating a single project, 
+rather than fixing these duplicated code in each project one by one 
+because all of them share the same implementations.
+
+This project mainly is served for my personal use. 
+But I would be honored if you would like to use this in your project. 
+Almost of my projects will gradually adapt to this project and drop their own individual implementations.
 
 \section intro__why Why YYCCommonplace
 
@@ -70,7 +79,5 @@ So I create this library, bring some Boost functions with ordinary but not bad i
 Before using this library, I suggest you read this manual fully to have a full overview of this library.
 Otherwise you may make mistake during using this library.
 I suggest you read this manual from top to bottom in the left tree panel, one by one.
-
-This library is a static library.
 
 */
