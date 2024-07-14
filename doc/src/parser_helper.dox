@@ -1,0 +1,80 @@
+/**
+
+\page parser_helper Parser Helper
+
+This helper is served for the convertion between number and string.
+
+\section parser_helper_supported_types Supported Types
+
+Functions located in this helper support the convertion between string and following types:
+
+\li Integral types (except \c bool): \c int, \c uint32_t, \c char and etc.
+\li Floating point types: \c float, \c double and etc.
+\li \c bool
+
+Please note in C++, \c bool is integral type but we list it individually because parser will treat it specially.
+For \c bool type, parser will try doing convertion between it and \c "true" \c "false" string.
+(\b case-sensitive. It means that \c true will only be converted to \c "true" and \c "TRUE" can not be recognised.)
+
+\section parser_helper__try_parse Try Parse
+
+YYCC::ParserHelper::TryParse will try to parse string into caller specified type.
+All of them accept an UTF8 string view at first argument,
+require that you provide a container receiving converted result in the second argument,
+and return a bool value to indicate whether the convertion is successful.
+There are some examples:
+
+\code
+uint32_t val;
+YYCC::ParserHelper::TryParse<uint32_t>(YYCC_U8("123"), val);
+YYCC::ParserHelper::TryParse<uint32_t>(YYCC_U8("7fff"), val, 16);
+\endcode
+
+For integral type, this function allows caller to specify extra argument providing the base of given number string.
+
+\section parser_helper__parse Parse
+
+YYCC::ParserHelper::Parse is similar to YYCC::ParserHelper::TryParse.
+But it will not return bool value to indicate success and doesn't have the argument receiving result.
+It only accepts an UTF8 string view as the only one argument, and return result directly.
+If the convertion failed, the return value is \b undefined (but usually is the default value of given type).
+There is an example:
+
+\code
+uint32_t val = YYCC::ParserHelper::Parse<uint32_t>(YYCC_U8("123"));
+\endcode
+
+Please note, for integral types, there is no base argument in YYCC::ParserHelper::Parse.
+Please use YYCC::ParserHelper::TryParse instead.
+
+Using this function is dangerous if the validation of your input is important.
+In this case, please use YYCC::ParserHelper::TryParse instead.
+
+\section parser_helper__to_string To String
+
+YYCC::ParserHelper::ToString basically is the reversed operation of YYCC::ParserHelper::Parse.
+It gets the string representation of given type.
+The only argument of these functions is the type which need to be converted to its string representation.
+And they will return yycc_u8string as result.
+There is an example:
+
+\code
+auto result = YYCC::ParserHelper::ToString<uint32_t>(UINT32_C(114));
+\endcode
+
+\section parser_helper__notes Notes
+
+All functions within this helper are implementated by standard library functions.
+These functions just make a good wrapper for complex standard library functions.
+And give you a experience like C\# parser functions.
+
+Basically, all functions located in this helper have possibility to throw exception.
+But this possibility are more close to the possibility that \c new statement throw \c std::bad_alloc.
+So in most cases you can assume these functions will not throw any exception.
+
+All functions are template functions.
+The argument of template is the type these functions need to be processed.
+Although C++ have \e smart template type deduction, 
+it would be better to specify template argument manually to explicitly specify your desired type.
+
+*/
