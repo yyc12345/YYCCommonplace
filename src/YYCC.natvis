@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright (c) Microsoft Corporation, yyc12345.
+SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+-->
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+    <!-- Following XML are copied from Visual Studio embedded Natvis files. -->
+    <!-- <Microsoft Visual Studio Install Directory>\Common7\Packages\Debugger\Visualizers\stl.natvis -->
+
+    <!-- VC 2013 -->
+    <Type Name="std::basic_string&lt;YYCC::yycc_char8_t,*&gt;" Priority="MediumLow">
+        <AlternativeType Name="std::basic_string&lt;char8_t,*&gt;" />
+        <AlternativeType Name="std::basic_string&lt;unsigned char,*&gt;" />
+        <DisplayString Condition="_Myres &lt; _BUF_SIZE">{_Bx._Buf,s8}</DisplayString>
+        <DisplayString Condition="_Myres &gt;= _BUF_SIZE">{_Bx._Ptr,s8}</DisplayString>
+        <StringView Condition="_Myres &lt; _BUF_SIZE">_Bx._Buf,s8</StringView>
+        <StringView Condition="_Myres &gt;= _BUF_SIZE">_Bx._Ptr,s8</StringView>
+        <Expand>
+            <Item Name="[size]" ExcludeView="simple">_Mysize</Item>
+            <Item Name="[capacity]" ExcludeView="simple">_Myres</Item>
+            <ArrayItems>
+                <Size>_Mysize</Size>
+                <ValuePointer Condition="_Myres &lt; _BUF_SIZE">_Bx._Buf</ValuePointer>
+                <ValuePointer Condition="_Myres &gt;= _BUF_SIZE">_Bx._Ptr</ValuePointer>
+            </ArrayItems>
+        </Expand>
+    </Type>
+
+    <!-- VC 2015+ ABI basic_string -->
+    <Type Name="std::basic_string&lt;YYCC::yycc_char8_t,*&gt;">
+        <AlternativeType Name="std::basic_string&lt;char8_t,*&gt;" />
+        <AlternativeType Name="std::basic_string&lt;unsigned char,*&gt;" />
+        <Intrinsic Name="size" Expression="_Mypair._Myval2._Mysize" />
+        <Intrinsic Name="capacity" Expression="_Mypair._Myval2._Myres" />
+        <!-- _BUF_SIZE = 16 / sizeof(char) &lt; 1 ? 1 : 16 / sizeof(char) == 16 -->
+        <Intrinsic Name="bufSize" Expression="16" />
+        <Intrinsic Name="isShortString" Expression="capacity() &lt; bufSize()" />
+        <Intrinsic Name="isLongString" Expression="capacity() &gt;= bufSize()" />
+        <DisplayString Condition="isShortString()">{_Mypair._Myval2._Bx._Buf,s8}</DisplayString>
+        <DisplayString Condition="isLongString()">{_Mypair._Myval2._Bx._Ptr,s8}</DisplayString>
+        <StringView Condition="isShortString()">_Mypair._Myval2._Bx._Buf,s8</StringView>
+        <StringView Condition="isLongString()">_Mypair._Myval2._Bx._Ptr,s8</StringView>
+        <Expand>
+            <Item Name="[size]" ExcludeView="simple">size()</Item>
+            <Item Name="[capacity]" ExcludeView="simple">capacity()</Item>
+            <Item Name="[allocator]" ExcludeView="simple">_Mypair</Item>
+            <ArrayItems>
+                <Size>_Mypair._Myval2._Mysize</Size>
+                <ValuePointer Condition="isShortString()">_Mypair._Myval2._Bx._Buf</ValuePointer>
+                <ValuePointer Condition="isLongString()">_Mypair._Myval2._Bx._Ptr</ValuePointer>
+            </ArrayItems>
+        </Expand>
+    </Type>
+
+    <Type Name="std::basic_string_view&lt;YYCC::yycc_char8_t,*&gt;">
+        <AlternativeType Name="std::basic_string_view&lt;char8_t,*&gt;" />
+        <AlternativeType Name="std::basic_string_view&lt;unsigned char,*&gt;" />
+        <Intrinsic Name="size" Expression="_Mysize" />
+        <Intrinsic Name="data" Expression="_Mydata" />
+        <DisplayString>{_Mydata,[_Mysize],s8}</DisplayString>
+        <StringView>_Mydata,[_Mysize],s8</StringView>
+        <Expand>
+            <Item Name="[size]" ExcludeView="simple">size()</Item>
+            <ArrayItems>
+                <Size>size()</Size>
+                <ValuePointer>data()</ValuePointer>
+            </ArrayItems>
+        </Expand>
+    </Type>
+
+</AutoVisualizer>

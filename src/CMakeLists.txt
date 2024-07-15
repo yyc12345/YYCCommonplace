@@ -14,6 +14,8 @@ PRIVATE
     IOHelper.cpp
     StringHelper.cpp
     WinFctHelper.cpp
+    # Natvis (only for MSVC)
+    $<$<CXX_COMPILER_ID:MSVC>:YYCC.natvis>
 )
 target_sources(YYCCommonplace 
 PUBLIC
