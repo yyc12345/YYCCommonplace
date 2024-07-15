@@ -28,16 +28,16 @@ std::vector<yycc_u8string> Split(const yycc_u8string_view&, const yycc_char8_t*)
 std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view&, const yycc_char8_t*);
 \endcode
 
-All these overloads take a string view as the first argument for the string need to be split.
+All these overloads take a string view as the first argument representing the string need to be split.
 The second argument is a raw string pointer representing the decilmer for splitting.
 The only difference between these 2 split function are overt according to their names.
 The first split function will return a list of copied string as its split result.
 The second split function will return a list of string view as its split result,
 and it will keep valid as long as the life time of your given string view argument.
-It also means that the last type will cost less memory if you don't need the copy of original string.
+It also means that the last overload will cost less memory if you don't need the copy of original string.
 
 If the source string (the string need to be split) is empty, or the decilmer is \c nullptr or empty,
 the result will only has 1 item and this item is source string itself.
-There is no way that this method return an empty list, except the code is buggy.
+There is no way that these methods return an empty list, except the code is buggy.
 
 */
