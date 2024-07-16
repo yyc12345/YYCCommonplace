@@ -39,6 +39,8 @@
 
     \li \subpage parser_helper
 
+    \li \subpage console_helper
+
     \li \subpage io_helper
 
     \li \subpage fs_path_patch
