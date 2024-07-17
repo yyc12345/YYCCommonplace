@@ -32,7 +32,7 @@ YYCC::DialogHelper::FileDialog::SetOwner will set owner of this dialog.
 It accepts a Microsoft defined \c HWND as argument which should be familiar with Windows programmer.
 If you pass \c NULL to it or skip calling this function, it indicate that there is no owner of this dialog.
 <I>
-I don't what whill happend if there is no owner for it.
+I don't what will happen if there is no owner for it.
 But it would be better to have an owner if possible.
 </I>
 

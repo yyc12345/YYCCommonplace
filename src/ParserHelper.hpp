@@ -84,7 +84,7 @@ namespace YYCC::ParserHelper {
 			return yycc_u8string(buffer.data(), EncodingHelper::ToUTF8(ptr) - buffer.data());
 		} else if (ec == std::errc::value_too_large) {
 			// too short buffer
-			// this should not happend
+			// this should not happened
 			throw std::out_of_range("ToString() buffer is not sufficient.");
 		} else {
 			// unreachable

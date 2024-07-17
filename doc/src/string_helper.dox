@@ -2,8 +2,104 @@
 
 \page string_helper String Helper
 
+\section string_helper__printf Printf VPrintf
 
-\section string_helper_lower_upper Lower Upper
+YYCC::StringHelper provides 4 functions for formatting string.
+These functions are mainly provided to programmer who can not use C++ 20 \c std::format feature.
+
+\code
+bool Printf(yycc_u8string&, const yycc_char8_t*, ...);
+bool VPrintf(yycc_u8string&, const yycc_char8_t*, va_list argptr);
+yycc_u8string Printf(const yycc_char8_t*, ...);
+yycc_u8string VPrintf(const yycc_char8_t*, va_list argptr);
+\endcode
+
+YYCC::StringHelper::Printf and YYCC::StringHelper::VPrintf is similar to \c std::sprintf and \c std::vsprintf.
+YYCC::StringHelper::Printf accepts UTF8 format string and variadic arguments specifying data to print.
+This is commonly used by programmer.
+However, YYCC::StringHelper::VPrintf also do the same work but its second argument is \c va_list, 
+the representation of variadic arguments.
+It is mostly used by other function which has variadic arguments.
+
+The only difference between these function and standard library functions is 
+that you don't need to worry about whether the space of given buffer is enough,
+because these functions help you to calculate this internally.
+
+There is the same design like we introduced in \ref encoding_helper.
+There are 2 overloads for YYCC::StringHelper::Printf and YYCC::StringHelper::VPrintf respectively.
+First overload return bool value and require a string container as argument for storing result.
+The second overload return result string directly.
+As you expected, first overload will return false if fail to format string (this is barely happened).
+and second overload will return empty string when formatter failed.
+
+\section string_helper__replace Replace
+
+YYCC::StringHelper provide 2 functions for programmer do string replacement:
+
+\code
+void Replace(yycc_u8string&, const yycc_char8_t*, const yycc_char8_t*);
+yycc_u8string Replace(const yycc_char8_t*, const yycc_char8_t*, const yycc_char8_t*);
+\endcode
+
+The first overload will do replacement in given string container directly.
+The second overload will produce a copy of original string and do replacement on the copied string.
+
+YYCC::StringHelper::Replace has special treatments for following scenarios:
+
+\li If given string is empty or nullptr, the return value will be empty.
+\li If the character sequence to be replaced is nullptr or empty string, no replacement will happen.
+\li If the character sequence will be replaced into string is nullptr or empty, it will simply delete found character sequence from given string.
+
+\section string_helper__join Join
+
+YYCC::StringHelper provide an universal way for joining string and various specialized join functions.
+
+\subsection string_helper__join__universal Universal Join Function
+
+Because C++ list types are various.
+There is no unique and convenient way to create an universal join function.
+So we create YYCC::StringHelper::JoinDataProvider to describe join context.
+
+Before using universal join function,
+you should setup YYCC::StringHelper::JoinDataProvider first, the context of join function.
+It actually is an \c std::function object which can be easily fetched by C++ lambda syntax.
+This function pointer accept a reference to \c yycc_u8string_view,
+programmer should set it to the string to be joined when at each calling.
+And this function pointer return a bool value to indicate the end of join.
+You can simply return \c false to terminate join process.
+The argument you assigned to argument will not be taken into join process when you return false.
+
+Then, you can pass the created YYCC::StringHelper::JoinDataProvider object to YYCC::StringHelper::Join function.
+And specify decilmer at the same time.
+Then you can get the final joined string.
+There is an example:
+
+\code
+std::vector<yycc_u8string> data {
+    YYCC_U8(""), YYCC_U8("1"), YYCC_U8("2"), YYCC_U8("")
+};
+auto iter = data.cbegin();
+auto stop = data.cend();
+auto joined_string = YYCC::StringHelper::Join(
+    [&iter, &stop](yycc_u8string_view& view) -> bool {
+        if (iter == stop) return false;
+        view = *iter;
+        ++iter;
+        return true;
+    }, 
+    decilmer
+);
+\endcode
+
+\subsection string_helper__join__specialized Specialized Join Function
+
+Despite universal join function, 
+YYCC::StringHelper also provide some specialized join functions for commonly used types.
+Current we support following join function:
+
+\li \c std::vector<yycc_u8string>: With an extra option which allow join it with reversed order.
+
+\section string_helper__lower_upper Lower Upper
 
 String helper provides Python-like string lower and upper function.
 Both lower and upper function have 2 overloads:
@@ -18,7 +114,7 @@ Second overload accepts a mutable string container as argument and will make all
 You can choose on of them for your flavor and requirements.
 Upper also has similar 2 overloads.
 
-\section string_helper_split Split
+\section string_helper__split Split
 
 String helper provides Python-like string split function.
 It has 2 types for you:

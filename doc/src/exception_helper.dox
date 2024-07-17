@@ -81,7 +81,7 @@ It is very like the implementation of singleton application.
 The implementation of unhandled exception handler may also will throw exception.
 This will cause infinite recursive calling.
 YYCC::ExceptionHelper has internal mechanism to prevent this bad case.
-If this really happend, the handler will quit silent and will not cause any issue.
+If this really happened, the handler will quit silent and will not cause any issue.
 Programmer don't need to worry about this.
 
 */
