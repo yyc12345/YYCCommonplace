@@ -2,4 +2,119 @@
 
 \page config_manager Universal Config Manager
 
+Universal config manager give programmer an universal way to manage its program settings.
+There is an example about how to use universal config manager.
+In following content, we will describe it in detail.
+
+\code
+class TestConfigManager {
+public:
+    enum class TestEnum : int8_t {
+        Test1, Test2, Test3
+    };
+
+    TestConfigManager() :
+        m_IntSetting(YYCC_U8("int-setting"), INT32_C(0)),
+        m_StringSetting(YYCC_U8("string-setting"), YYCC_U8("")),
+        m_FloatSetting(YYCC_U8("float-setting"), 0.0f, YYCC::ConfigManager::ConstraintPresets::GetNumberRangeConstraint<float>(-1.0f, 1.0f)),
+        m_EnumSetting(YYCC_U8("enum-setting"), TestEnum::Test1),
+        m_CoreManager(YYCC_U8("test.cfg"), UINT64_C(0), {
+            &m_IntSetting, &m_StringSetting, &m_FloatSetting, &m_EnumSetting
+        })
+    {}
+    ~TestConfigManager() {}
+
+    YYCC::ConfigManager::NumberSetting<int32_t> m_IntSetting;
+    YYCC::ConfigManager::StringSetting m_StringSetting;
+    YYCC::ConfigManager::NumberSetting<float> m_FloatSetting;
+    YYCC::ConfigManager::NumberSetting<TestEnum> m_EnumSetting;
+
+    YYCC::ConfigManager::CoreManager m_CoreManager;
+};
+
+// init cfg manager
+TestConfigManager test;
+// load string
+test.m_CoreManager.Load()
+// get string value
+auto val = test.m_StringSetting.Get();
+\endcode
+
+\section config_manager__setting Setting
+
+Setting can be seen as the leaf of the config tree.
+Each setting describe a single configuration entry.
+
+\subsection config_manager__setting__presets Setting Presets
+
+We currently provide 2 setting preset classes which you can directly use.
+
+\li YYCC::ConfigManager::NumberSetting: The setting storing a number inside.
+It is a template class. Support all arithmetic and enum types (integral, floating point, bool, enum).
+\li YYCC::ConfigManager::StringSetting: The setting storing a string inside.
+
+When constructing these settings,
+you need to provide its unique name which will be used when saving to file or reading from file.
+Also you need to provide a default value for it.
+It will be used when fail to read file or initializing itself.
+Optionally, you can assign a constraint to it which we will introduce in following section.
+
+\subsection config_manager__setting__custom Custom Setting
+
+In most cases, the combination use of setting presets and constraints introduced in following is enough.
+However, if you still are urge to create your personal setting,
+please inherit YYCC::ConfigManager::AbstractSetting and implement essential class functions.
+For the class functions you need to implement,
+please refer to our setting presets, YYCC::ConfigManager::NumberSetting and YYCC::ConfigManager::StringSetting.
+
+\section config_manager__constraint Constraint
+
+Constraint can be applied to specific setting instance,
+and limit its value to specific values,
+such as minimum maximum value, specific string format and etc.
+
+\subsection config_manager__constraint__presets Constraint Presets
+
+YYCC::ConfigManager provide some constraint presets in YYCC::ConfigManager::Constraints namespace.
+All functions inside this namespace will return a YYCC::ConfigManager::Constraint instance,
+and you can directly assign it to the constructor of setting.
+Currently there is only one constraint preset:
+
+\li YYCC::ConfigManager::Constraints::GetNumberRangeConstraint: Constrain the number value in minimum maximum value range (inclusive).
+
+\subsection config_manager__constraint__custom Custom Constraint
+
+For creating your personal constraint,
+you need to create YYCC::ConfigManager::Constraint instance manually.
+
+First you need decide the template argument of YYCC::ConfigManager::Constraint.
+The type you assigned to template argument always is 
+the same type which is accepted by the setting this constraint will be applied to.
+
+Second, you need assign class member of YYCC::ConfigManager::Constraint.
+Currently there is only one class member.
+It is a function pointer called when correcting value.
+See our constraint presets for more infomation about how to write it.
+
+\section config_manager__core_manager Core Manager
+
+YYCC::ConfigManager::CoreManager manage a collection of settings.
+And have responsibility to reading and writing config file.
+
+We highly suggest that you create a personal config manager class like example does.
+Then put essential settings and core manager inside it.
+Please note you must place core manager after all settings.
+Because the order of C++ initializing its class member is the order you declared them.
+The constructor of core manager need the pointer to all it managed settings,
+so it must be initialized after initializing all settings.
+
+When initializing core manager, you need assign config file path first.
+Then you need specify a version number.
+Version number will be used when reading config file.
+If the version of config file is higher than your given number,
+core manager will assume you are trying to read a config file created by a higher version program.
+Core manager will reject reading and use default value for all settings.
+Otherwise, core manager will try to read config file and do proper migration if possible.
+The last argument is an initializer list which contain the \b pointer to all settings this manager managed.
+
 */
