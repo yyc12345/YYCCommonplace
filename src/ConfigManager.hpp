@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
+#include <cstring>
 
 namespace YYCC::ConfigManager {
 
