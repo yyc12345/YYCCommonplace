@@ -14,5 +14,5 @@ add_custom_target (YYCCDocumentation
 
 # Install built documentation
 install (DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html
-    DESTINATION doc
+    DESTINATION ${YYCC_INSTALL_DOC_PATH}
 )

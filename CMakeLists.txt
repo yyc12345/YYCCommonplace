@@ -8,19 +8,18 @@ project(YYCC
 option(YYCC_BUILD_TESTBENCH "Build testbench of YYCCommonplace." OFF)
 option(YYCC_BUILD_DOC "Build document of YYCCommonplace." OFF)
 
-# Detect MSVC IDE environment.
-# If we in it, we should add configuration and build type in install path.
-if (CMAKE_GENERATOR MATCHES "Visual Studio")
-    # Do Visual Studio specific
-    set(YYCC_INSTALL_PATH_LIB lib/${CMAKE_VS_PLATFORM_NAME}/$<CONFIG>)
-    set(YYCC_INSTALL_PATH_BIN bin/${CMAKE_VS_PLATFORM_NAME})
-else()
-    # Other stuff
-    set(YYCC_INSTALL_PATH_LIB lib)
-    set(YYCC_INSTALL_PATH_BIN bin)
-endif()
+# Setup install path from CMake provided install path for convenient use.
+include(GNUInstallDirs)
+set(YYCC_INSTALL_INCLUDE_PATH ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH
+"Public header install path relative to CMAKE_INSTALL_PREFIX unless set to an absolute path.")
+set(YYCC_INSTALL_LIB_PATH ${CMAKE_INSTALL_LIBDIR} CACHE PATH
+"Library install path relative to CMAKE_INSTALL_PREFIX unless set to an absolute path.")
+set(YYCC_INSTALL_BIN_PATH ${CMAKE_INSTALL_BINDIR} CACHE PATH
+"Binary install path relative to CMAKE_INSTALL_PREFIX unless set to an absolute path.")
+set(YYCC_INSTALL_DOC_PATH ${CMAKE_INSTALL_DOCDIR} CACHE PATH
+"Non-arch doc install path relative to CMAKE_INSTALL_PREFIX unless set to an absolute path.")
 
-# Import 2 build targets
+# Import 3 build targets
 add_subdirectory(src)
 if (YYCC_BUILD_TESTBENCH)
     add_subdirectory(testbench)
@@ -29,12 +28,12 @@ if (YYCC_BUILD_DOC)
     add_subdirectory(doc)
 endif ()
 
-# Install project package infos
-# Package target
+# Install target and package
+# Install target
 install(EXPORT YYCCommonplaceTargets
     FILE YYCCommonplaceTargets.cmake
     NAMESPACE YYCC::
-    DESTINATION lib/cmake/YYCCommonplace
+    DESTINATION ${YYCC_INSTALL_LIB_PATH}/cmake/YYCCommonplace
 )
 # Package configuration file
 include(CMakePackageConfigHelpers)
@@ -46,14 +45,14 @@ write_basic_package_version_file(
 configure_package_config_file(
     ${CMAKE_CURRENT_LIST_DIR}/cmake/YYCCommonplaceConfig.cmake.in 
     "${CMAKE_CURRENT_BINARY_DIR}/YYCCommonplaceConfig.cmake"
-    INSTALL_DESTINATION lib/cmake/YYCCommonplace
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/YYCCommonplace
 )
-# Copy to install destination
+# Copy package files to install destination
 install(
 FILES
     "${CMAKE_CURRENT_BINARY_DIR}/YYCCommonplaceConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/YYCCommonplaceConfigVersion.cmake"
 DESTINATION
-    lib/cmake/YYCCommonplace
+    ${CMAKE_INSTALL_LIBDIR}/cmake/YYCCommonplace
 )
 

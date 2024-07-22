@@ -35,7 +35,6 @@ PRIVATE
 
 # Install testbench only on Release mode
 install(TARGETS YYCCTestbench
-    EXPORT YYCCTestbenchTargets
     CONFIGURATIONS Release
-    RUNTIME DESTINATION ${YYCC_INSTALL_PATH_BIN}
+    RUNTIME DESTINATION ${YYCC_INSTALL_BIN_PATH}
 )
