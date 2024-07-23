@@ -80,4 +80,83 @@ Before using this library, I suggest you read this manual fully to have a full o
 Otherwise you may make mistake during using this library.
 I suggest you read this manual from top to bottom in the left tree panel, one by one.
 
+YYCC library self provides some build scripts for convenient use which are located in \c script directory.
+Please note all of these script should be executed in the root of YYCC project, not the script directory
+(i.e. work directory is the root directory of YYCC).
+All scripts will try to do a simple check about this if you accidently execute them in a wrong place.
+
+If you are not willing to use our build script, or our build script went wrong,
+you can create your personal build script by viewing our build script.
+
+\subsection intro__usage__linux Linux
+
+Building YYCC on Linux is easy to do by executing <TT>script/linux_build.sh</TT>.
+After script done, you will find installation result in directory <TT>bin/install</TT>.
+Then other CMake project can utilize it (non-CMake project also can utilize this).
+
+\subsection intro__usage__win Windows
+
+For building on Windows, there are 2 distribution types which YYCC can create.
+First is CMake distribution, this distribution is served for other CMake project using.
+Another one is MSVC distribution, this distribution is served for other MSVC project using.
+These have different directory layout which is specifically designed for corresponding build tools.
+See following section for more details.
+
+\subsubsection intro__usage__win__cmake CMake Distribution
+
+For creating CMake distribution, please execute script <TT>script/win_build.bat</TT>.
+After script done, you will find CMake distribution in directory <TT>bin/install</TT> with following structure.
+
+\verbatim
+YYCC
+├─Win32_Debug: Win32 Debug package
+│  ├─include: Headers
+│  └─lib: Library for linking and CMake package file
+├─Win32_Release: Win32 Release package
+│  ├─bin: Executable testbench
+│  ├─include: Headers
+│  └─lib: Library for linking and CMake package file
+├─x64_Debug: x64 Debug package
+│  ├─include: Headers
+│  └─lib: Library for linking and CMake package file
+└─x64_Release: x64 Release package
+    ├─bin: Executable testbench
+    ├─include: Headers
+    ├─lib: Library for linking and CMake package file
+    └─share: Documentation
+\endverbatim
+
+Every different architecture and build type have a single and full directory.
+CMake project can use one of by adding their build type in \c find_package path.
+So that CMake will automatically utilize correct package when switching build type.
+
+\subsubsection intro__usage__win__msvc MSVC Distribution
+
+Before creating MSVC distribution, you should create CMake distribution first,
+because MSVC distribution depend on CMake distribution.
+
+After creating CMake distribution, you can simply create MSVC distribution by executing <TT>script/win_msvc_build.bat</TT>.
+Then you will find your MSVC distribution in directory <TT>bin/msvc_install</TT> with following structure.
+
+\verbatim
+YYCC
+├─bin
+│  ├─Win32: Win32 Release testbench
+│  └─x64: x64 Release testbench
+├─include: Headers
+├─lib
+│  ├─Win32
+│  │  ├─Debug: Win32 Debug library for linking
+│  │  └─Release: Win32 Release library for linking
+│  └─x64
+│      ├─Debug: x64 Debug library for linking
+│      └─Release: x64 Release library for linking
+└─share: Documentation
+\endverbatim
+
+The different between MSVC distribution and CMake distribution is
+that MSVC distribution places all static library under one director \c lib.
+Thus in MSVC project user can simply spcify the install path of YYCC,
+and use MSVC macros in path to choose correct static library for linking
+
 */
