@@ -170,7 +170,7 @@ namespace YYCC::StringHelper {
 #pragma region Upper Lower
 
 	template<bool bIsToLower>
-	void GeneralStringLowerUpper(yycc_u8string& strl) {
+	static void GeneralStringLowerUpper(yycc_u8string& strl) {
 		// References:
 		// https://en.cppreference.com/w/cpp/algorithm/transform
 		// https://en.cppreference.com/w/cpp/string/byte/tolower

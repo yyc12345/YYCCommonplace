@@ -9,10 +9,11 @@
 #include "WinImportSuffix.hpp"
 
 /**
- * @brief The helper providing assistance to Win32 functions.
+ * @brief The helper providing assistance of Win32 functions.
  * @details
  * This helper is Windows specific.
  * If current environment is not Windows, the whole namespace will be unavailable.
+ * See also \ref win_fct_helper
 */
 namespace YYCC::WinFctHelper {
 	
@@ -24,16 +25,16 @@ namespace YYCC::WinFctHelper {
 	 * 
 	 * This function is frequently used by DLL.
 	 * Because some design need the HANDLE of current module, not the host EXE loading your DLL.
-	 * For example, you may want to get the name of your built DLL at runtime, then you should pass current module HANDLE, not the HANDLE of EXE.
-	 * Or, if you want to get the path to your DLL, you also should pass current module HANDLE.
+	 * For example, you may want to get the path of your built DLL, or fetch resources from your DLL at runtime,
+	 * then you should pass current module HANDLE, not NULL or the HANDLE of EXE.
 	 * @return A Windows HANDLE pointing to current module, NULL if failed.
 	*/
 	HMODULE GetCurrentModule();
 
 	/**
-	 * @brief Get path to Windows temp folder.
-	 * @param[out] ret 
-	 * The variable receiving UTF8 encoded path to Windows temp folder.
+	 * @brief Get path to Windows temporary folder.
+	 * @details Windows temporary folder usually is the target of \%TEMP\%.
+	 * @param[out] ret The variable receiving UTF8 encoded path to Windows temp folder.
 	 * @return True if success, otherwise false.
 	*/
 	bool GetTempDirectory(yycc_u8string& ret);
@@ -41,20 +42,18 @@ namespace YYCC::WinFctHelper {
 	/**
 	 * @brief Get the file name of given module HANDLE
 	 * @param[in] hModule 
-	 * The HANDLE to the module where we want get file name.
-	 * It is same as the HANDLE parameter of \c GetModuleFileName.
-	 * @param[out] ret 
-	 * The variable receiving UTF8 encoded file name of given module.
+	 * The HANDLE to the module where you want to get file name.
+	 * It is same as the HANDLE parameter of Win32 \c GetModuleFileName.
+	 * @param[out] ret The variable receiving UTF8 encoded file name of given module.
 	 * @return True if success, otherwise false.
 	*/
 	bool GetModuleFileName(HINSTANCE hModule, yycc_u8string& ret);
 
 	/**
-	 * @brief Get the path to LOCALAPPDATA.
-	 * @details LOCALAPPDATA usually was used as putting local app data files
-	 * @param[out] ret 
-	 * The variable receiving UTF8 encoded path to LOCALAPPDATA.
-	 * @return 
+	 * @brief Get the path to \%LOCALAPPDATA\%.
+	 * @details \%LOCALAPPDATA\% usually was used as putting local app data files
+	 * @param[out] ret The variable receiving UTF8 encoded path to LOCALAPPDATA.
+	 * @return True if success, otherwise false.
 	*/
 	bool GetLocalAppData(yycc_u8string& ret);
 

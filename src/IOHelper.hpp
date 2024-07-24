@@ -4,6 +4,11 @@
 #include <cstdio>
 #include <filesystem>
 
+/**
+ * @brief Some IO related stuff
+ * @details
+ * See also \ref io_helper.
+*/
 namespace YYCC::IOHelper {
 	
 #if UINTPTR_MAX == UINT32_MAX
@@ -24,13 +29,13 @@ namespace YYCC::IOHelper {
 #endif
 
 	/**
-	 * @brief The UTF8 version of std::fopen.
+	 * @brief The UTF8 version of \c std::fopen.
 	 * @param[in] u8_filepath The UTF8 encoded path to the file to be opened.
 	 * @param[in] u8_mode UTF8 encoded mode string of the file to be opened.
 	 * @remarks
 	 * This function is suit for Windows because std::fopen do not support UTF8 on Windows.
 	 * On other platforms, this function will delegate request directly to std::fopen.
-	 * @return FILE* of the file to be opened, or nullptr if failed.
+	 * @return \c FILE* of the file to be opened, or nullptr if failed.
 	*/
 	FILE* UTF8FOpen(const yycc_char8_t* u8_filepath, const yycc_char8_t* u8_mode);
 	
