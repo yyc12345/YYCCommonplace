@@ -38,6 +38,28 @@ namespace YYCC {
 	using yycc_u8string = std::basic_string<yycc_char8_t>;
 	using yycc_u8string_view = std::basic_string_view<yycc_char8_t>;
 #endif
-	
+	/**
+		\typedef yycc_char8_t
+		\brief YYCC UTF8 char type.
+		\details
+		This char type is an alias to \c std::char8_t if your current C++ standard support it.
+		Otherwise it is defined as <TT>unsigned char</TT> as C++ 20 stdandard does.
+	*/
+	/**
+		\typedef yycc_u8string
+		\brief YYCC UTF8 string container type.
+		\details
+		This type is defined as \c std::basic_string<yycc_char8_t>.
+		It is equal to \c std::u8string if your current C++ standard support it.
+	*/
+	/**
+		\typedef yycc_u8string_view
+		\brief YYCC UTF8 string view type.
+		\details
+		This type is defined as \c std::basic_string_view<yycc_char8_t>.
+		It is equal to \c std::u8string_view if your current C++ standard support it.
+	*/
+
+
 }
 

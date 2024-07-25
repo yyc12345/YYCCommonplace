@@ -30,7 +30,7 @@ We suggest you to call this function at the beginning of program.
 
 Considering most Linux console supports ASCII Escape Code very well,
 this function does nothing in non-Windows platform.
-So it is not essential that brack this function calling with Windows-only \#if.
+So it is not essential that brack this function calling with Windows-only \c \#if.
 
 \subsection console_helper__color__common Common Usage
 

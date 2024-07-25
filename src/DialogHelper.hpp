@@ -176,7 +176,7 @@ namespace YYCC::DialogHelper {
 	};
 
 	/**
-	 * @brief The class represent the file dialog.
+	 * @brief The class representing the file dialog.
 	 * @details 
 	 * This class is served for programming using to describe every aspectes of the dialog.
 	 * For how to use this struct, see \ref dialog_helper.
