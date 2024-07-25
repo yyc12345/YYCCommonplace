@@ -9,11 +9,17 @@
 #include <shlobj_core.h>
 #include "WinImportSuffix.hpp"
 
+/**
+ * @brief Windows COM related types and checker.
+ * @details
+ * This namespace is Windows specific.
+ * In other platforms, this whole namespace will be unavailable.
+ * 
+ * See also \ref com_helper.
+*/
 namespace YYCC::COMHelper {
 
-	/**
-	 * @brief C++ standard deleter for every COM interfaces inheriting IUnknown.
-	*/
+	/// @brief C++ standard deleter for every COM interfaces inheriting IUnknown.
 	class ComPtrDeleter {
 	public:
 		ComPtrDeleter() {}
@@ -24,15 +30,18 @@ namespace YYCC::COMHelper {
 		}
 	};
 
+	/// @brief Smart unique pointer of \c IFileDialog
 	using SmartIFileDialog = std::unique_ptr<IFileDialog, ComPtrDeleter>;
+	/// @brief Smart unique pointer of \c IFileOpenDialog
 	using SmartIFileOpenDialog = std::unique_ptr<IFileOpenDialog, ComPtrDeleter>;
+	/// @brief Smart unique pointer of \c IShellItem
 	using SmartIShellItem = std::unique_ptr<IShellItem, ComPtrDeleter>;
+	/// @brief Smart unique pointer of \c IShellItemArray
 	using SmartIShellItemArray = std::unique_ptr<IShellItemArray, ComPtrDeleter>;
+	/// @brief Smart unique pointer of \c IShellFolder
 	using SmartIShellFolder = std::unique_ptr<IShellFolder, ComPtrDeleter>;
 
-	/**
-	 * @brief C++ standard deleter for almost raw pointer used in COM which need to be free by CoTaskMemFree()
-	*/
+	/// @brief C++ standard deleter for almost raw pointer used in COM which need to be free by CoTaskMemFree()
 	class CoTaskMemDeleter {
 	public:
 		CoTaskMemDeleter() {}
@@ -42,7 +51,8 @@ namespace YYCC::COMHelper {
 			}
 		}
 	};
-
+	
+	/// @brief Smart unique pointer of COM created \c WCHAR sequence.
 	using SmartLPWSTR = std::unique_ptr<std::remove_pointer_t<LPWSTR>, CoTaskMemDeleter>;
 
 	/**
