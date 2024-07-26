@@ -11,8 +11,16 @@
 #include <stdexcept>
 #include <cstring>
 
+/**
+ * @brief Universal configuration manager
+ * @details For how to use this namespace, please see \ref config_manager.
+*/
 namespace YYCC::ConfigManager {
 
+	/**
+	 * @brief The constraint applied to settings to limit its stored value.
+	 * @tparam _Ty The internal data type stroed in corresponding setting.
+	*/
 	template<typename _Ty>
 	struct Constraint {
 		using CheckFct_t = std::function<bool(const _Ty&)>;
@@ -25,8 +33,18 @@ namespace YYCC::ConfigManager {
 		}
 	};
 
+	/**
+	 * @brief The namespace containing functions generating common used constraint.
+	*/
 	namespace ConstraintPresets {
 
+		/**
+		 * @brief Get constraint for arithmetic values by minimum and maximum value range.
+		 * @tparam _Ty The underlying arithmetic type.
+		 * @param[in] min_value The minimum value of range (inclusive).
+		 * @param[in] max_value The maximum value of range (inclusive).
+		 * @return The generated constraint instance which can be directly applied.
+		*/
 		template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty> && !std::is_enum_v<_Ty> && !std::is_same_v<_Ty, bool>, int> = 0>
 		Constraint<_Ty> GetNumberRangeConstraint(_Ty min_value, _Ty max_value) {
 			if (min_value > max_value)
@@ -39,9 +57,15 @@ namespace YYCC::ConfigManager {
 
 	}
 
+	/// @brief The base class of every setting.
+	/// @details Programmer can inherit this class and implement essential to create custom setting.
 	class AbstractSetting {
 		friend class CoreManager;
 	public:
+		/**
+		 * @brief Construct a setting
+		 * @param[in] name The name of this setting.
+		*/
 		AbstractSetting(const yycc_char8_t* name) : m_Name(), m_RawData() {
 			if (name != nullptr) m_Name = name;
 		}
@@ -49,28 +73,57 @@ namespace YYCC::ConfigManager {
 
 		// Name interface
 	public:
+		/// @brief Get name of this setting.
+		/// @details Name was used in storing setting in file.
 		const yycc_u8string& GetName() const { return m_Name; }
 	private:
 		yycc_u8string m_Name;
 
 		// User Implementations
 	protected:
+		/// @brief User implemented custom load functions
+		/// @remarks 
+		/// In this function, programmer should read data from internal buffer 
+		/// and store it to its own another internal variables.
+		/// @return True if success, otherwise false.
 		virtual bool UserLoad() = 0;
+		/// @brief User implemented custom save functions
+		/// @remarks 
+		/// In this function, programmer should write data, 
+		/// which is stored in another variavle by it own, to internal buffer.
+		/// @return True if success, otherwise false.
 		virtual bool UserSave() = 0;
+		/// @brief User implemented custom reset functions
+		/// @remarks In this function, programmer should reset its internal variable to default value.
 		virtual void UserReset() = 0;
 
 		// Buffer related functions
 	protected:
+		/// @brief Resize internal buffer to given size.
+		/// @remarks It is usually used in UserSave.
+		/// @param[in] new_size The new size of internal buffer.
 		void ResizeData(size_t new_size) { m_RawData.resize(new_size); }
+		/// @brief Get data pointer to internal buffer.
+		/// @remarks It is usually used in UserLoad.
 		const void* GetDataPtr() const { return m_RawData.data(); }
+		/// @brief Get mutable data pointer to internal buffer.
+		/// @remarks It is usually used in UserSave.
 		void* GetDataPtr() { return m_RawData.data(); }
+		/// @brief Get the length of internal buffer.
 		size_t GetDataSize() const { return m_RawData.size(); }
 	private:
 		std::vector<uint8_t> m_RawData;
 	};
-
+	
+	/// @brief Settings manager and config file reader writer.
 	class CoreManager {
 	public:
+		/**
+		 * @brief Build core manager.
+		 * @param[in] cfg_file_path The path to config file.
+		 * @param[in] version_identifier The identifier of version. Higher is newer. Lower config will try doing migration.
+		 * @param[in] settings An initializer list containing pointers to all managed settings.
+		*/
 		CoreManager(
 			const yycc_char8_t* cfg_file_path,
 			uint64_t version_identifier,
@@ -79,8 +132,14 @@ namespace YYCC::ConfigManager {
 
 		// Core functions
 	public:
+		/// @brief Load settings from file.
+		/// @details Before loading, all settings will be reset to default value first.
+		/// @return True if success, otherwise false.
 		bool Load();
+		/// @brief Save settings to file.
+		/// @return True if success, otherwise false.
 		bool Save();
+		/// @brief Reset all settings to default value.
 		void Reset();
 
 	private:
@@ -94,14 +153,30 @@ namespace YYCC::ConfigManager {
 
 #pragma region Setting Presets
 
+	/**
+	 * @brief Arithmetic (integral, floating point, bool) and enum type setting
+	 * @tparam _Ty The internal stored type belongs to arithmetic type.
+	*/
 	template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty> || std::is_enum_v<_Ty>, int> = 0>
 	class NumberSetting : public AbstractSetting {
 	public:
+		/**
+		 * @brief Construct arithmetic type setting.
+		 * @param[in] name The name of this setting.
+		 * @param[in] default_value The default value of this setting.
+		 * @param[in] constraint The constraint applied to this setting.
+		*/
 		NumberSetting(const yycc_char8_t* name, _Ty default_value, Constraint<_Ty> constraint = Constraint<_Ty> {}) :
 			AbstractSetting(name), m_Data(default_value), m_DefaultData(default_value), m_Constraint(constraint) {}
 		virtual ~NumberSetting() {}
-
+		
+		/// @brief Get stored data in setting.
 		_Ty Get() const { return m_Data; }
+		/**
+		 * @brief Set data to setting.
+		 * @param[in] new_data The new data.
+		 * @return True if success, otherwise false (given value is invalid)
+		*/
 		bool Set(_Ty new_data) {
 			// validate data
 			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(new_data))
@@ -136,16 +211,29 @@ namespace YYCC::ConfigManager {
 		Constraint<_Ty> m_Constraint;
 	};
 
+	/// @brief String type setting
 	class StringSetting : public AbstractSetting {
 	public:
+		/**
+		 * @brief Construct string setting
+		 * @param[in] name The name of this setting.
+		 * @param[in] default_value The default value of this setting.
+		 * @param[in] constraint The constraint applied to this setting.
+		*/
 		StringSetting(const yycc_char8_t* name, const yycc_u8string_view& default_value, Constraint<yycc_u8string_view> constraint = Constraint<yycc_u8string_view> {}) :
 			AbstractSetting(name), m_Data(), m_DefaultData(), m_Constraint(constraint) {
 			m_Data = default_value;
 			m_DefaultData = default_value;
 		}
 		virtual ~StringSetting() {}
-
+		
+		/// @brief Get reference to stored string.
 		const yycc_u8string& Get() const { return m_Data; }
+		/**
+		 * @brief Set string data to setting.
+		 * @param[in] new_data The new string data.
+		 * @return True if success, otherwise false (given value is invalid)
+		*/
 		bool Set(const yycc_u8string_view& new_data) {
 			// check data validation
 			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(new_data))
