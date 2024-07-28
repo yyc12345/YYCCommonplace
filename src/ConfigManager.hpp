@@ -1,6 +1,7 @@
 #pragma once
 #include "YYCCInternal.hpp"
 
+#include "Constraints.hpp"
 #include <memory>
 #include <vector>
 #include <map>
@@ -16,46 +17,6 @@
  * @details For how to use this namespace, please see \ref config_manager.
 */
 namespace YYCC::ConfigManager {
-
-	/**
-	 * @brief The constraint applied to settings to limit its stored value.
-	 * @tparam _Ty The internal data type stroed in corresponding setting.
-	*/
-	template<typename _Ty>
-	struct Constraint {
-		using CheckFct_t = std::function<bool(const _Ty&)>;
-		//using CorrectFct_t = std::function<_Ty(const _Ty&)>;
-		CheckFct_t m_CheckFct;
-		//CorrectFct_t m_CorrectFct;
-
-		bool IsValid() const {
-			return m_CheckFct != nullptr/* && m_CorrectFct != nullptr*/;
-		}
-	};
-
-	/**
-	 * @brief The namespace containing functions generating common used constraint.
-	*/
-	namespace ConstraintPresets {
-
-		/**
-		 * @brief Get constraint for arithmetic values by minimum and maximum value range.
-		 * @tparam _Ty The underlying arithmetic type.
-		 * @param[in] min_value The minimum value of range (inclusive).
-		 * @param[in] max_value The maximum value of range (inclusive).
-		 * @return The generated constraint instance which can be directly applied.
-		*/
-		template<typename _Ty, std::enable_if_t<std::is_arithmetic_v<_Ty> && !std::is_enum_v<_Ty> && !std::is_same_v<_Ty, bool>, int> = 0>
-		Constraint<_Ty> GetNumberRangeConstraint(_Ty min_value, _Ty max_value) {
-			if (min_value > max_value)
-				throw std::invalid_argument("invalid min max value for NumberRangeConstraint");
-			return Constraint<_Ty> {
-				[min_value, max_value](const _Ty& val) -> bool { return (val <= max_value) && (val >= min_value); }
-					/*[min_value, max_value](const _Ty& val) -> _Ty { return std::clamp(val, min_value, max_value); }*/
-			};
-		}
-
-	}
 
 	/// @brief The base class of every setting.
 	/// @details Programmer can inherit this class and implement essential to create custom setting.
@@ -114,7 +75,7 @@ namespace YYCC::ConfigManager {
 	private:
 		std::vector<uint8_t> m_RawData;
 	};
-	
+
 	/// @brief Settings manager and config file reader writer.
 	class CoreManager {
 	public:
@@ -166,10 +127,12 @@ namespace YYCC::ConfigManager {
 		 * @param[in] default_value The default value of this setting.
 		 * @param[in] constraint The constraint applied to this setting.
 		*/
-		NumberSetting(const yycc_char8_t* name, _Ty default_value, Constraint<_Ty> constraint = Constraint<_Ty> {}) :
+		NumberSetting(
+			const yycc_char8_t* name, _Ty default_value,
+			Constraints::Constraint<_Ty> constraint = Constraints::Constraint<_Ty> {}) :
 			AbstractSetting(name), m_Data(default_value), m_DefaultData(default_value), m_Constraint(constraint) {}
 		virtual ~NumberSetting() {}
-		
+
 		/// @brief Get stored data in setting.
 		_Ty Get() const { return m_Data; }
 		/**
@@ -208,7 +171,7 @@ namespace YYCC::ConfigManager {
 		}
 
 		_Ty m_Data, m_DefaultData;
-		Constraint<_Ty> m_Constraint;
+		Constraints::Constraint<_Ty> m_Constraint;
 	};
 
 	/// @brief String type setting
@@ -220,13 +183,15 @@ namespace YYCC::ConfigManager {
 		 * @param[in] default_value The default value of this setting.
 		 * @param[in] constraint The constraint applied to this setting.
 		*/
-		StringSetting(const yycc_char8_t* name, const yycc_u8string_view& default_value, Constraint<yycc_u8string_view> constraint = Constraint<yycc_u8string_view> {}) :
+		StringSetting(
+			const yycc_char8_t* name, const yycc_u8string_view& default_value,
+			Constraints::Constraint<yycc_u8string_view> constraint = Constraints::Constraint<yycc_u8string_view> {}) :
 			AbstractSetting(name), m_Data(), m_DefaultData(), m_Constraint(constraint) {
 			m_Data = default_value;
 			m_DefaultData = default_value;
 		}
 		virtual ~StringSetting() {}
-		
+
 		/// @brief Get reference to stored string.
 		const yycc_u8string& Get() const { return m_Data; }
 		/**
@@ -279,7 +244,7 @@ namespace YYCC::ConfigManager {
 		}
 
 		yycc_u8string m_Data, m_DefaultData;
-		Constraint<yycc_u8string_view> m_Constraint;
+		Constraints::Constraint<yycc_u8string_view> m_Constraint;
 	};
 
 #pragma endregion

@@ -402,7 +402,7 @@ namespace YYCCTestbench {
 			m_FloatSetting(YYCC_U8("float-setting"), 0.0f),
 			m_StringSetting(YYCC_U8("string-setting"), YYCC_U8("")),
 			m_BoolSetting(YYCC_U8("bool-setting"), false),
-			m_ClampedFloatSetting(YYCC_U8("clamped-float-setting"), 0.0f, YYCC::ConfigManager::ConstraintPresets::GetNumberRangeConstraint<float>(-1.0f, 1.0f)),
+			m_ClampedFloatSetting(YYCC_U8("clamped-float-setting"), 0.0f, YYCC::Constraints::GetMinMaxRangeConstraint<float>(-1.0f, 1.0f)),
 			m_EnumSetting(YYCC_U8("enum-setting"), TestEnum::Test1),
 			m_CoreManager(YYCC_U8("test.cfg"), UINT64_C(0), {
 				&m_IntSetting, &m_FloatSetting, &m_StringSetting, &m_BoolSetting, &m_ClampedFloatSetting, &m_EnumSetting
