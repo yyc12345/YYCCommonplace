@@ -26,6 +26,7 @@ namespace YYCC::ExceptionHelper {
 		ExceptionRegister() :
 			m_CoreMutex(),
 			m_IsRegistered(false), m_IsProcessing(false), m_PrevProcHandler(nullptr),
+			m_UserCallback(nullptr),
 			m_SingletonMutex(NULL) {}
 		~ExceptionRegister() {
 			Unregister();
@@ -35,7 +36,7 @@ namespace YYCC::ExceptionHelper {
 		/**
 		 * @brief Try to register unhandled exception handler.
 		*/
-		void Register() {
+		void Register(ExceptionCallback callback) {
 			std::lock_guard<std::mutex> locker(m_CoreMutex);
 			// if we have registered, return
 			if (m_IsRegistered) return;
@@ -63,6 +64,8 @@ namespace YYCC::ExceptionHelper {
 			// okey, we can register it.
 			// backup old handler
 			m_PrevProcHandler = SetUnhandledExceptionFilter(UExceptionImpl);
+			// set user callback
+			m_UserCallback = callback;
 			// mark registered
 			m_IsRegistered = true;
 		}
@@ -115,6 +118,14 @@ namespace YYCC::ExceptionHelper {
 			std::lock_guard<std::mutex> locker(m_CoreMutex);
 			return m_PrevProcHandler;
 		}
+		/**
+		 * @brief Get user specified callback.
+		 * @return The function pointer to user callback. nullptr if no associated callback.
+		*/
+		ExceptionCallback GetUserCallback() const {
+			std::lock_guard<std::mutex> locker(m_CoreMutex);
+			return m_UserCallback;
+		}
 
 		/**
 		 * @brief Try to start process unhandled exception.
@@ -155,6 +166,12 @@ namespace YYCC::ExceptionHelper {
 		*/
 		bool m_IsProcessing;
 		/**
+		 * @brief User defined callback.
+		 * @details It will be called at the tail of unhandled exception handler, because it may raise exception.
+		 * We must make sure all log and coredump have been done before calling it.
+		*/
+		ExceptionCallback m_UserCallback;
+		/**
 		 * @brief The backup of old unhandled exception handler.
 		*/
 		LPTOP_LEVEL_EXCEPTION_FILTER m_PrevProcHandler;
@@ -166,6 +183,7 @@ namespace YYCC::ExceptionHelper {
 		HANDLE m_SingletonMutex;
 	};
 
+	/// @brief Core register singleton.
 	static ExceptionRegister g_ExceptionRegister;
 
 #pragma region Exception Handler Implementation
@@ -505,10 +523,14 @@ namespace YYCC::ExceptionHelper {
 			// write crash coredump
 			UExceptionCoreDump(coredump_path, info);
 
+			// call user callback
+			ExceptionCallback user_callback = g_ExceptionRegister.GetUserCallback();
+			if (user_callback != nullptr) 
+				user_callback(log_path, coredump_path);
 		}
 
 		// stop process
-		g_ExceptionRegister.StartProcessing();
+		g_ExceptionRegister.StopProcessing();
 
 	end_proc:
 		// if backup proc can be run, run it
@@ -523,8 +545,8 @@ namespace YYCC::ExceptionHelper {
 
 #pragma endregion
 
-	void Register() {
-		g_ExceptionRegister.Register();
+	void Register(ExceptionCallback callback) {
+		g_ExceptionRegister.Register(callback);
 	}
 
 	void Unregister() {

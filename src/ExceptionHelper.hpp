@@ -12,6 +12,24 @@
 namespace YYCC::ExceptionHelper {
 	
 	/**
+	 * @brief The callback function prototype which will be called when unhandled exception happened after registering.
+	 * @details
+	 * During registering unhandled exception handler,
+	 * caller can optionally provide a function pointer matching this prorotype to register.
+	 * Then it will be called if unhandled exception hanppened.
+	 * 
+	 * This callback will provide 2 readonly arguments.
+	 * First is the path to error log file.
+	 * Second is the path to core dump file.
+	 * These pathes may be empty if internal handler fail to create them.
+	 * 
+	 * This callback is convenient for programmer using an explicit way to tell user an exception happened.
+	 * Because in default, handler will only write error log to \c stderr and file.
+	 * It will be totally invisible on a GUI application.
+	*/
+	using ExceptionCallback = void(*)(const yycc_u8string& log_path, const yycc_u8string& coredump_path);
+
+	/**
 	 * @brief Register unhandled exception handler
 	 * @details
 	 * This function will set an internal function as unhandled exception handler on Windows.
@@ -23,7 +41,7 @@ namespace YYCC::ExceptionHelper {
 	 * 
 	 * This function usually is called at the start of program.
 	*/
-	void Register();
+	void Register(ExceptionCallback callback = nullptr);
 	/**
 	 * @brief Unregister unhandled exception handler
 	 * @details 

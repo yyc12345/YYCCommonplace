@@ -338,7 +338,15 @@ namespace YYCCTestbench {
 	static void ExceptionTestbench() {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
-		YYCC::ExceptionHelper::Register();
+		YYCC::ExceptionHelper::Register([](const YYCC::yycc_u8string& log_path, const YYCC::yycc_u8string& coredump_path) -> void {
+			MessageBoxW(
+				NULL,
+				YYCC::EncodingHelper::UTF8ToWchar(
+					YYCC::StringHelper::Printf(YYCC_U8("Log generated:\nLog path: %s\nCore dump path: %s"), log_path.c_str(), coredump_path.c_str())
+				).c_str(),
+				L"Fatal Error", MB_OK + MB_ICONERROR
+			);
+		});
 
 		// Perform a div zero exception.
 		int i = 1, j = 0;
@@ -376,7 +384,7 @@ namespace YYCCTestbench {
 		std::filesystem::path test_path;
 		for (const auto& strl : c_UTF8TestStrTable) {
 			test_path /= YYCC::FsPathPatch::FromUTF8Path(strl.c_str());
-		}
+	}
 		YYCC::yycc_u8string test_slashed_path(YYCC::FsPathPatch::ToUTF8Path(test_path));
 
 #if YYCC_OS == YYCC_OS_WINDOWS
@@ -389,7 +397,7 @@ namespace YYCCTestbench {
 
 		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::FsPathPatch"));
 
-	}
+}
 
 	enum class TestEnum : int8_t {
 		Test1, Test2, Test3
