@@ -28,12 +28,12 @@ namespace YYCC::ArgParser {
 	public:
 		void Prev();
 		void Next();
-		const yycc_u8string& Current() const;
+		const yycc_u8string& Argument() const;
 		bool IsSwitch(
 			bool* is_long_name = nullptr,
 			yycc_u8string* long_name = nullptr,
 			yycc_char8_t* short_name = nullptr) const;
-		bool IsValue(yycc_u8string* val = nullptr) const;
+		bool IsParameter(yycc_u8string* val = nullptr) const;
 		bool IsEOF() const;
 		void Reset();
 	private:
@@ -104,6 +104,7 @@ namespace YYCC::ArgParser {
 	public:
 		bool Parse(ArgumentList& al);
 		void Reset();
+		void Help() const;
 
 	private:
 		yycc_u8string m_Summary;
@@ -138,7 +139,7 @@ namespace YYCC::ArgParser {
 			// try get corresponding value
 			yycc_u8string strval;
 			al.Next();
-			if (al.IsEOF() || !al.IsValue(&strval)) {
+			if (al.IsEOF() || !al.IsParameter(&strval)) {
 				al.Prev();
 				return false;
 			}
@@ -163,8 +164,10 @@ namespace YYCC::ArgParser {
 	public:
 		SwitchArgument(
 			const yycc_char8_t* long_name, yycc_char8_t short_name,
-			const yycc_char8_t* description = nullptr, const yycc_char8_t* argument_example = nullptr) :
-			AbstractArgument(long_name, short_name, description, argument_example, true), m_Data(false) {} // bool switch must be optional, because it is false if no given switch.
+			const yycc_char8_t* description = nullptr) :
+			// bool switch must be optional, because it is false if no given switch.
+			// bool switch doesn't have argument, so it doesn't have example property.
+			AbstractArgument(long_name, short_name, description, nullptr, true), m_Data(false) {} 
 		virtual ~SwitchArgument() {}
 
 	public:
@@ -201,7 +204,7 @@ namespace YYCC::ArgParser {
 		virtual bool Parse(ArgumentList& al) override {
 			// try get corresponding value
 			al.Next();
-			if (al.IsEOF() || !al.IsValue(&m_Data)) {
+			if (al.IsEOF() || !al.IsParameter(&m_Data)) {
 				al.Prev();
 				return false;
 			}

@@ -487,7 +487,7 @@ namespace YYCCTestbench {
 			m_IntArgument(YYCC_U8("int"), YYCC_U8_CHAR('i'), YYCC_U8("integral argument"), YYCC_U8("114514")),
 			m_FloatArgument(nullptr, YYCC_U8_CHAR('f'), nullptr, nullptr, true),
 			m_StringArgument(YYCC_U8("string"), YYCC::ArgParser::AbstractArgument::NO_SHORT_NAME, nullptr, nullptr, true),
-			m_BoolArgument(nullptr, YYCC_U8_CHAR('b'), nullptr, nullptr),
+			m_BoolArgument(nullptr, YYCC_U8_CHAR('b'), nullptr),
 			m_ClampedFloatArgument(YYCC_U8("clamped-float"), YYCC::ArgParser::AbstractArgument::NO_SHORT_NAME, nullptr, nullptr, true, YYCC::Constraints::GetMinMaxRangeConstraint<float>(-1.0f, 1.0f)),
 			m_OptionContext(YYCC_U8("TestArgParser"), YYCC_U8("This is the testbench of argument parser."), {
 				&m_IntArgument, &m_FloatArgument, &m_StringArgument,
@@ -511,7 +511,7 @@ namespace YYCCTestbench {
 			YYCC::ConsoleHelper::WriteLine(YYCC_U8("YYCC::ArgParser::ArgumentList::CreateFromStd"));
 			auto result = YYCC::ArgParser::ArgumentList::CreateFromStd(argc, argv);
 			for (result.Reset(); !result.IsEOF(); result.Next()) {
-				YYCC::ConsoleHelper::FormatLine(YYCC_U8("\t%s"), result.Current().c_str());
+				YYCC::ConsoleHelper::FormatLine(YYCC_U8("\t%s"), result.Argument().c_str());
 			}
 		}
 #if YYCC_OS == YYCC_OS_WINDOWS
@@ -519,7 +519,7 @@ namespace YYCCTestbench {
 			YYCC::ConsoleHelper::WriteLine(YYCC_U8("YYCC::ArgParser::ArgumentList::CreateFromWin32"));
 			auto result = YYCC::ArgParser::ArgumentList::CreateFromWin32();
 			for (result.Reset(); !result.IsEOF(); result.Next()) {
-				YYCC::ConsoleHelper::FormatLine(YYCC_U8("\t%s"), result.Current().c_str());
+				YYCC::ConsoleHelper::FormatLine(YYCC_U8("\t%s"), result.Argument().c_str());
 			}
 		}
 #endif
@@ -580,6 +580,9 @@ auto al = YYCC::ArgParser::ArgumentList::CreateFromStd(sizeof(test_argv) / sizeo
 			Assert(test.m_ClampedFloatArgument.IsCaptured() && test.m_ClampedFloatArgument.Get() == 0.5f, YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
 			test.m_OptionContext.Reset();
 		}
+
+		// Help text
+		test.m_OptionContext.Help();
 
 #undef PREPARE_DATA
 

@@ -1,6 +1,7 @@
 #include "ArgParser.hpp"
 
 #include "EncodingHelper.hpp"
+#include "ConsoleHelper.hpp"
 
 #if YYCC_OS == YYCC_OS_WINDOWS
 #include "WinImportPrefix.hpp"
@@ -63,7 +64,7 @@ namespace YYCC::ArgParser {
 		++m_ArgumentsIterator;
 	}
 
-	const yycc_u8string& ArgumentList::Current() const {
+	const yycc_u8string& ArgumentList::Argument() const {
 		if (IsEOF()) throw std::runtime_error("attempt to get data on the tail of iterator.");
 		return *m_ArgumentsIterator;
 	}
@@ -114,7 +115,7 @@ namespace YYCC::ArgParser {
 		return true;
 	}
 
-	bool ArgumentList::IsValue(yycc_u8string* val) const { 
+	bool ArgumentList::IsParameter(yycc_u8string* val) const {
 		bool is_value = !IsSwitch();
 		if (is_value && val != nullptr)
 			*val = *m_ArgumentsIterator;
@@ -240,7 +241,7 @@ namespace YYCC::ArgParser {
 		while (!al.IsEOF()) {
 			// if we can not find any switches, return with error
 			if (!al.IsSwitch(&is_long_name, &long_name, &short_name)) return false;
-			
+
 			// find corresponding argument by long name or short name.
 			// if we can not find it, return with error.
 			AbstractArgument* arg;
@@ -285,6 +286,60 @@ namespace YYCC::ArgParser {
 			// clear user data and unset captured
 			arg->Reset();
 			arg->SetCaptured(false);
+		}
+	}
+
+	void OptionContext::Help() const {
+		// print summary and description if necessary
+		if (!m_Summary.empty())
+			YYCC::ConsoleHelper::WriteLine(m_Summary.c_str());
+		if (!m_Description.empty())
+			YYCC::ConsoleHelper::WriteLine(m_Description.c_str());
+
+		// blank line
+		YYCC::ConsoleHelper::WriteLine(YYCC_U8(""));
+
+		// print argument list
+		for (const auto* arg : m_Arguments) {
+			yycc_u8string argstr;
+
+			// print indent
+			argstr += YYCC_U8("\t");
+			// print optional head
+			bool is_optional = arg->IsOptional();
+			if (is_optional) argstr += YYCC_U8("[");
+
+			// switch name
+			bool short_name = arg->HasShortName(), long_name = arg->HasLongName();
+			if (short_name) {
+				argstr += YYCC_U8("-");
+				argstr += arg->GetShortName();
+			}
+			if (long_name) {
+				if (short_name) argstr += YYCC_U8(", ");
+				argstr += YYCC_U8("--");
+				argstr += arg->GetLongName();
+			}
+
+			// argument example
+			if (arg->HasArgumentExample()) {
+				argstr += YYCC_U8(" ");
+				argstr += arg->GetArgumentExample();
+			}
+
+			// optional tail
+			if (is_optional) argstr += YYCC_U8("]");
+
+			// argument description
+			if (arg->HasDescription()) {
+				// eol and double indent
+				argstr += YYCC_U8("\n\t\t");
+				// description
+				argstr += arg->GetDescription();
+			}
+
+			// write into console
+			YYCC::ConsoleHelper::WriteLine(argstr.c_str());
 		}
 	}
 
