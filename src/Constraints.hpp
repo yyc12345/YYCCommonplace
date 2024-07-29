@@ -73,10 +73,10 @@ namespace YYCC::Constraints {
 	 * Caller must make sure that the string view passed in initializer list is valid until this Constraint life time gone.
 	 * Becasue this generator will not copy your given string view into string.
 	*/
-	Constraint<yycc_u8string_view> GetStringEnumerationConstraint(const std::initializer_list<yycc_u8string_view>& il) {
+	inline Constraint<yycc_u8string> GetStringEnumerationConstraint(const std::initializer_list<yycc_u8string_view>& il) {
 		std::set<yycc_u8string_view> data(il);
-		return Constraint<yycc_u8string_view> {
-			[data](const yycc_u8string_view& val) -> bool { return data.find(val) != data.end(); }
+		return Constraint<yycc_u8string> {
+			[data](const yycc_u8string& val) -> bool { return data.find(yycc_u8string_view(val)) != data.end(); }
 		};
 	}
 

@@ -185,7 +185,7 @@ namespace YYCC::ConfigManager {
 		*/
 		StringSetting(
 			const yycc_char8_t* name, const yycc_u8string_view& default_value,
-			Constraints::Constraint<yycc_u8string_view> constraint = Constraints::Constraint<yycc_u8string_view> {}) :
+			Constraints::Constraint<yycc_u8string> constraint = Constraints::Constraint<yycc_u8string> {}) :
 			AbstractSetting(name), m_Data(), m_DefaultData(), m_Constraint(constraint) {
 			m_Data = default_value;
 			m_DefaultData = default_value;
@@ -201,10 +201,11 @@ namespace YYCC::ConfigManager {
 		*/
 		bool Set(const yycc_u8string_view& new_data) {
 			// check data validation
-			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(new_data))
+			yycc_u8string new_data_cache(new_data);
+			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(new_data_cache))
 				return false;
 			// assign data
-			m_Data = new_data;
+			m_Data = std::move(new_data_cache);
 			return true;
 		}
 
@@ -244,7 +245,7 @@ namespace YYCC::ConfigManager {
 		}
 
 		yycc_u8string m_Data, m_DefaultData;
-		Constraints::Constraint<yycc_u8string_view> m_Constraint;
+		Constraints::Constraint<yycc_u8string> m_Constraint;
 	};
 
 #pragma endregion

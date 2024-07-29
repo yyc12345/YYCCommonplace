@@ -16,7 +16,7 @@ namespace YYCC::ArgParser {
 
 	ArgumentList ArgumentList::CreateFromStd(int argc, char* argv[]) {
 		std::vector<yycc_u8string> args;
-		for (int i = 0; i < argc; ++i) {
+		for (int i = 1; i < argc; ++i) { // starts with 1 to remove first part (executable self)
 			if (argv[i] != nullptr)
 				args.emplace_back(yycc_u8string(YYCC::EncodingHelper::ToUTF8(argv[i])));
 		}
@@ -34,7 +34,7 @@ namespace YYCC::ArgParser {
 		int argc;
 		LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 		if (argv != NULL) {
-			for (int i = 0; i < argc; ++i) {
+			for (int i = 1; i < argc; ++i) { // starts with 1 to remove first part (executable self)
 				if (argv[i] != nullptr) {
 					yycc_u8string u8_argv;
 					if (YYCC::EncodingHelper::WcharToUTF8(argv[i], u8_argv))
@@ -63,44 +63,63 @@ namespace YYCC::ArgParser {
 		++m_ArgumentsIterator;
 	}
 
-	static bool IsLongName(const yycc_u8string& param, yycc_u8string_view* name_part) {
-		if (param.find(AbstractArgument::DOUBLE_DASH) != 0u) return false;
-		if (name_part != nullptr)
-			*name_part = yycc_u8string_view(param).substr(2u);
-		return true;
+	const yycc_u8string& ArgumentList::Current() const {
+		if (IsEOF()) throw std::runtime_error("attempt to get data on the tail of iterator.");
+		return *m_ArgumentsIterator;
 	}
-	static bool IsShortName(const yycc_u8string& param, yycc_char8_t* name_part) {
-		if (param.size() != 2u ||
-			param[0] != AbstractArgument::DASH ||
-			param[1] == AbstractArgument::DASH ||
-			param[1] < AbstractArgument::MIN_SHORT_NAME || param[1] > AbstractArgument::MAX_SHORT_NAME) {
-			return false;
-		}
-		if (name_part != nullptr)
-			*name_part = param[1];
-		return true;
-	}
-	bool ArgumentList::IsSwitch(
-		bool* is_long_name = nullptr,
-		yycc_u8string_view* long_name = nullptr,
-		yycc_char8_t* short_name = nullptr) const {
-		// get argument first
+
+	bool ArgumentList::IsSwitch(bool* is_long_name, yycc_u8string* long_name, yycc_char8_t* short_name) const {
+		// check eof first
 		if (IsEOF()) throw std::runtime_error("attempt to fetch data on the tail of iterator.");
-		const auto& param = *m_ArgumentsIterator;
 		// check long name first, then check short name
-		if (IsLongName(param, long_name)) {
+		if (IsLongNameSwitch(long_name)) {
 			if (is_long_name != nullptr) *is_long_name = true;
 			return true;
 		}
-		if (IsShortName(param, short_name)) {
+		if (IsShortNameSwitch(short_name)) {
 			if (is_long_name != nullptr) *is_long_name = false;
 			return true;
 		}
 		// not matched
 		return false;
 	}
+	bool ArgumentList::IsLongNameSwitch(yycc_u8string* name_part) const {
+		// fetch current parameter
+		if (IsEOF()) throw std::runtime_error("attempt to fetch data on the tail of iterator.");
+		const yycc_u8string& param = *m_ArgumentsIterator;
+		// find double slash
+		if (param.find(AbstractArgument::DOUBLE_DASH) != 0u) return false;
+		// check gotten long name
+		yycc_u8string_view long_name = yycc_u8string_view(param).substr(2u);
+		if (!AbstractArgument::IsLegalLongName(long_name)) return false;
+		// set checked long name if possible and return
+		if (name_part != nullptr)
+			*name_part = long_name;
+		return true;
+	}
+	bool ArgumentList::IsShortNameSwitch(yycc_char8_t* name_part) const {
+		// fetch current parameter
+		if (IsEOF()) throw std::runtime_error("attempt to fetch data on the tail of iterator.");
+		const yycc_u8string& param = *m_ArgumentsIterator;
+		// if the length is not exactly equal to 2, 
+		// or it not starts with dash,
+		// it is impossible a short name
+		if (param.size() != 2u || param[0] != AbstractArgument::DASH) return false;
+		// check gotten short name
+		yycc_char8_t short_name = param[1];
+		if (!AbstractArgument::IsLegalShortName(short_name)) return false;
+		// set checked short name if possible and return
+		if (name_part != nullptr)
+			*name_part = short_name;
+		return true;
+	}
 
-	bool ArgumentList::IsValue() const { return !IsSwitch(); }
+	bool ArgumentList::IsValue(yycc_u8string* val) const { 
+		bool is_value = !IsSwitch();
+		if (is_value && val != nullptr)
+			*val = *m_ArgumentsIterator;
+		return is_value;
+	}
 
 	bool ArgumentList::IsEOF() const { return m_ArgumentsIterator == m_Arguments.end(); }
 
@@ -116,23 +135,46 @@ namespace YYCC::ArgParser {
 	const yycc_char8_t AbstractArgument::MIN_SHORT_NAME = YYCC_U8_CHAR('!');
 	const yycc_char8_t AbstractArgument::MAX_SHORT_NAME = YYCC_U8_CHAR('~');
 
+	bool AbstractArgument::IsLegalShortName(yycc_char8_t short_name) {
+		if (short_name == AbstractArgument::DASH || // dash is not allowed
+			short_name < AbstractArgument::MIN_SHORT_NAME || short_name > AbstractArgument::MAX_SHORT_NAME) { // non-display ASCII chars are not allowed
+			return false;
+		}
+		// okey
+		return true;
+	}
+	bool AbstractArgument::IsLegalLongName(const yycc_u8string_view& long_name) {
+		// empty is not allowed
+		if (long_name.empty()) return false;
+		// non-display ASCII chars are not allowed
+		for (const auto& val : long_name) {
+			if (val < AbstractArgument::MIN_SHORT_NAME || val > AbstractArgument::MAX_SHORT_NAME)
+				return false;
+		}
+		// okey
+		return true;
+	}
+
 	AbstractArgument::AbstractArgument(
 		const yycc_char8_t* long_name, yycc_char8_t short_name,
 		const yycc_char8_t* description, const yycc_char8_t* argument_example,
 		bool is_optional) :
-		m_LongName(), m_ShortName(NO_SHORT_NAME), m_Description(), m_ArgumentExample(),
+		m_LongName(), m_ShortName(AbstractArgument::NO_SHORT_NAME), m_Description(), m_ArgumentExample(),
 		m_IsOptional(is_optional), m_IsCaptured(false) {
 
-		// try to assign long name
-		if (long_name != nullptr) m_LongName = long_name;
-		// try to assign short name
-		if (short_name == AbstractArgument::DASH ||
-			short_name < AbstractArgument::MIN_SHORT_NAME ||
-			short_name > AbstractArgument::MAX_SHORT_NAME) {
-			throw std::invalid_argument("given short name character is invalid.");
+		// try to assign long name and check it
+		if (long_name != nullptr) {
+			m_LongName = long_name;
+			if (!AbstractArgument::IsLegalLongName(m_LongName))
+				throw std::invalid_argument("Given long name is invalid.");
 		}
-		m_ShortName = short_name;
-		// check short name and long name
+		// try to assign short name and check it
+		if (short_name != AbstractArgument::NO_SHORT_NAME) {
+			m_ShortName = short_name;
+			if (!AbstractArgument::IsLegalShortName(m_ShortName))
+				throw std::invalid_argument("Given short name is invalid.");
+		}
+		// check short name and long name existence
 		if (!HasShortName() && !HasLongName())
 			throw std::invalid_argument("you must specify an one of long name or short name.");
 
@@ -187,8 +229,55 @@ namespace YYCC::ArgParser {
 
 	OptionContext::~OptionContext() {}
 
-	bool OptionContext::Parse(ArgumentList* al) {
-		return false; //todo
+	bool OptionContext::Parse(ArgumentList& al) {
+		// reset argument list first
+		al.Reset();
+
+		// prepare variables and start loop
+		yycc_u8string long_name;
+		yycc_char8_t short_name;
+		bool is_long_name;
+		while (!al.IsEOF()) {
+			// if we can not find any switches, return with error
+			if (!al.IsSwitch(&is_long_name, &long_name, &short_name)) return false;
+			
+			// find corresponding argument by long name or short name.
+			// if we can not find it, return with error.
+			AbstractArgument* arg;
+			if (is_long_name) {
+				auto finder = m_LongNameMap.find(long_name);
+				if (finder == m_LongNameMap.end()) return false;
+				arg = finder->second;
+			} else {
+				auto finder = m_ShortNameMap.find(short_name);
+				if (finder == m_ShortNameMap.end()) return false;
+				arg = finder->second;
+			}
+
+			// if this argument has been captured, raise error
+			if (arg->IsCaptured()) return false;
+			// call user parse function of found argument
+			if (arg->Parse(al)) {
+				// success. mark it is captured
+				arg->SetCaptured(true);
+			} else {
+				// failed, return error
+				return false;
+			}
+
+			// move to next argument
+			al.Next();
+		}
+
+		// after processing all argument,
+		// we should check whether all non-optional argument are captured.
+		for (const auto* arg : m_Arguments) {
+			if (!arg->IsOptional() && !arg->IsCaptured())
+				return false;
+		}
+
+		// okey
+		return true;
 	}
 
 	void OptionContext::Reset() {

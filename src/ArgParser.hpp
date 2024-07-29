@@ -3,6 +3,7 @@
 
 #include "Constraints.hpp"
 #include "EncodingHelper.hpp"
+#include "ParserHelper.hpp"
 #include <functional>
 #include <vector>
 #include <map>
@@ -18,17 +19,26 @@ namespace YYCC::ArgParser {
 #endif
 	private:
 		ArgumentList(std::vector<yycc_u8string>&& arguments);
+	public:
+		ArgumentList(const ArgumentList&) = default;
+		ArgumentList& operator=(const ArgumentList&) = default;
+		ArgumentList(ArgumentList&&) = default;
+		ArgumentList& operator=(ArgumentList&&) = default;
 
 	public:
 		void Prev();
 		void Next();
+		const yycc_u8string& Current() const;
 		bool IsSwitch(
 			bool* is_long_name = nullptr,
-			yycc_u8string_view* long_name = nullptr,
+			yycc_u8string* long_name = nullptr,
 			yycc_char8_t* short_name = nullptr) const;
-		bool IsValue() const;
+		bool IsValue(yycc_u8string* val = nullptr) const;
 		bool IsEOF() const;
 		void Reset();
+	private:
+		bool IsLongNameSwitch(yycc_u8string* name_part = nullptr) const;
+		bool IsShortNameSwitch(yycc_char8_t* name_part = nullptr) const;
 
 	private:
 		std::vector<yycc_u8string> m_Arguments;
@@ -37,12 +47,18 @@ namespace YYCC::ArgParser {
 
 	class AbstractArgument {
 		friend class OptionContext;
+
+		// Long name and short name constants and checker.
 	public:
 		static const yycc_u8string DOUBLE_DASH;
 		static const yycc_char8_t DASH;
 		static const yycc_char8_t NO_SHORT_NAME;
 		static const yycc_char8_t MIN_SHORT_NAME;
 		static const yycc_char8_t MAX_SHORT_NAME;
+		static bool IsLegalShortName(yycc_char8_t short_name);
+		static bool IsLegalLongName(const yycc_u8string_view& long_name);
+
+		// Constructor & destructor
 	public:
 		AbstractArgument(
 			const yycc_char8_t* long_name, yycc_char8_t short_name = AbstractArgument::NO_SHORT_NAME,
@@ -86,7 +102,7 @@ namespace YYCC::ArgParser {
 		~OptionContext();
 
 	public:
-		bool Parse(ArgumentList* al);
+		bool Parse(ArgumentList& al);
 		void Reset();
 
 	private:
@@ -118,8 +134,25 @@ namespace YYCC::ArgParser {
 		}
 
 	protected:
-		virtual bool Parse(ArgumentList& al) override {} // todo
-		virtual void Reset() override {}// todo
+		virtual bool Parse(ArgumentList& al) override {
+			// try get corresponding value
+			yycc_u8string strval;
+			al.Next();
+			if (al.IsEOF() || !al.IsValue(&strval)) {
+				al.Prev();
+				return false;
+			}
+			// try parsing value
+			if (!YYCC::ParserHelper::TryParse<_Ty>(strval, m_Data)) return false;
+			// check constraint
+			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(m_Data))
+				return false;
+			// okey
+			return true;
+		}
+		virtual void Reset() override {
+			std::memset(&m_Data, 0, sizeof(m_Data));
+		}
 
 	protected:
 		_Ty m_Data;
@@ -138,7 +171,10 @@ namespace YYCC::ArgParser {
 		bool Get() const { return m_Data; }
 
 	protected:
-		virtual bool Parse(ArgumentList& al) override { m_Data = true; }
+		virtual bool Parse(ArgumentList& al) override { 
+			m_Data = true;
+			return true;
+		}
 		virtual void Reset() override { m_Data = false; }
 
 	protected:
@@ -151,7 +187,7 @@ namespace YYCC::ArgParser {
 			const yycc_char8_t* long_name, yycc_char8_t short_name,
 			const yycc_char8_t* description = nullptr, const yycc_char8_t* argument_example = nullptr,
 			bool is_optional = false,
-			Constraints::Constraint<yycc_u8string_view> constraint = Constraints::Constraint<yycc_u8string_view> {}) :
+			Constraints::Constraint<yycc_u8string> constraint = Constraints::Constraint<yycc_u8string> {}) :
 			AbstractArgument(long_name, short_name, description, argument_example, is_optional), m_Data(), m_Constraint(constraint) {}
 		virtual ~StringArgument() {}
 
@@ -162,12 +198,26 @@ namespace YYCC::ArgParser {
 		}
 
 	protected:
-		virtual bool Parse(ArgumentList& al) override {} // todo
-		virtual void Reset() override {}// todo
+		virtual bool Parse(ArgumentList& al) override {
+			// try get corresponding value
+			al.Next();
+			if (al.IsEOF() || !al.IsValue(&m_Data)) {
+				al.Prev();
+				return false;
+			}
+			// check constraint
+			if (m_Constraint.IsValid() && !m_Constraint.m_CheckFct(m_Data))
+				return false;
+			// okey
+			return true;
+		}
+		virtual void Reset() override {
+			m_Data.clear();
+		}
 
 	protected:
 		yycc_u8string m_Data;
-		Constraints::Constraint<yycc_u8string_view> m_Constraint;
+		Constraints::Constraint<yycc_u8string> m_Constraint;
 	};
 
 #pragma endregion
