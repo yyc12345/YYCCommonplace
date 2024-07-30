@@ -16,7 +16,7 @@ public:
     TestConfigManager() :
         m_IntSetting(YYCC_U8("int-setting"), INT32_C(0)),
         m_StringSetting(YYCC_U8("string-setting"), YYCC_U8("")),
-        m_FloatSetting(YYCC_U8("float-setting"), 0.0f, YYCC::ConfigManager::ConstraintPresets::GetNumberRangeConstraint<float>(-1.0f, 1.0f)),
+        m_FloatSetting(YYCC_U8("float-setting"), 0.0f, YYCC::Constraints::GetNumberRangeConstraint<float>(-1.0f, 1.0f)),
         m_EnumSetting(YYCC_U8("enum-setting"), TestEnum::Test1),
         m_CoreManager(YYCC_U8("test.cfg"), UINT64_C(0), {
             &m_IntSetting, &m_StringSetting, &m_FloatSetting, &m_EnumSetting
@@ -57,44 +57,19 @@ When constructing these settings,
 you need to provide its unique name which will be used when saving to file or reading from file.
 Also you need to provide a default value for it.
 It will be used when fail to read file or initializing itself.
-Optionally, you can assign a constraint to it which we will introduce in following section.
+
+Optionally, you also can provide a constraint to setting.
+Constraint is the struct instructing library to limit value in specified range.
+It usually is used for making sure the setting stored value is valid.
+See \ref constraints chapters to know how we provide constraints.
 
 \subsection config_manager__setting__custom Custom Setting
 
-In most cases, the combination use of setting presets and constraints introduced in following is enough.
+In most cases, the combination use of setting presets and constraints is enough.
 However, if you still are urge to create your personal setting,
 please inherit YYCC::ConfigManager::AbstractSetting and implement essential class functions.
 For the class functions you need to implement,
 please refer to our setting presets, YYCC::ConfigManager::NumberSetting and YYCC::ConfigManager::StringSetting.
-
-\section config_manager__constraint Constraint
-
-Constraint can be applied to specific setting instance,
-and limit its value to specific values,
-such as minimum maximum value, specific string format and etc.
-
-\subsection config_manager__constraint__presets Constraint Presets
-
-YYCC::ConfigManager provide some constraint presets in YYCC::ConfigManager::Constraints namespace.
-All functions inside this namespace will return a YYCC::ConfigManager::Constraint instance,
-and you can directly assign it to the constructor of setting.
-Currently there is only one constraint preset:
-
-\li YYCC::ConfigManager::Constraints::GetNumberRangeConstraint: Constrain the number value in minimum maximum value range (inclusive).
-
-\subsection config_manager__constraint__custom Custom Constraint
-
-For creating your personal constraint,
-you need to create YYCC::ConfigManager::Constraint instance manually.
-
-First you need decide the template argument of YYCC::ConfigManager::Constraint.
-The type you assigned to template argument always is 
-the same type which is accepted by the setting this constraint will be applied to.
-
-Second, you need assign class member of YYCC::ConfigManager::Constraint.
-Currently there is only one class member.
-It is a function pointer called when correcting value.
-See our constraint presets for more infomation about how to write it.
 
 \section config_manager__core_manager Core Manager
 

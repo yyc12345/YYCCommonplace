@@ -32,6 +32,9 @@ especially in GUI application because the default output stream, \c stderr, is i
 
 However, please note the pathes provided by callback may be empty.
 In this case, it means that handler fail to create corresponding log files.
+Also, if you trying to register unhandled exception handler on the same process in different module with different callback,
+only the callback provided in first success registering will be called when unhandled exception happened,
+due to \ref exception_helper__notes__singleton design.
 
 \subsection exception_helper__usage__location Location
 

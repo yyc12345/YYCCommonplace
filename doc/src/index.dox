@@ -47,6 +47,8 @@
 
     <B>Advanced Features</B>
 
+    \li \subpage constraints
+
     \li \subpage config_manager
 
     \li \subpage arg_parser

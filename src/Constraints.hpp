@@ -24,10 +24,11 @@ namespace YYCC::Constraints {
 		CheckFct_t m_CheckFct;
 		
 		/**
-		 * @brief Check whether this Constraint is valid for using.
+		 * @brief Check whether this constraint is valid for using.
 		 * @return 
-		 * True if this Constraint is valid, otherwise false.
-		 * You should not use this Constraint if this function return false.
+		 * True if this constraint is valid, otherwise false.
+		 * If this function return false, it means that there is no contraint.
+		 * And you should not use this constraint provided any function pointer.
 		*/
 		bool IsValid() const {
 			return m_CheckFct != nullptr;
@@ -52,7 +53,7 @@ namespace YYCC::Constraints {
 	}
 
 	/**
-	 * @brief Get constraint for enum values by enumerate all possible values.
+	 * @brief Get constraint for enum values by enumerating all possible values.
 	 * @tparam _Ty An enum type (except bool) of underlying stored value.
 	 * @param[in] il An initializer list storing all possible values.
 	 * @return The generated constraint instance which can be directly applied.
@@ -66,7 +67,7 @@ namespace YYCC::Constraints {
 	}
 
 	/**
-	 * @brief Get constraint for string values by enumerate all possible values.
+	 * @brief Get constraint for string values by enumerating all possible values.
 	 * @param[in] il An initializer list storing all possible values.
 	 * @return The generated constraint instance which can be directly applied.
 	 * @remarks

@@ -2,7 +2,76 @@
 
 \page arg_parser Universal Argument Parser
 
+Universal argument parser provides an universal way to parsing command line arguments.
 
+Universal argument parser has similar design with universal config manager,
+it is highly recommand that read \ref config_manager chapter first,
+because you will have a clear understanding of this namespace after reading universal config manager chapter.
 
+There is an example about how to use universal argument parser.
+In following content, we will describe it in detail.
+
+\section arg_parser__argument Argument
+
+\subsection arg_parser__argument__presets Argument Presets
+
+\subsubsection arg_parser__argument__presets__number Number Argument
+
+\subsubsection arg_parser__argument__presets__string String Argument
+
+\subsubsection arg_parser__argument__presets__switch Switch Argument
+
+Switch argument must be optional argument.
+Because it is true if user specify it explicit it,
+and will be false if user do not give this flag.
+
+Switch argument also doesn't contain any value.
+Because it is just a switch.
+It can not hold any value.
+
+\subsection arg_parser__argument__custom Custom Argument
+
+\section arg_parser__argument_list Argument List
+
+\section arg_parser__option_context Option Context
+
+\section arg_parser__limitation Limitation
+
+This universal argument parser is a tiny parser.
+It only just fulfill my personal requirements.
+So it only accepts limited command line syntax.
+In following content I will tell you some syntaxes which this parser \b not accept.
+
+\subsection arg_parser__limitation__flag_combination Flag Combination
+
+\code{sh}
+exec -l -s -h
+exec -lsh
+\endcode
+
+Parser accept first line but not accept the second line.
+You must write these flags independently.
+
+\subsection arg_parser__limitation__equal_symbol Equal Symbol
+
+\code
+exec --value 114514
+exec --value=114514
+exec --value:114514
+\endcode
+
+Parser only accept first line command.
+You can not use equal symbol or any other symbol to assign value for specified argument.
+You must write value after the argument immediately please.
+
+\subsection arg_parser__limitation__variable_argument Variable Argument
+
+\code
+exec -DSOME_VARABLE=SOME_VALUE
+exec -D SOME_VARIABLE=SOME_VALUE
+\endcode
+
+Parser only accept second line.
+However you nned to write a custom argument or constraint to holding this value.
 
 */
