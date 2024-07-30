@@ -78,6 +78,8 @@ namespace YYCC::ExceptionHelper {
 			if (!m_IsRegistered) return;
 
 			// unregister handler
+			// reset user callback
+			m_UserCallback = nullptr;
 			// restore old handler
 			SetUnhandledExceptionFilter(m_PrevProcHandler);
 			m_PrevProcHandler = nullptr;

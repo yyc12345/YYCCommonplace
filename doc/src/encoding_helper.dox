@@ -106,7 +106,7 @@ So please note the type of result is decided by convertion function itself, not 
 According to the way providing source string,
 these 4 overload also can be divided into 2 types.
 The first type take a reference to constant \c std::wstring_view.
-The second type take a pointer to constant wchar_t.
+The second type take a pointer to constant \c wchar_t.
 
 For first type, it will take the whole string for convertion, including \b embedded NUL terminal.
 Please note we use string view as argument.

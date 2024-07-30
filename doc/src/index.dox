@@ -49,6 +49,8 @@
 
     \li \subpage config_manager
 
+    \li \subpage arg_parser
+
   </TD>
   <TD ALIGN="LEFT" VALIGN="TOP">
 

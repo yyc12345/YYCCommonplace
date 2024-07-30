@@ -18,10 +18,20 @@ It will be invisible on other platforms.
 
 \subsection exception_helper__usage__code Register Code
 
-In most scenarios, programmer only need call YYCC::ExceptionHelper::Register() when program started or module loaded.
+In most scenarios, programmer only need call YYCC::ExceptionHelper::Register when program started or module loaded.
 And call YYCC::ExceptionHelper::Unregister when program exited or module unloaded.
 All details are hidden by these 2 feature.
 Programmer do not need worried about the implementation of unhandled exception handler.
+
+Optionally, you can provide a function pointer during calling YYCC::ExceptionHelper::Register as a callback.
+The prototype of this function pointer is YYCC::ExceptionHelper::ExceptionCallback.
+This callback will be called if any unhandled exception happened.
+It provides 2 pathes to log file and core dump file respectively.
+So that you can use an explicit way, e.g. \c MessageBox, to tell user exception happened and where are the log files,
+especially in GUI application because the default output stream, \c stderr, is invisible in GUI application.
+
+However, please note the pathes provided by callback may be empty.
+In this case, it means that handler fail to create corresponding log files.
 
 \subsection exception_helper__usage__location Location
 
@@ -83,5 +93,13 @@ This will cause infinite recursive calling.
 YYCC::ExceptionHelper has internal mechanism to prevent this bad case.
 If this really happened, the handler will quit silent and will not cause any issue.
 Programmer don't need to worry about this.
+
+\subsection exception_helper__notes__user_callback The Timing of User Callback
+
+The timing of calling user callback is the tail of unhandled exception handler.
+It means that all log and coredump have been written if possible before calling callback.
+Because user callback may still raise exception.
+We want all essential log files has been written before calling it,
+so that at least we can visit them on disk or console.
 
 */
