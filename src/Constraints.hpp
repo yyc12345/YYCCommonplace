@@ -14,7 +14,7 @@ namespace YYCC::Constraints {
 
 	/**
 	 * @brief The constraint applied to settings to limit its stored value.
-	 * @tparam _Ty The internal data type stroed in corresponding setting.
+	 * @tparam _Ty The data type this constraint need to be processed with.
 	*/
 	template<typename _Ty>
 	struct Constraint {

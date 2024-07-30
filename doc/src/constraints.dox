@@ -1,8 +1,9 @@
+namespace YYCC::Constraints {
 /**
 
 \page constraints Constraints
 
-YYCC::Constraints namespace provide YYCC::Constraints::Constraint struct declaration
+YYCC::Constraints namespace provide Constraint struct declaration
 and various common constraint generator function.
 
 This namespace is specifically used by YYCC::ConfigManager and YYCC::ArgParser namespaces.
@@ -10,12 +11,12 @@ See \ref config_manager chapter and \ref arg_parser chapter for how to utlize th
 
 \section constraints__prototype Prototype
 
-YYCC::Constraints::Constraint instruct library how check whether given value is in range,
+Constraint instruct library how check whether given value is in range,
 and how to clamp it if it is invalid.
 For example, you can use constraint to limit a number in given minimum maximum value,
 or limit a string in specific format by using regex and etc.
 
-YYCC::Constraints::Constraint is a template struct.
+Constraint is a template struct.
 The argument of template is the underlying data type which need to be checked.
 The struct with different template argument is not compatible.
 
@@ -25,23 +26,24 @@ which is used for detecting whether given value is in range / valid.
 \subsection constraints__presets Constraint Presets
 
 YYCC::Constraints provides some constraint presets which are commonly used.
-All functions inside this namespace will return a YYCC::Constraints::Constraint instance,
+All functions inside this namespace will return a Constraint instance,
 and you can directly use it.
 
 There is a list of all provided functions:
 
-\li YYCC::Constraints::GetMinMaxRangeConstraint: Limit the number value in given minimum maximum value range (inclusive).
-\li YYCC::Constraints::GetEnumEnumerationConstraint: Limit the enum value by given all possible value set.
-\li YYCC::Constraints::GetStringEnumerationConstraint: Limit the string by given all possible value set.
+\li GetMinMaxRangeConstraint(): Limit the number value in given minimum maximum value range (inclusive).
+\li GetEnumEnumerationConstraint(): Limit the enum value by given all possible value set.
+\li GetStringEnumerationConstraint(): Limit the string by given all possible value set.
 
 \subsection config_manager__constraint__custom Custom Constraint
 
 For creating your personal constraint,
-you need to create YYCC::Constraints::Constraint instance manually.
+you need to create Constraint instance manually.
 You can browse all existing constraint preset functions code for know how to write it.
 
 The things you need to do is simple.
-First, you need decide the template argument of YYCC::Constraints::Constraint.
-Second, you need assign class member of YYCC::Constraints::Constraint by C++ lambda syntax.
+First, you need decide the template argument of Constraint.
+Second, you need assign class member of Constraint by C++ lambda syntax.
 
 */
+}

@@ -1,8 +1,9 @@
+namespace YYCC::ConfigManager {
 /**
 
 \page config_manager Universal Config Manager
 
-Universal config manager give programmer an universal way to manage its program settings.
+YYCC::ConfigManager give programmer an universal way to manage its program settings.
 There is an example about how to use universal config manager.
 In following content, we will describe it in detail.
 
@@ -32,11 +33,11 @@ public:
     YYCC::ConfigManager::CoreManager m_CoreManager;
 };
 
-// init cfg manager
+// Initialize config manager
 TestConfigManager test;
-// load string
+// Load settings.
 test.m_CoreManager.Load()
-// get string value
+// Get string setting value.
 auto val = test.m_StringSetting.Get();
 \endcode
 
@@ -49,9 +50,9 @@ Each setting describe a single configuration entry.
 
 We currently provide 2 setting preset classes which you can directly use.
 
-\li YYCC::ConfigManager::NumberSetting: The setting storing a number inside.
+\li NumberSetting: The setting storing a number inside.
 It is a template class. Support all arithmetic and enum types (integral, floating point, bool, enum).
-\li YYCC::ConfigManager::StringSetting: The setting storing a string inside.
+\li StringSetting: The setting storing a string inside.
 
 When constructing these settings,
 you need to provide its unique name which will be used when saving to file or reading from file.
@@ -67,13 +68,13 @@ See \ref constraints chapters to know how we provide constraints.
 
 In most cases, the combination use of setting presets and constraints is enough.
 However, if you still are urge to create your personal setting,
-please inherit YYCC::ConfigManager::AbstractSetting and implement essential class functions.
+please inherit AbstractSetting and implement essential class functions.
 For the class functions you need to implement,
-please refer to our setting presets, YYCC::ConfigManager::NumberSetting and YYCC::ConfigManager::StringSetting.
+please refer to our setting presets, NumberSetting and StringSetting.
 
 \section config_manager__core_manager Core Manager
 
-YYCC::ConfigManager::CoreManager manage a collection of settings.
+CoreManager manage a collection of settings.
 And have responsibility to reading and writing config file.
 
 We highly suggest that you create a personal config manager class like example does.
@@ -93,3 +94,4 @@ Otherwise, core manager will try to read config file and do proper migration if 
 The last argument is an initializer list which contain the \b pointer to all settings this manager managed.
 
 */
+}

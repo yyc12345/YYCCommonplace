@@ -1,8 +1,9 @@
+namespace YYCC::ArgParser {
 /**
 
 \page arg_parser Universal Argument Parser
 
-Universal argument parser provides an universal way to parsing command line arguments.
+YYCC::ArgParser provides an universal way to parsing command line arguments.
 
 Universal argument parser has similar design with universal config manager,
 it is highly recommand that read \ref config_manager chapter first,
@@ -10,6 +11,54 @@ because you will have a clear understanding of this namespace after reading univ
 
 There is an example about how to use universal argument parser.
 In following content, we will describe it in detail.
+
+\code{.cpp}
+class TestArgParser {
+public:
+    TestArgParser() :
+        m_IntArgument(YYCC_U8("int"), YYCC_U8_CHAR('i'), YYCC_U8("integral argument"), YYCC_U8("114514")),
+        m_FloatArgument(nullptr, YYCC_U8_CHAR('f'), nullptr, nullptr, true),
+        m_StringArgument(YYCC_U8("string"), YYCC::ArgParser::AbstractArgument::NO_SHORT_NAME, nullptr, nullptr, true),
+        m_BoolArgument(nullptr, YYCC_U8_CHAR('b'), nullptr),
+        m_ClampedFloatArgument(YYCC_U8("clamped-float"), YYCC::ArgParser::AbstractArgument::NO_SHORT_NAME, nullptr, nullptr, true, YYCC::Constraints::GetMinMaxRangeConstraint<float>(-1.0f, 1.0f)),
+        m_OptionContext(YYCC_U8("TestArgParser"), YYCC_U8("This is the testbench of argument parser."), {
+            &m_IntArgument, &m_FloatArgument, &m_StringArgument,
+            &m_BoolArgument, &m_ClampedFloatArgument
+        }) {}
+    ~TestArgParser() {}
+
+    YYCC::ArgParser::NumberArgument<int32_t> m_IntArgument;
+    YYCC::ArgParser::NumberArgument<float> m_FloatArgument;
+    YYCC::ArgParser::StringArgument m_StringArgument;
+
+    YYCC::ArgParser::SwitchArgument m_BoolArgument;
+    YYCC::ArgParser::NumberArgument<float> m_ClampedFloatArgument;
+
+    YYCC::ArgParser::OptionContext m_OptionContext;
+};
+
+// Initialize argument parser.
+TestArgParser test;
+// Get argument list for parsing from standard C main function.
+auto al = YYCC::ArgParser::ArgumentList::CreateFromStd(argc, argv);
+// Start parsing
+test.Parse(al);
+// Get captured string argument
+if (test.m_StringArgument.IsCaptured())
+    auto val = test.m_StringArgument.Get();
+\endcode
+
+These code can resolve following command line
+
+\code{.sh}
+exec -i 114514 -f 2.0 --string fuck -b --clamped-float 0.5
+\endcode
+
+For convenience, we define following terms used in this article.
+
+\li Every items in command line: Argument.
+\li \c -i, \c --clamped-float: \b Switch / \b Option. the argument starts with dash or double dash.
+\li \c 114514: \b Value. the value of switch.
 
 \section arg_parser__argument Argument
 
@@ -35,6 +84,18 @@ It can not hold any value.
 
 \section arg_parser__option_context Option Context
 
+Please note any unknow argument will let the parser return false.
+This is different with other argument parsers.
+In other common argument parsers, 
+they will collect all unknow argument ad positional argument, 
+or just simply ignore them.
+
+OptionContext also will not add \c -h or \c --help switch automatically.
+This is also differnent with other parsers.
+You should manually add it.
+However, OptionContext provide a universal help print function.
+You can directly call it to output help text if you needed (fail to parse or user order help).
+
 \section arg_parser__limitation Limitation
 
 This universal argument parser is a tiny parser.
@@ -44,7 +105,7 @@ In following content I will tell you some syntaxes which this parser \b not acce
 
 \subsection arg_parser__limitation__flag_combination Flag Combination
 
-\code{sh}
+\code{.sh}
 exec -l -s -h
 exec -lsh
 \endcode
@@ -54,7 +115,7 @@ You must write these flags independently.
 
 \subsection arg_parser__limitation__equal_symbol Equal Symbol
 
-\code
+\code{.sh}
 exec --value 114514
 exec --value=114514
 exec --value:114514
@@ -66,7 +127,7 @@ You must write value after the argument immediately please.
 
 \subsection arg_parser__limitation__variable_argument Variable Argument
 
-\code
+\code{.sh}
 exec -DSOME_VARABLE=SOME_VALUE
 exec -D SOME_VARIABLE=SOME_VALUE
 \endcode
@@ -74,4 +135,22 @@ exec -D SOME_VARIABLE=SOME_VALUE
 Parser only accept second line.
 However you nned to write a custom argument or constraint to holding this value.
 
+\subsection arg_parser__limitation__switch_dependency Switch Dependency
+
+\code{.sh}
+exec --action-a --action-b
+\endcode
+
+For command line written above,
+if you hope \c --action-a and \c --action-b is exclusive,
+or \c --action-b only be valid if \c --action-a specified,
+you should manually implement this.
+Parser don't have such features to process this switch dependency.
+
+The thing you need to do is set these switches are \b not optional.
+And after parser do a success parsing,
+manually calling AbstractArgument::IsCaptured to fetch whether corresponding switches are captured,
+then do your personal dependency check.
+
 */
+}

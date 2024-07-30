@@ -29,12 +29,12 @@ During programming, I found Windows is super lack in UTF8 supports.
 Programmer loves UTF8, because it can handle all charcaters over the world in one encoding and is still compatible with C-Style string.
 However, Windows use a weird way to achieve internationalization, 2 different function trailing, A and W for legacy code and modern code respectively.
 The worst things is that the char type W trailing function used, \c WCHAR, is defined as 2 bytes long, not 4 bytes long as Linux does (\c wchar_t).
-It mean that one emoji charcater will be torn into 2 \c WCHAR on Windows because emoji code unit is higher than the manimum value of \c WCHAR.
+It mean that one emoji charcater will be torn into 2 \c WCHAR on Windows because emoji code unit is higher than the maximum value of \c WCHAR.
 
 Also, there are various issues which should not be presented.
 For example, Microsoft invents various \e safe standard library functions to prevent possible overflow issues raised by \c std::fgets and etc.
 also, MSVC may throw weird error when you using some specific standard library functions.
-You need to define some weird macro to disable this shitty behavior.
+You need to define some weird macros to disable this shitty behavior.
 
 There are various non-standard issue you may faced on Windows programming. 
 All in all, programming on Windows is a tough work.
