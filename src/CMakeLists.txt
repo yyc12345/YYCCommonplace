@@ -62,8 +62,11 @@ PROPERTIES
     CXX_STANDARD_REQUIRED 17
     CXX_EXTENSION OFF
 )
-# Order Unicode charset for private using
 target_compile_definitions(YYCCommonplace
+# Debug macro should populate to child projects
+PUBLIC
+    $<$<BOOL:${YYCC_DEBUG_UE_FILTER}>:YYCC_DEBUG_UE_FILTER>
+# Unicode charset for private using
 PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
     $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>

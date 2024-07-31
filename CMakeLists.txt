@@ -7,6 +7,7 @@ project(YYCC
 # Provide options
 option(YYCC_BUILD_TESTBENCH "Build testbench of YYCCommonplace." OFF)
 option(YYCC_BUILD_DOC "Build document of YYCCommonplace." OFF)
+option(YYCC_DEBUG_UE_FILTER "YYCC developer used switch for testing Windows unhandled exception filter. Should not set to ON!!!" OFF)
 
 # Setup install path from CMake provided install path for convenient use.
 include(GNUInstallDirs)

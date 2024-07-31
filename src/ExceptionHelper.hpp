@@ -55,6 +55,10 @@ namespace YYCC::ExceptionHelper {
 	*/
 	void Unregister();
 
+#if defined(YYCC_DEBUG_UE_FILTER)
+	long __stdcall DebugCallUExceptionImpl(void*);
+#endif
+
 }
 
 #endif

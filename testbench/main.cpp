@@ -349,8 +349,20 @@ namespace YYCCTestbench {
 		});
 
 		// Perform a div zero exception.
+#if defined (YYCC_DEBUG_UE_FILTER)
+		// Reference: https://stackoverflow.com/questions/20981982/is-it-possible-to-debug-unhandledexceptionfilters-with-a-debugger
+		__try {
+			// all of code normally inside of main or WinMain here...
+			int i = 1, j = 0;
+			int k = i / j;
+		}
+		__except (YYCC::ExceptionHelper::DebugCallUExceptionImpl(GetExceptionInformation())) {
+			OutputDebugStringW(L"executed filter function\n");
+		}
+#else
 		int i = 1, j = 0;
 		int k = i / j;
+#endif
 
 		YYCC::ExceptionHelper::Unregister();
 

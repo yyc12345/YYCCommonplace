@@ -159,4 +159,11 @@ that MSVC distribution places all static library under one director \c lib.
 Thus in MSVC project user can simply spcify the install path of YYCC,
 and use MSVC macros in path to choose correct static library for linking
 
+\section intro__debug Debug Tips
+
+YYCC CMake build script contains a special option called \c YYCC_DEBUG_UE_FILTER.
+If you set it to true, it will add a public macro \c YYCC_DEBUG_UE_FILTER to YYCC project.
+This macro will enable special code path for the convenience of debugging \ref exception_helper related features.
+So in common use, user should not enable this option.
+
 */

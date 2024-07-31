@@ -243,33 +243,6 @@ namespace YYCC::ExceptionHelper {
 	}
 
 	/**
-	 * @brief Error log (including backtrace) used output function with format feature
-	 * @details
-	 * This function will format message first.
-	 * And write them into given file stream and stderr.
-	 * @param[in] fs
-	 * The file stream where we write.
-	 * If it is nullptr, function will skip writing for file stream.
-	 * @param[in] fmt The format string.
-	 * @param[in] ... The argument to be formatted.
-	*/
-	static void UExceptionErrLogFormatLine(std::FILE* fs, const yycc_char8_t* fmt, ...) {
-		// write to file
-		if (fs != nullptr) {
-			va_list arg1;
-			va_start(arg1, fmt);
-			std::vfprintf(fs, EncodingHelper::ToOrdinary(fmt), arg1);
-			std::fputs("\n", fs);
-			va_end(arg1);
-		}
-		// write to stderr
-		va_list arg2;
-		va_start(arg2, fmt);
-		ConsoleHelper::ErrWriteLine(YYCC::StringHelper::VPrintf(fmt, arg2).c_str());
-		va_end(arg2);
-	}
-
-	/**
 	 * @brief Error log (including backtrace) used output function
 	 * @details
 	 * This function will write given string into given file stream and stderr.
@@ -286,6 +259,27 @@ namespace YYCC::ExceptionHelper {
 		}
 		// write to stderr
 		ConsoleHelper::ErrWriteLine(strl);
+	}
+
+	/**
+	 * @brief Error log (including backtrace) used output function with format feature
+	 * @details
+	 * This function will format message first.
+	 * And write them into given file stream and stderr.
+	 * @param[in] fs
+	 * The file stream where we write.
+	 * If it is nullptr, function will skip writing for file stream.
+	 * @param[in] fmt The format string.
+	 * @param[in] ... The argument to be formatted.
+	*/
+	static void UExceptionErrLogFormatLine(std::FILE* fs, const yycc_char8_t* fmt, ...) {
+		// do format first
+		va_list arg;
+		va_start(arg, fmt);
+		auto fmt_result = YYCC::StringHelper::VPrintf(fmt, arg);
+		va_end(arg);
+		// write to file and console
+		UExceptionErrLogWriteLine(fs, fmt_result.c_str());
 	}
 
 	static void UExceptionBacktrace(FILE* fs, LPCONTEXT context, int maxdepth) {
@@ -343,7 +337,7 @@ namespace YYCC::ExceptionHelper {
 		frame.AddrPC.Mode = AddrModeFlat;
 		frame.AddrStack.Mode = AddrModeFlat;
 		frame.AddrFrame.Mode = AddrModeFlat;
-
+		
 		// stack walker
 		while (StackWalk64(machine_type, process, thread, &frame, context,
 			0, SymFunctionTableAccess64, SymGetModuleBase64, 0)) {
@@ -356,12 +350,12 @@ namespace YYCC::ExceptionHelper {
 			}
 
 			// get module name
-			const yycc_char8_t* module_name = YYCC_U8("<unknown module>");
-			yycc_u8string module_name_raw;
+			const yycc_char8_t* no_module_name = YYCC_U8("<unknown module>");
+			yycc_u8string module_name(no_module_name);
 			DWORD64 module_base;
 			if (module_base = SymGetModuleBase64(process, frame.AddrPC.Offset)) {
-				if (WinFctHelper::GetModuleFileName((HINSTANCE)module_base, module_name_raw)) {
-					module_name = module_name_raw.c_str();
+				if (!WinFctHelper::GetModuleFileName((HINSTANCE)module_base, module_name)) {
+					module_name = no_module_name;
 				}
 			}
 
@@ -377,9 +371,12 @@ namespace YYCC::ExceptionHelper {
 			}
 
 			// write to file
-			UExceptionErrLogFormatLine(fs, YYCC_U8("0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "[%s+0x%" PRI_XPTR_LEFT_PADDING PRIXPTR "]\t%s#L%" PRIu64),
+			// MARK: should not use PRIXPTR to print adddress.
+			// because Windows always use DWORD64 as the type of address.
+			// use PRIX64 instead.
+			UExceptionErrLogFormatLine(fs, YYCC_U8("0x%" PRI_XPTR_LEFT_PADDING PRIX64 "[%s+0x%" PRI_XPTR_LEFT_PADDING PRIX64 "]\t%s#L%" PRIu64),
 				frame.AddrPC.Offset, // memory adress
-				module_name, frame.AddrPC.Offset - module_base, // module name + relative address
+				module_name.c_str(), frame.AddrPC.Offset - module_base, // module name + relative address
 				source_file, source_file_line // source file + source line
 			);
 
@@ -554,6 +551,12 @@ namespace YYCC::ExceptionHelper {
 	void Unregister() {
 		g_ExceptionRegister.Unregister();
 	}
+
+#if defined(YYCC_DEBUG_UE_FILTER)
+	long __stdcall DebugCallUExceptionImpl(void* data) {
+		return UExceptionImpl(static_cast<LPEXCEPTION_POINTERS>(data));
+	}
+#endif
 
 }
 
