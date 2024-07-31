@@ -40,6 +40,7 @@ namespace YYCC::ExceptionHelper {
 	 * (for convenient debugging of developer when reporting bugs.)
 	 * 
 	 * This function usually is called at the start of program.
+	 * @param[in] callback User defined callback called when unhandled exception happened. nullptr if no callback.
 	*/
 	void Register(ExceptionCallback callback = nullptr);
 	/**

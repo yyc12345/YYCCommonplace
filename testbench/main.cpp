@@ -544,7 +544,11 @@ auto al = YYCC::ArgParser::ArgumentList::CreateFromStd(sizeof(test_argv) / sizeo
 			PREPARE_DATA("exec", "-i", "114514");
 			Assert(test.m_OptionContext.Parse(al), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
 			Assert(test.m_IntArgument.IsCaptured() && test.m_IntArgument.Get() == UINT32_C(114514), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
-			Assert(!test.m_BoolArgument.Get(), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
+			Assert(!test.m_BoolArgument.IsCaptured(), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
+			Assert(!test.m_FloatArgument.IsCaptured(), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
+			Assert(!test.m_StringArgument.IsCaptured(), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
+			Assert(!test.m_BoolArgument.IsCaptured(), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
+			Assert(!test.m_ClampedFloatArgument.IsCaptured(), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
 			test.m_OptionContext.Reset();
 		}
 		// no argument
@@ -562,6 +566,12 @@ auto al = YYCC::ArgParser::ArgumentList::CreateFromStd(sizeof(test_argv) / sizeo
 		// lost argument
 		{
 			PREPARE_DATA("exec", "-i");
+			Assert(!test.m_OptionContext.Parse(al), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
+			test.m_OptionContext.Reset();
+		}
+		// dplicated assign
+		{
+			PREPARE_DATA("exec", "-i", "114514" "--int", "114514");
 			Assert(!test.m_OptionContext.Parse(al), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
 			test.m_OptionContext.Reset();
 		}
@@ -584,7 +594,7 @@ auto al = YYCC::ArgParser::ArgumentList::CreateFromStd(sizeof(test_argv) / sizeo
 			Assert(test.m_IntArgument.IsCaptured() && test.m_IntArgument.Get() == UINT32_C(114514), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
 			Assert(test.m_FloatArgument.IsCaptured() && test.m_FloatArgument.Get() == 2.0f, YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
 			Assert(test.m_StringArgument.IsCaptured() && test.m_StringArgument.Get() == YYCC_U8("fuck"), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
-			Assert(test.m_BoolArgument.IsCaptured() && test.m_BoolArgument.Get(), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
+			Assert(test.m_BoolArgument.IsCaptured(), YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
 			Assert(test.m_ClampedFloatArgument.IsCaptured() && test.m_ClampedFloatArgument.Get() == 0.5f, YYCC_U8("YYCC::ArgParser::OptionContext::Parse"));
 			test.m_OptionContext.Reset();
 		}

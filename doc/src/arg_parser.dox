@@ -48,7 +48,7 @@ if (test.m_StringArgument.IsCaptured())
     auto val = test.m_StringArgument.Get();
 \endcode
 
-These code can resolve following command line
+These code can resolve following command line:
 
 \code{.sh}
 exec -i 114514 -f 2.0 --string fuck -b --clamped-float 0.5
@@ -62,38 +62,82 @@ For convenience, we define following terms used in this article.
 
 \section arg_parser__argument Argument
 
+Argument is the leaf of argument parser.
+It has the same position as setting in universal config manager.
+
 \subsection arg_parser__argument__presets Argument Presets
 
-\subsubsection arg_parser__argument__presets__number Number Argument
+Like setting in universal config manager,
+we also provide various common used argument presets.
+Current'y we support following argument presets:
 
-\subsubsection arg_parser__argument__presets__string String Argument
+\li NumberArgument: The argument storing arithmetic type (except \c bool) inside. Such as <TT>-i 114514</TT> in example.
+\li StringArgument: The argument storing string inside. Such as <TT>--string fuck</TT> in example.
+\li SwitchArgument: The argument storing nothing. It is just a simple switch. Such as <TT>-b</TT> in example.
 
-\subsubsection arg_parser__argument__presets__switch Switch Argument
+When constructing these argument,
+you need provide one from long name or short name, or both of them.
+Short name is the argument starting with dash and long name starts with double dash.
+You don't need add dash or double dash prefix when providing these names.
+Please note only ASCII characters, which can be displayed on screen, can be used in these names.
 
-Switch argument must be optional argument.
+Optionally, you can provide description when constructing,
+which will tell user how this switch does and more infomation about this switch.
+And, you can add an example to tell user which value is valid.
+
+Next, you can specify an argument to be optional.
+Optional argument can be absent in command line.
+Oppositely, non-optional argument must be presented in command line,
+otherwise parser will return false to indicate an error.
+For checking whether an optional argument is specified,
+please call AbstractArgument::IsCaptured().
+
+Last, you can optionally assign a constraint to it,
+to help argument limit its value.
+
+However SwitchArgument must be optional argument.
 Because it is true if user specify it explicit it,
 and will be false if user do not give this flag.
-
-Switch argument also doesn't contain any value.
-Because it is just a switch.
-It can not hold any value.
+SwitchArgument doesn't have constraint features,
+because it doesn't store any value inside.
+Thus no need to limit this.
 
 \subsection arg_parser__argument__custom Custom Argument
 
+In most cases, the combination use of argument presets and constraints is enough.
+However, if you still are urge to create your personal argument,
+please inherit AbstractArgument and implement essential class functions.
+For the class functions you need to implement,
+please refer to our argument presets.
+
 \section arg_parser__argument_list Argument List
+
+Argument list is a struct used by parser for parsing.
+It is a higher wrapper of a simple list containing argument items.
+We provide 2 ways to get argument list.
+
+\li ArgumentList::CreateFromStd: Create argument list from standard C main function parameters.
+\li ArgumentList::CreateFromWin32: Create argument list from Win32 functions in Windows.
+You should use this function in Windows instead of ArgumentList::CreateFromStd.
+Because the command line passed in standard C main function has encoding issue in Windows.
+Use this function you will fetch correct argument list especially command including non-ASCII characters.
+
+Please note the first argument in given command line will be stripped.
+Because in most cases it point to the executable self,
+and should not be seen as the part of argument list.
 
 \section arg_parser__option_context Option Context
 
 Please note any unknow argument will let the parser return false.
 This is different with other argument parsers.
 In other common argument parsers, 
-they will collect all unknow argument ad positional argument, 
+they will collect all unknow argument as positional argument, 
 or just simply ignore them.
 
 OptionContext also will not add \c -h or \c --help switch automatically.
 This is also differnent with other parsers.
 You should manually add it.
-However, OptionContext provide a universal help print function.
+However, OptionContext provide a universal help print function, OptionContext::Help.
 You can directly call it to output help text if you needed (fail to parse or user order help).
 
 \section arg_parser__limitation Limitation

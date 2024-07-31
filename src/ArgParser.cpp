@@ -115,7 +115,7 @@ namespace YYCC::ArgParser {
 		return true;
 	}
 
-	bool ArgumentList::IsParameter(yycc_u8string* val) const {
+	bool ArgumentList::IsValue(yycc_u8string* val) const {
 		bool is_value = !IsSwitch();
 		if (is_value && val != nullptr)
 			*val = *m_ArgumentsIterator;

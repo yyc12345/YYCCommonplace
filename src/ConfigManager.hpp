@@ -19,7 +19,7 @@
 namespace YYCC::ConfigManager {
 
 	/// @brief The base class of every setting.
-	/// @details Programmer can inherit this class and implement essential to create custom setting.
+	/// @details Programmer can inherit this class and implement essential functions to create custom setting.
 	class AbstractSetting {
 		friend class CoreManager;
 	public:
@@ -42,19 +42,19 @@ namespace YYCC::ConfigManager {
 
 		// User Implementations
 	protected:
-		/// @brief User implemented custom load functions
+		/// @brief User implemented custom load function
 		/// @remarks 
 		/// In this function, programmer should read data from internal buffer 
 		/// and store it to its own another internal variables.
 		/// @return True if success, otherwise false.
 		virtual bool UserLoad() = 0;
-		/// @brief User implemented custom save functions
+		/// @brief User implemented custom save function
 		/// @remarks 
 		/// In this function, programmer should write data, 
 		/// which is stored in another variavle by it own, to internal buffer.
 		/// @return True if success, otherwise false.
 		virtual bool UserSave() = 0;
-		/// @brief User implemented custom reset functions
+		/// @brief User implemented custom reset function
 		/// @remarks In this function, programmer should reset its internal variable to default value.
 		virtual void UserReset() = 0;
 
