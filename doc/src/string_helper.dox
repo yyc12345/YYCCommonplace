@@ -1,3 +1,4 @@
+namespace YYCC::StringHelper {
 /**
 
 \page string_helper String Helper
@@ -14,10 +15,10 @@ yycc_u8string Printf(const yycc_char8_t*, ...);
 yycc_u8string VPrintf(const yycc_char8_t*, va_list argptr);
 \endcode
 
-YYCC::StringHelper::Printf and YYCC::StringHelper::VPrintf is similar to \c std::sprintf and \c std::vsprintf.
-YYCC::StringHelper::Printf accepts UTF8 format string and variadic arguments specifying data to print.
+#Printf and #VPrintf is similar to \c std::sprintf and \c std::vsprintf.
+#Printf accepts UTF8 format string and variadic arguments specifying data to print.
 This is commonly used by programmer.
-However, YYCC::StringHelper::VPrintf also do the same work but its second argument is \c va_list, 
+However, #VPrintf also do the same work but its second argument is \c va_list, 
 the representation of variadic arguments.
 It is mostly used by other function which has variadic arguments.
 
@@ -26,7 +27,7 @@ that you don't need to worry about whether the space of given buffer is enough,
 because these functions help you to calculate this internally.
 
 There is the same design like we introduced in \ref encoding_helper.
-There are 2 overloads for YYCC::StringHelper::Printf and YYCC::StringHelper::VPrintf respectively.
+There are 2 overloads for #Printf and #VPrintf respectively.
 First overload return bool value and require a string container as argument for storing result.
 The second overload return result string directly.
 As you expected, first overload will return false if fail to format string (this is barely happened).
@@ -44,7 +45,7 @@ yycc_u8string Replace(const yycc_char8_t*, const yycc_char8_t*, const yycc_char8
 The first overload will do replacement in given string container directly.
 The second overload will produce a copy of original string and do replacement on the copied string.
 
-YYCC::StringHelper::Replace has special treatments for following scenarios:
+#Replace has special treatments for following scenarios:
 
 \li If given string is empty or nullptr, the return value will be empty.
 \li If the character sequence to be replaced is nullptr or empty string, no replacement will happen.
@@ -58,10 +59,10 @@ YYCC::StringHelper provide an universal way for joining string and various speci
 
 Because C++ list types are various.
 There is no unique and convenient way to create an universal join function.
-So we create YYCC::StringHelper::JoinDataProvider to describe join context.
+So we create #JoinDataProvider to describe join context.
 
 Before using universal join function,
-you should setup YYCC::StringHelper::JoinDataProvider first, the context of join function.
+you should setup #JoinDataProvider first, the context of join function.
 It actually is an \c std::function object which can be easily fetched by C++ lambda syntax.
 This function pointer accept a reference to \c yycc_u8string_view,
 programmer should set it to the string to be joined when at each calling.
@@ -69,7 +70,7 @@ And this function pointer return a bool value to indicate the end of join.
 You can simply return \c false to terminate join process.
 The argument you assigned to argument will not be taken into join process when you return false.
 
-Then, you can pass the created YYCC::StringHelper::JoinDataProvider object to YYCC::StringHelper::Join function.
+Then, you can pass the created #JoinDataProvider object to #Join function.
 And specify decilmer at the same time.
 Then you can get the final joined string.
 There is an example:
@@ -137,3 +138,4 @@ the result will only has 1 item and this item is source string itself.
 There is no way that these methods return an empty list, except the code is buggy.
 
 */
+}

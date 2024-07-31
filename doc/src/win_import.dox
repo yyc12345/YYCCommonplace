@@ -1,3 +1,4 @@
+namespace YYCC {
 /**
 
 \page win_import Windows Import Guard
@@ -67,3 +68,4 @@ However, we still highly recommend you use this pair with platform checker brack
 if your program need to be run on multiple platforms.
 
 */
+}

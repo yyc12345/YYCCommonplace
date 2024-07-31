@@ -6,16 +6,34 @@
 
 namespace YYCC::ConfigManager {
 
+#pragma region Abstract Setting
+
+	AbstractSetting::AbstractSetting(const yycc_u8string_view& name) : m_Name(name), m_RawData() {
+		if (m_Name.empty())
+			throw std::invalid_argument("the name of setting should not be empty");
+	}
+
+	AbstractSetting::~AbstractSetting() {}
+
+	const yycc_u8string& AbstractSetting::GetName() const { return m_Name; }
+
+	void AbstractSetting::ResizeData(size_t new_size) { m_RawData.resize(new_size); }
+	const void* AbstractSetting::GetDataPtr() const { return m_RawData.data(); }
+	void* AbstractSetting::GetDataPtr() { return m_RawData.data(); }
+	size_t AbstractSetting::GetDataSize() const { return m_RawData.size(); }
+
+#pragma endregion
+
 #pragma region Core Manager
 
 	CoreManager::CoreManager(
-		const yycc_char8_t* cfg_file_path,
+		const yycc_u8string_view& cfg_file_path,
 		uint64_t version_identifier,
 		std::initializer_list<AbstractSetting*> settings) :
-		m_CfgFilePath(), m_VersionIdentifier(version_identifier), m_Settings() {
-		// assign cfg path
-		if (cfg_file_path != nullptr)
-			m_CfgFilePath = cfg_file_path;
+		m_CfgFilePath(cfg_file_path), m_VersionIdentifier(version_identifier), m_Settings() {
+		// Mark: no need to check cfg file path
+		// it will be checked at creating file handle
+		
 		// assign settings
 		for (auto* setting : settings) {
 			auto result = m_Settings.try_emplace(setting->GetName(), setting);

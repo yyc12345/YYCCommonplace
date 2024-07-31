@@ -1,3 +1,4 @@
+namespace YYCC::DialogHelper {
 /**
 
 \page dialog_helper Dialog Helper
@@ -12,7 +13,7 @@ It will be totally invisible if you are in other platforms.
 
 \section dialog_helper__file_dialog Configure File Dialog
 
-The first thing is that we should initialize YYCC::DialogHelper::FileDialog, 
+The first thing is that we should initialize FileDialog, 
 and configure it according to your requirements.
 
 This class is the data struct representing all aspects of file dialog.
@@ -28,7 +29,7 @@ params.SetInitDirectory(initial_directory_getter());
 
 \subsection dialog_helper__file_dialog__owner Owner
 
-YYCC::DialogHelper::FileDialog::SetOwner will set owner of this dialog.
+FileDialog::SetOwner will set owner of this dialog.
 It accepts a Microsoft defined \c HWND as argument which should be familiar with Windows programmer.
 If you pass \c NULL to it or skip calling this function, it indicate that there is no owner of this dialog.
 <I>
@@ -38,7 +39,7 @@ But it would be better to have an owner if possible.
 
 \subsection dialog_helper__file_dialog__title Title
 
-YYCC::DialogHelper::FileDialog::SetTitle will set dialog title of this dialog.
+FileDialog::SetTitle will set dialog title of this dialog.
 If you pass \c nullptr or skip calling it,
 the title of dialog will be filled by system and the function type you calling.
 For example, the title will be "Open..." if you call open file function,
@@ -49,7 +50,7 @@ So I suggest you do not set title except you really want to modify title.
 
 \subsection dialog_helper__file_dialog__init_file_name Initial File Name
 
-YYCC::DialogHelper::FileDialog::SetInitFileName will set the initial file name presented in dialog file name input box.
+FileDialog::SetInitFileName will set the initial file name presented in dialog file name input box.
 If you pass \c nullptr or skip calling it, the text in dialog file name input box will be empty.
 
 User can modify the name presented in input box later.
@@ -59,7 +60,7 @@ However, if you specify this field, the dialog will always presented your specif
 
 \subsection dialog_helper__file_dialog__init_directory Initial Directory
 
-YYCC::DialogHelper::FileDialog::SetInitDirectory will set the initial directory (startup directory) when opening dialog.
+FileDialog::SetInitDirectory will set the initial directory (startup directory) when opening dialog.
 
 In following cases, initial directory will fall back to system behavior:
 
@@ -80,7 +81,7 @@ It is beneficial to let user get the file which they want in a directory includi
 Because the file dialog picking directory does not have file filter drop down box.
 Directory can not be filtered.
 
-YYCC::DialogHelper::FileFilters takes responsibility for this feature:
+FileFilters takes responsibility for this feature:
 
 \code
 auto& filters = params.ConfigreFileTypes();
@@ -94,9 +95,9 @@ params.SetDefaultFileTypeIndex(0u);
 
 \subsection dialog_helper__file_filters__setup File Filters
 
-We don't need to initialize YYCC::DialogHelper::FileFilters by ourselves.
-Oppositely, we fetch it from YYCC::DialogHelper::FileDialog instance by calling YYCC::DialogHelper::FileDialog::ConfigreFileTypes.
-After fetching, we can call YYCC::DialogHelper::FileFilters::Add to add a filter pair for file filters.
+We don't need to initialize FileFilters by ourselves.
+Oppositely, we fetch it from FileDialog instance by calling FileDialog::ConfigreFileTypes.
+After fetching, we can call FileFilters::Add to add a filter pair for file filters.
 
 The first argument is the display text which user will see in file filter drop down box.
 
@@ -106,21 +107,21 @@ It is okey to use multiple wildcard string in list.
 This is suit for those file types involving multiple file extensions, such as the old and new file types of Microsoft Office as we illustracted.
 Empty list not allowed
 
-YYCC::DialogHelper::FileFilters::Add also will return a bool to indicate the success of this adding.
+FileFilters::Add also will return a bool to indicate the success of this adding.
 
 It should at least has one file filter in file dialog.
 I don't know the consequence if you don't provide any file filter.
 
 \subsection dialog_helper__file_filters__default_filter Default File Type
 
-YYCC::DialogHelper::FileDialog::SetDefaultFileTypeIndex will set the default selected file filter of this dialog.
+FileDialog::SetDefaultFileTypeIndex will set the default selected file filter of this dialog.
 It accepts an index pointing to the file filter which you want to show in default for this file dialog.
-The index of file filters is the order where you call YYCC::DialogHelper::FileFilters::Add above.
+The index of file filters is the order where you call FileFilters::Add above.
 If you pass \c NULL to it or skip calling this function, the first one will be default.
 
 \section dialog_helper__result Create Dialog and Get Result
 
-Finally, we can call file dialog functions by we initialized YYCC::DialogHelper::FileDialog
+Finally, we can call file dialog functions by we initialized FileDialog
 
 \code
 YYCC::yycc_u8string single_selection;
@@ -134,14 +135,14 @@ YYCC::DialogHelper::OpenFolderDialog(params, single_selection);
 
 There are 4 file dialogs you can choose:
 
-\li YYCC::DialogHelper::OpenFileDialog:  Open single file
-\li YYCC::DialogHelper::OpenMultipleFileDialog: Open multiple files
-\li YYCC::DialogHelper::SaveFileDialog: Save single file
-\li YYCC::DialogHelper::OpenFolderDialog: Open single directory
+\li #OpenFileDialog:  Open single file
+\li #OpenMultipleFileDialog: Open multiple files
+\li #SaveFileDialog: Save single file
+\li #OpenFolderDialog: Open single directory
 
 \subsection dialog_helper__result__arguments Arguments
 
-Among these 4 functions, the first argument always is the reference to YYCC::DialogHelper::FileDialog.
+Among these 4 functions, the first argument always is the reference to FileDialog.
 Function will use it to decide what should be shown in this file dialog.
 
 The second argument always is the reference to the container receiving the result.
@@ -160,8 +161,9 @@ You may notice there are various classes which we never introduce.
 Because they are intermediate classes and should not be used by programmer.
 For example:
 
-\li YYCC::DialogHelper::WinFileDialog: The converted YYCC::DialogHelper::FileDialog passed to Windows.
-\li YYCC::DialogHelper::WinFileFilters: Same as YYCC::DialogHelper::WinFileDialog. It will be passed to Windows functions.
+\li WinFileDialog: The converted FileDialog passed to Windows.
+\li WinFileFilters: Same as WinFileDialog. It will be passed to Windows functions.
 \li etc...
 
 */
+}

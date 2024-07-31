@@ -1,3 +1,4 @@
+namespace YYCC::WinFctHelper {
 /**
 
 \page win_fct_helper Windows Function Helper
@@ -9,9 +10,10 @@ It will be entirely invisible in other platforms.
 
 Currently this namespace has following functions:
 
-\li YYCC::WinFctHelper::GetCurrentModule: Get the handle to current module.
-\li YYCC::WinFctHelper::GetTempDirectory: Get temporary directory in Windows.
-\li YYCC::WinFctHelper::GetModuleFileName: Get the path to module in file system by given handle.
-\li YYCC::WinFctHelper::GetLocalAppData: Get the path inside \%LOCALAPPDATA\%
+\li #GetCurrentModule: Get the handle to current module.
+\li #GetTempDirectory: Get temporary directory in Windows.
+\li #GetModuleFileName: Get the path to module in file system by given handle.
+\li #GetLocalAppData: Get the path inside \%LOCALAPPDATA\%
 
 */
+}

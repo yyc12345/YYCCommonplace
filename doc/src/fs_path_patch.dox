@@ -1,3 +1,4 @@
+namespace YYCC::FsPathPatch {
 /**
 
 \page fs_path_patch std::filesystem::path Patch
@@ -24,7 +25,7 @@ and in other platforms, they just redirect request to corresponding vanilla C++ 
 
 \section fs_path_patch__from_utf8_path Create Path from UTF8 String
 
-YYCC::FsPathPatch::FromUTF8Path provides this feature.
+#FromUTF8Path provides this feature.
 It accepts an string pointer to UTF8 string and try to create \c std::filesystem::path from it.
 Function will throw exception if encoding convertion or constructor self failed.
 There are some example:
@@ -59,8 +60,8 @@ Because C++ standard is volatile, we create this function to have an uniform pro
 
 \section fs_path_patch__to_utf8_path Extract UTF8 Path String from Path
 
-YYCC::FsPathPatch::ToUTF8Path provides this feature.
-It basically is the reversed operation of YYCC::FsPathPatch::FromUTF8Path.
+#ToUTF8Path provides this feature.
+It basically is the reversed operation of #FromUTF8Path.
 It is usually used when you have done all path work in \c std::filesystem::path
 and want to get the result.
 There is an example:
@@ -71,3 +72,4 @@ auto result = YYCC::FsPathPatch::ToUTF8Path(foobar_path / YYCC::FsPathPatch::Fro
 \endcode
 
 */
+}

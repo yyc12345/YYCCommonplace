@@ -1,3 +1,4 @@
+namespace YYCC {
 /**
 
 \page library_encoding Library Encoding
@@ -224,3 +225,4 @@ Linux user do not need care this.
 Because almost Linux distro use UTF8 in default.
 
 */
+}

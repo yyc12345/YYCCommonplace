@@ -1,3 +1,4 @@
+namespace YYCC::ConsoleHelper {
 /**
 
 \page console_helper Console Helper
@@ -22,9 +23,9 @@ That's ASCII Escape Code.
 
 As we introduced in above,
 you may know Windows console does not support ASCII Escape Code color in default.
-However YYCC::ConsoleHelper::EnableColorfulConsole can fix this issue.
+However #EnableColorfulConsole can fix this issue.
 
-YYCC::ConsoleHelper::EnableColorfulConsole will forcely enable ASCII Escape Code support in Windows console if possible.
+#EnableColorfulConsole will forcely enable ASCII Escape Code support in Windows console if possible.
 Thus you can write colorful text in Windows console freely.
 We suggest you to call this function at the beginning of program.
 
@@ -46,7 +47,7 @@ And for second line, it will make <TT>"Light Red"</TT> to be shown in light red 
 but <TT>"I am "</TT> will keep default console font color.
 
 You also may notice this macro is used with YYCC_U8 macro.
-Because YYCC::ConsoleHelper::WriteLine only accept UTF8 argument.
+Because #WriteLine only accept UTF8 argument.
 So please note if you use console color macro with YYCC_U8,
 please make YYCC_U8 always is located the outside.
 Otherwise, YYCC_U8 will fail to make the whole become UTF8 stirng as we introduced in \ref library_encoding.
@@ -177,3 +178,4 @@ This is commonly used, otherwise functions will only write the text provided by 
 without adding something.
 
 */
+}

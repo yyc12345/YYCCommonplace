@@ -26,17 +26,16 @@ namespace YYCC::ConfigManager {
 		/**
 		 * @brief Construct a setting
 		 * @param[in] name The name of this setting.
+		 * @exception std::invalid_argument Name of setting is empty.
 		*/
-		AbstractSetting(const yycc_char8_t* name) : m_Name(), m_RawData() {
-			if (name != nullptr) m_Name = name;
-		}
-		virtual ~AbstractSetting() {}
+		AbstractSetting(const yycc_u8string_view& name);
+		virtual ~AbstractSetting();
 
 		// Name interface
 	public:
 		/// @brief Get name of this setting.
 		/// @details Name was used in storing setting in file.
-		const yycc_u8string& GetName() const { return m_Name; }
+		const yycc_u8string& GetName() const;
 	private:
 		yycc_u8string m_Name;
 
@@ -63,15 +62,15 @@ namespace YYCC::ConfigManager {
 		/// @brief Resize internal buffer to given size.
 		/// @remarks It is usually used in UserSave.
 		/// @param[in] new_size The new size of internal buffer.
-		void ResizeData(size_t new_size) { m_RawData.resize(new_size); }
+		void ResizeData(size_t new_size);
 		/// @brief Get data pointer to internal buffer.
 		/// @remarks It is usually used in UserLoad.
-		const void* GetDataPtr() const { return m_RawData.data(); }
+		const void* GetDataPtr() const;
 		/// @brief Get mutable data pointer to internal buffer.
 		/// @remarks It is usually used in UserSave.
-		void* GetDataPtr() { return m_RawData.data(); }
+		void* GetDataPtr();
 		/// @brief Get the length of internal buffer.
-		size_t GetDataSize() const { return m_RawData.size(); }
+		size_t GetDataSize() const;
 	private:
 		std::vector<uint8_t> m_RawData;
 	};
@@ -86,7 +85,7 @@ namespace YYCC::ConfigManager {
 		 * @param[in] settings An initializer list containing pointers to all managed settings.
 		*/
 		CoreManager(
-			const yycc_char8_t* cfg_file_path,
+			const yycc_u8string_view& cfg_file_path,
 			uint64_t version_identifier,
 			std::initializer_list<AbstractSetting*> settings);
 		~CoreManager() {}
@@ -126,9 +125,10 @@ namespace YYCC::ConfigManager {
 		 * @param[in] name The name of this setting.
 		 * @param[in] default_value The default value of this setting.
 		 * @param[in] constraint The constraint applied to this setting.
+		 * @exception std::invalid_argument Name of setting is empty.
 		*/
 		NumberSetting(
-			const yycc_char8_t* name, _Ty default_value,
+			const yycc_u8string_view& name, _Ty default_value,
 			Constraints::Constraint<_Ty> constraint = Constraints::Constraint<_Ty> {}) :
 			AbstractSetting(name), m_Data(default_value), m_DefaultData(default_value), m_Constraint(constraint) {}
 		virtual ~NumberSetting() {}
@@ -182,9 +182,10 @@ namespace YYCC::ConfigManager {
 		 * @param[in] name The name of this setting.
 		 * @param[in] default_value The default value of this setting.
 		 * @param[in] constraint The constraint applied to this setting.
+		 * @exception std::invalid_argument Name of setting is empty.
 		*/
 		StringSetting(
-			const yycc_char8_t* name, const yycc_u8string_view& default_value,
+			const yycc_u8string_view& name, const yycc_u8string_view& default_value,
 			Constraints::Constraint<yycc_u8string> constraint = Constraints::Constraint<yycc_u8string> {}) :
 			AbstractSetting(name), m_Data(), m_DefaultData(), m_Constraint(constraint) {
 			m_Data = default_value;

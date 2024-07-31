@@ -1,3 +1,4 @@
+namespace YYCC::COMHelper {
 /**
 
 \page com_helper COM Helper
@@ -23,7 +24,7 @@ This namespace contain a COM Guard which make sure COM was initialized in curren
 It is essential because all calling to COM functions should be under the premise that COM has been initialized.
 This guard also will uninitialize COM when unloading this module.
 
-There is only an exposed function called YYCC::COMHelper::IsInitialized for user calling.
+There is only an exposed function called #IsInitialized for user calling.
 This function will check whether COM environment is initialized.
 If you want YYCC automatically initialize COM environment for you,
 you must call this function in your program at least one time.
@@ -31,3 +32,4 @@ Otherwise COM Guard code may be unavailable,
 because compiler may think they are not essential code and drop them.
 
 */
+}

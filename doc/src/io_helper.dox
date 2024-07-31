@@ -1,3 +1,4 @@
+namespace YYCC::IOHelper {
 /**
 
 \page io_helper IO Helper
@@ -41,3 +42,4 @@ FILE* fs = YYCC::IOHelper::FOpen(YYCC_U8("/path/to/file"), YYCC_U8("rb"));
 \endcode
 
 */
+}
