@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <memory>
 
 #if YYCC_OS == YYCC_OS_WINDOWS
 #include "WinImportPrefix.hpp"
@@ -13,8 +14,8 @@
 #endif
 
 namespace YYCC::IOHelper {
-
-	FILE* UTF8FOpen(const yycc_char8_t* u8_filepath, const yycc_char8_t* u8_mode) {
+	
+	std::FILE* UTF8FOpen(const yycc_char8_t* u8_filepath, const yycc_char8_t* u8_mode) {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 		// convert mode and file path to wchar

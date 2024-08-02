@@ -27,6 +27,19 @@ namespace YYCC::IOHelper {
 #else
 #error "Not supported pointer size."
 #endif
+	
+	/// @brief C++ standard deleter for std::FILE*
+	class StdFileDeleter {
+	public:
+		StdFileDeleter() {}
+		void operator() (std::FILE* ptr) {
+			if (ptr != nullptr) {
+				std::fclose(ptr);
+			}
+		}
+	};
+	/// @brief Smart unique pointer of \c std::FILE*
+	using SmartStdFile = std::unique_ptr<std::FILE, StdFileDeleter>;
 
 	/**
 	 * @brief The UTF8 version of \c std::fopen.
@@ -37,6 +50,6 @@ namespace YYCC::IOHelper {
 	 * On other platforms, this function will delegate request directly to std::fopen.
 	 * @return \c FILE* of the file to be opened, or nullptr if failed.
 	*/
-	FILE* UTF8FOpen(const yycc_char8_t* u8_filepath, const yycc_char8_t* u8_mode);
+	std::FILE* UTF8FOpen(const yycc_char8_t* u8_filepath, const yycc_char8_t* u8_mode);
 	
 }

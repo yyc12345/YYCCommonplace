@@ -103,9 +103,6 @@ namespace YYCC::ConfigManager {
 		void Reset();
 
 	private:
-		using FileHandleGuard_t = std::unique_ptr<FILE, std::function<void(FILE*)>>;
-		FileHandleGuard_t GetFileHandle(const yycc_char8_t* mode) const;
-
 		yycc_u8string m_CfgFilePath;
 		uint64_t m_VersionIdentifier;
 		std::map<yycc_u8string, AbstractSetting*> m_Settings;

@@ -3,7 +3,7 @@ namespace YYCC::IOHelper {
 
 \page io_helper IO Helper
 
-YYCC::IOHelper currently only has one function and one macro.
+Actually, YYCC::IOHelper includes functions which can not be placed in other place.
 
 \section io_helper__ptr_pri_padding Pointer Print Padding
 
@@ -24,6 +24,11 @@ std::printf(stdout, "Raw Pointer 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR, raw_ptr);
 \endcode
 
 Note \c PRIXPTR is defined by standard library for formatting pointer as hexadecimal style.
+
+\section io_helper__smart_file Smart FILE Pointer
+
+#SmartStdFile use \c std::unique_ptr with custom deleter to implement smart \c FILE*.
+It is useful in the cases that you want to automatically free opened file when leaving corresponding scope.
 
 \section io_helper__utf8_fopen UTF8 fopen
 

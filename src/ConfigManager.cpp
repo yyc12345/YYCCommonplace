@@ -49,7 +49,7 @@ namespace YYCC::ConfigManager {
 		Reset();
 
 		// get file handle
-		auto fs = this->GetFileHandle(YYCC_U8("rb"));
+		IOHelper::SmartStdFile fs(IOHelper::UTF8FOpen(m_CfgFilePath.c_str(), YYCC_U8("rb")));
 		if (fs.get() == nullptr) {
 			// if we fail to get, it means that we do not have corresponding cfg file.
 			// all settings should be reset to default value.
@@ -112,7 +112,7 @@ namespace YYCC::ConfigManager {
 
 	bool CoreManager::Save() {
 		// get file handle
-		auto fs = this->GetFileHandle(YYCC_U8("wb"));
+		IOHelper::SmartStdFile fs(IOHelper::UTF8FOpen(m_CfgFilePath.c_str(), YYCC_U8("wb")));
 		// if we fail to get, return false.
 		if (fs == nullptr) return false;
 
@@ -155,15 +155,6 @@ namespace YYCC::ConfigManager {
 		for (const auto& pair : m_Settings) {
 			pair.second->UserReset();
 		}
-	}
-
-	CoreManager::FileHandleGuard_t CoreManager::GetFileHandle(const yycc_char8_t* mode) const {
-		return CoreManager::FileHandleGuard_t(
-			IOHelper::UTF8FOpen(this->m_CfgFilePath.c_str(), mode),
-			[](FILE* fs) -> void {
-				if (fs != nullptr) std::fclose(fs);
-			}
-		);
 	}
 
 #pragma endregion

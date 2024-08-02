@@ -457,8 +457,8 @@ namespace YYCCTestbench {
 		TestConfigManager test;
 
 		// test constraint works
-		Assert(!test.m_ClampedFloatSetting.Set(2.0f), YYCC_U8("YYCC::ConfigManager::Constraint"));
-		Assert(test.m_ClampedFloatSetting.Get() == 0.0f, YYCC_U8("YYCC::ConfigManager::Constraint"));
+		Assert(!test.m_ClampedFloatSetting.Set(2.0f), YYCC_U8("YYCC::Constraints::Constraint"));
+		Assert(test.m_ClampedFloatSetting.Get() == 0.0f, YYCC_U8("YYCC::Constraints::Constraint"));
 
 		// test modify settings
 #define TEST_MACRO(member_name, set_val) { \
