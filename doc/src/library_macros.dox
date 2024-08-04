@@ -1,0 +1,80 @@
+namespace YYCC {
+/**
+
+\page library_macros Library Macros
+
+In this page we will introduce the macros defined by this library
+which can not be grouped in other topic.
+
+\section library_macros__platform_checker Platform Checker
+
+In many cross platform applications, 
+programmer usually write code adapted to different platforms in one source file 
+and enable them respectively by macros representing the target platform.
+As a cross platform library,
+YYCC also has this feature and you can utilize it if you don't have other ways to so the same things.
+
+\subsection library_macros__platform_checker__values Values
+
+YYCC always define a macro called \c YYCC_OS to indicate the system of target platform.
+In implementation, it will check following list from top to bottom to set matched value for it.
+
+\li \c YYCC_OS_WINDOWS: Windows environment. It is done by checking whether environment define \c _WIN32 macro.
+\li \c YYCC_OS_LINUX: In current implementation, this means target platform is \b NOT Windows.
+
+\subsection library_macros__platform_checker__usage Usage
+
+Now you know any possible value of \c YYCC_OS.
+The next step is how to use it to enable specified code in specific target platform.
+We take Windows platform for example.
+Assume \c blabla() function is Windows specific.
+We have following example code:
+
+\code
+#if YYCC_OS == YYCC_OS_WINDOWS
+blabla();
+#endif
+\endcode
+
+It's enough and simple that use \c \#if to bracket the Windows specified code.
+
+\section library_macros__batch_class_copy_move Batch Class Copy / Move Functions
+
+YYCC provides 6 macros to batchly remove class copy constructor and move constructor,
+or set default class copy constructor and move constructor.
+
+<UL>
+    <LI>
+    \c YYCC_DEL_CLS_COPY: Declare following 2 statements which delete copy constrcutor and copy assign operator.
+    <UL>
+        <LI><TT>CLSNAME(const CLSNAME&) = delete;</TT></LI>
+        <LI><TT>CLSNAME& operator=(const CLSNAME&) = delete;</TT></LI>
+    </UL>
+    </LI>
+    <LI>
+    \c YYCC_DEL_CLS_MOVE: Declare following 2 statements which delete move constrcutor and move assign operator.
+    <UL>
+        <LI><TT>CLSNAME(CLSNAME&&) = delete;</TT></LI>
+        <LI><TT>CLSNAME& operator=(CLSNAME&&) = delete;</TT></LI>
+    </UL>
+    </LI>
+    <LI>\c YYCC_DEL_CLS_COPY_MOVE: The combination of \c YYCC_DEL_CLS_COPY and \c YYCC_DEL_CLS_MOVE.</LI>
+    <LI>
+    \c YYCC_DEF_CLS_COPY: Declare following 2 statements which set default copy constrcutor and copy assign operator.
+    <UL>
+        <LI><TT>CLSNAME(const CLSNAME&) = default;</TT></LI>
+        <LI><TT>CLSNAME& operator=(const CLSNAME&) = default;</TT></LI>
+    </UL>
+    </LI>
+    <LI>
+    \c YYCC_DEF_CLS_MOVE: Declare following 2 statements which set default move constrcutor and move assign operator.
+    <UL>
+        <LI><TT>CLSNAME(CLSNAME&&) = default;</TT></LI>
+        <LI><TT>CLSNAME& operator=(CLSNAME&&) = default;</TT></LI>
+    </UL>
+    </LI>
+    <LI>\c YYCC_DEF_CLS_COPY_MOVE: The combination of \c YYCC_DEF_CLS_COPY and \c YYCC_DEF_CLS_MOVE.</LI>
+</UL>
+
+*/
+}

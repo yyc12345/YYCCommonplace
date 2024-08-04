@@ -31,6 +31,7 @@ namespace YYCC::DialogHelper {
 		friend class WinFileDialog;
 	public:
 		WinFileFilters() : m_WinFilters(), m_WinDataStruct(nullptr) {}
+		YYCC_DEL_CLS_COPY_MOVE(WinFileFilters);
 
 		/// @brief Get the count of available file filters
 		UINT GetFilterCount() const {
@@ -67,6 +68,7 @@ namespace YYCC::DialogHelper {
 	class FileFilters {
 	public:
 		FileFilters() : m_Filters() {}
+		YYCC_DEL_CLS_COPY_MOVE(FileFilters);
 
 		/**
 		 * @brief Add a filter pair in file types list.
@@ -123,6 +125,7 @@ namespace YYCC::DialogHelper {
 			m_WinFileTypes(), m_WinDefaultFileTypeIndex(0u),
 			m_HasTitle(false), m_HasInitFileName(false), m_WinTitle(), m_WinInitFileName(),
 			m_WinInitDirectory(nullptr) {}
+		YYCC_DEL_CLS_COPY_MOVE(WinFileDialog);
 
 		/// @brief Get whether this dialog has owner.
 		bool HasOwner() const { return m_WinOwner != NULL; }
@@ -189,6 +192,7 @@ namespace YYCC::DialogHelper {
 			m_DefaultFileTypeIndex(0u),
 			m_Title(), m_InitFileName(), m_InitDirectory(),
 			m_HasTitle(false), m_HasInitFileName(false), m_HasInitDirectory(false) {}
+		YYCC_DEL_CLS_COPY_MOVE(FileDialog);
 
 		/**
 		 * @brief Set the owner of dialog.

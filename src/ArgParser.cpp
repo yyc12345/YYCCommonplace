@@ -51,22 +51,22 @@ namespace YYCC::ArgParser {
 #endif
 
 	ArgumentList::ArgumentList(std::vector<yycc_u8string>&& arguments) :
-		m_Arguments(arguments), m_ArgumentsIterator(m_Arguments.begin()) {}
+		m_Arguments(arguments), m_ArgumentsCursor(0u) {}
 
 	void ArgumentList::Prev() {
-		if (m_ArgumentsIterator == m_Arguments.begin())
+		if (m_ArgumentsCursor == 0u)
 			throw std::runtime_error("attempt to move on the head of iterator.");
-		--m_ArgumentsIterator;
+		--m_ArgumentsCursor;
 	}
 
 	void ArgumentList::Next() {
 		if (IsEOF()) throw std::runtime_error("attempt to move on the tail of iterator.");
-		++m_ArgumentsIterator;
+		++m_ArgumentsCursor;
 	}
 
 	const yycc_u8string& ArgumentList::Argument() const {
 		if (IsEOF()) throw std::runtime_error("attempt to get data on the tail of iterator.");
-		return *m_ArgumentsIterator;
+		return m_Arguments[m_ArgumentsCursor];
 	}
 
 	bool ArgumentList::IsSwitch(bool* is_long_name, yycc_u8string* long_name, yycc_char8_t* short_name) const {
@@ -87,7 +87,7 @@ namespace YYCC::ArgParser {
 	bool ArgumentList::IsLongNameSwitch(yycc_u8string* name_part) const {
 		// fetch current parameter
 		if (IsEOF()) throw std::runtime_error("attempt to fetch data on the tail of iterator.");
-		const yycc_u8string& param = *m_ArgumentsIterator;
+		const yycc_u8string& param = m_Arguments[m_ArgumentsCursor];
 		// find double slash
 		if (param.find(AbstractArgument::DOUBLE_DASH) != 0u) return false;
 		// check gotten long name
@@ -101,7 +101,7 @@ namespace YYCC::ArgParser {
 	bool ArgumentList::IsShortNameSwitch(yycc_char8_t* name_part) const {
 		// fetch current parameter
 		if (IsEOF()) throw std::runtime_error("attempt to fetch data on the tail of iterator.");
-		const yycc_u8string& param = *m_ArgumentsIterator;
+		const yycc_u8string& param = m_Arguments[m_ArgumentsCursor];
 		// if the length is not exactly equal to 2, 
 		// or it not starts with dash,
 		// it is impossible a short name
@@ -118,13 +118,13 @@ namespace YYCC::ArgParser {
 	bool ArgumentList::IsValue(yycc_u8string* val) const {
 		bool is_value = !IsSwitch();
 		if (is_value && val != nullptr)
-			*val = *m_ArgumentsIterator;
+			*val = m_Arguments[m_ArgumentsCursor];
 		return is_value;
 	}
 
-	bool ArgumentList::IsEOF() const { return m_ArgumentsIterator == m_Arguments.end(); }
+	bool ArgumentList::IsEOF() const { return m_ArgumentsCursor >= m_Arguments.size(); }
 
-	void ArgumentList::Reset() { m_ArgumentsIterator = m_Arguments.begin(); }
+	void ArgumentList::Reset() { m_ArgumentsCursor = 0u; }
 
 #pragma endregion
 

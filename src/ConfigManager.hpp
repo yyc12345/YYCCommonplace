@@ -30,6 +30,7 @@ namespace YYCC::ConfigManager {
 		*/
 		AbstractSetting(const yycc_u8string_view& name);
 		virtual ~AbstractSetting();
+		YYCC_DEL_CLS_COPY_MOVE(AbstractSetting);
 
 		// Name interface
 	public:
@@ -89,6 +90,7 @@ namespace YYCC::ConfigManager {
 			uint64_t version_identifier,
 			std::initializer_list<AbstractSetting*> settings);
 		~CoreManager() {}
+		YYCC_DEL_CLS_COPY_MOVE(CoreManager);
 
 		// Core functions
 	public:
@@ -129,6 +131,7 @@ namespace YYCC::ConfigManager {
 			Constraints::Constraint<_Ty> constraint = Constraints::Constraint<_Ty> {}) :
 			AbstractSetting(name), m_Data(default_value), m_DefaultData(default_value), m_Constraint(constraint) {}
 		virtual ~NumberSetting() {}
+		YYCC_DEL_CLS_COPY_MOVE(NumberSetting);
 
 		/// @brief Get stored data in setting.
 		_Ty Get() const { return m_Data; }
@@ -189,6 +192,7 @@ namespace YYCC::ConfigManager {
 			m_DefaultData = default_value;
 		}
 		virtual ~StringSetting() {}
+		YYCC_DEL_CLS_COPY_MOVE(StringSetting);
 
 		/// @brief Get reference to stored string.
 		const yycc_u8string& Get() const { return m_Data; }

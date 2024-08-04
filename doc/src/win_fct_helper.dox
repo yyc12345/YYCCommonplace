@@ -14,6 +14,7 @@ Currently this namespace has following functions:
 \li #GetTempDirectory: Get temporary directory in Windows.
 \li #GetModuleFileName: Get the path to module in file system by given handle.
 \li #GetLocalAppData: Get the path inside \%LOCALAPPDATA\%
+\li #IsValidCodePage: Check whether given code page number is valid.
 
 */
 }

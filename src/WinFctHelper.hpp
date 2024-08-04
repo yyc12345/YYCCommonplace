@@ -57,6 +57,13 @@ namespace YYCC::WinFctHelper {
 	*/
 	bool GetLocalAppData(yycc_u8string& ret);
 
+	/**
+	 * @brief Check whether given code page number is a valid one.
+	 * @param[in] code_page The code page number.
+	 * @return True if it is valid, otherwise false.
+	*/
+	bool IsValidCodePage(UINT code_page);
+
 }
 
 #endif

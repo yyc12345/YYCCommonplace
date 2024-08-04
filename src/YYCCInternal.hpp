@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma region Operating System Identifier Macros
+
 // Define operating system macros
 #define YYCC_OS_WINDOWS 2
 #define YYCC_OS_LINUX 3
@@ -9,6 +11,10 @@
 #else
 #define YYCC_OS YYCC_OS_LINUX
 #endif
+
+#pragma endregion
+
+#pragma region Windows Shitty Behavior Disable Macros
 
 // If we are in Windows,
 // we need add 2 macros to disable Windows shitty warnings and errors of
@@ -23,6 +29,10 @@
 #endif
 
 #endif
+
+#pragma endregion
+
+#pragma region YYCC UTF8 Types
 
 // Define the UTF8 char type we used.
 // And do a polyfill if no embedded char8_t type.
@@ -66,5 +76,41 @@ namespace YYCC {
 	This type is defined as \c std::basic_string_view<yycc_char8_t>.
 	It is equal to \c std::u8string_view if your current C++ standard support it.
 */
+
+#pragma endregion
+
+#pragma region Batch Class Move / Copy Function Macros
+
+	/// @brief Explicitly remove copy (\c constructor and \c operator\=) for given class.
+#define YYCC_DEL_CLS_COPY(CLSNAME) \
+	CLSNAME(const CLSNAME&) = delete; \
+    CLSNAME& operator=(const CLSNAME&) = delete;
+
+	/// @brief Explicitly remove move (\c constructor and \c operator\=) for given class.
+#define YYCC_DEL_CLS_MOVE(CLSNAME) \
+	CLSNAME(CLSNAME&&) = delete; \
+    CLSNAME& operator=(CLSNAME&&) = delete;
+
+	/// @brief Explicitly remove (copy and move) (\c constructor and \c operator\=) for given class.
+#define YYCC_DEL_CLS_COPY_MOVE(CLSNAME) \
+	YYCC_DEL_CLS_COPY(CLSNAME) \
+	YYCC_DEL_CLS_MOVE(CLSNAME)
+
+	/// @brief Explicitly set default copy (\c constructor and \c operator\=) for given class.
+#define YYCC_DEF_CLS_COPY(CLSNAME) \
+	CLSNAME(const CLSNAME&) = default; \
+    CLSNAME& operator=(const CLSNAME&) = default;
+
+	/// @brief Explicitly set default move (\c constructor and \c operator\=) for given class.
+#define YYCC_DEF_CLS_MOVE(CLSNAME) \
+	CLSNAME(CLSNAME&&) = default; \
+    CLSNAME& operator=(CLSNAME&&) = default;
+
+	/// @brief Explicitly set default (copy and move) (\c constructor and \c operator\=) for given class.
+#define YYCC_DEF_CLS_COPY_MOVE(CLSNAME) \
+	YYCC_DEF_CLS_COPY(CLSNAME) \
+	YYCC_DEF_CLS_MOVE(CLSNAME)
+
+#pragma endregion
 
 

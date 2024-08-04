@@ -85,6 +85,11 @@ namespace YYCC::WinFctHelper {
 		return YYCC::EncodingHelper::WcharToUTF8(known_path.get(), ret);
 	}
 
+	bool IsValidCodePage(UINT code_page) {
+		CPINFOEXW cpinfo;
+		return GetCPInfoExW(code_page, 0, &cpinfo);
+	}
+
 }
 
 #endif

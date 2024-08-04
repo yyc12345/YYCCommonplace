@@ -388,6 +388,9 @@ namespace YYCCTestbench {
 		Assert(YYCC::WinFctHelper::GetLocalAppData(test_localappdata_path), YYCC_U8("YYCC::WinFctHelper::GetLocalAppData"));
 		Console::FormatLine(YYCC_U8("Local AppData: %s"), test_localappdata_path.c_str());
 
+		Assert(YYCC::WinFctHelper::IsValidCodePage(static_cast<UINT>(1252)) == true, YYCC_U8("YYCC::WinFctHelper::IsValidCodePage"));
+		Assert(YYCC::WinFctHelper::IsValidCodePage(static_cast<UINT>(114514)) == false, YYCC_U8("YYCC::WinFctHelper::IsValidCodePage"));
+
 #endif
 	}
 
