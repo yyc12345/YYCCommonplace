@@ -106,6 +106,8 @@ See following section for more details.
 
 For creating CMake distribution, please execute script <TT>script/win_build.bat</TT>.
 After script done, you will find CMake distribution in directory <TT>bin/install</TT> with following structure.
+In default, building process will build documentation automatically.
+If you don't want built documentation, please execute with extra argument \c NODOC, i.e. <TT>script/win_build.bat NODOC</TT>.
 
 \verbatim
 YYCC
@@ -137,6 +139,8 @@ because MSVC distribution depend on CMake distribution.
 
 After creating CMake distribution, you can simply create MSVC distribution by executing <TT>script/win_msvc_build.bat</TT>.
 Then you will find your MSVC distribution in directory <TT>bin/msvc_install</TT> with following structure.
+Same as CMake distribution, if you don't want built documentation, 
+please execute <TT>script/win_msvc_build.bat NODOC</TT>.
 
 \verbatim
 YYCC

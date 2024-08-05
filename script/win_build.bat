@@ -1,4 +1,5 @@
 @ECHO OFF
+:: Check environment
 SET README_PATH=%CD%\README.md
 IF EXIST %README_PATH% (
     REM DO NOTHING
@@ -42,12 +43,14 @@ cmake --install . --prefix=../install/x64_Release --config Release
 CD ..
 
 :: Build for documentation
-CD documentation
-cmake -G "Visual Studio 16 2019" -A x64 -DYYCC_BUILD_DOC=ON ../..
-cmake --build . --config Release
-cmake --build . --target YYCCDocumentation
-cmake --install . --prefix=../install/x64_Release --config Release
-CD ..
+IF NOT "%1"=="NODOC" (
+    CD documentation
+    cmake -G "Visual Studio 16 2019" -A x64 -DYYCC_BUILD_DOC=ON ../..
+    cmake --build . --config Release
+    cmake --build . --target YYCCDocumentation
+    cmake --install . --prefix=../install/x64_Release --config Release
+    CD ..
+)
 
 :: Exit to original path
 CD ..

@@ -35,7 +35,9 @@ CD ..
 :: Copy include from x64_Release build
 XCOPY install\x64_Release\include msvc_install\include\ /E /Y
 :: Copy document from x64_Release build
-XCOPY install\x64_Release\share msvc_install\share\ /E /Y
+IF NOT "%1"=="NODOC" (
+    XCOPY install\x64_Release\share msvc_install\share\ /E /Y
+)
 :: Copy binary testbench
 COPY install\Win32_Release\bin\YYCCTestbench.exe msvc_install\bin\Win32\YYCCTestbench.exe /Y
 COPY install\x64_Release\bin\YYCCTestbench.exe msvc_install\bin\x64\YYCCTestbench.exe /Y
