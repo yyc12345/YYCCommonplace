@@ -6,7 +6,7 @@
 #include "StringHelper.hpp"
 #include "IOHelper.hpp"
 #include "EncodingHelper.hpp"
-#include "FsPathPatch.hpp"
+#include "StdPatch.hpp"
 #include <filesystem>
 #include <cstdarg>
 #include <cstdio>
@@ -459,8 +459,8 @@ namespace YYCC::ExceptionHelper {
 			if (!YYCC::WinFctHelper::GetModuleFileName(NULL, u8_process_path))
 				return false;
 			// extract file name from full path by std::filesystem::path
-			std::filesystem::path process_path(FsPathPatch::FromUTF8Path(u8_process_path.c_str()));
-			u8_process_name = FsPathPatch::ToUTF8Path(process_path.filename());
+			std::filesystem::path process_path(StdPatch::ToStdPath(u8_process_path.c_str()));
+			u8_process_name = StdPatch::ToUTF8Path(process_path.filename());
 		}
 		// then get process id
 		DWORD process_id = GetCurrentProcessId();
@@ -478,19 +478,19 @@ namespace YYCC::ExceptionHelper {
 		if (!WinFctHelper::GetLocalAppData(u8_localappdata_path))
 			return false;
 		// convert to std::filesystem::path
-		std::filesystem::path crash_report_path(FsPathPatch::FromUTF8Path(u8_localappdata_path.c_str()));
+		std::filesystem::path crash_report_path(StdPatch::ToStdPath(u8_localappdata_path.c_str()));
 		// slash into crash report folder
-		crash_report_path /= FsPathPatch::FromUTF8Path(YYCC_U8("CrashDumps"));
+		crash_report_path /= StdPatch::ToStdPath(YYCC_U8("CrashDumps"));
 		// use create function to make sure it is existing
 		std::filesystem::create_directories(crash_report_path);
 
 		// build log path and coredump path
 		// build std::filesystem::path first
-		std::filesystem::path log_filepath = crash_report_path / FsPathPatch::FromUTF8Path(u8_log_filename.c_str());
-		std::filesystem::path coredump_filepath = crash_report_path / FsPathPatch::FromUTF8Path(u8_coredump_filename.c_str());
+		std::filesystem::path log_filepath = crash_report_path / StdPatch::ToStdPath(u8_log_filename.c_str());
+		std::filesystem::path coredump_filepath = crash_report_path / StdPatch::ToStdPath(u8_coredump_filename.c_str());
 		// output to result
-		log_path = FsPathPatch::ToUTF8Path(log_filepath);
-		coredump_path = FsPathPatch::ToUTF8Path(coredump_filepath);
+		log_path = StdPatch::ToUTF8Path(log_filepath);
+		coredump_path = StdPatch::ToUTF8Path(coredump_filepath);
 
 		return true;
 	}

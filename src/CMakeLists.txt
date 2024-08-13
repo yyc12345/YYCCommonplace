@@ -11,7 +11,7 @@ PRIVATE
     DialogHelper.cpp
     EncodingHelper.cpp
     ExceptionHelper.cpp
-    FsPathPatch.cpp
+    StdPatch.cpp
     IOHelper.cpp
     StringHelper.cpp
     WinFctHelper.cpp
@@ -32,7 +32,7 @@ FILES
     DialogHelper.hpp
     EncodingHelper.hpp
     ExceptionHelper.hpp
-    FsPathPatch.hpp
+    StdPatch.hpp
     IOHelper.hpp
     ParserHelper.hpp
     StringHelper.hpp
@@ -71,8 +71,12 @@ PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
     $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>
 )
-# Order build as UTF-8 in MSVC
 target_compile_options(YYCCommonplace
+# Enable new __cplusplus macro in MSVC.
+# Because we use it in header, so we need populate it.
+PUBLIC
+    $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>
+# Order build as UTF-8 in MSVC
 PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )

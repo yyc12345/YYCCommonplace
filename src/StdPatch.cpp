@@ -1,24 +1,24 @@
-#include "FsPathPatch.hpp"
+#include "StdPatch.hpp"
 
 #include "EncodingHelper.hpp"
 #include <string>
 #include <stdexcept>
 
-namespace YYCC::FsPathPatch {
+namespace YYCC::StdPatch {
 
-	std::filesystem::path FromUTF8Path(const yycc_char8_t* u8_path) {
+	std::filesystem::path ToStdPath(const yycc_u8string_view& u8_path) {
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 		// convert path to wchar
 		std::wstring wpath;
 		if (!YYCC::EncodingHelper::UTF8ToWchar(u8_path, wpath))
 			throw std::invalid_argument("Fail to convert given UTF8 string.");
-
 		// return path with wchar_t ctor
 		return std::filesystem::path(wpath);
 		
 #else
-		return std::filesystem::path(EncodingHelper::ToOrdinary(u8_path));
+		std::string cache = YYCC::EncodingHelper::ToOrdinary(u8_path);
+		return std::filesystem::path(cache.c_str());
 #endif
 	}
 

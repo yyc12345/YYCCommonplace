@@ -9,7 +9,7 @@ namespace YYCC::WinFctHelper {
 	HMODULE GetCurrentModule() {
 		// Reference: https://stackoverflow.com/questions/557081/how-do-i-get-the-hmodule-for-the-currently-executing-code
 		HMODULE hModule = NULL;
-		GetModuleHandleExW(
+		::GetModuleHandleExW(
 			GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,	// get address and do not inc ref counter.
 			(LPCWSTR)GetCurrentModule,
 			&hModule);
@@ -24,7 +24,7 @@ namespace YYCC::WinFctHelper {
 
 		// fetch temp folder
 		while (true) {
-			if ((expected_size = GetTempPathW(static_cast<DWORD>(wpath.size()), wpath.data())) == 0) {
+			if ((expected_size = ::GetTempPathW(static_cast<DWORD>(wpath.size()), wpath.data())) == 0) {
 				// failed, set to empty
 				return false;
 			}
@@ -50,13 +50,13 @@ namespace YYCC::WinFctHelper {
 		DWORD copied_size;
 
 		while (true) {
-			if ((copied_size = GetModuleFileNameW(hModule, wpath.data(), static_cast<DWORD>(wpath.size()))) == 0) {
+			if ((copied_size = ::GetModuleFileNameW(hModule, wpath.data(), static_cast<DWORD>(wpath.size()))) == 0) {
 				// failed, return
 				return false;
 			}
 
 			// check insufficient buffer
-			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+			if (::GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 				// buffer is not enough, enlarge it and try again.
 				wpath.resize(wpath.size() + MAX_PATH);
 			} else {
@@ -87,7 +87,27 @@ namespace YYCC::WinFctHelper {
 
 	bool IsValidCodePage(UINT code_page) {
 		CPINFOEXW cpinfo;
-		return GetCPInfoExW(code_page, 0, &cpinfo);
+		return ::GetCPInfoExW(code_page, 0, &cpinfo);
+	}
+
+	BOOL CopyFile(const yycc_u8string_view& lpExistingFileName, const yycc_u8string_view& lpNewFileName, BOOL bFailIfExists) {
+		std::wstring wExistingFileName, wNewFileName;
+		if (!YYCC::EncodingHelper::UTF8ToWchar(lpExistingFileName, wExistingFileName)) return FALSE;
+		if (!YYCC::EncodingHelper::UTF8ToWchar(lpNewFileName, wNewFileName)) return FALSE;
+		return ::CopyFileW(wExistingFileName.c_str(), wNewFileName.c_str(), bFailIfExists);
+	}
+
+	BOOL MoveFile(const yycc_u8string_view& lpExistingFileName, const yycc_u8string_view& lpNewFileName) {
+		std::wstring wExistingFileName, wNewFileName;
+		if (!YYCC::EncodingHelper::UTF8ToWchar(lpExistingFileName, wExistingFileName)) return FALSE;
+		if (!YYCC::EncodingHelper::UTF8ToWchar(lpNewFileName, wNewFileName)) return FALSE;
+		return ::MoveFileW(wExistingFileName.c_str(), wNewFileName.c_str());
+	}
+
+	BOOL DeleteFile(const yycc_u8string_view& lpFileName) {
+		std::wstring wFileName;
+		if (!YYCC::EncodingHelper::UTF8ToWchar(lpFileName, wFileName)) return FALSE;
+		return ::DeleteFileW(wFileName.c_str());
 	}
 
 }

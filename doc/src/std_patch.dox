@@ -1,7 +1,9 @@
-namespace YYCC::FsPathPatch {
+namespace YYCC::StdPatch {
 /**
 
-\page fs_path_patch std::filesystem::path Patch
+\page std_patch Standard Library Patch
+
+\section std_patch__fs_path std::filesystem::path Patch
 
 As you know, the underlying char type of \c std::filesystem::path is \c wchar_t on Windows,
 and in other platforms, it is simple \c char.
@@ -23,17 +25,17 @@ This patch is served for Windows but also works on other plaftoms.
 If you are in Windows, this patch will perform extra operations to achieve goals,
 and in other platforms, they just redirect request to corresponding vanilla C++ functions.
 
-\section fs_path_patch__from_utf8_path Create Path from UTF8 String
+\subsection std_patch__fs_path__from_utf8_path Create Path from UTF8 String
 
-#FromUTF8Path provides this feature.
+#ToStdPath provides this feature.
 It accepts an string pointer to UTF8 string and try to create \c std::filesystem::path from it.
 Function will throw exception if encoding convertion or constructor self failed.
 There are some example:
 
 \code
-auto foobar_path = YYCC::FsPathPatch::FromUTF8Path(YYCC_U8("/foo/bar"));
-auto slashed_path = foobar_path / YYCC::FsPathPatch::FromUTF8Path(YYCC_U8("test"));
-auto replaced_ext = foobar_path.replace_extension(YYCC::FsPathPatch::FromUTF8Path(YYCC_U8(".txt")));
+auto foobar_path = YYCC::StdPatch::ToStdPath(YYCC_U8("/foo/bar"));
+auto slashed_path = foobar_path / YYCC::StdPatch::ToStdPath(YYCC_U8("test"));
+auto replaced_ext = foobar_path.replace_extension(YYCC::StdPatch::ToStdPath(YYCC_U8(".txt")));
 \endcode
 
 For first line in example, it is obvious that you can create a \c std::filesystem::path from this function.
@@ -58,17 +60,17 @@ However it is depracted since C++ 20,
 because \c std::filesystem::path directly supports UTF8 by \c char8_t since C++ 20.
 Because C++ standard is volatile, we create this function to have an uniform programming experience.
 
-\section fs_path_patch__to_utf8_path Extract UTF8 Path String from Path
+\subsection std_patch__fs_path__to_utf8_path Extract UTF8 Path String from Path
 
 #ToUTF8Path provides this feature.
-It basically is the reversed operation of #FromUTF8Path.
+It basically is the reversed operation of #ToStdPath.
 It is usually used when you have done all path work in \c std::filesystem::path
 and want to get the result.
 There is an example:
 
 \code
-auto foobar_path = YYCC::FsPathPatch::FromUTF8Path(YYCC_U8("/foo/bar"));
-auto result = YYCC::FsPathPatch::ToUTF8Path(foobar_path / YYCC::FsPathPatch::FromUTF8Path(YYCC_U8("test")));
+auto foobar_path = YYCC::StdPatch::ToStdPath(YYCC_U8("/foo/bar"));
+auto result = YYCC::StdPatch::ToUTF8Path(foobar_path / YYCC::StdPatch::ToStdPath(YYCC_U8("test")));
 \endcode
 
 */

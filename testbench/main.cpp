@@ -394,13 +394,13 @@ namespace YYCCTestbench {
 #endif
 	}
 
-	static void FsPathPatch() {
+	static void StdPatch() {
 
 		std::filesystem::path test_path;
 		for (const auto& strl : c_UTF8TestStrTable) {
-			test_path /= YYCC::FsPathPatch::FromUTF8Path(strl.c_str());
+			test_path /= YYCC::StdPatch::ToStdPath(strl.c_str());
 	}
-		YYCC::yycc_u8string test_slashed_path(YYCC::FsPathPatch::ToUTF8Path(test_path));
+		YYCC::yycc_u8string test_slashed_path(YYCC::StdPatch::ToUTF8Path(test_path));
 
 #if YYCC_OS == YYCC_OS_WINDOWS
 		std::wstring wdecilmer(1u, std::filesystem::path::preferred_separator);
@@ -410,7 +410,7 @@ namespace YYCCTestbench {
 #endif
 		YYCC::yycc_u8string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable, decilmer.c_str()));
 
-		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::FsPathPatch"));
+		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::StdPatch"));
 
 }
 
@@ -630,7 +630,7 @@ int main(int argc, char* argv[]) {
 	YYCCTestbench::StringTestbench();
 	YYCCTestbench::ParserTestbench();
 	YYCCTestbench::WinFctTestbench();
-	YYCCTestbench::FsPathPatch();
+	YYCCTestbench::StdPatch();
 	// advanced
 	YYCCTestbench::ConfigManagerTestbench();
 	YYCCTestbench::ArgParserTestbench(argc, argv);

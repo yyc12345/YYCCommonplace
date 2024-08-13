@@ -16,5 +16,8 @@
 #undef LoadImage
 #undef GetTempPath
 #undef GetModuleFileName
+#undef CopyFile
+#undef MoveFile
+#undef DeleteFile
 
 #endif

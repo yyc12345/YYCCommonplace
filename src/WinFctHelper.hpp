@@ -64,6 +64,43 @@ namespace YYCC::WinFctHelper {
 	*/
 	bool IsValidCodePage(UINT code_page);
 
+	/**
+	 * @brief Copies an existing file to a new file.
+	 * @param lpExistingFileName The name of an existing file.
+	 * @param lpNewFileName The name of the new file.
+	 * @param bFailIfExists 
+	 * If this parameter is TRUE and the new file specified by \c lpNewFileName already exists, the function fails.
+	 * If this parameter is FALSE and the new file already exists, the function overwrites the existing file and succeeds.
+	 * @return 
+	 * If the function succeeds, the return value is nonzero.
+	 * If the function fails, the return value is zero. To get extended error information, call \c GetLastError.
+	 * @remarks Same as Windows \c CopyFile: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfilew
+	*/
+	BOOL CopyFile(const yycc_u8string_view& lpExistingFileName, const yycc_u8string_view& lpNewFileName, BOOL bFailIfExists);
+
+	/**
+	 * @brief Moves an existing file or a directory, including its children.
+	 * @param lpExistingFileName The current name of the file or directory on the local computer.
+	 * @param lpNewFileName 
+	 * The new name for the file or directory. The new name must not already exist.
+	 * A new file may be on a different file system or drive. A new directory must be on the same drive.
+	 * @return 
+	 * If the function succeeds, the return value is nonzero.
+	 * If the function fails, the return value is zero. To get extended error information, call \c GetLastError.
+	 * @remarks Same as Windows \c MoveFile: https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefilew
+	*/
+	BOOL MoveFile(const yycc_u8string_view& lpExistingFileName, const yycc_u8string_view& lpNewFileName);
+
+	/**
+	 * @brief Deletes an existing file.
+	 * @param lpFileName The name of the file to be deleted.
+	 * @return 
+	 * If the function succeeds, the return value is nonzero.
+	 * If the function fails, the return value is zero. To get extended error information, call \c GetLastError.
+	 * @remarks Same as Windows \c DeleteFile: https://learn.microsoft.com/e-us/windows/win32/api/winbase/nf-winbase-deletefile
+	*/
+	BOOL DeleteFile(const yycc_u8string_view& lpFileName);
+
 }
 
 #endif

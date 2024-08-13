@@ -10,7 +10,7 @@
 #include "ParserHelper.hpp"
 #include "IOHelper.hpp"
 #include "WinFctHelper.hpp"
-#include "FsPathPatch.hpp"
+#include "StdPatch.hpp"
 #include "ExceptionHelper.hpp"
 
 #include "ConfigManager.hpp"

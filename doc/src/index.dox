@@ -43,7 +43,7 @@
 
     \li \subpage io_helper
 
-    \li \subpage fs_path_patch
+    \li \subpage std_patch
 
     <B>Advanced Features</B>
 
