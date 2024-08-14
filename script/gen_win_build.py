@@ -90,7 +90,7 @@ def cmake_build(f: io.TextIOWrapper, s: ScriptSettings) -> None:
     # build for Win32
     write_line(f, ':: Build for Win32')
     write_line(f, 'CD Win32')
-    write_line(f, f'cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_CXX_STANDARD={s.m_CppVersion} -DYYCC_BUILD_TESTBENCH=ON ../..')
+    write_line(f, f'cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_CXX_STANDARD={s.m_CppVersion} -DYYCC_BUILD_TESTBENCH=ON ../../..')
     write_line(f, 'cmake --build . --config Debug')
     write_line(f, 'cmake --install . --prefix=../install/Win32_Debug --config Debug')
     write_line(f, 'cmake --build . --config Release')
@@ -99,7 +99,7 @@ def cmake_build(f: io.TextIOWrapper, s: ScriptSettings) -> None:
     # build for x64
     write_line(f, ':: Build for x64')
     write_line(f, 'CD x64')
-    write_line(f, f'cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_CXX_STANDARD={s.m_CppVersion} -DYYCC_BUILD_TESTBENCH=ON ../..')
+    write_line(f, f'cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_CXX_STANDARD={s.m_CppVersion} -DYYCC_BUILD_TESTBENCH=ON ../../..')
     write_line(f, 'cmake --build . --config Debug')
     write_line(f, 'cmake --install . --prefix=../install/x64_Debug --config Debug')
     write_line(f, 'cmake --build . --config Release')
@@ -109,7 +109,7 @@ def cmake_build(f: io.TextIOWrapper, s: ScriptSettings) -> None:
     if not s.m_NoDoc:
         write_line(f, ':: Build for documentation')
         write_line(f, 'CD documentation')
-        write_line(f, f'cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_CXX_STANDARD={s.m_CppVersion} -DYYCC_BUILD_DOC=ON ../..')
+        write_line(f, f'cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_CXX_STANDARD={s.m_CppVersion} -DYYCC_BUILD_DOC=ON ../../..')
         write_line(f, 'cmake --build . --config Release')
         write_line(f, 'cmake --build . --target YYCCDocumentation')
         write_line(f, 'cmake --install . --prefix=../install/x64_Release --config Release')
@@ -159,8 +159,9 @@ if __name__ == '__main__':
     # build settings
     settings = ScriptSettings(args.cpp, args.no_doc)
     # write result
-    filepath = os.path.join(os.path.dirname(__file__), 'win_build.new.bat')
+    filepath = os.path.join(os.path.dirname(__file__), 'win_build.bat')
     with open(filepath, 'w') as f:
+        write_line(f, '@ECHO OFF')
         script_head(f, settings)
         create_directory(f, settings)
         cmake_build(f, settings)

@@ -102,12 +102,33 @@ Another one is MSVC distribution, this distribution is served for other MSVC pro
 These have different directory layout which is specifically designed for corresponding build tools.
 See following section for more details.
 
+\subsection intro__usage__win__execute Execute Build Script
+
+For creating distribution on Windows, please execute script <TT>python3 script/gen_win_build.py</TT> first.
+Then execute <TT>script/win_build.bat</TT> to generate final result.
+
+\c script/gen_win_build.py is the generator of \c script/win_build.bat.
+It will accept various arguments and generate a proper real build script for you.
+Currently \c script/gen_win_build.py supports following arguments:
+
+\li \c -c, \c --cpp \c [cpp_version]: Specify the version of C++ standard for building.
+Due to the different defination of UTF8 char type,
+C++ 20 program can not use this library built by C++ 17 environment.
+So this switch give you a chance to decide the version of C++ standard used when building.
+The lowest and defult version of C++ standard is 17.
+\li \c -d, \c --no-doc: Specify this if you don't want to build documentation.
+End user usually needs documentation, 
+however if you are the developer of this library, you may need this switch.
+Because documentation take too much disk space and cost a bunch of time for building and copying.
+In default, generator will produce script which build documentation automatically.
+
+After script done, you will find CMake distribution in directory <TT>bin/<I>cpp_ver</I>/install</TT>.
+and you will also find your MSVC distribution in directory <TT>bin/<I>cpp_ver</I>/msvc_install</TT>.
+\e cpp_ver in path will be replaced by the C++ version you specified.
+
 \subsubsection intro__usage__win__cmake CMake Distribution
 
-For creating CMake distribution, please execute script <TT>script/win_build.bat</TT>.
-After script done, you will find CMake distribution in directory <TT>bin/install</TT> with following structure.
-In default, building process will build documentation automatically.
-If you don't want built documentation, please execute with extra argument \c NODOC, i.e. <TT>script/win_build.bat NODOC</TT>.
+CMake distribution has following directory structure.
 
 \verbatim
 YYCC
@@ -134,13 +155,7 @@ So that CMake will automatically utilize correct package when switching build ty
 
 \subsubsection intro__usage__win__msvc MSVC Distribution
 
-Before creating MSVC distribution, you should create CMake distribution first,
-because MSVC distribution depend on CMake distribution.
-
-After creating CMake distribution, you can simply create MSVC distribution by executing <TT>script/win_msvc_build.bat</TT>.
-Then you will find your MSVC distribution in directory <TT>bin/msvc_install</TT> with following structure.
-Same as CMake distribution, if you don't want built documentation, 
-please execute <TT>script/win_msvc_build.bat NODOC</TT>.
+MSVC distribution has following directory structure.
 
 \verbatim
 YYCC
