@@ -204,10 +204,12 @@ namespace YYCC::StdPatch {
 	*/
 	template<class _TContainer, class _TKey>
 	bool Contains(const _TContainer& container, const _TKey& key) {
-#if __cplusplus < 202002L
-		return container.find(key) != container.end();
-#else
+		// __cplusplus macro need special compiler switch enabled when compiling.
+		// So we use _MSVC_LANG check it instead.
+#if __cplusplus >= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
 		return container.contains(key);
+#else
+		return container.find(key) != container.end();
 #endif
 	}
 

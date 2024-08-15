@@ -72,10 +72,6 @@ PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>
 )
 target_compile_options(YYCCommonplace
-# Enable new __cplusplus macro in MSVC.
-# Because we use it in header, so we need populate it.
-PUBLIC
-    $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>
 # Order build as UTF-8 in MSVC
 PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
