@@ -3,6 +3,41 @@ namespace YYCC::StdPatch {
 
 \page std_patch Standard Library Patch
 
+\section std_patch__starts_with_ends_with Starts With & Ends With
+
+\c std::basic_string::starts_with and \c std::basic_string::ends_with (also available in \c std::basic_string_view)
+are functions introduced in C++ 20 and unavailable in C++ 17.
+YYCC::StdPatch provides a patch for these function in C++ 17 environment.
+Please note these implementations are following implementation instruction presented by CppReference website.
+And it should have the same performance with vanilla functions because Microsoft STL use the same way to implement.
+These implementations will not fallback to vanilla function even they are available.
+Because their performance are good.
+
+To use these functions, you just need to call them like corresponding vanilla functions.
+Our implementations provide all necessary overloads.
+The only thing you need to do is provide the string self as the first argument,
+because our implementations can not be inserted as a class member of string.
+There is an example:
+
+\code
+YYCC::StdPatch::StartsWith(YYCC_U8("aabbcc"), YYCC_U8("aa"));
+YYCC::StdPatch::EndsWith(YYCC_U8("aabbcc"), YYCC_U8("cc"));
+\endcode
+
+\section std_patch__contains Contains
+
+\c Contains function in standard library ordered and unordered successive container are also introduced in C++ 20.
+YYCC::StdPatch provides a patch for this function in C++ 17 environment.
+
+Please note this implementation will fallback to vanilla function if it is available.
+Because our implementation is a remedy (there is no way to use public class member to have the same performance of vanilla function).
+There is an example about how to use it:
+
+\code
+std::set<int> test { 1, 5 };
+YYCC::StdPatch::Contains(test, static_cast<int>(5));
+\endcode
+
 \section std_patch__fs_path std::filesystem::path Patch
 
 As you know, the underlying char type of \c std::filesystem::path is \c wchar_t on Windows,

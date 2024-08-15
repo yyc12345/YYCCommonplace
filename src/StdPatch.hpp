@@ -77,7 +77,7 @@ namespace YYCC::StdPatch {
 	*/
 	template<class CharT, class Traits = std::char_traits<CharT>>
 	bool EndsWith(const std::basic_string_view<CharT, Traits>& that, std::basic_string_view<CharT, Traits> sv) noexcept {
-		return that.size() >= sv.size() && that.compare(that.size() - sv.size(), std::basic_string_view<CharT, Traits>::npos, sv);
+		return that.size() >= sv.size() && that.compare(that.size() - sv.size(), std::basic_string_view<CharT, Traits>::npos, sv) == 0;
 	}
 	/**
 	 * @brief Checks if the string view ends with the given suffix

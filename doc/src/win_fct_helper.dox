@@ -15,6 +15,9 @@ Currently this namespace has following functions:
 \li #GetModuleFileName: Get the path to module in file system by given handle.
 \li #GetLocalAppData: Get the path inside \%LOCALAPPDATA\%
 \li #IsValidCodePage: Check whether given code page number is valid.
+\li #CopyFile: The UTF8 version of Win32 \c CopyFile.
+\li #MoveFile: The UTF8 version of Win32 \c MoveFile.
+\li #DeleteFile: The UTF8 version of Win32 \c DeleteFile.
 
 */
 }

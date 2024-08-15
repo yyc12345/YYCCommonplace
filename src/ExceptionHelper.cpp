@@ -459,7 +459,7 @@ namespace YYCC::ExceptionHelper {
 			if (!YYCC::WinFctHelper::GetModuleFileName(NULL, u8_process_path))
 				return false;
 			// extract file name from full path by std::filesystem::path
-			std::filesystem::path process_path(StdPatch::ToStdPath(u8_process_path.c_str()));
+			std::filesystem::path process_path(StdPatch::ToStdPath(u8_process_path));
 			u8_process_name = StdPatch::ToUTF8Path(process_path.filename());
 		}
 		// then get process id
@@ -478,7 +478,7 @@ namespace YYCC::ExceptionHelper {
 		if (!WinFctHelper::GetLocalAppData(u8_localappdata_path))
 			return false;
 		// convert to std::filesystem::path
-		std::filesystem::path crash_report_path(StdPatch::ToStdPath(u8_localappdata_path.c_str()));
+		std::filesystem::path crash_report_path(StdPatch::ToStdPath(u8_localappdata_path));
 		// slash into crash report folder
 		crash_report_path /= StdPatch::ToStdPath(YYCC_U8("CrashDumps"));
 		// use create function to make sure it is existing
@@ -486,8 +486,8 @@ namespace YYCC::ExceptionHelper {
 
 		// build log path and coredump path
 		// build std::filesystem::path first
-		std::filesystem::path log_filepath = crash_report_path / StdPatch::ToStdPath(u8_log_filename.c_str());
-		std::filesystem::path coredump_filepath = crash_report_path / StdPatch::ToStdPath(u8_coredump_filename.c_str());
+		std::filesystem::path log_filepath = crash_report_path / StdPatch::ToStdPath(u8_log_filename);
+		std::filesystem::path coredump_filepath = crash_report_path / StdPatch::ToStdPath(u8_coredump_filename);
 		// output to result
 		log_path = StdPatch::ToUTF8Path(log_filepath);
 		coredump_path = StdPatch::ToUTF8Path(coredump_filepath);

@@ -1,5 +1,7 @@
 #include <YYCCommonplace.hpp>
 #include <cstdio>
+#include <set>
+#include <map>
 
 namespace Console = YYCC::ConsoleHelper;
 
@@ -342,11 +344,12 @@ namespace YYCCTestbench {
 			MessageBoxW(
 				NULL,
 				YYCC::EncodingHelper::UTF8ToWchar(
-					YYCC::StringHelper::Printf(YYCC_U8("Log generated:\nLog path: %s\nCore dump path: %s"), log_path.c_str(), coredump_path.c_str())
-				).c_str(),
+				YYCC::StringHelper::Printf(YYCC_U8("Log generated:\nLog path: %s\nCore dump path: %s"), log_path.c_str(), coredump_path.c_str())
+			).c_str(),
 				L"Fatal Error", MB_OK + MB_ICONERROR
 			);
-		});
+			}
+		);
 
 		// Perform a div zero exception.
 #if defined (YYCC_DEBUG_UE_FILTER)
@@ -355,8 +358,7 @@ namespace YYCCTestbench {
 			// all of code normally inside of main or WinMain here...
 			int i = 1, j = 0;
 			int k = i / j;
-		}
-		__except (YYCC::ExceptionHelper::DebugCallUExceptionImpl(GetExceptionInformation())) {
+		} __except (YYCC::ExceptionHelper::DebugCallUExceptionImpl(GetExceptionInformation())) {
 			OutputDebugStringW(L"executed filter function\n");
 		}
 #else
@@ -388,31 +390,52 @@ namespace YYCCTestbench {
 		Assert(YYCC::WinFctHelper::GetLocalAppData(test_localappdata_path), YYCC_U8("YYCC::WinFctHelper::GetLocalAppData"));
 		Console::FormatLine(YYCC_U8("Local AppData: %s"), test_localappdata_path.c_str());
 
-		Assert(YYCC::WinFctHelper::IsValidCodePage(static_cast<UINT>(1252)) == true, YYCC_U8("YYCC::WinFctHelper::IsValidCodePage"));
-		Assert(YYCC::WinFctHelper::IsValidCodePage(static_cast<UINT>(114514)) == false, YYCC_U8("YYCC::WinFctHelper::IsValidCodePage"));
+		Assert(YYCC::WinFctHelper::IsValidCodePage(static_cast<UINT>(1252)), YYCC_U8("YYCC::WinFctHelper::IsValidCodePage"));
+		Assert(!YYCC::WinFctHelper::IsValidCodePage(static_cast<UINT>(114514)), YYCC_U8("YYCC::WinFctHelper::IsValidCodePage"));
+
+		// MARK: There is no testbench for MoveFile, CopyFile DeleteFile.
+		// Because they can operate file system files.
+		// And may cause test environment entering unstable status.
 
 #endif
 	}
 
 	static void StdPatch() {
 
+		// Std Path
+
 		std::filesystem::path test_path;
 		for (const auto& strl : c_UTF8TestStrTable) {
-			test_path /= YYCC::StdPatch::ToStdPath(strl.c_str());
-	}
+			test_path /= YYCC::StdPatch::ToStdPath(strl);
+		}
 		YYCC::yycc_u8string test_slashed_path(YYCC::StdPatch::ToUTF8Path(test_path));
 
 #if YYCC_OS == YYCC_OS_WINDOWS
 		std::wstring wdecilmer(1u, std::filesystem::path::preferred_separator);
-		YYCC::yycc_u8string decilmer(YYCC::EncodingHelper::WcharToUTF8(wdecilmer.c_str()));
+		YYCC::yycc_u8string decilmer(YYCC::EncodingHelper::WcharToUTF8(wdecilmer));
 #else
 		YYCC::yycc_u8string decilmer(1u, std::filesystem::path::preferred_separator);
 #endif
 		YYCC::yycc_u8string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable, decilmer.c_str()));
 
-		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::StdPatch"));
+		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::StdPatch::ToStdPath, YYCC::StdPatch::ToUTF8Path"));
 
-}
+		// StartsWith, EndsWith
+		YYCC::yycc_u8string test_starts_ends_with(YYCC_U8("aaabbbccc"));
+		Assert(YYCC::StdPatch::StartsWith(test_starts_ends_with, YYCC_U8("aaa")), YYCC_U8("YYCC::StdPatch::StartsWith"));
+		Assert(!YYCC::StdPatch::StartsWith(test_starts_ends_with, YYCC_U8("ccc")), YYCC_U8("YYCC::StdPatch::StartsWith"));
+		Assert(!YYCC::StdPatch::EndsWith(test_starts_ends_with, YYCC_U8("aaa")), YYCC_U8("YYCC::StdPatch::EndsWith"));
+		Assert(YYCC::StdPatch::EndsWith(test_starts_ends_with, YYCC_U8("ccc")), YYCC_U8("YYCC::StdPatch::EndsWith"));
+
+		// Contains
+		std::set<int> test_set { 1, 2, 3, 4, 6, 7 };
+		Assert(YYCC::StdPatch::Contains(test_set, static_cast<int>(1)), YYCC_U8("YYCC::StdPatch::Contains"));
+		Assert(!YYCC::StdPatch::Contains(test_set, static_cast<int>(5)), YYCC_U8("YYCC::StdPatch::Contains"));
+		std::map<int, float> test_map { { 1, 1.0f }, { 4, 4.0f } };
+		Assert(YYCC::StdPatch::Contains(test_map, static_cast<int>(1)), YYCC_U8("YYCC::StdPatch::Contains"));
+		Assert(!YYCC::StdPatch::Contains(test_map, static_cast<int>(5)), YYCC_U8("YYCC::StdPatch::Contains"));
+
+	}
 
 	enum class TestEnum : int8_t {
 		Test1, Test2, Test3
