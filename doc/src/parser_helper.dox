@@ -15,7 +15,7 @@ Functions located in this helper support the convertion between string and follo
 
 Please note in C++, \c bool is integral type but we list it individually because parser will treat it specially.
 For \c bool type, parser will try doing convertion between it and \c "true" \c "false" string.
-(\b case-sensitive. It means that \c true will only be converted to \c "true" and \c "TRUE" can not be recognised.)
+(\b case-insensitive. It means that \c true can be converted from \c "true", \c "True" or \c "TRUE".)
 
 \section parser_helper__try_parse Try Parse
 
@@ -31,6 +31,7 @@ YYCC::ParserHelper::TryParse<uint32_t>(YYCC_U8("123"), val);
 YYCC::ParserHelper::TryParse<uint32_t>(YYCC_U8("7fff"), val, 16);
 \endcode
 
+For floating point type, this function allows caller to specify extra argument providing the format of given number string (\c std::chars_format).
 For integral type, this function allows caller to specify extra argument providing the base of given number string.
 
 \section parser_helper__parse Parse
@@ -45,8 +46,8 @@ There is an example:
 uint32_t val = YYCC::ParserHelper::Parse<uint32_t>(YYCC_U8("123"));
 \endcode
 
-Please note, for integral types, there is no base argument in #Parse.
-Please use #TryParse instead.
+For integral and floating point value, 
+it has same extra argument with #TryParse to provide more number infomation.
 
 Using this function is dangerous if the validation of your input is important.
 In this case, please use #TryParse instead.
@@ -62,6 +63,11 @@ There is an example:
 \code
 auto result = YYCC::ParserHelper::ToString<uint32_t>(UINT32_C(114));
 \endcode
+
+For floating point type, this function allows caller to specify extra arguments
+which provides the format (\c std::chars_format) and precision when getting string representation.
+For integral type, this function allows caller to specify extra argument
+providing the base of number when getting string representation.
 
 \section parser_helper__notes Notes
 

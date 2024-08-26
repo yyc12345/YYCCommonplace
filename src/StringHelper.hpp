@@ -54,7 +54,7 @@ namespace YYCC::StringHelper {
 	 * @param[in] _from_strl The \e old string.
 	 * @param[in] _to_strl The \e new string.
 	*/
-	void Replace(yycc_u8string& strl, const yycc_char8_t* _from_strl, const yycc_char8_t* _to_strl);
+	void Replace(yycc_u8string& strl, const yycc_u8string_view& _from_strl, const yycc_u8string_view& _to_strl);
 	/**
 	 * @brief Return a copy with all occurrences of substring \e old replaced by \e new.
 	 * @param[in] _strl The string for replacing
@@ -62,7 +62,7 @@ namespace YYCC::StringHelper {
 	 * @param[in] _to_strl The \e new string.
 	 * @return The result of replacement.
 	*/
-	yycc_u8string Replace(const yycc_char8_t* _strl, const yycc_char8_t* _from_strl, const yycc_char8_t* _to_strl);
+	yycc_u8string Replace(const yycc_u8string_view& _strl, const yycc_u8string_view& _from_strl, const yycc_u8string_view& _to_strl);
 
 	/**
 	 * @brief The data provider of general join function.
@@ -85,38 +85,51 @@ namespace YYCC::StringHelper {
 	 * @param[in] decilmer The decilmer used for joining.
 	 * @return The result string of joining.
 	*/
-	yycc_u8string Join(JoinDataProvider fct_data, const yycc_char8_t* decilmer);
+	yycc_u8string Join(JoinDataProvider fct_data, const yycc_u8string_view& decilmer);
 	/**
-	 * @brief Specialized join function for \c std::vector.
-	 * @param[in] data The list to be joined.
+	 * @brief Specialized join function for standard library container.
+	 * @tparam InputIt 
+	 * Must meet the requirements of LegacyInputIterator.
+	 * It also can be dereferenced and then implicitly converted to yycc_u8string_view.
+	 * @param[in] first The beginning of the range of elements to join.
+	 * @param[in] last The terminal of the range of elements to join (exclusive).
 	 * @param[in] decilmer The decilmer used for joining.
-	 * @param[in] reversed True if this list should be joined in reversed order.
 	 * @return The result string of joining.
 	*/
-	yycc_u8string Join(const std::vector<yycc_u8string>& data, const yycc_char8_t* decilmer, bool reversed = false);
+	template<class InputIt>
+	yycc_u8string Join(InputIt first, InputIt last, const yycc_u8string_view& decilmer) {
+		return Join([&first, &last](yycc_u8string_view& view) -> bool {
+			// if we reach tail, return false to stop join process
+			if (first == last) return false;
+			// otherwise fetch data, inc iterator and return.
+			view = *first;
+			++first;
+			return true;
+		}, decilmer);
+	}
 
-	/**
-	 * @brief Return a copy of the string converted to lowercase.
-	 * @param[in] strl The string to be lowercase.
-	 * @return The copy of the string converted to lowercase.
-	*/
-	yycc_u8string Lower(const yycc_char8_t* strl);
 	/**
 	 * @brief Convert given string to lowercase.
 	 * @param[in,out] strl The string to be lowercase.
 	*/
 	void Lower(yycc_u8string& strl);
 	/**
-	 * @brief Return a copy of the string converted to uppercase.
-	 * @param[in] strl The string to be uppercase.
-	 * @return The copy of the string converted to uppercase.
+	 * @brief Return a copy of the string converted to lowercase.
+	 * @param[in] strl The string to be lowercase.
+	 * @return The copy of the string converted to lowercase.
 	*/
-	yycc_u8string Upper(const yycc_char8_t* strl);
+	yycc_u8string Lower(const yycc_u8string_view& strl);
 	/**
 	 * @brief Convert given string to uppercase.
 	 * @param[in,out] strl The string to be uppercase.
 	*/
 	void Upper(yycc_u8string& strl);
+	/**
+	 * @brief Return a copy of the string converted to uppercase.
+	 * @param[in] strl The string to be uppercase.
+	 * @return The copy of the string converted to uppercase.
+	*/
+	yycc_u8string Upper(const yycc_u8string_view& strl);
 
 	/**
 	 * @brief Split given string with specified decilmer.
@@ -125,10 +138,10 @@ namespace YYCC::StringHelper {
 	 * @return 
 	 * The split result.
 	 * \par
-	 * If given string is empty, or decilmer is nullptr or empty,
+	 * If given string or decilmer are empty,
 	 * the result container will only contain 1 entry which is equal to given string.
 	*/
-	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_char8_t* _decilmer);
+	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_u8string_view& _decilmer);
 	/**
 	 * @brief Split given string with specified decilmer as string view.
 	 * @param[in] strl The string need to be splitting.
@@ -137,10 +150,10 @@ namespace YYCC::StringHelper {
 	 * The split result with string view format.
 	 * This will not produce any copy of original string.
 	 * \par
-	 * If given string is empty, or decilmer is nullptr or empty,
+	 * If given string or decilmer are empty,
 	 * the result container will only contain 1 entry which is equal to given string.
 	 * @see Split(const yycc_u8string_view&, const yycc_char8_t*)
 	*/
-	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_char8_t* _decilmer);
+	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_u8string_view& _decilmer);
 
 }

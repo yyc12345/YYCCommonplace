@@ -56,12 +56,9 @@ PRIVATE
     $<$<BOOL:${WIN32}>:DbgHelp.lib>
 )
 # Setup C++ standard
-set_target_properties(YYCCommonplace
-PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED 17
-    CXX_EXTENSION OFF
-)
+target_compile_features(YYCCommonplace PUBLIC cxx_std_17)
+set_target_properties(YYCCommonplace PROPERTIES CXX_EXTENSION OFF)
+# Setup macros
 target_compile_definitions(YYCCommonplace
 # Debug macro should populate to child projects
 PUBLIC

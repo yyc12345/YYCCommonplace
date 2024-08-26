@@ -40,7 +40,8 @@ namespace YYCC::DialogHelper {
 				return false;
 
 			// convert pattern and join them
-			yycc_u8string joined_modes(YYCC::StringHelper::Join(it.second, YYCC_U8(";")));
+			const auto& filter_modes = it.second;
+			yycc_u8string joined_modes(YYCC::StringHelper::Join(filter_modes.begin(), filter_modes.end(), YYCC_U8(";")));
 			WinFileFilters::WinFilterModes modes;
 			if (!YYCC::EncodingHelper::UTF8ToWchar(joined_modes, modes))
 				return false;

@@ -23,9 +23,9 @@ namespace YYCC::StringHelper {
 		// the return value is desired char count without NULL terminal.
 		// minus number means error
 		int count = std::vsnprintf(
-			nullptr, 
-			0, 
-			EncodingHelper::ToOrdinary(format), 
+			nullptr,
+			0,
+			EncodingHelper::ToOrdinary(format),
 			args1
 		);
 		if (count < 0) {
@@ -41,8 +41,8 @@ namespace YYCC::StringHelper {
 		strl.resize(count);
 		int write_result = std::vsnprintf(
 			EncodingHelper::ToOrdinary(strl.data()),
-			strl.size() + 1, 
-			EncodingHelper::ToOrdinary(format), 
+			strl.size() + 1,
+			EncodingHelper::ToOrdinary(format),
 			args2
 		);
 		va_end(args2);
@@ -81,12 +81,10 @@ namespace YYCC::StringHelper {
 
 #pragma region Replace
 
-	void Replace(yycc_u8string& strl, const yycc_char8_t* _from_strl, const yycc_char8_t* _to_strl)  {
+	void Replace(yycc_u8string& strl, const yycc_u8string_view& _from_strl, const yycc_u8string_view& _to_strl) {
 		// Reference: https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
-		
+
 		// check requirements
-		// from string and to string should not be nullptr.
-		if (_from_strl == nullptr || _to_strl == nullptr) return;
 		// from string should not be empty
 		yycc_u8string from_strl(_from_strl);
 		yycc_u8string to_strl(_to_strl);
@@ -100,14 +98,10 @@ namespace YYCC::StringHelper {
 		}
 	}
 
-	yycc_u8string Replace(const yycc_char8_t* _strl, const yycc_char8_t* _from_strl, const yycc_char8_t* _to_strl) {
+	yycc_u8string Replace(const yycc_u8string_view& _strl, const yycc_u8string_view& _from_strl, const yycc_u8string_view& _to_strl) {
 		// prepare result
-		yycc_u8string strl;
-		// if given string is not nullptr, assign it and process it.
-		if (_strl != nullptr) {
-			strl = _strl;
-			Replace(strl, _from_strl, _to_strl);
-		}
+		yycc_u8string strl(_strl);
+		Replace(strl, _from_strl, _to_strl);
 		// return value
 		return strl;
 	}
@@ -116,7 +110,7 @@ namespace YYCC::StringHelper {
 
 #pragma region Join
 
-	yycc_u8string Join(JoinDataProvider fct_data, const yycc_char8_t* decilmer) {
+	yycc_u8string Join(JoinDataProvider fct_data, const yycc_u8string_view& decilmer) {
 		yycc_u8string ret;
 		bool is_first = true;
 		yycc_u8string_view element;
@@ -126,9 +120,8 @@ namespace YYCC::StringHelper {
 			// insert decilmer
 			if (is_first) is_first = false;
 			else {
-				// only insert non-nullptr decilmer.
-				if (decilmer != nullptr)
-					ret.append(decilmer);
+				// append decilmer.
+				ret.append(decilmer);
 			}
 
 			// insert element if it is not empty
@@ -137,32 +130,6 @@ namespace YYCC::StringHelper {
 		}
 
 		return ret;
-	}
-
-	yycc_u8string Join(const std::vector<yycc_u8string>& data, const yycc_char8_t* decilmer, bool reversed) {
-		if (reversed) {
-			auto iter = data.crbegin();
-			auto stop = data.crend();
-			return Join([&iter, &stop](yycc_u8string_view& view) -> bool {
-				// if we reach tail, return false
-				if (iter == stop) return false;
-				// otherwise fetch data, inc iterator and return.
-				view = *iter;
-				++iter;
-				return true;
-				}, decilmer);
-		} else {
-			auto iter = data.cbegin();
-			auto stop = data.cend();
-			return Join([&iter, &stop](yycc_u8string_view& view) -> bool {
-				// if we reach tail, return nullptr
-				if (iter == stop) return false;
-				// otherwise fetch data, inc iterator and return.
-				view = *iter;
-				++iter;
-				return true;
-				}, decilmer);
-		}
 	}
 
 #pragma endregion
@@ -183,24 +150,13 @@ namespace YYCC::StringHelper {
 		);
 	}
 
-	yycc_u8string Lower(const yycc_char8_t* strl) {
-		yycc_u8string ret;
-		if (strl == nullptr) return ret;
-		else ret = strl;
-		Lower(ret);
-		return ret;
-	}
-
 	void Lower(yycc_u8string& strl) {
 		GeneralStringLowerUpper<true>(strl);
 	}
 
-	yycc_u8string Upper(const yycc_char8_t* strl) {
-		// same as Lower, just replace char transform function.
-		yycc_u8string ret;
-		if (strl == nullptr) return ret;
-		else ret = strl;
-		Upper(ret);
+	yycc_u8string Lower(const yycc_u8string_view& strl) {
+		yycc_u8string ret(strl);
+		Lower(ret);
 		return ret;
 	}
 
@@ -208,16 +164,24 @@ namespace YYCC::StringHelper {
 		GeneralStringLowerUpper<false>(strl);
 	}
 
+	yycc_u8string Upper(const yycc_u8string_view& strl) {
+		// same as Lower, just replace char transform function.
+		yycc_u8string ret(strl);
+		Upper(ret);
+		return ret;
+	}
+
 #pragma endregion
 
 #pragma region Split
 
-	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_char8_t* _decilmer) {
+	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_u8string_view& _decilmer) {
 		// call split view
 		auto view_result = SplitView(strl, _decilmer);
 
 		// copy string view result to string
 		std::vector<yycc_u8string> elems;
+		elems.reserve(view_result.size());
 		for (const auto& strl_view : view_result) {
 			elems.emplace_back(yycc_u8string(strl_view));
 		}
@@ -225,17 +189,17 @@ namespace YYCC::StringHelper {
 		return elems;
 	}
 
-	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_char8_t* _decilmer) {
+	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_u8string_view& _decilmer) {
 		// Reference: 
 		// https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
-		
+
 		// prepare return value
 		std::vector<yycc_u8string_view> elems;
 
-		// if string need to be splitted is empty, return original string (empty item).
-		// if decilmer is nullptr, or decilmer is zero length, return original string.
-		yycc_u8string decilmer;
-		if (strl.empty() || _decilmer == nullptr || (decilmer = _decilmer, decilmer.empty())) {
+		// if string need to be splitted is empty, return original string (empty string).
+		// if decilmer is empty, return original string.
+		yycc_u8string decilmer(_decilmer);
+		if (strl.empty() || decilmer.empty()) {
 			elems.emplace_back(strl);
 			return elems;
 		}

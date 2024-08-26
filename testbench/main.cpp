@@ -195,17 +195,13 @@ namespace YYCCTestbench {
 		Assert(test_replace == YYCC_U8("aaddcc"), YYCC_U8("YYCC::StringHelper::Replace"));
 		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aabbcc"), YYCC_U8("zz"), YYCC_U8("yy")); // no replace
 		Assert(test_replace == YYCC_U8("aabbcc"), YYCC_U8("YYCC::StringHelper::Replace"));
-		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aabbcc"), YYCC_U8(""), YYCC_U8("zz")); // empty finding
-		Assert(test_replace == YYCC_U8("aabbcc"), YYCC_U8("YYCC::StringHelper::Replace"));
-		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aabbcc"), nullptr, YYCC_U8("zz")); // nullptr finding
+		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aabbcc"), YYCC::yycc_u8string_view(), YYCC_U8("zz")); // empty finding
 		Assert(test_replace == YYCC_U8("aabbcc"), YYCC_U8("YYCC::StringHelper::Replace"));
 		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aaaabbaa"), YYCC_U8("aa"), YYCC_U8("")); // no replaced string
 		Assert(test_replace == YYCC_U8("bb"), YYCC_U8("YYCC::StringHelper::Replace"));
 		test_replace = YYCC::StringHelper::Replace(YYCC_U8("aaxcc"), YYCC_U8("x"), YYCC_U8("yx")); // nested replacing
 		Assert(test_replace == YYCC_U8("aayxcc"), YYCC_U8("YYCC::StringHelper::Replace"));
-		test_replace = YYCC::StringHelper::Replace(YYCC_U8(""), YYCC_U8(""), YYCC_U8("xy")); // empty source string
-		Assert(test_replace == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Replace"));
-		test_replace = YYCC::StringHelper::Replace(nullptr, YYCC_U8(""), YYCC_U8("xy")); // nullptr source string
+		test_replace = YYCC::StringHelper::Replace(YYCC::yycc_u8string_view(), YYCC_U8(""), YYCC_U8("xy")); // empty source string
 		Assert(test_replace == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Replace"));
 
 		// Test Upper / Lower
@@ -218,10 +214,8 @@ namespace YYCCTestbench {
 		std::vector<YYCC::yycc_u8string> test_join_container {
 			YYCC_U8(""), YYCC_U8("1"), YYCC_U8("2"), YYCC_U8("")
 		};
-		auto test_join = YYCC::StringHelper::Join(test_join_container, YYCC_U8(", "));
+		auto test_join = YYCC::StringHelper::Join(test_join_container.begin(), test_join_container.end(), YYCC_U8(", "));
 		Assert(test_join == YYCC_U8(", 1, 2, "), YYCC_U8("YYCC::StringHelper::Join"));
-		test_join = YYCC::StringHelper::Join(test_join_container, YYCC_U8(", "), true);
-		Assert(test_join == YYCC_U8(", 2, 1, "), YYCC_U8("YYCC::StringHelper::Join"));
 
 		// Test Split
 		auto test_split = YYCC::StringHelper::Split(YYCC_U8(", 1, 2, "), YYCC_U8(", ")); // normal
@@ -233,7 +227,7 @@ namespace YYCCTestbench {
 		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8("-")); // no matched decilmer
 		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[0] == YYCC_U8("test"), YYCC_U8("YYCC::StringHelper::Split"));
-		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8("")); // empty decilmer
+		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC::yycc_u8string_view()); // empty decilmer
 		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[0] == YYCC_U8("test"), YYCC_U8("YYCC::StringHelper::Split"));
 		test_split = YYCC::StringHelper::Split(YYCC::yycc_u8string_view(), YYCC_U8("")); // empty source string
@@ -245,12 +239,12 @@ namespace YYCCTestbench {
 	static void ParserTestbench() {
 
 		// Test success TryParse
-#define TEST_MACRO(type_t, value, string_value) { \
+#define TEST_MACRO(type_t, value, string_value, ...) { \
 	YYCC::yycc_u8string cache_string(YYCC_U8(string_value)); \
 	type_t cache; \
-	Assert(YYCC::ParserHelper::TryParse<type_t>(cache_string, cache) && cache == value, YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
+	Assert(YYCC::ParserHelper::TryParse<type_t>(cache_string, cache, __VA_ARGS__) && cache == value, YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
 }
-
+		
 		TEST_MACRO(int8_t, INT8_C(-61), "-61");
 		TEST_MACRO(uint8_t, UINT8_C(200), "200");
 		TEST_MACRO(int16_t, INT16_C(6161), "6161");
@@ -259,33 +253,38 @@ namespace YYCCTestbench {
 		TEST_MACRO(uint32_t, UINT32_C(4294967293), "4294967293");
 		TEST_MACRO(int64_t, INT64_C(616161616161), "616161616161");
 		TEST_MACRO(uint64_t, UINT64_C(9223372036854775807), "9223372036854775807");
+		TEST_MACRO(uint32_t, UINT32_C(0xffff), "ffff", 16);
+		TEST_MACRO(float, 1.0f, "1.0");
+		TEST_MACRO(double, 1.0, "1.0");
 		TEST_MACRO(bool, true, "true");
 
 #undef TEST_MACRO
 
 		// Test failed TryParse
-#define TEST_MACRO(type_t, value, string_value) { \
+#define TEST_MACRO(type_t, string_value, ...) { \
 	YYCC::yycc_u8string cache_string(YYCC_U8(string_value)); \
 	type_t cache; \
-	Assert(!YYCC::ParserHelper::TryParse<type_t>(cache_string, cache), YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
+	Assert(!YYCC::ParserHelper::TryParse<type_t>(cache_string, cache, __VA_ARGS__), YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
 }
 
-		TEST_MACRO(int8_t, INT8_C(-61), "6161");
-		TEST_MACRO(uint8_t, UINT8_C(200), "32800");
-		TEST_MACRO(int16_t, INT16_C(6161), "61616161");
-		TEST_MACRO(uint16_t, UINT16_C(32800), "4294967293");
-		TEST_MACRO(int32_t, INT32_C(61616161), "616161616161");
-		TEST_MACRO(uint32_t, UINT32_C(4294967293), "9223372036854775807");
-		TEST_MACRO(int64_t, INT64_C(616161616161), "616161616161616161616161");
-		TEST_MACRO(uint64_t, UINT64_C(9223372036854775807), "92233720368547758079223372036854775807");
-		TEST_MACRO(bool, true, "hello, world!");
+		TEST_MACRO(int8_t, "6161");
+		TEST_MACRO(uint8_t, "32800");
+		TEST_MACRO(int16_t, "61616161");
+		TEST_MACRO(uint16_t, "4294967293");
+		TEST_MACRO(int32_t, "616161616161");
+		TEST_MACRO(uint32_t, "9223372036854775807");
+		TEST_MACRO(int64_t, "616161616161616161616161");
+		TEST_MACRO(uint64_t, "92233720368547758079223372036854775807");
+		TEST_MACRO(float, "1e40");
+		TEST_MACRO(double, "1e114514");
+		TEST_MACRO(bool, "hello, world!");
 
 #undef TEST_MACRO
 
 		// Test ToString
-#define TEST_MACRO(type_t, value, string_value) { \
+#define TEST_MACRO(type_t, value, string_value, ...) { \
 	type_t cache = value; \
-	YYCC::yycc_u8string ret(YYCC::ParserHelper::ToString<type_t>(cache)); \
+	YYCC::yycc_u8string ret(YYCC::ParserHelper::ToString<type_t>(cache, __VA_ARGS__)); \
 	Assert(ret == YYCC_U8(string_value), YYCC_U8("YYCC::StringHelper::ToString<" #type_t ">")); \
 }
 
@@ -297,10 +296,13 @@ namespace YYCCTestbench {
 		TEST_MACRO(uint32_t, UINT32_C(4294967293), "4294967293");
 		TEST_MACRO(int64_t, INT64_C(616161616161), "616161616161");
 		TEST_MACRO(uint64_t, UINT64_C(9223372036854775807), "9223372036854775807");
+		TEST_MACRO(uint32_t, UINT32_C(0xffff), "ffff", 16);
+		TEST_MACRO(float, 1.0f, "1.0", std::chars_format::fixed, 1);
+		TEST_MACRO(double, 1.0, "1.0", std::chars_format::fixed, 1);
 		TEST_MACRO(bool, true, "true");
 
-
 #undef TEST_MACRO
+
 	}
 
 	static void DialogTestbench() {
@@ -416,7 +418,7 @@ namespace YYCCTestbench {
 #else
 		YYCC::yycc_u8string decilmer(1u, std::filesystem::path::preferred_separator);
 #endif
-		YYCC::yycc_u8string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable, decilmer.c_str()));
+		YYCC::yycc_u8string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable.begin(), c_UTF8TestStrTable.end(), decilmer));
 
 		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::StdPatch::ToStdPath, YYCC::StdPatch::ToUTF8Path"));
 
@@ -574,8 +576,8 @@ namespace YYCCTestbench {
 		// init option context
 		TestArgParser test;
 
-#define PREPARE_DATA(...) char* test_argv[] = { __VA_ARGS__ }; \
-auto al = YYCC::ArgParser::ArgumentList::CreateFromStd(sizeof(test_argv) / sizeof(char*), test_argv);
+#define PREPARE_DATA(...) const char* test_argv[] = { __VA_ARGS__ }; \
+auto al = YYCC::ArgParser::ArgumentList::CreateFromStd(sizeof(test_argv) / sizeof(char*), const_cast<char**>(test_argv));
 
 		// normal test
 		{

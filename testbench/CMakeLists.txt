@@ -15,12 +15,8 @@ PRIVATE
     YYCCommonplace
 )
 # Setup C++ standard
-set_target_properties(YYCCTestbench
-PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED 17
-    CXX_EXTENSION OFF
-)
+target_compile_features(YYCCTestbench PUBLIC cxx_std_17)
+set_target_properties(YYCCTestbench PROPERTIES CXX_EXTENSION OFF)
 # Order Unicode charset for private using
 target_compile_definitions(YYCCTestbench
 PRIVATE

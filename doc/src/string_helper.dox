@@ -38,8 +38,8 @@ and second overload will return empty string when formatter failed.
 YYCC::StringHelper provide 2 functions for programmer do string replacement:
 
 \code
-void Replace(yycc_u8string&, const yycc_char8_t*, const yycc_char8_t*);
-yycc_u8string Replace(const yycc_char8_t*, const yycc_char8_t*, const yycc_char8_t*);
+void Replace(yycc_u8string&, const yycc_u8string_view&, const yycc_u8string_view&);
+yycc_u8string Replace(const yycc_u8string_view&, const yycc_u8string_view&, const yycc_u8string_view&);
 \endcode
 
 The first overload will do replacement in given string container directly.
@@ -47,9 +47,9 @@ The second overload will produce a copy of original string and do replacement on
 
 #Replace has special treatments for following scenarios:
 
-\li If given string is empty or nullptr, the return value will be empty.
-\li If the character sequence to be replaced is nullptr or empty string, no replacement will happen.
-\li If the character sequence will be replaced into string is nullptr or empty, it will simply delete found character sequence from given string.
+\li If given string is empty, the return value will be empty.
+\li If the character sequence to be replaced is empty string, no replacement will happen.
+\li If the character sequence will be replaced into string is or empty, it will simply delete found character sequence from given string.
 
 \section string_helper__join Join
 
@@ -95,10 +95,18 @@ auto joined_string = YYCC::StringHelper::Join(
 \subsection string_helper__join__specialized Specialized Join Function
 
 Despite universal join function, 
-YYCC::StringHelper also provide some specialized join functions for commonly used types.
-Current we support following join function:
+YYCC::StringHelper also provide a specialized join functions for standard library container.
+For example, the code written above can be written in following code by using this specialized overload.
+The first two argument is just the begin and end iterator.
+However, you must make sure that we can dereference it and then implicitly convert it to yycc_u8string_view.
+Otherwise this overload will throw template error.
 
-\li \c std::vector<yycc_u8string>: With an extra option which allow join it with reversed order.
+\code
+std::vector<yycc_u8string> data {
+    YYCC_U8(""), YYCC_U8("1"), YYCC_U8("2"), YYCC_U8("")
+};
+auto joined_string = YYCC::StringHelper::Join(data.begin(), data.end(), decilmer);
+\endcode
 
 \section string_helper__lower_upper Lower Upper
 
@@ -106,11 +114,11 @@ String helper provides Python-like string lower and upper function.
 Both lower and upper function have 2 overloads:
 
 \code
-yycc_u8string Lower(const yycc_char8_t*);
+yycc_u8string Lower(const yycc_u8string_view&);
 void Lower(yycc_u8string&);
 \endcode
 
-First overload accepts a NULL-terminated string as argument and return a \b copy whose content are all the lower case of original string.
+First overload accepts a string view as argument and return a \b copy whose content are all the lower case of original string.
 Second overload accepts a mutable string container as argument and will make all characters stored in it become their lower case.
 You can choose on of them for your flavor and requirements.
 Upper also has similar 2 overloads.
@@ -121,19 +129,19 @@ String helper provides Python-like string split function.
 It has 2 types for you:
 
 \code
-std::vector<yycc_u8string> Split(const yycc_u8string_view&, const yycc_char8_t*);
-std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view&, const yycc_char8_t*);
+std::vector<yycc_u8string> Split(const yycc_u8string_view&, const yycc_u8string_view&);
+std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view&, const yycc_u8string_view&);
 \endcode
 
 All these overloads take a string view as the first argument representing the string need to be split.
-The second argument is a raw string pointer representing the decilmer for splitting.
+The second argument is a string view representing the decilmer for splitting.
 The only difference between these 2 split function are overt according to their names.
 The first split function will return a list of copied string as its split result.
 The second split function will return a list of string view as its split result,
 and it will keep valid as long as the life time of your given string view argument.
 It also means that the last overload will cost less memory if you don't need the copy of original string.
 
-If the source string (the string need to be split) is empty, or the decilmer is \c nullptr or empty,
+If the source string (the string need to be split) is empty, or the decilmer is empty,
 the result will only has 1 item and this item is source string itself.
 There is no way that these methods return an empty list, except the code is buggy.
 
