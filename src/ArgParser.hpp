@@ -4,6 +4,7 @@
 #include "Constraints.hpp"
 #include "EncodingHelper.hpp"
 #include "ParserHelper.hpp"
+#include <cstring>
 #include <functional>
 #include <vector>
 #include <map>

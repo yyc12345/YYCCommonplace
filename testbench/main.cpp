@@ -242,7 +242,7 @@ namespace YYCCTestbench {
 #define TEST_MACRO(type_t, value, string_value, ...) { \
 	YYCC::yycc_u8string cache_string(YYCC_U8(string_value)); \
 	type_t cache; \
-	Assert(YYCC::ParserHelper::TryParse<type_t>(cache_string, cache, __VA_ARGS__) && cache == value, YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
+	Assert(YYCC::ParserHelper::TryParse<type_t>(cache_string, cache, ##__VA_ARGS__) && cache == value, YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
 }
 		
 		TEST_MACRO(int8_t, INT8_C(-61), "-61");
@@ -264,7 +264,7 @@ namespace YYCCTestbench {
 #define TEST_MACRO(type_t, string_value, ...) { \
 	YYCC::yycc_u8string cache_string(YYCC_U8(string_value)); \
 	type_t cache; \
-	Assert(!YYCC::ParserHelper::TryParse<type_t>(cache_string, cache, __VA_ARGS__), YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
+	Assert(!YYCC::ParserHelper::TryParse<type_t>(cache_string, cache, ##__VA_ARGS__), YYCC_U8("YYCC::StringHelper::TryParse<" #type_t ">")); \
 }
 
 		TEST_MACRO(int8_t, "6161");
@@ -284,7 +284,7 @@ namespace YYCCTestbench {
 		// Test ToString
 #define TEST_MACRO(type_t, value, string_value, ...) { \
 	type_t cache = value; \
-	YYCC::yycc_u8string ret(YYCC::ParserHelper::ToString<type_t>(cache, __VA_ARGS__)); \
+	YYCC::yycc_u8string ret(YYCC::ParserHelper::ToString<type_t>(cache, ##__VA_ARGS__)); \
 	Assert(ret == YYCC_U8(string_value), YYCC_U8("YYCC::StringHelper::ToString<" #type_t ">")); \
 }
 
