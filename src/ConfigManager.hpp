@@ -17,6 +17,19 @@
  * @details For how to use this namespace, please see \ref config_manager.
 */
 namespace YYCC::ConfigManager {
+	
+	/**
+	 * @brief The load result of loading config.
+	*/
+	enum class ConfigLoadResult {
+		OK = 0, ///< Success load configs.
+		Created = 1 << 0, ///< Given file is not existing, we create all configs in default values.
+		ForwardNew = 1 << 1,	///< Detect the config file created by higher version. We create all configs in default values.
+		Migrated = 1 << 2, ///< Detect the config file created by lower version. We try migrate configs written in it.
+		BrokenFile = 1 << 3, ///< Given file has bad format. Thus some configs are kept as its default values.
+		ItemError = 1 << 4 ///< Some config can not be recognized from the data read from file so they are reset to default value.
+	};
+	using UnderlyingConfigLoadResult_t = std::underlying_type_t<ConfigLoadResult>;
 
 	/// @brief The base class of every setting.
 	/// @details Programmer can inherit this class and implement essential functions to create custom setting.
@@ -75,7 +88,7 @@ namespace YYCC::ConfigManager {
 	private:
 		std::vector<uint8_t> m_RawData;
 	};
-
+	
 	/// @brief Settings manager and config file reader writer.
 	class CoreManager {
 	public:
@@ -96,8 +109,8 @@ namespace YYCC::ConfigManager {
 	public:
 		/// @brief Load settings from file.
 		/// @details Before loading, all settings will be reset to default value first.
-		/// @return True if success, otherwise false.
-		bool Load();
+		/// @return What happend when loading config. This function always success.
+		ConfigLoadResult Load();
 		/// @brief Save settings to file.
 		/// @return True if success, otherwise false.
 		bool Save();

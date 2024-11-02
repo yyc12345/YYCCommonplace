@@ -1,0 +1,35 @@
+namespace YYCC::EnumHelper {
+/**
+
+\page enum_helper Scoped Enum Helper
+
+\section enum_helper__intro Intro
+
+C++ introduce a new enum called scoped enum.
+It is better than legacy C enum because it will not leak name into namespace where it locate,
+and also can specify an underlying type to it to make sure it is stored as specified size.
+However, the shortcoming of it is that it lack bitwise operator comparing with legacy C enum.
+Programmer must implement them for scoped enum one by one.
+It is a hardship and inconvenient.
+This is the reason why I invent this class
+
+\section enum_helper__Usage Usage
+
+In this namespace, we provide all bitwise functions related to scoped enum type which may be used.
+See YYCC::EnumHelper for more detail (It is more clear to read function annotation than I introduce in there repeatedly).
+
+\section enum_helper__why Why not Operator Overload
+
+I have try it (and you even can see the relic of it in source code).
+But it need a extra statement written in following to include it, otherwise compiler can not see it.
+
+\code
+using namespace YYCC::EnumHelper;
+\endcode
+
+Another reason why I do not use this method is that
+this overload strategy may be applied to some type which should not be applied by accient, such as non-scoped enum type.
+So I gave up this solution.
+
+*/
+}

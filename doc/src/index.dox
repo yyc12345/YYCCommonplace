@@ -45,6 +45,8 @@
 
     \li \subpage std_patch
 
+    \li \subpage enum_helper
+
     <B>Advanced Features</B>
 
     \li \subpage constraints

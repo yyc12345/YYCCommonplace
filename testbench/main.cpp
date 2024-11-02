@@ -402,7 +402,7 @@ namespace YYCCTestbench {
 #endif
 	}
 
-	static void StdPatch() {
+	static void StdPatchTestbench() {
 
 		// Std Path
 
@@ -436,6 +436,51 @@ namespace YYCCTestbench {
 		std::map<int, float> test_map { { 1, 1.0f }, { 4, 4.0f } };
 		Assert(YYCC::StdPatch::Contains(test_map, static_cast<int>(1)), YYCC_U8("YYCC::StdPatch::Contains"));
 		Assert(!YYCC::StdPatch::Contains(test_map, static_cast<int>(5)), YYCC_U8("YYCC::StdPatch::Contains"));
+
+	}
+
+	enum class TestFlagEnum : uint8_t {
+		Test1 = 0b00000000,
+		Test2 = 0b00000001,
+		Test3 = 0b00000010,
+		Test4 = 0b00000100,
+		Test5 = 0b00001000,
+		Test6 = 0b00010000,
+		Test7 = 0b00100000,
+		Test8 = 0b01000000,
+		Test9 = 0b10000000,
+		Inverted = 0b01111111,
+		Merged = Test3 + Test5,
+	};
+
+	static void EnumHelperTestbench() {
+		TestFlagEnum val;
+
+		Assert(YYCC::EnumHelper::Merge(TestFlagEnum::Test3, TestFlagEnum::Test5) == TestFlagEnum::Merged, YYCC_U8("YYCC::EnumHelper::Merge"));
+
+		Assert(YYCC::EnumHelper::Invert(TestFlagEnum::Test9) == TestFlagEnum::Inverted, YYCC_U8("YYCC::EnumHelper::Invert"));
+
+		val = YYCC::EnumHelper::Merge(TestFlagEnum::Test3, TestFlagEnum::Test5);
+		YYCC::EnumHelper::Mask(val, TestFlagEnum::Test3);
+		Assert(YYCC::EnumHelper::Bool(val), YYCC_U8("YYCC::EnumHelper::Mask"));
+		val = YYCC::EnumHelper::Merge(TestFlagEnum::Test3, TestFlagEnum::Test5);
+		YYCC::EnumHelper::Mask(val, TestFlagEnum::Test4);
+		Assert(!YYCC::EnumHelper::Bool(val), YYCC_U8("YYCC::EnumHelper::Mask"));
+		
+		val = TestFlagEnum::Test3;
+		YYCC::EnumHelper::Add(val, TestFlagEnum::Test5);
+		Assert(val == TestFlagEnum::Merged, YYCC_U8("YYCC::EnumHelper::Add"));
+		
+		val = TestFlagEnum::Merged;
+		YYCC::EnumHelper::Remove(val, TestFlagEnum::Test5);
+		Assert(val == TestFlagEnum::Test3, YYCC_U8("YYCC::EnumHelper::Remove"));
+		
+		val = YYCC::EnumHelper::Merge(TestFlagEnum::Test3, TestFlagEnum::Test5);
+		Assert(YYCC::EnumHelper::Has(val, TestFlagEnum::Test3), YYCC_U8("YYCC::EnumHelper::Has"));
+		Assert(!YYCC::EnumHelper::Has(val, TestFlagEnum::Test4), YYCC_U8("YYCC::EnumHelper::Has"));
+		
+		Assert(!YYCC::EnumHelper::Bool(TestFlagEnum::Test1), YYCC_U8("YYCC::EnumHelper::Bool"));
+		Assert(YYCC::EnumHelper::Bool(TestFlagEnum::Test2), YYCC_U8("YYCC::EnumHelper::Bool"));
 
 	}
 
@@ -518,7 +563,11 @@ namespace YYCCTestbench {
 		Assert(test.m_EnumSetting.Get() == TestEnum::Test1, YYCC_U8("YYCC::ConfigManager::CoreManager::Reset"));
 
 		// test load
-		Assert(test.m_CoreManager.Load(), YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
+		YYCC::ConfigManager::ConfigLoadResult wrong_result = YYCC::EnumHelper::Merge(
+			YYCC::ConfigManager::ConfigLoadResult::ItemError,
+			YYCC::ConfigManager::ConfigLoadResult::BrokenFile
+		);
+		Assert(!YYCC::EnumHelper::Has(test.m_CoreManager.Load(), wrong_result), YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
 		test.PrintSettings();
 		Assert(test.m_IntSetting.Get() == INT32_C(114), YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
 		Assert(test.m_FloatSetting.Get() == 2.0f, YYCC_U8("YYCC::ConfigManager::CoreManager::Load"));
@@ -655,7 +704,8 @@ int main(int argc, char* argv[]) {
 	YYCCTestbench::StringTestbench();
 	YYCCTestbench::ParserTestbench();
 	YYCCTestbench::WinFctTestbench();
-	YYCCTestbench::StdPatch();
+	YYCCTestbench::StdPatchTestbench();
+	YYCCTestbench::EnumHelperTestbench();
 	// advanced
 	YYCCTestbench::ConfigManagerTestbench();
 	YYCCTestbench::ArgParserTestbench(argc, argv);

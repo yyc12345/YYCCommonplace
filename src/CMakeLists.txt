@@ -31,6 +31,7 @@ FILES
     ConsoleHelper.hpp
     DialogHelper.hpp
     EncodingHelper.hpp
+    EnumHelper.hpp
     ExceptionHelper.hpp
     StdPatch.hpp
     IOHelper.hpp

@@ -11,6 +11,7 @@
 #include "IOHelper.hpp"
 #include "WinFctHelper.hpp"
 #include "StdPatch.hpp"
+#include "EnumHelper.hpp"
 #include "ExceptionHelper.hpp"
 
 #include "ConfigManager.hpp"

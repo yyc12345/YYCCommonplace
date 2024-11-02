@@ -2,6 +2,7 @@
 
 #include "EncodingHelper.hpp"
 #include "IOHelper.hpp"
+#include "EnumHelper.hpp"
 #include <stdexcept>
 
 namespace YYCC::ConfigManager {
@@ -33,7 +34,7 @@ namespace YYCC::ConfigManager {
 		m_CfgFilePath(cfg_file_path), m_VersionIdentifier(version_identifier), m_Settings() {
 		// Mark: no need to check cfg file path
 		// it will be checked at creating file handle
-		
+
 		// assign settings
 		for (auto* setting : settings) {
 			auto result = m_Settings.try_emplace(setting->GetName(), setting);
@@ -44,7 +45,10 @@ namespace YYCC::ConfigManager {
 		}
 	}
 
-	bool CoreManager::Load() {
+	ConfigLoadResult CoreManager::Load() {
+		// prepare result variables
+		ConfigLoadResult ret = ConfigLoadResult::OK;
+
 		// reset all settings first
 		Reset();
 
@@ -53,20 +57,27 @@ namespace YYCC::ConfigManager {
 		if (fs.get() == nullptr) {
 			// if we fail to get, it means that we do not have corresponding cfg file.
 			// all settings should be reset to default value.
-			return true;
+			ret = ConfigLoadResult::Created;
+			return ret;
 		}
 
 		// fetch version info
 		uint64_t version_info;
-		if (std::fread(&version_info, 1u, sizeof(version_info), fs.get()) != sizeof(version_info))
-			return false;
+		if (std::fread(&version_info, 1u, sizeof(version_info), fs.get()) != sizeof(version_info)) {
+			ret = ConfigLoadResult::Created;
+			return ret;
+		}
 		// check version
 		// if read version is greater than we expected,
 		// it means that this cfg file is created by the program higer than this.
 		// we should not read anything from it.
 		// however, for compaitibility reason, we allow read old cfg data.
-		if (version_info > m_VersionIdentifier)
-			return true;
+		if (version_info > m_VersionIdentifier) {
+			ret = ConfigLoadResult::ForwardNew;
+			return ret;
+		} else if (version_info < m_VersionIdentifier) {
+			EnumHelper::Add(ret, ConfigLoadResult::Migrated);
+		}
 
 		// fetch setting item from file
 		yycc_u8string name_cache;
@@ -77,37 +88,50 @@ namespace YYCC::ConfigManager {
 			if (std::fread(&name_length, 1u, sizeof(name_length), fs.get()) != sizeof(name_length)) {
 				// we also check whether reach EOF at there.
 				if (std::feof(fs.get())) break;
-				else return false;
+				else {
+					EnumHelper::Add(ret, ConfigLoadResult::BrokenFile);
+					return ret;
+				}
 			}
 			// fetch name body
 			name_cache.resize(name_length);
-			if (std::fread(name_cache.data(), 1u, name_length, fs.get()) != name_length)
-				return false;
+			if (std::fread(name_cache.data(), 1u, name_length, fs.get()) != name_length) {
+				EnumHelper::Add(ret, ConfigLoadResult::BrokenFile);
+				return ret;
+			}
 
 			// get setting data length
 			size_t data_length;
-			if (std::fread(&data_length, 1u, sizeof(data_length), fs.get()) != sizeof(data_length))
-				return false;
+			if (std::fread(&data_length, 1u, sizeof(data_length), fs.get()) != sizeof(data_length)) {
+				EnumHelper::Add(ret, ConfigLoadResult::BrokenFile);
+				return ret;
+			}
 
 			// get matched setting first
 			const auto& found = m_Settings.find(name_cache);
 			if (found != m_Settings.end()) {
 				// found. read data for it
 				found->second->ResizeData(data_length);
-				if (std::fread(found->second->GetDataPtr(), 1u, data_length, fs.get()) != data_length)
-					return false;
+				if (std::fread(found->second->GetDataPtr(), 1u, data_length, fs.get()) != data_length) {
+					EnumHelper::Add(ret, ConfigLoadResult::BrokenFile);
+					return ret;
+				}
 				// call user defined load function
 				// if fail to parse, reset to default value
-				if (!found->second->UserLoad())
+				if (!found->second->UserLoad()) {
+					EnumHelper::Add(ret, ConfigLoadResult::ItemError);
 					found->second->UserReset();
+				}
 			} else {
 				// fail to find. skip this unknown setting
-				if (fseek(fs.get(), static_cast<long>(data_length), SEEK_CUR) != 0)
-					return false;
+				if (fseek(fs.get(), static_cast<long>(data_length), SEEK_CUR) != 0) {
+					EnumHelper::Add(ret, ConfigLoadResult::BrokenFile);
+					return ret;
+				}
 			}
 		}
 
-		return true;
+		return ret;
 	}
 
 	bool CoreManager::Save() {
