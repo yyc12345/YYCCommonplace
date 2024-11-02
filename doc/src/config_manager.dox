@@ -86,12 +86,66 @@ so it must be initialized after initializing all settings.
 
 When initializing core manager, you need assign config file path first.
 Then you need specify a version number.
-Version number will be used when reading config file.
-If the version of config file is higher than your given number,
-core manager will assume you are trying to read a config file created by a higher version program.
-Core manager will reject reading and use default value for all settings.
-Otherwise, core manager will try to read config file and do proper migration if possible.
+Version number is important.
+It will be used when reading config file and only can be increased if needed (version can not downgrade).
 The last argument is an initializer list which contain the \b pointer to all settings this manager managed.
+
+When executing YYCC::ConfigManager::CoreManager::Load to load configs, it will perform following steps one by one:
+
+<UL>
+    <LI>
+    Open given config file.
+    <UL>
+        <LI>
+            If given file is not existing, loading function will simply return and all configs will be reset to its default value.
+        </LI>
+        <LI>
+            Success to open file, go to next step.
+        </LI>
+    </UL>
+    </LI>
+
+    <LI>
+    Fetch version number from file.
+    <UL>
+        <LI>
+            If fail to read version number from file, loading function will simply return and all configs will be reset to its default value.
+        </LI>
+        <LI>
+            If the version of config file is higher than your specified version number when constructing this class,
+            core manager will assume you are trying to read a config file created by a higher version program,
+            and will reject reading and use default value for all settings.
+        </LI>
+        <LI>
+            If the version of config file is lower than your specified version number,
+            core manager will try to read config file and do proper migration (set default value for configs which do not existing) if possible.
+        </LI>
+        <LI>
+            If the version of config file is equal than your specified version number,
+            core manager will read config file normally.
+        </LI>
+    </UL>
+    </LI>
+
+    <LI>
+    Read config file body.
+    <UL>
+        <LI>
+            If any IO error occurs when reading, loading function will simply return.
+            All read config will keep their read value and all configs which has not been read will keep their default value.
+        </LI>
+        <LI>
+            If some config can not parse binary data to its type,
+            this config will be skipped and core manager will process next config.
+            This config will keep its default value.
+        </LI>
+    </UL>
+    </LI>
+</UL>
+
+All of these scenarios can be found by the return value of loading function.
+The return type of loading function, ConfigLoadResult is a flag enum.
+You can find whether loading process happend specified issue by using bitwise operation on it.
 
 */
 }
