@@ -1,9 +1,6 @@
 #!/bin/bash
-README_PATH=$(pwd)/README.md
-if [ ! -f "$README_PATH" ]; then
-    echo "Error: You must run this script at the root folder of this project!"
-    exit
-fi
+# Navigate to project root directory
+cd {{ repo_root_dir }}
 
 # Create main binary directory
 mkdir bin
@@ -19,10 +16,10 @@ cd ..
 
 # Build current system debug and release version
 cd build
-cmake -DCMAKE_BUILD_TYPE=Debug ../.. --fresh
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD={{ cpp_version }} {{ '-DCMAKE_POSITION_INDEPENDENT_CODE=True' if pic else '' }} ../.. --fresh
 cmake --build .
 cmake --install . --prefix ../install/Debug
-cmake -DCMAKE_BUILD_TYPE=Release -DYYCC_BUILD_TESTBENCH=ON ../.. --fresh
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD={{ cpp_version }} {{ '-DCMAKE_POSITION_INDEPENDENT_CODE=True' if pic else '' }} -DYYCC_BUILD_TESTBENCH=ON ../.. --fresh
 cmake --build .
 cmake --install . --prefix ../install/Release
 cd ..

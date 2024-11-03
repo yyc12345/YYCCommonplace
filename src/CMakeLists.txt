@@ -4,17 +4,17 @@ add_library(YYCCommonplace STATIC "")
 target_sources(YYCCommonplace
 PRIVATE
     # Sources
-    COMHelper.cpp
-    ArgParser.cpp
-    ConfigManager.cpp
-    ConsoleHelper.cpp
-    DialogHelper.cpp
-    EncodingHelper.cpp
-    ExceptionHelper.cpp
-    StdPatch.cpp
-    IOHelper.cpp
-    StringHelper.cpp
-    WinFctHelper.cpp
+    YYCC/COMHelper.cpp
+    YYCC/ArgParser.cpp
+    YYCC/ConfigManager.cpp
+    YYCC/ConsoleHelper.cpp
+    YYCC/DialogHelper.cpp
+    YYCC/EncodingHelper.cpp
+    YYCC/ExceptionHelper.cpp
+    YYCC/StdPatch.cpp
+    YYCC/IOHelper.cpp
+    YYCC/StringHelper.cpp
+    YYCC/WinFctHelper.cpp
     # Natvis (only for MSVC)
     $<$<CXX_COMPILER_ID:MSVC>:YYCC.natvis>
 )
@@ -24,25 +24,26 @@ FILE_SET HEADERS
 FILES
     # Headers
     # Common headers
-    Constraints.hpp
-    COMHelper.hpp
-    ArgParser.hpp
-    ConfigManager.hpp
-    ConsoleHelper.hpp
-    DialogHelper.hpp
-    EncodingHelper.hpp
-    EnumHelper.hpp
-    ExceptionHelper.hpp
-    StdPatch.hpp
-    IOHelper.hpp
-    ParserHelper.hpp
-    StringHelper.hpp
-    WinFctHelper.hpp
+    YYCC/Constraints.hpp
+    YYCC/COMHelper.hpp
+    YYCC/ArgParser.hpp
+    YYCC/ConfigManager.hpp
+    YYCC/ConsoleHelper.hpp
+    YYCC/DialogHelper.hpp
+    YYCC/EncodingHelper.hpp
+    YYCC/EnumHelper.hpp
+    YYCC/ExceptionHelper.hpp
+    YYCC/StdPatch.hpp
+    YYCC/IOHelper.hpp
+    YYCC/ParserHelper.hpp
+    YYCC/StringHelper.hpp
+    YYCC/WinFctHelper.hpp
     # Windows including guard pair
-    WinImportPrefix.hpp
-    WinImportSuffix.hpp
-    # Misc
-    YYCCInternal.hpp
+    YYCC/WinImportPrefix.hpp
+    YYCC/WinImportSuffix.hpp
+    # Internal
+    YYCC/YYCCInternal.hpp
+    # Exposed
     YYCCommonplace.hpp
 )
 # Setup header infomations

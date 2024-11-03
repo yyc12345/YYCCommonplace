@@ -484,6 +484,17 @@ namespace YYCCTestbench {
 
 	}
 
+	static void VersionMacroTestbench() {
+		Assert(YYCC_VERCMP_E(1, 2, 3, 1, 2, 3), YYCC_U8("YYCC_VERCMP_E"));
+		Assert(!YYCC_VERCMP_NE(1, 2, 3, 1, 2, 3), YYCC_U8("YYCC_VERCMP_NE"));
+		Assert(YYCC_VERCMP_G(1, 2, 3, 0, 2, 5), YYCC_U8("YYCC_VERCMP_G"));
+		Assert(YYCC_VERCMP_GE(1, 2, 3, 1, 2, 3), YYCC_U8("YYCC_VERCMP_GE"));
+		Assert(YYCC_VERCMP_NL(1, 2, 3, 1, 2, 3), YYCC_U8("YYCC_VERCMP_NL"));
+		Assert(YYCC_VERCMP_L(0, 2, 5, 1, 2, 3), YYCC_U8("YYCC_VERCMP_L"));
+		Assert(YYCC_VERCMP_LE(1, 2, 3, 1, 2, 3), YYCC_U8("YYCC_VERCMP_LE"));
+		Assert(YYCC_VERCMP_NG(1, 2, 3, 1, 2, 3), YYCC_U8("YYCC_VERCMP_NG"));
+	}
+
 	enum class TestEnum : int8_t {
 		Test1, Test2, Test3
 	};
@@ -698,6 +709,12 @@ auto al = YYCC::ArgParser::ArgumentList::CreateFromStd(sizeof(test_argv) / sizeo
 }
 
 int main(int argc, char* argv[]) {
+
+#if YYCC_VERCMP_NE(YYCC_VER_MAJOR, YYCC_VER_MINOR, YYCC_VER_PATCH, 1, 3 ,0)
+#error "The YYCC library used when compiling is not match code expected, this may cause build error."
+#error "If you trust it, please annotate these preprocessor statement, otherwise please contact developer."
+#endif
+
 	// common testbench
 	// normal
 	YYCCTestbench::EncodingTestbench();
@@ -706,6 +723,7 @@ int main(int argc, char* argv[]) {
 	YYCCTestbench::WinFctTestbench();
 	YYCCTestbench::StdPatchTestbench();
 	YYCCTestbench::EnumHelperTestbench();
+	YYCCTestbench::VersionMacroTestbench();
 	// advanced
 	YYCCTestbench::ConfigManagerTestbench();
 	YYCCTestbench::ArgParserTestbench(argc, argv);
