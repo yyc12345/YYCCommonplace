@@ -1,3 +1,10 @@
+# Configure version file
+configure_file(
+    ${CMAKE_CURRENT_LIST_DIR}/../cmake/YYCCVersion.hpp.in
+    ${CMAKE_CURRENT_LIST_DIR}/YYCC/YYCCVersion.hpp
+    @ONLY
+)
+
 # Create static library
 add_library(YYCCommonplace STATIC "")
 # Setup static library sources
@@ -42,6 +49,7 @@ FILES
     YYCC/WinImportPrefix.hpp
     YYCC/WinImportSuffix.hpp
     # Internal
+    YYCC/YYCCVersion.hpp
     YYCC/YYCCInternal.hpp
     # Exposed
     YYCCommonplace.hpp

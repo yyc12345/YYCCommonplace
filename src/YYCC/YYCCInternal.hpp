@@ -2,9 +2,7 @@
 
 #pragma region Library Version and Comparison Macros
 
-#define YYCC_VER_MAJOR 1
-#define YYCC_VER_MINOR 3
-#define YYCC_VER_PATCH 0
+#include "YYCCVersion.hpp"
 
 /// @brief Return true if left version number is equal to right version number, otherwise false.
 #define YYCC_VERCMP_E(av1, av2, av3, bv1, bv2, bv3) ((av1) == (bv1) && (av2) == (bv2) && (av3) == (bv3))
