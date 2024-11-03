@@ -116,11 +116,14 @@ Due to the different defination of UTF8 char type,
 C++ 20 program can not use this library built by C++ 17 environment.
 So this switch give you a chance to decide the version of C++ standard used when building.
 The lowest and defult version of C++ standard is 17.
-\li \c -d, \c --no-doc: Specify this if you don't want to build documentation.
+\li \c -d, \c --build-doc: Specify this if you want to build documentation.
 End user usually needs documentation, 
 however if you are the developer of this library, you may need this switch.
 Because documentation take too much disk space and cost a bunch of time for building and copying.
-In default, generator will produce script which build documentation automatically.
+In default, generator will produce script which do not build documentation automatically.
+\li \c -p, \c --pic: Enable Position Independent Code flag on non-Windows platfotm.
+This flag is crucial to linking this library to another dynamic library.
+If you do not specify this flag, the linking process will fail.
 
 After script done, you will find CMake distribution in directory <TT>bin/<I>cpp_ver</I>/install</TT>.
 and you will also find your MSVC distribution in directory <TT>bin/<I>cpp_ver</I>/msvc_install</TT>.

@@ -16,10 +16,10 @@ cd ..
 
 # Build current system debug and release version
 cd build
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD={{ cpp_version }} {{ '-DCMAKE_POSITION_INDEPENDENT_CODE=True' if pic else '' }} ../.. --fresh
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD={{ cpp_version }} {{ '-DCMAKE_POSITION_INDEPENDENT_CODE=True' if pic }} ../.. --fresh
 cmake --build .
 cmake --install . --prefix ../install/Debug
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD={{ cpp_version }} {{ '-DCMAKE_POSITION_INDEPENDENT_CODE=True' if pic else '' }} -DYYCC_BUILD_TESTBENCH=ON ../.. --fresh
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_STANDARD={{ cpp_version }} {{ '-DCMAKE_POSITION_INDEPENDENT_CODE=True' if pic }} -DYYCC_BUILD_TESTBENCH=ON ../.. --fresh
 cmake --build .
 cmake --install . --prefix ../install/Release
 cd ..

@@ -6,6 +6,48 @@ namespace YYCC {
 In this page we will introduce the macros defined by this library
 which can not be grouped in other topic.
 
+\section library_macros__batch_class_copy_move Library Version and Version Comparison
+
+Version is a important things in modern software development, especially for a library.
+In YYCC, we use Semantic Versioning as our version standard.
+For more infomations about it, please see: https://semver.org/
+
+First, YYCC has its own version and it can be visited by
+\c YYCC_VER_MAJOR, \c YYCC_VER_MINOR, and \c YYCC_VER_PATCH.
+Each part of Semantic Versioning is provided individually.
+
+YYCC also provide a bunch of macros to compare 2 versions.
+It also provides a way to check YYCC version in program using YYCC,
+because some of them rely on a specific version of YYCC.
+There is a list of these comparison macros.
+
+\li YYCC_VERCMP_E
+\li YYCC_VERCMP_NE
+\li YYCC_VERCMP_G
+\li YYCC_VERCMP_GE
+\li YYCC_VERCMP_NL
+\li YYCC_VERCMP_L
+\li YYCC_VERCMP_LE
+\li YYCC_VERCMP_NG
+
+You may notice all of these macros are starts with \c YYCC_VERCMP_,
+and their tails are inspired from x86 ASM comparison jump code.
+For example, \c E means "equal" and \c NE means "not equal",
+\c G means "greater", \c GE means "greater or equal", and \c NG means "not gretaer".
+
+All of these macros take 6 arguments,
+for the first 3 arguments, we call them "left version".
+From left to right they are the major part, minor part and patch part of semantic version.
+And for the last 3 arguments, we call them "right version".
+From left to right they are the major part, minor part and patch part of semantic version.
+There is a example about checking whether YYCC library version is exactly what we wanted version.
+
+\code
+#if YYCC_VERCMP_NE(YYCC_VER_MAJOR, YYCC_VER_MINOR, YYCC_VER_PATCH, 1, 3 ,0)
+#error "Not Matched YYCC Version"
+#endif
+\endcode
+
 \section library_macros__platform_checker Platform Checker
 
 In many cross platform applications, 

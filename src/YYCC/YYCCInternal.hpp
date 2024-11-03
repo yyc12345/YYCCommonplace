@@ -1,6 +1,6 @@
 #pragma once
 
-#pragma region Library Version and Comparation Macros
+#pragma region Library Version and Comparison Macros
 
 #define YYCC_VER_MAJOR 1
 #define YYCC_VER_MINOR 3

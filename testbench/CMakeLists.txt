@@ -31,6 +31,6 @@ PRIVATE
 
 # Install testbench only on Release mode
 install(TARGETS YYCCTestbench
-    CONFIGURATIONS Release
+    CONFIGURATIONS Release RelWithDebInfo MinSizeRel
     RUNTIME DESTINATION ${YYCC_INSTALL_BIN_PATH}
 )

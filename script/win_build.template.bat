@@ -40,28 +40,28 @@ CD ..
 
 :: Build for Win32
 CD Win32
-cmake -G "Visual Studio 16 2019" -A Win32 -DCMAKE_CXX_STANDARD={{ cpp_version }} -DYYCC_BUILD_TESTBENCH=ON ../../..
+cmake -A Win32 -DCMAKE_CXX_STANDARD={{ cpp_version }} -DYYCC_BUILD_TESTBENCH=ON ../../..
 cmake --build . --config Debug
 cmake --install . --prefix=../install/Win32_Debug --config Debug
-cmake --build . --config Release
-cmake --install . --prefix=../install/Win32_Release --config Release
+cmake --build . --config RelWithDebInfo
+cmake --install . --prefix=../install/Win32_Release --config RelWithDebInfo
 CD ..
 :: Build for x64
 CD x64
-cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_CXX_STANDARD={{ cpp_version }} -DYYCC_BUILD_TESTBENCH=ON ../../..
+cmake -A x64 -DCMAKE_CXX_STANDARD={{ cpp_version }} -DYYCC_BUILD_TESTBENCH=ON ../../..
 cmake --build . --config Debug
 cmake --install . --prefix=../install/x64_Debug --config Debug
-cmake --build . --config Release
-cmake --install . --prefix=../install/x64_Release --config Release
+cmake --build . --config RelWithDebInfo
+cmake --install . --prefix=../install/x64_Release --config RelWithDebInfo
 CD ..
 
 {% if build_doc %}
 :: Build for documentation
 CD documentation
-'cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_CXX_STANDARD={{ cpp_version }} -DYYCC_BUILD_DOC=ON ../../..
-cmake --build . --config Release
+cmake -A x64 -DCMAKE_CXX_STANDARD={{ cpp_version }} -DYYCC_BUILD_DOC=ON ../../..
+cmake --build . --config RelWithDebInfo
 cmake --build . --target YYCCDocumentation
-cmake --install . --prefix=../install/x64_Release --config Release
+cmake --install . --prefix=../install/x64_Release --config RelWithDebInfo
 CD ..
 {% endif %}
 
