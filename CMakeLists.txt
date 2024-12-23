@@ -46,7 +46,7 @@ write_basic_package_version_file(
 configure_package_config_file(
     ${CMAKE_CURRENT_LIST_DIR}/cmake/YYCCommonplaceConfig.cmake.in 
     "${CMAKE_CURRENT_BINARY_DIR}/YYCCommonplaceConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/YYCCommonplace
+    INSTALL_DESTINATION ${YYCC_INSTALL_LIB_PATH}/cmake/YYCCommonplace
 )
 # Copy package files to install destination
 install(
@@ -54,6 +54,6 @@ FILES
     "${CMAKE_CURRENT_BINARY_DIR}/YYCCommonplaceConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/YYCCommonplaceConfigVersion.cmake"
 DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/cmake/YYCCommonplace
+    ${YYCC_INSTALL_LIB_PATH}/cmake/YYCCommonplace
 )
 
