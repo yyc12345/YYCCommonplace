@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 project(YYCC
-    VERSION 1.3.0
+    VERSION 2.0.0
     LANGUAGES CXX
 )
 
@@ -19,6 +19,14 @@ set(YYCC_INSTALL_BIN_PATH ${CMAKE_INSTALL_BINDIR} CACHE PATH
 "Binary install path relative to CMAKE_INSTALL_PREFIX unless set to an absolute path.")
 set(YYCC_INSTALL_DOC_PATH ${CMAKE_INSTALL_DOCDIR} CACHE PATH
 "Non-arch doc install path relative to CMAKE_INSTALL_PREFIX unless set to an absolute path.")
+
+# Include dependency.
+# GTest is required if we build testbench
+if (YYCC_BUILD_TESTBENCH)
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    find_package(GTest REQUIRED)
+endif ()
 
 # Import 3 build targets
 add_subdirectory(src)

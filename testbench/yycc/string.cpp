@@ -1,0 +1,2 @@
+
+namespace yycctest::string {}

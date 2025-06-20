@@ -4,15 +4,22 @@ add_executable(YYCCTestbench "")
 target_sources(YYCCTestbench
 PRIVATE
     main.cpp
+    yycc/constraint.cpp
+    yycc/constraint/builder.cpp
+    yycc/string.cpp
+    yycc/string/op.cpp
+    yycc/string/reinterpret.cpp
 )
-# Add YYCC as its library
+# Setup headers
 target_include_directories(YYCCTestbench
-PRIVATE
-    YYCCommonplace
+PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}"
 )
+# Setup libraries
 target_link_libraries(YYCCTestbench
 PRIVATE
     YYCCommonplace
+    GTest::gtest_main
 )
 # Setup C++ standard
 target_compile_features(YYCCTestbench PUBLIC cxx_std_17)
@@ -29,8 +36,6 @@ PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )
 
-# Install testbench only on Release mode
-install(TARGETS YYCCTestbench
-    CONFIGURATIONS Release RelWithDebInfo MinSizeRel
-    RUNTIME DESTINATION ${YYCC_INSTALL_BIN_PATH}
-)
+# Discover all test
+include(GoogleTest)
+gtest_discover_tests(YYCCTestbench)

@@ -1,7 +1,7 @@
 # Configure version file
 configure_file(
-    ${CMAKE_CURRENT_LIST_DIR}/../cmake/YYCCVersion.hpp.in
-    ${CMAKE_CURRENT_LIST_DIR}/YYCC/YYCCVersion.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/yycc/version.hpp.in
+    ${CMAKE_CURRENT_LIST_DIR}/yycc/version.hpp
     @ONLY
 )
 
@@ -11,48 +11,68 @@ add_library(YYCCommonplace STATIC "")
 target_sources(YYCCommonplace
 PRIVATE
     # Sources
-    YYCC/COMHelper.cpp
-    YYCC/ArgParser.cpp
-    YYCC/ConfigManager.cpp
-    YYCC/ConsoleHelper.cpp
-    YYCC/DialogHelper.cpp
-    YYCC/EncodingHelper.cpp
-    YYCC/ExceptionHelper.cpp
-    YYCC/StdPatch.cpp
-    YYCC/IOHelper.cpp
-    YYCC/StringHelper.cpp
-    YYCC/WinFctHelper.cpp
-    # Natvis (only for MSVC)
-    $<$<CXX_COMPILER_ID:MSVC>:YYCC.natvis>
+    yycc/string/reinterpret.cpp
+    yycc/string/op.cpp
+    # YYCC/COMHelper.cpp
+    # YYCC/ArgParser.cpp
+    # YYCC/ConfigManager.cpp
+    # YYCC/ConsoleHelper.cpp
+    # YYCC/DialogHelper.cpp
+    # YYCC/EncodingHelper.cpp
+    # YYCC/ExceptionHelper.cpp
+    # YYCC/StdPatch.cpp
+    # YYCC/IOHelper.cpp
+    # YYCC/StringHelper.cpp
+    # YYCC/WinFctHelper.cpp
+    # # Natvis (only for MSVC)
+    # $<$<CXX_COMPILER_ID:MSVC>:YYCC.natvis>
 )
 target_sources(YYCCommonplace 
 PUBLIC
 FILE_SET HEADERS
 FILES
     # Headers
-    # Common headers
-    YYCC/Constraints.hpp
-    YYCC/COMHelper.hpp
-    YYCC/ArgParser.hpp
-    YYCC/ConfigManager.hpp
-    YYCC/ConsoleHelper.hpp
-    YYCC/DialogHelper.hpp
-    YYCC/EncodingHelper.hpp
-    YYCC/EnumHelper.hpp
-    YYCC/ExceptionHelper.hpp
-    YYCC/StdPatch.hpp
-    YYCC/IOHelper.hpp
-    YYCC/ParserHelper.hpp
-    YYCC/StringHelper.hpp
-    YYCC/WinFctHelper.hpp
-    # Windows including guard pair
-    YYCC/WinImportPrefix.hpp
-    YYCC/WinImportSuffix.hpp
-    # Internal
-    YYCC/YYCCVersion.hpp
-    YYCC/YYCCInternal.hpp
-    # Exposed
-    YYCCommonplace.hpp
+    yycc.hpp
+    yycc/version.hpp
+    yycc/prelude/core.hpp
+    yycc/prelude/rust.hpp
+    yycc/macro/version_cmp.hpp
+    yycc/macro/os_detector.hpp
+    yycc/macro/class_copy_move.hpp
+    yycc/string.hpp
+    yycc/string/reinterpret.hpp
+    yycc/string/op.hpp
+    yycc/rust/primitive.hpp
+    yycc/windows/unsafe_suppressor.hpp
+    yycc/windows/import_guard_head.hpp
+    yycc/windows/import_guard_tail.hpp
+    yycc/constraint.hpp
+    yycc/constraint/builder.hpp
+
+    # # Headers
+    # # Common headers
+    # YYCC/Constraints.hpp
+    # YYCC/COMHelper.hpp
+    # YYCC/ArgParser.hpp
+    # YYCC/ConfigManager.hpp
+    # YYCC/ConsoleHelper.hpp
+    # YYCC/DialogHelper.hpp
+    # YYCC/EncodingHelper.hpp
+    # YYCC/EnumHelper.hpp
+    # YYCC/ExceptionHelper.hpp
+    # YYCC/StdPatch.hpp
+    # YYCC/IOHelper.hpp
+    # YYCC/ParserHelper.hpp
+    # YYCC/StringHelper.hpp
+    # YYCC/WinFctHelper.hpp
+    # # Windows including guard pair
+    # YYCC/WinImportPrefix.hpp
+    # YYCC/WinImportSuffix.hpp
+    # # Internal
+    # YYCC/YYCCVersion.hpp
+    # YYCC/YYCCInternal.hpp
+    # # Exposed
+    # YYCCommonplace.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace
