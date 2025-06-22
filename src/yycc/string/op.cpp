@@ -114,18 +114,18 @@ namespace yycc::string::op {
 
 #pragma region Join
 
-	NS_YYCC_STRING::u8string join(JoinDataProvider fct_data, const NS_YYCC_STRING::u8string_view& decilmer) {
+	NS_YYCC_STRING::u8string join(JoinDataProvider fct_data, const NS_YYCC_STRING::u8string_view& delimiter) {
 		NS_YYCC_STRING::u8string ret;
 		bool is_first = true;
 		NS_YYCC_STRING::u8string_view element;
 
 		// fetch element
 		while (fct_data(element)) {
-			// insert decilmer
+			// insert delimiter
 			if (is_first) is_first = false;
 			else {
-				// append decilmer.
-				ret.append(decilmer);
+				// append delimiter.
+				ret.append(delimiter);
 			}
 
 			// insert element if it is not empty
@@ -179,9 +179,37 @@ namespace yycc::string::op {
 
 #pragma region Split
 
-	std::vector<NS_YYCC_STRING::u8string> split(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _decilmer) {
+    std::vector<NS_YYCC_STRING::u8string_view> split(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _delimiter) {
+        // Reference:
+        // https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
+
+        // prepare return value
+        std::vector<NS_YYCC_STRING::u8string_view> elems;
+
+        // if string need to be splitted is empty, return original string (empty string).
+        // if delimiter is empty, return original string.
+        NS_YYCC_STRING::u8string delimiter(_delimiter);
+        if (strl.empty() || delimiter.empty()) {
+            elems.emplace_back(strl);
+            return elems;
+        }
+
+        // start spliting
+        std::size_t previous = 0, current;
+        while ((current = strl.find(delimiter.c_str(), previous)) != NS_YYCC_STRING::u8string::npos) {
+            elems.emplace_back(strl.substr(previous, current - previous));
+            previous = current + delimiter.size();
+        }
+        // try insert last part but prevent possible out of range exception
+        if (previous <= strl.size()) {
+            elems.emplace_back(strl.substr(previous));
+        }
+        return elems;
+    }
+
+    std::vector<NS_YYCC_STRING::u8string> split_owned(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _delimiter) {
 		// call split view
-		auto view_result = split_view(strl, _decilmer);
+        auto view_result = split(strl, _delimiter);
 
 		// copy string view result to string
 		std::vector<NS_YYCC_STRING::u8string> elems;
@@ -190,34 +218,6 @@ namespace yycc::string::op {
 			elems.emplace_back(NS_YYCC_STRING::u8string(strl_view));
 		}
 		// return copied result
-		return elems;
-	}
-
-	std::vector<NS_YYCC_STRING::u8string_view> split_view(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _decilmer) {
-		// Reference: 
-		// https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
-
-		// prepare return value
-		std::vector<NS_YYCC_STRING::u8string_view> elems;
-
-		// if string need to be splitted is empty, return original string (empty string).
-		// if decilmer is empty, return original string.
-		NS_YYCC_STRING::u8string decilmer(_decilmer);
-		if (strl.empty() || decilmer.empty()) {
-			elems.emplace_back(strl);
-			return elems;
-		}
-
-		// start spliting
-		std::size_t previous = 0, current;
-		while ((current = strl.find(decilmer.c_str(), previous)) != NS_YYCC_STRING::u8string::npos) {
-			elems.emplace_back(strl.substr(previous, current - previous));
-			previous = current + decilmer.size();
-		}
-		// try insert last part but prevent possible out of range exception
-		if (previous <= strl.size()) {
-			elems.emplace_back(strl.substr(previous));
-		}
 		return elems;
 	}
 

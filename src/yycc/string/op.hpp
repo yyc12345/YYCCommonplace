@@ -77,10 +77,10 @@ namespace yycc::string::op {
 	 * You can use this universal join function for any custom container by
 	 * using C++ lambda syntax to create a code block adapted to this function pointer.
 	 * @param[in] fct_data The function pointer in JoinDataProvider type prividing the data to be joined.
-	 * @param[in] decilmer The decilmer used for joining.
+	 * @param[in] delimiter The delimiter used for joining.
 	 * @return The result string of joining.
 	*/
-	NS_YYCC_STRING::u8string join(JoinDataProvider fct_data, const NS_YYCC_STRING::u8string_view& decilmer);
+	NS_YYCC_STRING::u8string join(JoinDataProvider fct_data, const NS_YYCC_STRING::u8string_view& delimiter);
 	/**
 	 * @brief Specialized join function for standard library container.
 	 * @tparam InputIt 
@@ -88,11 +88,11 @@ namespace yycc::string::op {
 	 * It also can be dereferenced and then implicitly converted to NS_YYCC_STRING::u8string_view.
 	 * @param[in] first The beginning of the range of elements to join.
 	 * @param[in] last The terminal of the range of elements to join (exclusive).
-	 * @param[in] decilmer The decilmer used for joining.
+	 * @param[in] delimiter The delimiter used for joining.
 	 * @return The result string of joining.
 	*/
 	template<class InputIt>
-	NS_YYCC_STRING::u8string join(InputIt first, InputIt last, const NS_YYCC_STRING::u8string_view& decilmer) {
+	NS_YYCC_STRING::u8string join(InputIt first, InputIt last, const NS_YYCC_STRING::u8string_view& delimiter) {
 		return join([&first, &last](NS_YYCC_STRING::u8string_view& view) -> bool {
 			// if we reach tail, return false to stop join process
 			if (first == last) return false;
@@ -100,7 +100,7 @@ namespace yycc::string::op {
 			view = *first;
 			++first;
 			return true;
-		}, decilmer);
+		}, delimiter);
 	}
 
 	/**
@@ -126,30 +126,31 @@ namespace yycc::string::op {
 	*/
 	NS_YYCC_STRING::u8string upper(const NS_YYCC_STRING::u8string_view& strl);
 
+    /**
+     * @brief Split given string with specified delimiter as string view.
+     * @param[in] strl The string need to be splitting.
+     * @param[in] _delimiter The delimiter for splitting.
+     * @return
+     * The split result with string view format.
+     * This will not produce any copy of original string.
+     * \par
+     * If given string or delimiter are empty,
+     * the result container will only contain 1 entry which is equal to given string.
+     * @see Split(const NS_YYCC_STRING::u8string_view&, const NS_YYCC_STRING::u8char*)
+    */
+    std::vector<NS_YYCC_STRING::u8string_view> split(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _delimiter);
 	/**
-	 * @brief Split given string with specified decilmer.
+	 * @brief Split given string with specified delimiter.
 	 * @param[in] strl The string need to be splitting.
-	 * @param[in] _decilmer The decilmer for splitting.
+	 * @param[in] _delimiter The delimiter for splitting.
 	 * @return 
 	 * The split result.
 	 * \par
-	 * If given string or decilmer are empty,
+	 * If given string or delimiter are empty,
 	 * the result container will only contain 1 entry which is equal to given string.
 	*/
-	std::vector<NS_YYCC_STRING::u8string> split(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _decilmer);
-	/**
-	 * @brief Split given string with specified decilmer as string view.
-	 * @param[in] strl The string need to be splitting.
-	 * @param[in] _decilmer The decilmer for splitting.
-	 * @return 
-	 * The split result with string view format.
-	 * This will not produce any copy of original string.
-	 * \par
-	 * If given string or decilmer are empty,
-	 * the result container will only contain 1 entry which is equal to given string.
-	 * @see Split(const NS_YYCC_STRING::u8string_view&, const NS_YYCC_STRING::u8char*)
-	*/
-	std::vector<NS_YYCC_STRING::u8string_view> split_view(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _decilmer);
+    std::vector<NS_YYCC_STRING::u8string> split_owned(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _delimiter);
+    // undefined lazy_split(const NS_YYCC_STRING::u8string_view& strl, const NS_YYCC_STRING::u8string_view& _delimiter);
 
 }
 

@@ -82,10 +82,10 @@ namespace YYCC::StringHelper {
 	 * You can use this universal join function for any custom container by
 	 * using C++ lambda syntax to create a code block adapted to this function pointer.
 	 * @param[in] fct_data The function pointer in JoinDataProvider type prividing the data to be joined.
-	 * @param[in] decilmer The decilmer used for joining.
+	 * @param[in] delimiter The delimiter used for joining.
 	 * @return The result string of joining.
 	*/
-	yycc_u8string Join(JoinDataProvider fct_data, const yycc_u8string_view& decilmer);
+	yycc_u8string Join(JoinDataProvider fct_data, const yycc_u8string_view& delimiter);
 	/**
 	 * @brief Specialized join function for standard library container.
 	 * @tparam InputIt 
@@ -93,11 +93,11 @@ namespace YYCC::StringHelper {
 	 * It also can be dereferenced and then implicitly converted to yycc_u8string_view.
 	 * @param[in] first The beginning of the range of elements to join.
 	 * @param[in] last The terminal of the range of elements to join (exclusive).
-	 * @param[in] decilmer The decilmer used for joining.
+	 * @param[in] delimiter The delimiter used for joining.
 	 * @return The result string of joining.
 	*/
 	template<class InputIt>
-	yycc_u8string Join(InputIt first, InputIt last, const yycc_u8string_view& decilmer) {
+	yycc_u8string Join(InputIt first, InputIt last, const yycc_u8string_view& delimiter) {
 		return Join([&first, &last](yycc_u8string_view& view) -> bool {
 			// if we reach tail, return false to stop join process
 			if (first == last) return false;
@@ -105,7 +105,7 @@ namespace YYCC::StringHelper {
 			view = *first;
 			++first;
 			return true;
-		}, decilmer);
+		}, delimiter);
 	}
 
 	/**
@@ -132,28 +132,28 @@ namespace YYCC::StringHelper {
 	yycc_u8string Upper(const yycc_u8string_view& strl);
 
 	/**
-	 * @brief Split given string with specified decilmer.
+	 * @brief Split given string with specified delimiter.
 	 * @param[in] strl The string need to be splitting.
-	 * @param[in] _decilmer The decilmer for splitting.
+	 * @param[in] _delimiter The delimiter for splitting.
 	 * @return 
 	 * The split result.
 	 * \par
-	 * If given string or decilmer are empty,
+	 * If given string or delimiter are empty,
 	 * the result container will only contain 1 entry which is equal to given string.
 	*/
-	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_u8string_view& _decilmer);
+	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_u8string_view& _delimiter);
 	/**
-	 * @brief Split given string with specified decilmer as string view.
+	 * @brief Split given string with specified delimiter as string view.
 	 * @param[in] strl The string need to be splitting.
-	 * @param[in] _decilmer The decilmer for splitting.
+	 * @param[in] _delimiter The delimiter for splitting.
 	 * @return 
 	 * The split result with string view format.
 	 * This will not produce any copy of original string.
 	 * \par
-	 * If given string or decilmer are empty,
+	 * If given string or delimiter are empty,
 	 * the result container will only contain 1 entry which is equal to given string.
 	 * @see Split(const yycc_u8string_view&, const yycc_char8_t*)
 	*/
-	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_u8string_view& _decilmer);
+	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_u8string_view& _delimiter);
 
 }

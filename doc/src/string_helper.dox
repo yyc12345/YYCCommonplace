@@ -71,7 +71,7 @@ You can simply return \c false to terminate join process.
 The argument you assigned to argument will not be taken into join process when you return false.
 
 Then, you can pass the created #JoinDataProvider object to #Join function.
-And specify decilmer at the same time.
+And specify delimiter at the same time.
 Then you can get the final joined string.
 There is an example:
 
@@ -88,7 +88,7 @@ auto joined_string = YYCC::StringHelper::Join(
         ++iter;
         return true;
     }, 
-    decilmer
+    delimiter
 );
 \endcode
 
@@ -105,7 +105,7 @@ Otherwise this overload will throw template error.
 std::vector<yycc_u8string> data {
     YYCC_U8(""), YYCC_U8("1"), YYCC_U8("2"), YYCC_U8("")
 };
-auto joined_string = YYCC::StringHelper::Join(data.begin(), data.end(), decilmer);
+auto joined_string = YYCC::StringHelper::Join(data.begin(), data.end(), delimiter);
 \endcode
 
 \section string_helper__lower_upper Lower Upper
@@ -134,14 +134,14 @@ std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view&, const yycc_
 \endcode
 
 All these overloads take a string view as the first argument representing the string need to be split.
-The second argument is a string view representing the decilmer for splitting.
+The second argument is a string view representing the delimiter for splitting.
 The only difference between these 2 split function are overt according to their names.
 The first split function will return a list of copied string as its split result.
 The second split function will return a list of string view as its split result,
 and it will keep valid as long as the life time of your given string view argument.
 It also means that the last overload will cost less memory if you don't need the copy of original string.
 
-If the source string (the string need to be split) is empty, or the decilmer is empty,
+If the source string (the string need to be split) is empty, or the delimiter is empty,
 the result will only has 1 item and this item is source string itself.
 There is no way that these methods return an empty list, except the code is buggy.
 

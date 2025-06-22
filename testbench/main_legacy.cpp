@@ -224,10 +224,10 @@ namespace YYCCTestbench {
 		Assert(test_split[1] == YYCC_U8("1"), YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[2] == YYCC_U8("2"), YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[3] == YYCC_U8(""), YYCC_U8("YYCC::StringHelper::Split"));
-		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8("-")); // no matched decilmer
+		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC_U8("-")); // no matched delimiter
 		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[0] == YYCC_U8("test"), YYCC_U8("YYCC::StringHelper::Split"));
-		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC::yycc_u8string_view()); // empty decilmer
+		test_split = YYCC::StringHelper::Split(YYCC_U8("test"), YYCC::yycc_u8string_view()); // empty delimiter
 		Assert(test_split.size() == 1u, YYCC_U8("YYCC::StringHelper::Split"));
 		Assert(test_split[0] == YYCC_U8("test"), YYCC_U8("YYCC::StringHelper::Split"));
 		test_split = YYCC::StringHelper::Split(YYCC::yycc_u8string_view(), YYCC_U8("")); // empty source string
@@ -413,12 +413,12 @@ namespace YYCCTestbench {
 		YYCC::yycc_u8string test_slashed_path(YYCC::StdPatch::ToUTF8Path(test_path));
 
 #if YYCC_OS == YYCC_OS_WINDOWS
-		std::wstring wdecilmer(1u, std::filesystem::path::preferred_separator);
-		YYCC::yycc_u8string decilmer(YYCC::EncodingHelper::WcharToUTF8(wdecilmer));
+		std::wstring wdelimiter(1u, std::filesystem::path::preferred_separator);
+		YYCC::yycc_u8string delimiter(YYCC::EncodingHelper::WcharToUTF8(wdelimiter));
 #else
-		YYCC::yycc_u8string decilmer(1u, std::filesystem::path::preferred_separator);
+		YYCC::yycc_u8string delimiter(1u, std::filesystem::path::preferred_separator);
 #endif
-		YYCC::yycc_u8string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable.begin(), c_UTF8TestStrTable.end(), decilmer));
+		YYCC::yycc_u8string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable.begin(), c_UTF8TestStrTable.end(), delimiter));
 
 		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::StdPatch::ToStdPath, YYCC::StdPatch::ToUTF8Path"));
 

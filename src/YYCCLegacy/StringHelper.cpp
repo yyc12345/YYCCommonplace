@@ -110,18 +110,18 @@ namespace YYCC::StringHelper {
 
 #pragma region Join
 
-	yycc_u8string Join(JoinDataProvider fct_data, const yycc_u8string_view& decilmer) {
+	yycc_u8string Join(JoinDataProvider fct_data, const yycc_u8string_view& delimiter) {
 		yycc_u8string ret;
 		bool is_first = true;
 		yycc_u8string_view element;
 
 		// fetch element
 		while (fct_data(element)) {
-			// insert decilmer
+			// insert delimiter
 			if (is_first) is_first = false;
 			else {
-				// append decilmer.
-				ret.append(decilmer);
+				// append delimiter.
+				ret.append(delimiter);
 			}
 
 			// insert element if it is not empty
@@ -175,9 +175,9 @@ namespace YYCC::StringHelper {
 
 #pragma region Split
 
-	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_u8string_view& _decilmer) {
+	std::vector<yycc_u8string> Split(const yycc_u8string_view& strl, const yycc_u8string_view& _delimiter) {
 		// call split view
-		auto view_result = SplitView(strl, _decilmer);
+		auto view_result = SplitView(strl, _delimiter);
 
 		// copy string view result to string
 		std::vector<yycc_u8string> elems;
@@ -189,7 +189,7 @@ namespace YYCC::StringHelper {
 		return elems;
 	}
 
-	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_u8string_view& _decilmer) {
+	std::vector<yycc_u8string_view> SplitView(const yycc_u8string_view& strl, const yycc_u8string_view& _delimiter) {
 		// Reference: 
 		// https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 
@@ -197,18 +197,18 @@ namespace YYCC::StringHelper {
 		std::vector<yycc_u8string_view> elems;
 
 		// if string need to be splitted is empty, return original string (empty string).
-		// if decilmer is empty, return original string.
-		yycc_u8string decilmer(_decilmer);
-		if (strl.empty() || decilmer.empty()) {
+		// if delimiter is empty, return original string.
+		yycc_u8string delimiter(_delimiter);
+		if (strl.empty() || delimiter.empty()) {
 			elems.emplace_back(strl);
 			return elems;
 		}
 
 		// start spliting
 		std::size_t previous = 0, current;
-		while ((current = strl.find(decilmer.c_str(), previous)) != yycc_u8string::npos) {
+		while ((current = strl.find(delimiter.c_str(), previous)) != yycc_u8string::npos) {
 			elems.emplace_back(strl.substr(previous, current - previous));
-			previous = current + decilmer.size();
+			previous = current + delimiter.size();
 		}
 		// try insert last part but prevent possible out of range exception
 		if (previous <= strl.size()) {
