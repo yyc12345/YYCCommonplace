@@ -6,7 +6,6 @@ PRIVATE
     main.cpp
     yycc/constraint.cpp
     yycc/constraint/builder.cpp
-    yycc/string.cpp
     yycc/string/op.cpp
     yycc/string/reinterpret.cpp
 )

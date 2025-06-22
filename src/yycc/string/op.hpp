@@ -113,7 +113,7 @@ namespace yycc::string::op {
 	 * @param[in] strl The string to be lowercase.
 	 * @return The copy of the string converted to lowercase.
 	*/
-	NS_YYCC_STRING::u8string lower(const NS_YYCC_STRING::u8string_view& strl);
+    NS_YYCC_STRING::u8string to_lower(const NS_YYCC_STRING::u8string_view& strl);
 	/**
 	 * @brief Convert given string to uppercase.
 	 * @param[in,out] strl The string to be uppercase.
@@ -124,7 +124,7 @@ namespace yycc::string::op {
 	 * @param[in] strl The string to be uppercase.
 	 * @return The copy of the string converted to uppercase.
 	*/
-	NS_YYCC_STRING::u8string upper(const NS_YYCC_STRING::u8string_view& strl);
+    NS_YYCC_STRING::u8string to_upper(const NS_YYCC_STRING::u8string_view& strl);
 
     /**
      * @brief Split given string with specified delimiter as string view.

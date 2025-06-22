@@ -158,7 +158,7 @@ namespace yycc::string::op {
 		generic_lower_upper<true>(strl);
 	}
 
-	NS_YYCC_STRING::u8string lower(const NS_YYCC_STRING::u8string_view& strl) {
+    NS_YYCC_STRING::u8string to_lower(const NS_YYCC_STRING::u8string_view& strl) {
 		NS_YYCC_STRING::u8string ret(strl);
 		lower(ret);
 		return ret;
@@ -168,7 +168,7 @@ namespace yycc::string::op {
 		generic_lower_upper<false>(strl);
 	}
 
-	NS_YYCC_STRING::u8string upper(const NS_YYCC_STRING::u8string_view& strl) {
+    NS_YYCC_STRING::u8string to_upper(const NS_YYCC_STRING::u8string_view& strl) {
 		// same as Lower, just replace char transform function.
 		NS_YYCC_STRING::u8string ret(strl);
 		upper(ret);

@@ -37,6 +37,7 @@ FILES
     yycc/prelude/core.hpp
     yycc/prelude/rust.hpp
     yycc/macro/version_cmp.hpp
+    yycc/macro/feature_probe.hpp
     yycc/macro/os_detector.hpp
     yycc/macro/class_copy_move.hpp
     yycc/string.hpp

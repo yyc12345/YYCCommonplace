@@ -48,12 +48,12 @@ namespace yycctest::string::op {
     }
 
     TEST(StringOp, Lower) {
-        auto rv = OP::lower(YYCC_U8("LOWER"));
+        auto rv = OP::to_lower(YYCC_U8("LOWER"));
         EXPECT_EQ(rv, YYCC_U8("lower"));
     }
 
     TEST(StringOp, Upper) {
-        auto rv = OP::upper(YYCC_U8("upper"));
+        auto rv = OP::to_upper(YYCC_U8("upper"));
         EXPECT_EQ(rv, YYCC_U8("UPPER"));
     }
 
