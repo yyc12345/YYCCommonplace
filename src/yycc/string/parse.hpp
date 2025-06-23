@@ -16,6 +16,7 @@ namespace yycc::string::parse {
     // Developer Notes:
     // Reference: https://zh.cppreference.com/w/cpp/utility/from_chars
 
+    /// @private
     /// @brief The error kind when parsing string into number.
     enum class ParseError {
         PartiallyParsed, ///< Only a part of given string was parsed. The whole string may be invalid.
@@ -23,11 +24,20 @@ namespace yycc::string::parse {
         OutOfRange, ///< Given string is valid but its value out of the range of given number type.
     };
 
+    /// @private
+    /// @brief The return value of internal parse function which ape `std::expected`.
     template<typename T, std::enable_if_t<!std::is_same_v<T, ParseError>, int> = 0>
     using ParseResult = std::variant<T, ParseError>;
 
+    /**
+     * @private
+     * @brief priv_parse
+     * @param strl
+     * @param fmt
+     * @return
+     */
     template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
-    ParseResult<T> _priv_parse(const NS_YYCC_STRING::u8string_view& strl, std::chars_format fmt) {
+    ParseResult<T> priv_parse(const NS_YYCC_STRING::u8string_view& strl, std::chars_format fmt) {
         namespace reinterpret = NS_YYCC_STRING_REINTERPRET;
 
         T rv;
@@ -52,8 +62,15 @@ namespace yycc::string::parse {
         }
     }
 
+    /**
+     * @private
+     * @brief priv_parse
+     * @param strl
+     * @param base
+     * @return
+     */
     template<typename T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
-    ParseResult<T> _priv_parse(const NS_YYCC_STRING::u8string_view& strl, int base) {
+    ParseResult<T> priv_parse(const NS_YYCC_STRING::u8string_view& strl, int base) {
         namespace reinterpret = NS_YYCC_STRING_REINTERPRET;
 
         T rv;
@@ -78,8 +95,14 @@ namespace yycc::string::parse {
         }
     }
 
+    /**
+     * @private
+     * @brief priv_parse
+     * @param strl
+     * @return
+     */
     template<typename T, std::enable_if_t<std::is_same_v<T, bool>, int> = 0>
-    ParseResult<T> _priv_parse(const NS_YYCC_STRING::u8string_view& strl) {
+    ParseResult<T> priv_parse(const NS_YYCC_STRING::u8string_view& strl) {
         // Get lower case
         auto lower_case = NS_YYCC_STRING_OP::to_lower(strl);
         // Compare result
@@ -102,7 +125,7 @@ namespace yycc::string::parse {
     bool try_parse(const NS_YYCC_STRING::u8string_view& strl,
                    T& num,
                    std::chars_format fmt = std::chars_format::general) {
-        auto rv = _priv_parse<T>(strl, fmt);
+        auto rv = priv_parse<T>(strl, fmt);
         if (const auto* ptr = std::get_if<T>(rv)) {
             num = *ptr;
             return true;
@@ -125,7 +148,7 @@ namespace yycc::string::parse {
     */
     template<typename T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
     bool try_parse(const NS_YYCC_STRING::u8string_view& strl, T& num, int base = 10) {
-        auto rv = _priv_parse<T>(strl, base);
+        auto rv = priv_parse<T>(strl, base);
         if (const auto* ptr = std::get_if<T>(rv)) {
             num = *ptr;
             return true;
@@ -147,7 +170,7 @@ namespace yycc::string::parse {
     */
     template<typename T, std::enable_if_t<std::is_same_v<T, bool>, int> = 0>
     bool try_parse(const NS_YYCC_STRING::u8string_view& strl, T& num) {
-        auto rv = _priv_parse<T>(strl);
+        auto rv = priv_parse<T>(strl);
         if (const auto* ptr = std::get_if<T>(rv)) {
             num = *ptr;
             return true;

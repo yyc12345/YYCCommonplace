@@ -13,6 +13,7 @@ PRIVATE
     # Sources
     yycc/string/reinterpret.cpp
     yycc/string/op.cpp
+    yycc/rust/panic.cpp
     # YYCC/COMHelper.cpp
     # YYCC/ArgParser.cpp
     # YYCC/ConfigManager.cpp
@@ -43,7 +44,13 @@ FILES
     yycc/string.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp
+    yycc/string/parse.hpp
+    yycc/string/stringify.hpp
     yycc/rust/primitive.hpp
+    yycc/rust/panic.hpp
+    yycc/rust/option.hpp
+    yycc/rust/result.hpp
+    yycc/rust/parse.hpp
     yycc/windows/unsafe_suppressor.hpp
     yycc/windows/import_guard_head.hpp
     yycc/windows/import_guard_tail.hpp

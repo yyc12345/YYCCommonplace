@@ -15,7 +15,9 @@ namespace yycc::string::stringify {
     // Reference: https://en.cppreference.com/w/cpp/utility/to_chars
     // Default float precision = 6 is gotten from: https://en.cppreference.com/w/c/io/fprintf
 
+    /// @private
     inline constexpr size_t STRINGIFY_BUFFER_SIZE = 64u;
+    /// @private
     using StringifyBuffer = std::array<NS_YYCC_STRING::u8char, STRINGIFY_BUFFER_SIZE>;
 
     /**
@@ -41,7 +43,7 @@ namespace yycc::string::stringify {
             return NS_YYCC_STRING::u8string(buffer.data(),
                                             reinterpret::as_utf8(ptr) - buffer.data());
         } else if (ec == std::errc::value_too_large) {
-            // Too short buffer. This should not happened
+            // Too short buffer. This should not happen.
             throw std::out_of_range("stringify() buffer is not sufficient.");
         } else {
             // Unreachable
@@ -67,7 +69,7 @@ namespace yycc::string::stringify {
             return NS_YYCC_STRING::u8string(buffer.data(),
                                             reinterpret::as_utf8(ptr) - buffer.data());
         } else if (ec == std::errc::value_too_large) {
-            // Too short buffer. This should not happened
+            // Too short buffer. This should not happen.
             throw std::out_of_range("stringify() buffer is not sufficient.");
         } else {
             // Unreachable
