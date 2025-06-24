@@ -106,8 +106,8 @@ namespace yycc::string::parse {
         // Get lower case
         auto lower_case = NS_YYCC_STRING_OP::to_lower(strl);
         // Compare result
-        if (strl == YYCC_U8("true")) return true;
-        else if (strl == YYCC_U8("false")) return false;
+        if (lower_case == YYCC_U8("true")) return true;
+        else if (lower_case == YYCC_U8("false")) return false;
         else return ParseError::InvalidString;
     }
 
@@ -126,10 +126,10 @@ namespace yycc::string::parse {
                    T& num,
                    std::chars_format fmt = std::chars_format::general) {
         auto rv = priv_parse<T>(strl, fmt);
-        if (const auto* ptr = std::get_if<T>(rv)) {
+        if (const auto* ptr = std::get_if<T>(&rv)) {
             num = *ptr;
             return true;
-        } else if (const auto* ptr = std::get_if<ParseError>(rv)) {
+        } else if (const auto* ptr = std::get_if<ParseError>(&rv)) {
             return false;
         } else {
             // Unreachable
@@ -149,10 +149,10 @@ namespace yycc::string::parse {
     template<typename T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
     bool try_parse(const NS_YYCC_STRING::u8string_view& strl, T& num, int base = 10) {
         auto rv = priv_parse<T>(strl, base);
-        if (const auto* ptr = std::get_if<T>(rv)) {
+        if (const auto* ptr = std::get_if<T>(&rv)) {
             num = *ptr;
             return true;
-        } else if (const auto* ptr = std::get_if<ParseError>(rv)) {
+        } else if (const auto* ptr = std::get_if<ParseError>(&rv)) {
             return false;
         } else {
             // Unreachable
@@ -171,10 +171,10 @@ namespace yycc::string::parse {
     template<typename T, std::enable_if_t<std::is_same_v<T, bool>, int> = 0>
     bool try_parse(const NS_YYCC_STRING::u8string_view& strl, T& num) {
         auto rv = priv_parse<T>(strl);
-        if (const auto* ptr = std::get_if<T>(rv)) {
+        if (const auto* ptr = std::get_if<T>(&rv)) {
             num = *ptr;
             return true;
-        } else if (const auto* ptr = std::get_if<ParseError>(rv)) {
+        } else if (const auto* ptr = std::get_if<ParseError>(&rv)) {
             return false;
         } else {
             // Unreachable

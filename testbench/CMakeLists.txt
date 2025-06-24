@@ -8,6 +8,8 @@ PRIVATE
     yycc/constraint/builder.cpp
     yycc/string/op.cpp
     yycc/string/reinterpret.cpp
+    yycc/string/parse.cpp
+    yycc/string/stringify.cpp
 )
 # Setup headers
 target_include_directories(YYCCTestbench
