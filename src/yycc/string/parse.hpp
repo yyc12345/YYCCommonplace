@@ -11,10 +11,14 @@
 #define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
 #define NS_YYCC_STRING_OP ::yycc::string::op
 
+/**
+ * @brief Provides string parsing utilities for converting strings to numeric and boolean values.
+ * @details
+ * This namespace contains functions for parsing strings into various numeric types (integer, floating point)
+ * and boolean values. It uses \c std::from_chars internally for efficient parsing.
+ * @remarks See https://zh.cppreference.com/w/cpp/utility/from_chars for underlying called functions.
+ */
 namespace yycc::string::parse {
-
-    // Developer Notes:
-    // Reference: https://zh.cppreference.com/w/cpp/utility/from_chars
 
     /// @private
     /// @brief The error kind when parsing string into number.
@@ -31,10 +35,11 @@ namespace yycc::string::parse {
 
     /**
      * @private
-     * @brief priv_parse
-     * @param strl
-     * @param fmt
-     * @return
+     * @brief Internal parsing function for floating point types
+     * @tparam T Floating point type (float, double, etc)
+     * @param strl The UTF-8 string view to parse
+     * @param fmt The floating point format to use
+     * @return ParseResult<T> containing either the parsed value or a ParseError
      */
     template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
     ParseResult<T> priv_parse(const NS_YYCC_STRING::u8string_view& strl, std::chars_format fmt) {
@@ -64,10 +69,11 @@ namespace yycc::string::parse {
 
     /**
      * @private
-     * @brief priv_parse
-     * @param strl
-     * @param base
-     * @return
+     * @brief Internal parsing function for integral types (except bool)
+     * @tparam T Integral type (int, long, etc)
+     * @param strl The UTF-8 string view to parse
+     * @param base Numeric base (2-36)
+     * @return ParseResult<T> containing either the parsed value or a ParseError
      */
     template<typename T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
     ParseResult<T> priv_parse(const NS_YYCC_STRING::u8string_view& strl, int base) {
@@ -97,9 +103,10 @@ namespace yycc::string::parse {
 
     /**
      * @private
-     * @brief priv_parse
-     * @param strl
-     * @return
+     * @brief Internal parsing function for boolean type
+     * @tparam T Must be bool type
+     * @param strl The UTF-8 string view to parse ("true" or "false", case insensitive)
+     * @return ParseResult<bool> containing either the parsed value or a ParseError
      */
     template<typename T, std::enable_if_t<std::is_same_v<T, bool>, int> = 0>
     ParseResult<T> priv_parse(const NS_YYCC_STRING::u8string_view& strl) {

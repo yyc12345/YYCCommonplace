@@ -6,36 +6,37 @@
 #include <format>
 #endif
 
-/// @brief
+/**
+ * @brief Provides Rust-style panic functionality for immediate program termination on unrecoverable errors.
+ * @details
+ * This namespace provides macros and functions to handle unrecoverable errors in C++ code.
+ * It imitate Rust's \c panic! macro behavior, allowing the program to immediately exit with error information and stack traces.
+ *
+ * After writing programs in Rust, I deeply realized the necessity of handling errors immediately.
+ * When encountering unrecoverable errors, the program should exit immediately and report the error, which ensures program robustness.
+ * Therefore, I introduced this namespace and implemented macros and functions equivalent to Rust's \c panic! macro.
+ * 
+ * Unfortunately, I cannot change the exception mechanism in the standard library.
+ * The standard library will still throw exceptions where it does, and I cannot prevent that.
+ * Therefore, I suggest a good practice that any C++ exception should be immediately treated as an error and cause the program to crash and exit.
+ * For this reason, registering any unhandled error callbacks which may resume the execution of program is prohibited to prevent unexpected continuation of execution.
+ * For code we write ourselves that we can control, we should use the macros provided in this file instead of throwing exceptions.
+ * In this way, unexpected behavior in our code will cause the program to exit immediately, outputting error information and stack traces.
+ * Standard library exceptions will also cause the program to exit, but without stack information.
+ */
 namespace yycc::rust::panic {
 
-    // TODO: Move these comments into Doxygen comments of this namespace.
-
-    // YYC MARK:
-    // 在使用Rust编写程序后，我深刻地认识到，将错误立即进行处理的必要性。
-    // 而在陷入不可恢复错误后，也应当立即退出程序并报告错误，这是对程序健壮性的保证。
-    // 因此我引入了这个命名空间，并带来了与Rust中panic!宏等效的宏和函数。
-
-    // YYC MARK:
-    // 遗憾的是，我无法改变标准库中的异常机制。
-    // 标准库中会抛出异常的内容仍然会抛出异常，我不能阻止它们。
-    // 因此我在这里规定，在Stardust项目中，任何C++异常都应立即被视为错误，并导致程序崩溃退出。
-    // 也正因为于此，规定不允许注册任何未处理错误的回调，以防止意料之外的继续运行。
-    // 而对于我们自己编写的，能控制的代码，则应用本文件中提供的宏来代替异常抛出。
-    // 这样一来，我们代码中的非预期行为会使得程序立即退出，并输出错误信息和堆栈。
-    // 而标准库中的异常，也会使得程序退出，只不过没有堆栈信息罢了。
-
     /**
-     * @brief 像Rust的panic!宏一样立即使整个程序崩溃。
-     * @details 宏参数为需要附加的提示信息。
+     * @brief Immediately crashes the entire program like Rust's \c panic! macro.
+     * @details The macro parameter is the additional message to display.
      */
 #define RS_PANIC(msg) ::yycc::rust::panic::panic(__FILE__, __LINE__, (msg))
 
     /**
-     * @brief 像Rust的panic!宏一样立即使整个程序崩溃。
+     * @brief Immediately crashes the entire program like Rust's \c panic! macro.
      * @details
-     * 宏参数为需要格式化的信息和参数，格式和参数请参考std::format。
-     * 因为本质上这个宏就是调用std::format来实现的。
+     * The macro parameters are the message to format and its arguments, following \c std::format syntax.
+     * This macro essentially calls \c std::format internally.
      */
 #if defined(YYCC_CPPFEAT_FORMAT)
 #if defined(YYCC_CPPFEAT_VA_OPT)
@@ -46,13 +47,13 @@ namespace yycc::rust::panic {
 #endif
 
     /**
-     * @brief 像Rust的panic!宏一样立即使整个程序崩溃。
+     * @brief Immediately crashes the entire program like Rust's \c panic! macro.
      * @details
-     * 此函数是宏所调用的真正的崩溃输出函数。
-     * 崩溃信息将被写入到stderr中，信息中还包含堆栈信息。
-     * @param[in] file Panic时的源代码文件。该参数一般由宏代为填写。
-     * @param[in] line Panic时的源代码文件中的行号。该参数一般由宏代为填写。
-     * @param[in] msg Panic时需要显示的提示信息。
+     * This is the actual crash output function called by the macros.
+     * The crash information will be written to \c stderr, including stack traces if your C++ runtime support it.
+     * @param[in] file Source file name where panic occurred. Usually filled by macros.
+     * @param[in] line Line number in source file where panic occurred. Usually filled by macros.
+     * @param[in] msg Message to display during panic.
      */
     [[noreturn]] void panic(const char* file, int line, const std::string_view& msg);
 

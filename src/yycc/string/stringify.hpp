@@ -9,15 +9,22 @@
 #define NS_YYCC_STRING ::yycc::string
 #define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
 
+/**
+ * @brief Provides stringify utilities for converting numeric and boolean values to strings.
+ * @details
+ * This namespace contains functions for stringifying various numeric types (integer, floating point)
+ * and boolean values into string. It uses \c std::to_chars internally for efficient stringify.
+ * @remarks
+ * See https://en.cppreference.com/w/cpp/utility/to_chars for underlying called functions.
+ * Default float precision = 6 is gotten from: https://en.cppreference.com/w/c/io/fprintf
+ */
 namespace yycc::string::stringify {
 
-    // Developer Notes:
-    // Reference: https://en.cppreference.com/w/cpp/utility/to_chars
-    // Default float precision = 6 is gotten from: https://en.cppreference.com/w/c/io/fprintf
-
     /// @private
+    /// @brief Size of the internal buffer used for string conversion.
     inline constexpr size_t STRINGIFY_BUFFER_SIZE = 64u;
     /// @private
+    /// @brief Type alias for the buffer used in string conversion.
     using StringifyBuffer = std::array<NS_YYCC_STRING::u8char, STRINGIFY_BUFFER_SIZE>;
 
     /**
