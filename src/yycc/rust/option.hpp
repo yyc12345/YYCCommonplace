@@ -11,7 +11,7 @@ namespace yycc::rust::option {
     using Option = std::optional<T>;
 
     template<typename OptionType, typename... Args>
-    OptionType Some(Args &&... args) {
+    OptionType Some(Args &&...args) {
         return OptionType(std::in_place, std::forward<Args>(args)...);
     }
 
@@ -20,4 +20,4 @@ namespace yycc::rust::option {
         return OptionType(std::nullopt);
     }
 
-}
+} // namespace yycc::rust::option

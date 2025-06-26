@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
-#include <yycc/string/stringify.hpp>
 #include <yycc/string/reinterpret.hpp>
+#include <yycc/string/stringify.hpp>
 
 #include <yycc/prelude/rust.hpp>
 
@@ -9,11 +9,12 @@
 
 namespace yycctest::string::stringify {
 
-#define TEST_SUCCESS(type_t, value, string_value, ...) { \
-    type_t cache = value; \
-    u8string ret = STRINGIFY::stringify<type_t>(cache, ##__VA_ARGS__); \
-    EXPECT_EQ(ret, YYCC_U8(string_value)); \
-}
+#define TEST_SUCCESS(type_t, value, string_value, ...) \
+    { \
+        type_t cache = value; \
+        u8string ret = STRINGIFY::stringify<type_t>(cache, ##__VA_ARGS__); \
+        EXPECT_EQ(ret, YYCC_U8(string_value)); \
+    }
 
     TEST(StringStringify, Common) {
         TEST_SUCCESS(i8, INT8_C(-61), "-61");
@@ -38,4 +39,4 @@ namespace yycctest::string::stringify {
         TEST_SUCCESS(u32, UINT32_C(0B1011), "1011", 2);
     }
 
-}
+} // namespace yycctest::string::stringify

@@ -10,6 +10,8 @@ PRIVATE
     yycc/string/reinterpret.cpp
     yycc/string/parse.cpp
     yycc/string/stringify.cpp
+    yycc/rust/parse.cpp
+    yycc/rust/stringify.cpp
 )
 # Setup headers
 target_include_directories(YYCCTestbench

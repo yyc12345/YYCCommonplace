@@ -51,6 +51,7 @@ FILES
     yycc/rust/option.hpp
     yycc/rust/result.hpp
     yycc/rust/parse.hpp
+    yycc/rust/stringify.hpp
     yycc/windows/unsafe_suppressor.hpp
     yycc/windows/import_guard_head.hpp
     yycc/windows/import_guard_tail.hpp

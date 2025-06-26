@@ -82,4 +82,4 @@ namespace yycc::rust::result {
 
 #endif
 
-}
+} // namespace yycc::rust::result

@@ -5,6 +5,9 @@
 
 // Rust prelude section
 #include "../rust/primitive.hpp"
+#include "../rust/result.hpp"
+#include "../rust/option.hpp"
+#include "../rust/panic.hpp"
 #include <vector>
 
 namespace yycc::prelude::rust {
@@ -35,6 +38,14 @@ namespace yycc::prelude::rust {
     using String = ::yycc::string::u8string;
     template<typename T>
     using Vec = std::vector<T>;
+
+    // Expose Result and Option
+    using namespace ::yycc::rust::option;
+    using namespace ::yycc::rust::result;
+
+    // Panic are introduced by including header file
+    // so we do not need re-expose it.
+
 } // namespace yycc::prelude::rust
 
 // Expose all members
