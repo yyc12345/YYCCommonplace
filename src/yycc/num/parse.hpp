@@ -1,7 +1,7 @@
 #pragma once
 #include "../string.hpp"
-#include "op.hpp"
-#include "reinterpret.hpp"
+#include "../string/op.hpp"
+#include "../string/reinterpret.hpp"
 #include <charconv>
 #include <stdexcept>
 #include <type_traits>
@@ -18,7 +18,7 @@
  * and boolean values. It uses \c std::from_chars internally for efficient parsing.
  * @remarks See https://zh.cppreference.com/w/cpp/utility/from_chars for underlying called functions.
  */
-namespace yycc::string::parse {
+namespace yycc::num::parse {
 
     /// @private
     /// @brief The error kind when parsing string into number.

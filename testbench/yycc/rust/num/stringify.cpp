@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
-#include <yycc/rust/stringify.hpp>
+#include <yycc/rust/num/stringify.hpp>
 
 #include <yycc/prelude/rust.hpp>
 

@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
+#include <yycc/num/stringify.hpp>
 #include <yycc/string/reinterpret.hpp>
-#include <yycc/string/stringify.hpp>
 
 #include <yycc/prelude/rust.hpp>
 
-#define STRINGIFY ::yycc::string::stringify
+#define STRINGIFY ::yycc::num::stringify
 
-namespace yycctest::string::stringify {
+namespace yycctest::num::stringify {
 
 #define TEST_SUCCESS(type_t, value, string_value, ...) \
     { \
@@ -16,7 +16,7 @@ namespace yycctest::string::stringify {
         EXPECT_EQ(ret, YYCC_U8(string_value)); \
     }
 
-    TEST(StringStringify, Common) {
+    TEST(NumStringify, Common) {
         TEST_SUCCESS(i8, INT8_C(-61), "-61");
         TEST_SUCCESS(u8, UINT8_C(200), "200");
         TEST_SUCCESS(i16, INT16_C(6161), "6161");
@@ -33,7 +33,7 @@ namespace yycctest::string::stringify {
         TEST_SUCCESS(bool, false, "false");
     }
 
-    TEST(StringStringify, Radix) {
+    TEST(NumStringify, Radix) {
         TEST_SUCCESS(u32, UINT32_C(0xffff), "ffff", 16);
         TEST_SUCCESS(u32, UINT32_C(032), "32", 8);
         TEST_SUCCESS(u32, UINT32_C(0B1011), "1011", 2);

@@ -8,10 +8,10 @@ PRIVATE
     yycc/constraint/builder.cpp
     yycc/string/op.cpp
     yycc/string/reinterpret.cpp
-    yycc/string/parse.cpp
-    yycc/string/stringify.cpp
-    yycc/rust/parse.cpp
-    yycc/rust/stringify.cpp
+    yycc/num/parse.cpp
+    yycc/num/stringify.cpp
+    yycc/rust/num/parse.cpp
+    yycc/rust/num/stringify.cpp
 )
 # Setup headers
 target_include_directories(YYCCTestbench

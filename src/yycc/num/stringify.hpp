@@ -1,6 +1,6 @@
 #pragma once
 #include "../string.hpp"
-#include "reinterpret.hpp"
+#include "../string/reinterpret.hpp"
 #include <array>
 #include <charconv>
 #include <stdexcept>
@@ -18,7 +18,7 @@
  * See https://en.cppreference.com/w/cpp/utility/to_chars for underlying called functions.
  * Default float precision = 6 is gotten from: https://en.cppreference.com/w/c/io/fprintf
  */
-namespace yycc::string::stringify {
+namespace yycc::num::stringify {
 
     /// @private
     /// @brief Size of the internal buffer used for string conversion.

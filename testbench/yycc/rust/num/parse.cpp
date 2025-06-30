@@ -1,35 +1,36 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
-#include <yycc/string/parse.hpp>
-#include <yycc/string/reinterpret.hpp>
+#include <yycc/rust/num/parse.hpp>
 
 #include <yycc/prelude/rust.hpp>
 
-#define PARSE ::yycc::string::parse
+#define PARSE ::yycc::rust::num::parse
 
-namespace yycctest::string::parse {
+namespace yycctest::rust::parse {
 
-    // These 2 test macros build string container via given string.
-    // Check `try_parse` first, and then check `parse`.
+    // We only want to test it if C++ support it.
+#if defined(YYCC_CPPFEAT_EXPECTED)
 
-#define TEST_SUCCESS(type_t, value, string_value, ...) \
+    // This namespace is just a wrapper for legacy "parse" module.
+    // So the test is just a copy of original implementation.
+    // Please update this if original test was updated.
+
+#define TEST_SUCCESS(type_t, expected_value, string_value, ...) \
     { \
         u8string cache_string(YYCC_U8(string_value)); \
-        type_t cache; \
-        ASSERT_TRUE(PARSE::try_parse<type_t>(cache_string, cache, ##__VA_ARGS__)); \
-        EXPECT_EQ(cache, value); \
-        EXPECT_EQ(PARSE::parse<type_t>(cache_string, ##__VA_ARGS__), value); \
+        auto rv = PARSE::parse<type_t>(cache_string, ##__VA_ARGS__); \
+        ASSERT_TRUE(rv.has_value()); \
+        EXPECT_EQ(rv.value(), expected_value); \
     }
 
 #define TEST_FAIL(type_t, string_value, ...) \
     { \
         u8string cache_string(YYCC_U8(string_value)); \
-        type_t cache; \
-        EXPECT_FALSE(PARSE::try_parse<type_t>(cache_string, cache, ##__VA_ARGS__)); \
-        EXPECT_ANY_THROW(PARSE::parse<type_t>(cache_string, ##__VA_ARGS__)); \
+        auto rv = PARSE::parse<type_t>(cache_string, ##__VA_ARGS__); \
+        EXPECT_FALSE(rv.has_value()); \
     }
 
-    TEST(StringParse, Common) {
+    TEST(RustNumParse, Common) {
         TEST_SUCCESS(i8, INT8_C(-61), "-61");
         TEST_SUCCESS(u8, UINT8_C(200), "200");
         TEST_SUCCESS(i16, INT16_C(6161), "6161");
@@ -46,17 +47,17 @@ namespace yycctest::string::parse {
         TEST_SUCCESS(bool, false, "false");
     }
 
-    TEST(StringParse, Radix) {
+    TEST(RustNumParse, Radix) {
         TEST_SUCCESS(u32, UINT32_C(0xffff), "ffff", 16);
         TEST_SUCCESS(u32, UINT32_C(032), "032", 8);
         TEST_SUCCESS(u32, UINT32_C(0B1011), "1011", 2);
     }
 
-    TEST(StringParse, CaseInsensitive) {
+    TEST(RustNumParse, CaseInsensitive) {
         TEST_SUCCESS(bool, true, "tRUE");
     }
 
-    TEST(StringParse, Overflow) {
+    TEST(RustNumParse, Overflow) {
         TEST_FAIL(i8, "6161");
         TEST_FAIL(u8, "32800");
         TEST_FAIL(i16, "61616161");
@@ -70,15 +71,17 @@ namespace yycctest::string::parse {
         TEST_FAIL(double, "1e114514");
     }
 
-    TEST(StringParse, BadRadix) {
+    TEST(RustNumParse, BadRadix) {
         TEST_FAIL(u32, "fghj", 16);
         TEST_FAIL(u32, "099", 8);
         TEST_FAIL(u32, "12345", 2);
     }
 
-    TEST(StringParse, InvalidWords) {
+    TEST(RustNumParse, InvalidWords) {
         TEST_FAIL(u32, "hello, world!");
         TEST_FAIL(bool, "hello, world!");
     }
 
-} // namespace yycctest::string::parse
+#endif
+
+} // namespace yycctest::rust::parse
