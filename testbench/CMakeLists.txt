@@ -12,6 +12,8 @@ PRIVATE
     yycc/num/stringify.cpp
     yycc/rust/num/parse.cpp
     yycc/rust/num/stringify.cpp
+    yycc/patch/contains.cpp
+    yycc/patch/starts_ends_with.cpp
 )
 # Setup headers
 target_include_directories(YYCCTestbench
