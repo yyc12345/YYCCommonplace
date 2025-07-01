@@ -14,6 +14,7 @@ PRIVATE
     yycc/string/reinterpret.cpp
     yycc/string/op.cpp
     yycc/rust/panic.cpp
+    yycc/patch/path.cpp
     # YYCC/COMHelper.cpp
     # YYCC/ArgParser.cpp
     # YYCC/ConfigManager.cpp
@@ -57,6 +58,9 @@ FILES
     yycc/windows/import_guard_tail.hpp
     yycc/constraint.hpp
     yycc/constraint/builder.hpp
+    yycc/patch/path.hpp
+    yycc/patch/contains.hpp
+    yycc/patch/starts_ends_with.hpp
 
     # # Headers
     # # Common headers
