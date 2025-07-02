@@ -15,6 +15,10 @@ PRIVATE
     yycc/string/op.cpp
     yycc/rust/panic.cpp
     yycc/patch/path.cpp
+    yycc/encoding/utf.cpp
+    yycc/encoding/windows.cpp
+    yycc/encoding/iconv.cpp
+    yycc/encoding/united_codec.cpp
     # YYCC/COMHelper.cpp
     # YYCC/ArgParser.cpp
     # YYCC/ConfigManager.cpp
@@ -61,6 +65,10 @@ FILES
     yycc/patch/path.hpp
     yycc/patch/contains.hpp
     yycc/patch/starts_ends_with.hpp
+    yycc/encoding/utf.hpp
+    yycc/encoding/windows.hpp
+    yycc/encoding/iconv.hpp
+    yycc/encoding/united_codec.hpp
 
     # # Headers
     # # Common headers

@@ -18,6 +18,11 @@
 
 // ===== C++ Features =====
 
+// Check whether there is support of UTF8 string system.
+#if defined(__cpp_char8_t) || defined(YYCC_CPPFEAT_GE_CPP20)
+    #define YYCC_CPPFEAT_UTF8
+#endif
+
 // Check whether there is support of `contains` for `set` and `map` including their varients.
 #if defined(YYCC_CPPFEAT_GE_CPP20)
     #define YYCC_CPPFEAT_CONTAINS

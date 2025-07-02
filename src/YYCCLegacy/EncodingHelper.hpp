@@ -17,20 +17,6 @@
 */
 namespace YYCC::EncodingHelper {
 
-#define _YYCC_U8(strl) u8 ## strl ///< The assistant macro for YYCC_U8.
-#define YYCC_U8(strl) (reinterpret_cast<const ::YYCC::yycc_char8_t*>(_YYCC_U8(strl))) ///< The macro for creating UTF8 string literal. See \ref library_encoding.
-#define YYCC_U8_CHAR(chr) (static_cast<YYCC::yycc_char8_t>(chr)) ///< The macro for casting ordinary char type into YYCC UTF8 char type.
-
-	const yycc_char8_t* ToUTF8(const char* src);
-	yycc_char8_t* ToUTF8(char* src);
-	yycc_u8string ToUTF8(const std::string_view& src);
-	yycc_u8string_view ToUTF8View(const std::string_view& src);
-
-	const char* ToOrdinary(const yycc_char8_t* src);
-	char* ToOrdinary(yycc_char8_t* src);
-	std::string ToOrdinary(const yycc_u8string_view& src);
-	std::string_view ToOrdinaryView(const yycc_u8string_view& src);
-
 #if YYCC_OS == YYCC_OS_WINDOWS
 
 	bool WcharToChar(const std::wstring_view& src, std::string& dst, UINT code_page);
@@ -70,26 +56,5 @@ namespace YYCC::EncodingHelper {
 	std::string UTF8ToChar(const yycc_char8_t* src, UINT code_page);
 
 #endif
-
-	bool UTF8ToUTF16(const yycc_u8string_view& src, std::u16string& dst);
-	bool UTF8ToUTF16(const yycc_char8_t* src, std::u16string& dst);
-	std::u16string UTF8ToUTF16(const yycc_u8string_view& src);
-	std::u16string UTF8ToUTF16(const yycc_char8_t* src);
-
-	bool UTF16ToUTF8(const std::u16string_view& src, yycc_u8string& dst);
-	bool UTF16ToUTF8(const char16_t* src, yycc_u8string& dst);
-	yycc_u8string UTF16ToUTF8(const std::u16string_view& src);
-	yycc_u8string UTF16ToUTF8(const char16_t* src);
-
-
-	bool UTF8ToUTF32(const yycc_u8string_view& src, std::u32string& dst);
-	bool UTF8ToUTF32(const yycc_char8_t* src, std::u32string& dst);
-	std::u32string UTF8ToUTF32(const yycc_u8string_view& src);
-	std::u32string UTF8ToUTF32(const yycc_char8_t* src);
-
-	bool UTF32ToUTF8(const std::u32string_view& src, yycc_u8string& dst);
-	bool UTF32ToUTF8(const char32_t* src, yycc_u8string& dst);
-	yycc_u8string UTF32ToUTF8(const std::u32string_view& src);
-	yycc_u8string UTF32ToUTF8(const char32_t* src);
 
 }

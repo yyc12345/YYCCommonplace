@@ -3,6 +3,7 @@
 // Define the UTF8 char type we used.
 // And do a polyfill if no embedded char8_t type.
 
+#include "macro/feature_probe.hpp"
 #include <string>
 #include <string_view>
 
@@ -29,7 +30,7 @@ namespace yycc::string {
 		It is equal to \c std::u8string_view if your current C++ standard support it.
 	*/
 
-#if defined(__cpp_char8_t)
+#if defined(YYCC_CPPFEAT_UTF8)
     using u8char = char8_t;
     using u8string = std::u8string;
     using u8string_view = std::u8string_view;
