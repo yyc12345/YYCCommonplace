@@ -40,6 +40,7 @@ namespace yycc::num::stringify {
                                        std::chars_format fmt = std::chars_format::general,
                                        int precision = 6) {
         namespace reinterpret = NS_YYCC_STRING_REINTERPRET;
+
         StringifyBuffer buffer;
         auto [ptr, ec] = std::to_chars(reinterpret::as_ordinary(buffer.data()),
                                        reinterpret::as_ordinary(buffer.data() + buffer.size()),
@@ -67,6 +68,7 @@ namespace yycc::num::stringify {
     template<typename T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
     NS_YYCC_STRING::u8string stringify(T num, int base = 10) {
         namespace reinterpret = NS_YYCC_STRING_REINTERPRET;
+        
         StringifyBuffer buffer;
         auto [ptr, ec] = std::to_chars(reinterpret::as_ordinary(buffer.data()),
                                        reinterpret::as_ordinary(buffer.data() + buffer.size()),

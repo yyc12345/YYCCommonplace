@@ -15,6 +15,14 @@ PRIVATE
     yycc/patch/contains.cpp
     yycc/patch/starts_ends_with.cpp
 )
+target_sources(YYCCTestbench
+PRIVATE
+FILE_SET HEADERS
+FILES
+    shared/parse_template.hpp
+    shared/stringify_template.hpp
+    shared/utf_literal.hpp
+)
 # Setup headers
 target_include_directories(YYCCTestbench
 PUBLIC

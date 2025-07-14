@@ -19,6 +19,8 @@ namespace yycc::string::op {
 	}
 
 	bool vprintf(NS_YYCC_STRING::u8string& strl, const NS_YYCC_STRING::u8char* format, va_list argptr) {
+        namespace reinterpret = NS_YYCC_STRING_REINTERPRET;
+
 		va_list args1;
 		va_copy(args1, argptr);
 		va_list args2;
@@ -29,7 +31,7 @@ namespace yycc::string::op {
 		int count = std::vsnprintf(
 			nullptr,
 			0,
-			NS_YYCC_STRING_REINTERPRET::as_ordinary(format),
+			reinterpret::as_ordinary(format),
 			args1
 		);
 		if (count < 0) {
@@ -44,9 +46,9 @@ namespace yycc::string::op {
 		// however std::vsnprintf already have a trailing NULL, so we plus 1 for it.
 		strl.resize(count);
 		int write_result = std::vsnprintf(
-			NS_YYCC_STRING_REINTERPRET::as_ordinary(strl.data()),
+			reinterpret::as_ordinary(strl.data()),
 			strl.size() + 1,
-			NS_YYCC_STRING_REINTERPRET::as_ordinary(format),
+			reinterpret::as_ordinary(format),
 			args2
 		);
 		va_end(args2);

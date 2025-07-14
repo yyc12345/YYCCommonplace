@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
 #include <yycc/constraint/builder.hpp>
-#include <yycc/string/reinterpret.hpp>
 
 #include <yycc/prelude/rust.hpp>
 

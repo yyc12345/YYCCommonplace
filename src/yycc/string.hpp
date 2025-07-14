@@ -39,4 +39,9 @@ namespace yycc::string {
     using u8string = std::basic_string<u8char>;
     using u8string_view = std::basic_string_view<u8char>;
 #endif
+
+#define _YYCC_U8(strl) u8 ## strl ///< The assistant macro for YYCC_U8.
+#define YYCC_U8(strl) (reinterpret_cast<const ::yycc::string::u8char*>(_YYCC_U8(strl))) ///< The macro for creating UTF8 string literal. See \ref library_encoding.
+#define YYCC_U8_CHAR(chr) (static_cast<::yycc::string::u8char>(chr)) ///< The macro for casting ordinary char type into YYCC UTF8 char type.
+
 } // namespace yycc::string
