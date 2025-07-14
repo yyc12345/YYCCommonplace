@@ -4,11 +4,19 @@
 
 #include <yycc/prelude/rust.hpp>
 
-#define STRINGIFY ::yycc::string::stringify
+#define STRINGIFY ::yycc::rust::num::stringify
 
-namespace yycctest::rust::stringify {
+namespace yycctest::rust::num::stringify {
 
-    // There is not testbench for this
-    // because it just a map to original implementation without any modification.
+#define TEST_NS RustNumStringify
+
+#define TEST_SUCCESS(type_t, value, string_value, ...) \
+    { \
+        type_t cache = value; \
+        u8string ret = STRINGIFY::stringify<type_t>(cache, ##__VA_ARGS__); \
+        EXPECT_EQ(ret, YYCC_U8(string_value)); \
+    }
+
+#include "../../../shared/stringify_template.hpp"
 
 }
