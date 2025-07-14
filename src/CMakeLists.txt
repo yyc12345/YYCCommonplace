@@ -65,6 +65,7 @@ FILES
     yycc/patch/path.hpp
     yycc/patch/contains.hpp
     yycc/patch/starts_ends_with.hpp
+    yycc/patch/expected.hpp
     yycc/encoding/utf.hpp
     yycc/encoding/windows.hpp
     yycc/encoding/iconv.hpp

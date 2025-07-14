@@ -1,9 +1,9 @@
 #pragma once
-#include <yycc/string.hpp>
-#include <type_traits>
-#include <variant>
+#include "../string.hpp"
+#include "../patch/expected.hpp"
 
 #define NS_YYCC_STRING ::yycc::string
+#define NS_YYCC_PATCH_EXPECTED ::yycc::patch::expected
 
 namespace yycc::encoding::utf {
 
@@ -11,8 +11,8 @@ namespace yycc::encoding::utf {
     struct ConvError {};
 
     /// @private
-    template<typename T, std::enable_if_t<!std::is_same_v<T, ConvError>, int> = 0>
-    using ConvResult = std::variant<T, ConvError>;
+    template<typename T>
+    using ConvResult = NS_YYCC_PATCH_EXPECTED::Expected<T, ConvError>;
 
     // UTF8 -> UTF16
 
@@ -40,4 +40,5 @@ namespace yycc::encoding::utf {
 
 }
 
+#undef NS_YYCC_PATCH_EXPECTED
 #undef NS_YYCC_STRING

@@ -1,8 +1,8 @@
 #include "utf.hpp"
-#include "../macro/feature_probe.hpp"
 #include <locale>
 
 #define NS_YYCC_STRING ::yycc::string
+#define NS_YYCC_PATCH_EXPECTED ::yycc::patch::expected
 
 namespace yycc::encoding::utf {
 
@@ -125,14 +125,13 @@ namespace yycc::encoding::utf {
 #pragma region Help Macros
 
 #define CONVFN_TYPE1(fct_name, src_char_type, dst_char_type) \
+    namespace expected = NS_YYCC_PATCH_EXPECTED; \
     auto rv = priv_##fct_name(src); \
-    if (const auto* ptr = std::get_if<std::basic_string<dst_char_type>>(&rv)) { \
-        dst = std::move(*ptr); \
+    if (expected::is_value(rv)) { \
+        dst = std::move(expected::get_value(rv)); \
         return true; \
-    } else if (const auto* ptr = std::get_if<ConvError>(&rv)) { \
-        return false; \
     } else { \
-        throw std::runtime_error("unreachable code"); \
+        return false; \
     }
 
 #define CONVFN_TYPE2(fct_name, src_char_type, dst_char_type) \

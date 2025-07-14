@@ -1,15 +1,15 @@
 #pragma once
+#include "../patch/expected.hpp"
 #include "../string.hpp"
 #include "../string/op.hpp"
 #include "../string/reinterpret.hpp"
 #include <charconv>
 #include <stdexcept>
-#include <type_traits>
-#include <variant>
 
 #define NS_YYCC_STRING ::yycc::string
 #define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
 #define NS_YYCC_STRING_OP ::yycc::string::op
+#define NS_YYCC_PATCH_EXPECTED ::yycc::patch::expected
 
 /**
  * @brief Provides string parsing utilities for converting strings to numeric and boolean values.
@@ -30,8 +30,8 @@ namespace yycc::num::parse {
 
     /// @private
     /// @brief The return value of internal parse function which ape `std::expected`.
-    template<typename T, std::enable_if_t<!std::is_same_v<T, ParseError>, int> = 0>
-    using ParseResult = std::variant<T, ParseError>;
+    template<typename T>
+    using ParseResult = NS_YYCC_PATCH_EXPECTED::Expected<T, ParseError>;
 
     /**
      * @private
@@ -132,15 +132,14 @@ namespace yycc::num::parse {
     bool try_parse(const NS_YYCC_STRING::u8string_view& strl,
                    T& num,
                    std::chars_format fmt = std::chars_format::general) {
+        namespace expected = NS_YYCC_PATCH_EXPECTED;
+
         auto rv = priv_parse<T>(strl, fmt);
-        if (const auto* ptr = std::get_if<T>(&rv)) {
-            num = *ptr;
+        if (expected::is_value(rv)) {
+            num = expected::get_value(rv);
             return true;
-        } else if (const auto* ptr = std::get_if<ParseError>(&rv)) {
-            return false;
         } else {
-            // Unreachable
-            throw std::runtime_error("unreachable code.");
+            return false;
         }
     }
     /**
@@ -155,15 +154,14 @@ namespace yycc::num::parse {
     */
     template<typename T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
     bool try_parse(const NS_YYCC_STRING::u8string_view& strl, T& num, int base = 10) {
+        namespace expected = NS_YYCC_PATCH_EXPECTED;
+
         auto rv = priv_parse<T>(strl, base);
-        if (const auto* ptr = std::get_if<T>(&rv)) {
-            num = *ptr;
+        if (expected::is_value(rv)) {
+            num = expected::get_value(rv);
             return true;
-        } else if (const auto* ptr = std::get_if<ParseError>(&rv)) {
-            return false;
         } else {
-            // Unreachable
-            throw std::runtime_error("unreachable code.");
+            return false;
         }
     }
     /**
@@ -177,15 +175,14 @@ namespace yycc::num::parse {
     */
     template<typename T, std::enable_if_t<std::is_same_v<T, bool>, int> = 0>
     bool try_parse(const NS_YYCC_STRING::u8string_view& strl, T& num) {
+        namespace expected = NS_YYCC_PATCH_EXPECTED;
+
         auto rv = priv_parse<T>(strl);
-        if (const auto* ptr = std::get_if<T>(&rv)) {
-            num = *ptr;
+        if (expected::is_value(rv)) {
+            num = expected::get_value(rv);
             return true;
-        } else if (const auto* ptr = std::get_if<ParseError>(&rv)) {
-            return false;
         } else {
-            // Unreachable
-            throw std::runtime_error("unreachable code.");
+            return false;
         }
     }
 
@@ -241,8 +238,9 @@ namespace yycc::num::parse {
         else throw std::invalid_argument("can not parse given string");
     }
 
-} // namespace yycc::string::parse
+} // namespace yycc::num::parse
 
+#undef NS_YYCC_PATCH_EXPECTED
 #undef NS_YYCC_STRING_OP
 #undef NS_YYCC_STRING_REINTERPRET
 #undef NS_YYCC_STRING

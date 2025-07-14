@@ -1,12 +1,12 @@
 #pragma once
 #include "../../macro/feature_probe.hpp"
 #include "../../num/parse.hpp"
-#include "../panic.hpp"
 #include "../result.hpp"
 
 #define NS_YYCC_STRING ::yycc::string
 #define NS_YYCC_NUM_PARSE ::yycc::num::parse
 #define NS_YYCC_RUST_RESULT ::yycc::rust::result
+#define NS_YYCC_PATCH_EXPECTED ::yycc::patch::expected
 
 /**
  * @namespace yycc::rust::parse
@@ -37,15 +37,14 @@ namespace yycc::rust::num::parse {
     template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
     Result<T> parse(const NS_YYCC_STRING::u8string_view& strl,
             std::chars_format fmt = std::chars_format::general) {
-        auto rv = NS_YYCC_NUM_PARSE::priv_parse<T>(strl, fmt);
+        namespace expected = NS_YYCC_PATCH_EXPECTED;
+        namespace result = NS_YYCC_RUST_RESULT;
 
-        if (const auto* ptr = std::get_if<T>(&rv)) {
-            return NS_YYCC_RUST_RESULT::Ok<Result<T>>(*ptr);
-        } else if (const auto* ptr = std::get_if<Error>(&rv)) {
-            return NS_YYCC_RUST_RESULT::Err<Result<T>>(*ptr);
+        auto rv = NS_YYCC_NUM_PARSE::priv_parse<T>(strl, fmt);
+        if (expected::is_value(rv)) {
+            return result::Ok<Result<T>>(expected::get_value(rv));
         } else {
-            // Unreachable
-            RS_PANIC("unreachable code.");
+            return result::Err<Result<T>>(expected::get_error(rv));
         }
     }
 
@@ -58,15 +57,14 @@ namespace yycc::rust::num::parse {
      */
     template<typename T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
     Result<T> parse(const NS_YYCC_STRING::u8string_view& strl, int base = 10) {
-        auto rv = NS_YYCC_NUM_PARSE::priv_parse<T>(strl, base);
+        namespace expected = NS_YYCC_PATCH_EXPECTED;
+        namespace result = NS_YYCC_RUST_RESULT;
 
-        if (const auto* ptr = std::get_if<T>(&rv)) {
-            return NS_YYCC_RUST_RESULT::Ok<Result<T>>(*ptr);
-        } else if (const auto* ptr = std::get_if<Error>(&rv)) {
-            return NS_YYCC_RUST_RESULT::Err<Result<T>>(*ptr);
+        auto rv = NS_YYCC_NUM_PARSE::priv_parse<T>(strl, base);
+        if (expected::is_value(rv)) {
+            return result::Ok<Result<T>>(expected::get_value(rv));
         } else {
-            // Unreachable
-            RS_PANIC("unreachable code.");
+            return result::Err<Result<T>>(expected::get_error(rv));
         }
     }
 
@@ -78,15 +76,14 @@ namespace yycc::rust::num::parse {
      */
     template<typename T, std::enable_if_t<std::is_same_v<T, bool>, int> = 0>
     Result<T> parse(const NS_YYCC_STRING::u8string_view& strl) {
-        auto rv = NS_YYCC_NUM_PARSE::priv_parse<T>(strl);
+        namespace expected = NS_YYCC_PATCH_EXPECTED;
+        namespace result = NS_YYCC_RUST_RESULT;
 
-        if (const auto* ptr = std::get_if<T>(&rv)) {
-            return NS_YYCC_RUST_RESULT::Ok<Result<T>>(*ptr);
-        } else if (const auto* ptr = std::get_if<Error>(&rv)) {
-            return NS_YYCC_RUST_RESULT::Err<Result<T>>(*ptr);
+        auto rv = NS_YYCC_NUM_PARSE::priv_parse<T>(strl);
+        if (expected::is_value(rv)) {
+            return result::Ok<Result<T>>(expected::get_value(rv));
         } else {
-            // Unreachable
-            RS_PANIC("unreachable code.");
+            return result::Err<Result<T>>(expected::get_error(rv));
         }
     }
 
@@ -94,6 +91,7 @@ namespace yycc::rust::num::parse {
 
 }
 
+#undef NS_YYCC_PATCH_EXPECTED
 #undef NS_YYCC_RUST_RESULT
 #undef NS_YYCC_NUM_PARSE
 #undef NS_YYCC_STRING
