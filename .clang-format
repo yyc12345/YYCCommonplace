@@ -117,7 +117,7 @@ BreakFunctionDefinitionParameters: false
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: false
 BreakTemplateDeclarations: Yes
-ColumnLimit:     100
+ColumnLimit:     140
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerIndentWidth: 4
@@ -206,7 +206,7 @@ RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Leave
 ShortNamespaceLines: 1
 SkipMacroDefinitionBody: false
-SortIncludes:    CaseSensitive
+SortIncludes: Never
 SortJavaStaticImport: Before
 SortUsingDeclarations: Lexicographic
 SpaceAfterCStyleCast: true

@@ -7,8 +7,8 @@
 #include <stdexcept>
 
 #include "../windows/import_guard_head.hpp"
-#include "../windows/import_guard_tail.hpp"
 #include <Windows.h>
+#include "../windows/import_guard_tail.hpp"
 
 #define NS_YYCC_STRING ::yycc::string
 #define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
@@ -134,9 +134,7 @@ namespace yycc::encoding::windows {
 
 #pragma region Char -> Char
 
-    ConvResult<std::string> priv_to_char(const std::string_view& src,
-                                         CodePage src_code_page,
-                                         CodePage dst_code_page) {
+    ConvResult<std::string> priv_to_char(const std::string_view& src, CodePage src_code_page, CodePage dst_code_page) {
         namespace expected = NS_YYCC_PATCH_EXPECTED;
 
         // Perform first convertion
@@ -205,8 +203,7 @@ namespace yycc::encoding::windows {
 
 #pragma region Char -> UTF8
 
-    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::string_view& src,
-                                                      CodePage code_page) {
+    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::string_view& src, CodePage code_page) {
         namespace expected = NS_YYCC_PATCH_EXPECTED;
 
         auto rv = priv_to_char(src, code_page, CP_UTF8);
@@ -228,6 +225,7 @@ namespace yycc::encoding::windows {
 #pragma endregion
 
 #pragma region UTF8 -> Char
+
     ConvResult<std::string> priv_to_char(const NS_YYCC_STRING::u8string_view& src,
                                          CodePage code_page) {
         return priv_to_char(NS_YYCC_STRING_REINTERPRET::as_ordinary_view(src), CP_UTF8, code_page);

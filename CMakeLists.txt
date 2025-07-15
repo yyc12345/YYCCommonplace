@@ -7,6 +7,7 @@ project(YYCC
 # Provide options
 option(YYCC_BUILD_TESTBENCH "Build testbench of YYCCommonplace." OFF)
 option(YYCC_BUILD_DOC "Build document of YYCCommonplace." OFF)
+option(YYCC_ENFORCE_ICONV "Enforce iconv support for this library (e.g. in MSYS2 environment)." OFF)
 option(YYCC_DEBUG_UE_FILTER "YYCC developer used switch for testing Windows unhandled exception filter. Should not set to ON!!!" OFF)
 
 # Setup install path from CMake provided install path for convenient use.
@@ -26,6 +27,10 @@ if (YYCC_BUILD_TESTBENCH)
     # For Windows: Prevent overriding the parent project's compiler/linker settings
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     find_package(GTest REQUIRED)
+endif ()
+# Iconv is required if we are not in Windows or user request it
+if (YYCC_ENFORCE_ICONV OR (NOT WIN32))
+    find_package(Iconv REQUIRED)
 endif ()
 
 # Import 3 build targets

@@ -18,7 +18,7 @@ PRIVATE
     yycc/encoding/utf.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
-    yycc/encoding/united_codec.cpp
+    yycc/encoding/pycodec.cpp
     # YYCC/COMHelper.cpp
     # YYCC/ArgParser.cpp
     # YYCC/ConfigManager.cpp
@@ -69,7 +69,7 @@ FILES
     yycc/encoding/utf.hpp
     yycc/encoding/windows.hpp
     yycc/encoding/iconv.hpp
-    yycc/encoding/united_codec.hpp
+    yycc/encoding/pycodec.hpp
 
     # # Headers
     # # Common headers
@@ -102,6 +102,13 @@ PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
+# Link Iconv if we have import it
+if (Iconv_FOUND)
+    target_link_libraries(YYCCommonplace
+        PRIVATE
+            Iconv::Iconv
+    )
+endif ()
 # Link with DbgHelp.lib on Windows
 target_link_libraries(YYCCommonplace
 PRIVATE
@@ -112,11 +119,13 @@ target_compile_features(YYCCommonplace PUBLIC cxx_std_17)
 set_target_properties(YYCCommonplace PROPERTIES CXX_EXTENSION OFF)
 # Setup macros
 target_compile_definitions(YYCCommonplace
-# Debug macro should populate to child projects
 PUBLIC
+    # Debug macro. And it should populate to child projects
     $<$<BOOL:${YYCC_DEBUG_UE_FILTER}>:YYCC_DEBUG_UE_FILTER>
-# Unicode charset for private using
+    # Iconv environment macro
+    $<$<BOOL:${YYCC_ENFORCE_ICONV}>:YYCC_FEAT_ICONV>
 PRIVATE
+    # Unicode charset for private using
     $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
     $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>
 )
