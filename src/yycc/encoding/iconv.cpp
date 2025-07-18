@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <cstdint>
 #include <cstdlib>
+#include <vector>
 #include <iconv.h>
 
 #define NS_YYCC_STRING ::yycc::string
@@ -104,61 +105,46 @@ namespace yycc::encoding::iconv {
 
 #pragma region Kernel
 
-    // YYC MARK:
-    // Use std::monostate to simulate std::expected<void>.
-
     constexpr const size_t ICONV_INC_LEN = 16u;
     constexpr size_t ICONV_ERR_RV = static_cast<size_t>(-1);
 
     // Reference: https://stackoverflow.com/questions/13297458/simple-utf8-utf16-string-conversion-with-iconv
 
-    static ConvResult<std::monostate> iconv_kernel(
-        const Token& token, const uint8_t* arg_inbuf, size_t arg_inbytes, uint8_t** arg_outbuf, size_t* arg_outbytes) {
-#define SETUP_RV(buf, len) \
-    *arg_outbuf = (buf); \
-    *arg_outbytes = (len);
-
+    static ConvResult<std::vector<uint8_t>> iconv_kernel(const Token& token, const uint8_t* str_from_buf, size_t str_from_len) {
         // ===== Check Requirements =====
+        // Prepare return value
+        std::vector<uint8_t> str_to;
+
         // Unwrap and check iconv_t
         that_iconv_t cd = token.get_inner()->get_inner();
         if (cd == INVALID_ICONV_TOKEN) return ConvError::InvalidCd;
 
-        // Check nullptr output variables
-        if (arg_outbuf == nullptr || arg_outbytes == nullptr) return ConvError::NullPointer;
         // Check empty input
-        if (arg_inbytes == 0u) {
-            SETUP_RV(nullptr, 0u);
-            return {};
-        }
+        if (str_from_len == 0u) return str_to;
         // Check nullptr input variables
-        if (arg_inbuf == nullptr) return ConvError::NullPointer;
+        if (str_from_buf == nullptr) return ConvError::NullPointer;
 
         // ===== Do Iconv =====
         // setup input variables
-        size_t inbytesleft = arg_inbytes;
-        const char* inbuf = reinterpret_cast<const char*>(arg_inbuf);
+        size_t inbytesleft = str_from_len;
+        const char* inbuf = reinterpret_cast<const char*>(str_from_buf);
         // pre-allocation output variables
-        size_t outbytesall = arg_inbytes + ICONV_INC_LEN;
-        char* outbufbase = static_cast<char*>(std::malloc(outbytesall));
-        if (outbufbase == nullptr) throw std::bad_alloc();
-        size_t outbytesleft = outbytesall;
-        char* outbuf = outbufbase;
+        str_to.resize(str_from_len + ICONV_INC_LEN);
+        size_t outbytesleft = str_to.size();
+        char* outbuf = reinterpret_cast<char*>(str_to.data());
 
         // conv core
         size_t nchars = that_iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
         while (nchars == ICONV_ERR_RV && errno == E2BIG) {
             // record the length has been converted
-            size_t len = outbuf - str_to.data();
+            size_t len = outbuf - reinterpret_cast<char*>(str_to.data());
 
-            // resize for variables
-            outbytesall += ICONV_INC_LEN;
-            outbytesleft += ICONV_INC_LEN;
-
-            // resize for container
-            str_to.resize(outbytesall);
+            // resize for container and its variables
+            str_to.resize(str_to.size() + ICONV_INC_LEN);
+            outbytesleft = str_to.size();
 
             // assign new outbuf from failed position
-            outbuf = str_to.data() + len;
+            outbuf = reinterpret_cast<char*>(str_to.data()) + len;
             nchars = that_iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
         }
 
@@ -167,9 +153,6 @@ namespace yycc::encoding::iconv {
 
         // check error
         if (nchars == ICONV_ERR_RV) {
-            // Free allocated buffer
-            std::free(outbufbase);
-
             if (errno == EILSEQ) {
                 return ConvError::InvalidMbSeq;
             } else if (errno == EINVAL) {
@@ -180,11 +163,9 @@ namespace yycc::encoding::iconv {
         } else {
             // success
             // compute result data
-            SETUP_RV(reinterpret_cast<uint8_t*>(outbufbase), outbytesall - outbytesleft);
-            return {};
+            str_to.resize(str_to.size() - outbytesleft);
+            return str_to;
         }
-
-#undef SETUP_RV
     }
 
 #pragma endregion
