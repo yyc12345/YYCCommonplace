@@ -75,8 +75,22 @@ namespace yycc::encoding::iconv {
                 that_iconv_close(this->inner);
             }
         }
+        PrivToken(PrivToken&& rhs) : inner(rhs.inner) {
+            // Reset rhs inner
+            rhs.inner = INVALID_ICONV_TOKEN;
+        }
+        PrivToken& operator=(PrivToken&& rhs) {
+            // Free self first
+            if (this->inner != INVALID_ICONV_TOKEN) {
+                that_iconv_close(this->inner);
+            }
+            // Copy rhs inner and reset it.
+            this->inner = rhs.inner;
+            rhs.inner = INVALID_ICONV_TOKEN;
+            // Return self
+            return *this;
+        }
         YYCC_DELETE_COPY(PrivToken)
-        YYCC_DEFAULT_MOVE(PrivToken)
 
         bool is_valid() const { return this->inner != INVALID_ICONV_TOKEN; }
         that_iconv_t get_inner() const { return this->inner; }

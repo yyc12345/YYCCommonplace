@@ -241,9 +241,13 @@ namespace yycc::encoding::windows {
 
 #pragma endregion
 
+    // YYC MARK:
+    // The convertion between UTF is implemented by c16rtomb, c32rtomb, mbrtoc16 and mbrtoc32.
+    // These function is locale related in C++ standard, but in Microsoft STL, it's only for UTF8.
+    // So we can use them safely in Win32 environment.
+
 #undef CONVFN_TYPE1
 #undef CONVFN_TYPE2
-#undef CONVFCT_TYPE4
 
 } // namespace yycc::encoding::windows
 
