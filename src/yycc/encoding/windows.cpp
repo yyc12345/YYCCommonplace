@@ -5,6 +5,7 @@
 #include "../string/reinterpret.hpp"
 #include <limits>
 #include <stdexcept>
+#include <cuchar>
 
 #include "../windows/import_guard_head.hpp"
 #include <Windows.h>
@@ -56,20 +57,13 @@ namespace yycc::encoding::windows {
 
         // do convertion
         // do a dry-run first to fetch desired size.
-        int desired_size
-            = WideCharToMultiByte(code_page, 0, lpWideCharStr, cchWideChar, NULL, 0, NULL, NULL);
+        int desired_size = WideCharToMultiByte(code_page, 0, lpWideCharStr, cchWideChar, NULL, 0, NULL, NULL);
         if (desired_size <= 0) return ConvError::NoDesiredSize;
         // resize dest for receiving result
         dst.resize(static_cast<size_t>(desired_size));
         // do real convertion
-        int write_result = WideCharToMultiByte(code_page,
-                                               0,
-                                               lpWideCharStr,
-                                               cchWideChar,
-                                               reinterpret_cast<LPSTR>(dst.data()),
-                                               desired_size,
-                                               NULL,
-                                               NULL);
+        int write_result
+            = WideCharToMultiByte(code_page, 0, lpWideCharStr, cchWideChar, reinterpret_cast<LPSTR>(dst.data()), desired_size, NULL, NULL);
         if (write_result <= 0) return ConvError::BadWrittenSize;
 
         return dst;
@@ -111,12 +105,7 @@ namespace yycc::encoding::windows {
         // resize dest for receiving result
         dst.resize(static_cast<size_t>(desired_size));
         // do real convertion
-        int write_result = MultiByteToWideChar(code_page,
-                                               0,
-                                               lpMultiByteStr,
-                                               cbMultiByte,
-                                               reinterpret_cast<LPWSTR>(dst.data()),
-                                               desired_size);
+        int write_result = MultiByteToWideChar(code_page, 0, lpMultiByteStr, cbMultiByte, reinterpret_cast<LPWSTR>(dst.data()), desired_size);
         if (write_result <= 0) return ConvError::BadWrittenSize;
 
         return dst;
@@ -147,16 +136,11 @@ namespace yycc::encoding::windows {
         return second_rv;
     }
 
-    bool to_char(const std::string_view& src,
-                 std::string& dst,
-                 CodePage src_code_page,
-                 CodePage dst_code_page) {
+    bool to_char(const std::string_view& src, std::string& dst, CodePage src_code_page, CodePage dst_code_page) {
         CONVFN_TYPE1(to_char, char, char, src_code_page, dst_code_page);
     }
 
-    std::string to_char(const std::string_view& src,
-                        CodePage src_code_page,
-                        CodePage dst_code_page) {
+    std::string to_char(const std::string_view& src, CodePage src_code_page, CodePage dst_code_page) {
         CONVFN_TYPE2(to_char, char, char, src_code_page, dst_code_page);
     }
 
@@ -226,8 +210,7 @@ namespace yycc::encoding::windows {
 
 #pragma region UTF8 -> Char
 
-    ConvResult<std::string> priv_to_char(const NS_YYCC_STRING::u8string_view& src,
-                                         CodePage code_page) {
+    ConvResult<std::string> priv_to_char(const NS_YYCC_STRING::u8string_view& src, CodePage code_page) {
         return priv_to_char(NS_YYCC_STRING_REINTERPRET::as_ordinary_view(src), CP_UTF8, code_page);
     }
 
@@ -245,6 +228,134 @@ namespace yycc::encoding::windows {
     // The convertion between UTF is implemented by c16rtomb, c32rtomb, mbrtoc16 and mbrtoc32.
     // These function is locale related in C++ standard, but in Microsoft STL, it's only for UTF8.
     // So we can use them safely in Win32 environment.
+
+    // 1 UTF32 unit can produe 4 UTF8 units or 2 UTF16 units in theory.
+    // So we pre-allocate memory for the result to prevent allocating memory multiple times.
+    constexpr size_t MULTIPLE_UTF8_TO_UTF16 = 1u;
+    constexpr size_t MULTIPLE_UTF16_TO_UTF8 = 2u;
+    constexpr size_t MULTIPLE_UTF8_TO_UTF32 = 1u;
+    constexpr size_t MULTIPLE_UTF32_TO_UTF8 = 4u;
+
+#pragma region UTF8 -> UTF16
+
+    ConvResult<std::u16string> priv_to_utf16(const NS_YYCC_STRING::u8string_view& src) {
+        std::u16string dst;
+        dst.reserve(src.size() * MULTIPLE_UTF8_TO_UTF16);
+
+        std::mbstate_t state{}; // zero-initialized to initial state
+        char16_t c16;
+        const char* ptr = reinterpret_cast<const char*>(src.data());
+        const char* end = ptr + src.size();
+
+        while (ptr < end) {
+            size_t rc = std::mbrtoc16(&c16, ptr, end - ptr, &state);
+
+            if (rc == (size_t) -1) return ConvError::EncodeUtf8;
+            else if (rc == (size_t) -2) return ConvError::IncompleteUtf8;
+            else if (rc != (size_t) -3) dst.push_back(c16); // from earlier surrogate pair
+            else {
+                dst.push_back(c16);
+                ptr += rc;
+            }
+        }
+        return dst;
+    }
+
+    bool to_utf16(const NS_YYCC_STRING::u8string_view& src, std::u16string& dst) {
+        CONVFN_TYPE1(to_utf16, NS_YYCC_STRING::u8char, char16_t);
+    }
+
+    std::u16string to_utf16(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE2(to_utf16, NS_YYCC_STRING::u8char, char16_t);
+    }
+
+#pragma endregion
+
+#pragma region UTF16 -> UTF8
+
+    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::u16string_view& src) {
+        NS_YYCC_STRING::u8string dst;
+        dst.reserve(src.size() * MULTIPLE_UTF16_TO_UTF8);
+
+        std::mbstate_t state{};
+        char mbout[MB_LEN_MAX]{};
+        for (char16_t c : src) {
+            std::size_t rc = std::c16rtomb(mbout, c, &state);
+            if (rc != (std::size_t) -1) dst.append(reinterpret_cast<NS_YYCC_STRING::u8char*>(mbout), rc);
+            else return ConvError::InvalidUtf16;
+        }
+        return dst;
+    }
+
+    bool to_utf8(const std::u16string_view& src, NS_YYCC_STRING::u8string& dst) {
+        CONVFN_TYPE1(to_utf8, char16_t, NS_YYCC_STRING::u8char);
+    }
+
+    NS_YYCC_STRING::u8string to_utf8(const std::u16string_view& src) {
+        CONVFN_TYPE2(to_utf8, char16_t, NS_YYCC_STRING::u8char);
+    }
+
+#pragma endregion
+
+#pragma region UTF8 -> UTF32
+
+    ConvResult<std::u32string> priv_to_utf32(const NS_YYCC_STRING::u8string_view& src) {
+        std::u32string dst;
+        dst.reserve(src.size() * MULTIPLE_UTF8_TO_UTF32);
+
+        std::mbstate_t state{};
+        char32_t c32;
+        const char* ptr = reinterpret_cast<const char*>(src.data());
+        const char* end = ptr + src.size();
+
+        while (ptr < end) {
+            size_t rc = std::mbrtoc32(&c32, ptr, end - ptr, &state);
+
+            if (rc == (size_t) -1) return ConvError::EncodeUtf8;
+            else if (rc == (size_t) -2) return ConvError::IncompleteUtf8;
+            else if (rc != (size_t) -3) throw std::runtime_error("no surrogates in UTF-32");
+            else dst.push_back(c32);
+
+            ptr += rc;
+        }
+        return dst;
+    }
+
+    bool to_utf32(const NS_YYCC_STRING::u8string_view& src, std::u32string& dst) {
+        CONVFN_TYPE1(to_utf32, NS_YYCC_STRING::u8char, char32_t);
+    }
+
+    std::u32string to_utf32(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE2(to_utf32, NS_YYCC_STRING::u8char, char32_t);
+    }
+
+#pragma endregion
+
+#pragma region UTF32 -> UTF8
+
+    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::u32string_view& src) {
+        NS_YYCC_STRING::u8string dst;
+        dst.reserve(src.size() * MULTIPLE_UTF32_TO_UTF8);
+
+        std::mbstate_t state{};
+        char mbout[MB_LEN_MAX]{};
+        for (char32_t c : src) {
+            std::size_t rc = std::c32rtomb(mbout, c, &state);
+            if (rc != (std::size_t) -1) dst.append(reinterpret_cast<NS_YYCC_STRING::u8char*>(mbout), rc);
+            else return ConvError::InvalidUtf32;
+        }
+        return dst;
+    }
+
+    bool to_utf8(const std::u32string_view& src, NS_YYCC_STRING::u8string& dst) {
+        CONVFN_TYPE1(to_utf8, char32_t, NS_YYCC_STRING::u8char);
+    }
+
+    NS_YYCC_STRING::u8string to_utf8(const std::u32string_view& src) {
+        CONVFN_TYPE2(to_utf8, char32_t, NS_YYCC_STRING::u8char);
+    }
+
+#pragma endregion
 
 #undef CONVFN_TYPE1
 #undef CONVFN_TYPE2

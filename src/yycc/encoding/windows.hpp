@@ -19,6 +19,10 @@ namespace yycc::encoding::windows {
         TooLargeLength, ///< The length of given string is too large exceeding the maximum capacity of Win32 function.
         NoDesiredSize,  ///< Can not compute the desired size of result string.
         BadWrittenSize, ///< The size of written data is not matched with expected size.
+        InvalidUtf32,   ///< Given char is invalid in UTF32.
+        InvalidUtf16,   ///< Given char is invalid in UTF16.
+        EncodeUtf8,     ///< Error occurs when encoding UTF8.
+        IncompleteUtf8, ///< Given UTF8 string is incomplete.
     };
 
     /// @private
@@ -38,7 +42,7 @@ namespace yycc::encoding::windows {
     // Char -> Char
     // This is the combination of "WChar -> Char" and "Char -> WChar"
     ConvResult<std::string> priv_to_char(const std::string_view& src, CodePage src_code_page, CodePage dst_code_page);
-    bool to_char(const std::string_view& src, std::string& dst, CodePage src_code_page,  CodePage dst_code_page);
+    bool to_char(const std::string_view& src, std::string& dst, CodePage src_code_page, CodePage dst_code_page);
     std::string to_char(const std::string_view& src, CodePage src_code_page, CodePage dst_code_page);
 
     // WChar -> UTF8
