@@ -40,7 +40,6 @@ static size_t that_iconv(iconv_t cd, const char** inbuf, size_t* inbytesleft, ch
 #undef iconv_t
 #undef iconv_open
 #undef iconv_close
-
 #undef iconv
 
 #pragma endregion
@@ -180,6 +179,217 @@ namespace yycc::encoding::iconv {
             str_to.resize(str_to.size() - outbytesleft);
             return str_to;
         }
+    }
+
+#pragma endregion
+
+#pragma region Convertion Class Helper
+
+    // YYC MARK:
+    // If we use UTF16 or UTF32 code name directly, it will produce a BOM at data head.
+    // That's not what we expected.
+    // So we need manually check runtime endian and explicitly specify endian in code name.
+
+    // TODO: fix this encoding endian issue.
+
+    static const NS_YYCC_STRING::u8char* UTF8_CODENAME_LITERAL = YYCC_U8("UTF-8");
+    static const NS_YYCC_STRING::u8char* WCHAR_CODENAME_LITERAL = YYCC_U8("WCHAR_T");
+    static const NS_YYCC_STRING::u8char* fetch_utf16_codename() {
+        return YYCC_U8("UTF16");
+    }
+    static const NS_YYCC_STRING::u8char* UTF16_CODENAME_LITERAL = fetch_utf16_codename();
+    static const NS_YYCC_STRING::u8char* fetch_utf32_codename() {
+        return YYCC_U8("UTF32");
+    }
+    static const NS_YYCC_STRING::u8char* UTF32_CODENAME_LITERAL = fetch_utf32_codename();
+
+    // TODO: There is a memory copy in this function. Consider removing it in future.
+#define CONVFN_TYPE0(src_char_type, dst_char_type) \
+    namespace expected = NS_YYCC_PATCH_EXPECTED; \
+    auto rv = iconv_kernel(this->token, reinterpret_cast<const uint8_t*>(src.data()), src.size()); \
+    if (expected::is_value(rv)) { \
+        const auto& dst = expected::get_value(rv); \
+        if constexpr (sizeof(dst_char_type) > 1u) { \
+            if (dst.size() % sizeof(dst_char_type) != 0u) return ConvError::BadRv; \
+        } \
+        return std::basic_string<dst_char_type>(reinterpret_cast<const dst_char_type*>(dst.data()), dst.size() / sizeof(dst_char_type)); \
+    } else { \
+        return expected::get_error(rv); \
+    }
+
+#define CONVFN_TYPE1(fct_name, src_char_type, dst_char_type) \
+    namespace expected = NS_YYCC_PATCH_EXPECTED; \
+    auto rv = this->priv_##fct_name(src); \
+    if (expected::is_value(rv)) { \
+        dst = std::move(expected::get_value(rv)); \
+        return true; \
+    } else { \
+        return false; \
+    }
+
+#define CONVFN_TYPE2(fct_name, src_char_type, dst_char_type) \
+    std::basic_string<dst_char_type> rv; \
+    if (this->fct_name(src, rv)) return rv; \
+    else throw std::runtime_error("fail to convert string in Win32 function");
+
+#pragma endregion
+
+#pragma region Char -> UTF8
+
+    CharToUtf8::CharToUtf8(const CodeName& code_name) : token(code_name, UTF8_CODENAME_LITERAL) {}
+
+    CharToUtf8::~CharToUtf8() {}
+
+    ConvResult<NS_YYCC_STRING::u8string> CharToUtf8::priv_to_utf8(const std::string_view& src) {
+        CONVFN_TYPE0(char, NS_YYCC_STRING::u8char);
+    }
+
+    bool CharToUtf8::to_utf8(const std::string_view& src, NS_YYCC_STRING::u8string& dst) {
+        CONVFN_TYPE1(to_utf8, char, NS_YYCC_STRING::u8char);
+    }
+
+    NS_YYCC_STRING::u8string CharToUtf8::to_utf8(const std::string_view& src) {
+        CONVFN_TYPE2(to_utf8, char, NS_YYCC_STRING::u8char);
+    }
+
+#pragma endregion
+
+#pragma region UTF8 -> Char
+
+    Utf8ToChar::Utf8ToChar(const CodeName& code_name) : token(UTF8_CODENAME_LITERAL, code_name) {}
+
+    Utf8ToChar::~Utf8ToChar() {}
+
+    ConvResult<std::string> Utf8ToChar::priv_to_char(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE0(NS_YYCC_STRING::u8char, char);
+    }
+
+    bool Utf8ToChar::to_char(const NS_YYCC_STRING::u8string_view& src, std::string& dst) {
+        CONVFN_TYPE1(to_char, NS_YYCC_STRING::u8char, char);
+    }
+
+    std::string Utf8ToChar::to_char(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE2(to_char, NS_YYCC_STRING::u8char, char);
+    }
+
+#pragma endregion
+
+#pragma region WChar -> Char
+
+    WcharToUtf8::WcharToUtf8() : token(WCHAR_CODENAME_LITERAL, UTF8_CODENAME_LITERAL) {}
+
+    WcharToUtf8::~WcharToUtf8() {}
+
+    ConvResult<NS_YYCC_STRING::u8string> WcharToUtf8::priv_to_utf8(const std::wstring_view& src) {
+        CONVFN_TYPE0(wchar_t, NS_YYCC_STRING::u8char);
+    }
+
+    bool WcharToUtf8::to_utf8(const std::wstring_view& src, NS_YYCC_STRING::u8string& dst) {
+        CONVFN_TYPE1(to_utf8, wchar_t, NS_YYCC_STRING::u8char);
+    }
+
+    NS_YYCC_STRING::u8string WcharToUtf8::to_utf8(const std::wstring_view& src) {
+        CONVFN_TYPE2(to_utf8, wchar_t, NS_YYCC_STRING::u8char);
+    }
+
+#pragma endregion
+
+#pragma region Char -> WChar
+
+    Utf8ToWchar::Utf8ToWchar() : token(UTF8_CODENAME_LITERAL, WCHAR_CODENAME_LITERAL) {}
+
+    Utf8ToWchar::~Utf8ToWchar() {}
+
+    ConvResult<std::wstring> Utf8ToWchar::priv_to_wchar(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE0(NS_YYCC_STRING::u8char, wchar_t);
+    }
+
+    bool Utf8ToWchar::to_wchar(const NS_YYCC_STRING::u8string_view& src, std::wstring& dst) {
+        CONVFN_TYPE1(to_wchar, NS_YYCC_STRING::u8char, wchar_t);
+    }
+
+    std::wstring Utf8ToWchar::to_wchar(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE2(to_wchar, NS_YYCC_STRING::u8char, wchar_t);
+    }
+
+#pragma endregion
+
+#pragma region UTF8 -> UTF16
+
+    Utf8ToUtf16::Utf8ToUtf16() : token(UTF8_CODENAME_LITERAL, UTF16_CODENAME_LITERAL) {}
+
+    Utf8ToUtf16::~Utf8ToUtf16() {}
+
+    ConvResult<std::u16string> Utf8ToUtf16::priv_to_utf16(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE0(NS_YYCC_STRING::u8char, char16_t);
+    }
+
+    bool Utf8ToUtf16::to_utf16(const NS_YYCC_STRING::u8string_view& src, std::u16string& dst) {
+        CONVFN_TYPE1(to_utf16, NS_YYCC_STRING::u8char, char16_t);
+    }
+
+    std::u16string Utf8ToUtf16::to_utf16(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE2(to_utf16, NS_YYCC_STRING::u8char, char16_t);
+    }
+
+#pragma endregion
+
+#pragma region UTF16 -> UTF8
+
+    Utf16ToUtf8::Utf16ToUtf8() : token(UTF16_CODENAME_LITERAL, UTF8_CODENAME_LITERAL) {}
+
+    Utf16ToUtf8::~Utf16ToUtf8() {}
+
+    ConvResult<NS_YYCC_STRING::u8string> Utf16ToUtf8::priv_to_utf8(const std::u16string_view& src) {
+        CONVFN_TYPE0(char16_t, NS_YYCC_STRING::u8char);
+    }
+
+    bool Utf16ToUtf8::to_utf8(const std::u16string_view& src, NS_YYCC_STRING::u8string& dst) {
+        CONVFN_TYPE1(to_utf8, char16_t, NS_YYCC_STRING::u8char);
+    }
+
+    NS_YYCC_STRING::u8string Utf16ToUtf8::to_utf8(const std::u16string_view& src) {
+        CONVFN_TYPE2(to_utf8, char16_t, NS_YYCC_STRING::u8char);
+    }
+
+#pragma endregion
+
+#pragma region UTF8 -> UTF32
+
+    Utf8ToUtf32::Utf8ToUtf32() : token(UTF8_CODENAME_LITERAL, UTF32_CODENAME_LITERAL) {}
+
+    Utf8ToUtf32::~Utf8ToUtf32() {}
+
+    ConvResult<std::u32string> Utf8ToUtf32::priv_to_utf32(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE0(NS_YYCC_STRING::u8char, char32_t);
+    }
+
+    bool Utf8ToUtf32::to_utf32(const NS_YYCC_STRING::u8string_view& src, std::u32string& dst) {
+        CONVFN_TYPE1(to_utf32, NS_YYCC_STRING::u8char, char32_t);
+    }
+
+    std::u32string Utf8ToUtf32::to_utf32(const NS_YYCC_STRING::u8string_view& src) {
+        CONVFN_TYPE2(to_utf32, NS_YYCC_STRING::u8char, char32_t);
+    }
+
+#pragma endregion
+
+#pragma region UTF32 -> UTF8
+
+    Utf32ToUtf8::Utf32ToUtf8() : token(UTF32_CODENAME_LITERAL, UTF8_CODENAME_LITERAL) {}
+
+    Utf32ToUtf8::~Utf32ToUtf8() {}
+
+    ConvResult<NS_YYCC_STRING::u8string> Utf32ToUtf8::priv_to_utf8(const std::u32string_view& src) {
+        CONVFN_TYPE0(char32_t, NS_YYCC_STRING::u8char);
+    }
+
+    bool Utf32ToUtf8::to_utf8(const std::u32string_view& src, NS_YYCC_STRING::u8string& dst) {
+        CONVFN_TYPE1(to_utf8, char32_t, NS_YYCC_STRING::u8char);
+    }
+
+    NS_YYCC_STRING::u8string Utf32ToUtf8::to_utf8(const std::u32string_view& src) {
+        CONVFN_TYPE2(to_utf8, char32_t, NS_YYCC_STRING::u8char);
     }
 
 #pragma endregion

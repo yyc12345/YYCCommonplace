@@ -44,14 +44,12 @@ namespace yycc::encoding::iconv {
         NullPointer,     ///< Some of essential pointer in argument is nullptr.
         InvalidMbSeq,    ///< An invalid multibyte sequence has been encountered in the input.
         IncompleteMbSeq, ///< An incomplete multibyte sequence has been encountered in the input.
+        BadRv,           ///< The size of encoding convertion is not matched with expected char type.
     };
 
     /// @private
     template<typename T>
     using ConvResult = NS_YYCC_PATCH_EXPECTED::Expected<T, ConvError>;
-
-    // TODO: 为下列类添加注释时，指明static开头的是一次性使用的，适用于转换一两次结束。
-    // 用实例类的适用于需要持续转换的。
 
     // Char -> UTF8
     class CharToUtf8 {
@@ -87,35 +85,35 @@ namespace yycc::encoding::iconv {
         Token token;
     };
 
-    // WChar -> Char
-    class WcharToChar {
+    // WChar -> UTF8
+    class WcharToUtf8 {
     public:
-        WcharToChar(const CodeName& code_name);
-        ~WcharToChar();
-        YYCC_DELETE_COPY(WcharToChar)
-        YYCC_DEFAULT_MOVE(WcharToChar)
+        WcharToUtf8();
+        ~WcharToUtf8();
+        YYCC_DELETE_COPY(WcharToUtf8)
+        YYCC_DEFAULT_MOVE(WcharToUtf8)
 
     public:
-        ConvResult<std::string> priv_to_char(const std::wstring_view& src);
-        bool to_char(const std::wstring_view& src, std::string& dst);
-        std::string to_char(const std::wstring_view& src);
+        ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::wstring_view& src);
+        bool to_utf8(const std::wstring_view& src, NS_YYCC_STRING::u8string& dst);
+        NS_YYCC_STRING::u8string to_utf8(const std::wstring_view& src);
 
     private:
         Token token;
     };
 
-    // Char -> WChar
-    class CharToWchar {
+    // UTF8 -> WChar
+    class Utf8ToWchar {
     public:
-        CharToWchar(const CodeName& code_name);
-        ~CharToWchar();
-        YYCC_DELETE_COPY(CharToWchar)
-        YYCC_DEFAULT_MOVE(CharToWchar)
+        Utf8ToWchar();
+        ~Utf8ToWchar();
+        YYCC_DELETE_COPY(Utf8ToWchar)
+        YYCC_DEFAULT_MOVE(Utf8ToWchar)
 
     public:
-        ConvResult<std::wstring> priv_to_wchar(const std::string_view& src, const CodeName& code_name);
-        bool to_wchar(const std::string_view& src, std::wstring& dst, const CodeName& code_name);
-        std::wstring to_wchar(const std::string_view& src, const CodeName& code_name);
+        ConvResult<std::wstring> priv_to_wchar(const NS_YYCC_STRING::u8string_view& src);
+        bool to_wchar(const NS_YYCC_STRING::u8string_view& src, std::wstring& dst);
+        std::wstring to_wchar(const NS_YYCC_STRING::u8string_view& src);
 
     private:
         Token token;
