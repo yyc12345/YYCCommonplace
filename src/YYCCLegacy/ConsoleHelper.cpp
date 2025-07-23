@@ -5,7 +5,7 @@
 #include <iostream>
 
 // Include Windows used headers in Windows.
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
 #include <io.h>
@@ -16,7 +16,7 @@
 namespace YYCC::ConsoleHelper {
 
 #pragma region Windows Specific Functions
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 	static bool RawEnableColorfulConsole(FILE* fs) {
 		if (!_isatty(_fileno(fs))) return false;
@@ -161,7 +161,7 @@ namespace YYCC::ConsoleHelper {
 #pragma endregion
 
 	bool EnableColorfulConsole() {
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 		bool ret = true;
 		ret &= RawEnableColorfulConsole(stdout);
@@ -177,7 +177,7 @@ namespace YYCC::ConsoleHelper {
 	}
 
 	yycc_u8string ReadLine() {
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 		// get stdin mode
 		HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -221,7 +221,7 @@ namespace YYCC::ConsoleHelper {
 			strl += YYCC_U8("\n");
 		}
 		
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 		// call Windows specific writer
 		WinConsoleWrite(strl, bIsErr);
 #else

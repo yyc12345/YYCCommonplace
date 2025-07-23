@@ -1,8 +1,9 @@
 #include "iconv.hpp"
 
-#if YYCC_FEAT_ICONV || (YYCC_OS != YYCC_OS_WINDOWS)
+#if YYCC_FEAT_ICONV || !defined(YYCC_OS_WINDOWS)
 
 #include "../string/reinterpret.hpp"
+#include "../macro/endian_detector.hpp"
 #include <cerrno>
 #include <stdexcept>
 #include <cstdint>
@@ -190,20 +191,30 @@ namespace yycc::encoding::iconv {
     // That's not what we expected.
     // So we need manually check runtime endian and explicitly specify endian in code name.
 
-    // TODO: fix this encoding endian issue.
-
     static const NS_YYCC_STRING::u8char* UTF8_CODENAME_LITERAL = YYCC_U8("UTF-8");
     static const NS_YYCC_STRING::u8char* WCHAR_CODENAME_LITERAL = YYCC_U8("WCHAR_T");
     static const NS_YYCC_STRING::u8char* fetch_utf16_codename() {
-        return YYCC_U8("UTF16");
+#if defined(YYCC_ENDIAN_LITTLE)
+        return YYCC_U8("UTF16LE");
+#else
+        return YYCC_U8("UTF16BE");
+#endif
     }
     static const NS_YYCC_STRING::u8char* UTF16_CODENAME_LITERAL = fetch_utf16_codename();
     static const NS_YYCC_STRING::u8char* fetch_utf32_codename() {
-        return YYCC_U8("UTF32");
+#if defined(YYCC_ENDIAN_LITTLE)
+        return YYCC_U8("UTF32LE");
+#else
+        return YYCC_U8("UTF32BE");
+#endif
     }
     static const NS_YYCC_STRING::u8char* UTF32_CODENAME_LITERAL = fetch_utf32_codename();
 
-    // TODO: There is a memory copy in this function. Consider removing it in future.
+    // TODO:
+    // There is a memory copy in this function. Consider optimizing it in future.
+    // A possible solution is that create a std::vector-like wrapper for std::basic_string and std::basic_string_view.
+    // We call them VecString and VecStringView, and use them in "iconv_kernel" instead of real std::vector.
+    // They exposed interface are std::vector-like but its inner is std::basic_string and std::basic_string_view.
 #define CONVFN_TYPE0(src_char_type, dst_char_type) \
     namespace expected = NS_YYCC_PATCH_EXPECTED; \
     auto rv = iconv_kernel(this->token, reinterpret_cast<const uint8_t*>(src.data()), src.size()); \

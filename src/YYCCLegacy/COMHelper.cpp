@@ -1,5 +1,5 @@
 #include "COMHelper.hpp"
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 namespace YYCC::COMHelper {
 

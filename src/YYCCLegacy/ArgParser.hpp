@@ -37,7 +37,7 @@ namespace YYCC::ArgParser {
 		 * and should not be seen as a part of arguments.
 		*/
 		static ArgumentList CreateFromStd(int argc, char* argv[]);
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 		/**
 		 * @brief Create argument list from Win32 function.
 		 * @details

@@ -1,5 +1,8 @@
 #pragma once
 
+// Suppress unsafe warning on Windows
+#include "../windows/unsafe_suppressor.hpp"
+
 // Prelude section
 #include "../string.hpp"
 namespace yycc::prelude {

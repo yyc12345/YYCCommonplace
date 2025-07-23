@@ -1,5 +1,5 @@
 #include "WinFctHelper.hpp"
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 #include "EncodingHelper.hpp"
 #include "COMHelper.hpp"

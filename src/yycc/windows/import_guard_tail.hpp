@@ -4,7 +4,7 @@
 
 #include "../macro/os_detector.hpp"
 
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 // Windows also will generate following macros
 // which may cause the function sign is different in Windows and other platforms.

@@ -45,6 +45,8 @@ FILES
     yycc/macro/version_cmp.hpp
     yycc/macro/feature_probe.hpp
     yycc/macro/os_detector.hpp
+    yycc/macro/endian_detector.hpp
+    yycc/macro/compiler_detector.hpp
     yycc/macro/class_copy_move.hpp
     yycc/string.hpp
     yycc/string/reinterpret.hpp
@@ -124,6 +126,16 @@ PUBLIC
     $<$<BOOL:${YYCC_DEBUG_UE_FILTER}>:YYCC_DEBUG_UE_FILTER>
     # Iconv environment macro
     $<$<BOOL:${YYCC_ENFORCE_ICONV}>:YYCC_FEAT_ICONV>
+    # OS macro
+    $<$<BOOL:${WIN32}>:YYCC_OS_WINDOWS>
+    $<$<PLATFORM_ID:Linux>:YYCC_OS_LINUX>
+    # Compiler macro
+    $<$<CXX_COMPILER_ID:GNU>:YYCC_CC_GCC>
+    $<$<CXX_COMPILER_ID:Clang>:YYCC_CC_CLANG>
+    $<$<CXX_COMPILER_ID:MSVC>:YYCC_CC_MSVC>
+    # Endian macro
+    $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},LITTLE_ENDIAN>:YYCC_ENDIAN_LITTLE>
+    $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},BIG_ENDIAN>:YYCC_ENDIAN_BIG>
 PRIVATE
     # Unicode charset for private using
     $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
@@ -134,6 +146,8 @@ target_compile_options(YYCCommonplace
 PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )
+
+# TODO: Fix GCC stacktrace link issue
 
 # Install binary and headers
 install(TARGETS YYCCommonplace

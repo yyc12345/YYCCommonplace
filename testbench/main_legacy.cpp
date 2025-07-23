@@ -167,7 +167,7 @@ namespace YYCCTestbench {
 		}
 
 		// check wstring convertion on windows
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 		for (size_t i = 0u; i < count; ++i) {
 			// get item
 			const auto& u8str = c_UTF8TestStrTable[i];
@@ -306,7 +306,7 @@ namespace YYCCTestbench {
 	}
 
 	static void DialogTestbench() {
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 		YYCC::yycc_u8string ret;
 		std::vector<YYCC::yycc_u8string> rets;
@@ -340,7 +340,7 @@ namespace YYCCTestbench {
 	}
 
 	static void ExceptionTestbench() {
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 		YYCC::ExceptionHelper::Register([](const YYCC::yycc_u8string& log_path, const YYCC::yycc_u8string& coredump_path) -> void {
 			MessageBoxW(
@@ -374,7 +374,7 @@ namespace YYCCTestbench {
 	}
 
 	static void WinFctTestbench() {
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 		HMODULE test_current_module;
 		Assert((test_current_module = YYCC::WinFctHelper::GetCurrentModule()) != nullptr, YYCC_U8("YYCC::WinFctHelper::GetCurrentModule"));
@@ -412,7 +412,7 @@ namespace YYCCTestbench {
 		}
 		YYCC::yycc_u8string test_slashed_path(YYCC::StdPatch::ToUTF8Path(test_path));
 
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 		std::wstring wdelimiter(1u, std::filesystem::path::preferred_separator);
 		YYCC::yycc_u8string delimiter(YYCC::EncodingHelper::WcharToUTF8(wdelimiter));
 #else
@@ -622,7 +622,7 @@ namespace YYCCTestbench {
 				YYCC::ConsoleHelper::FormatLine(YYCC_U8("\t%s"), result.Argument().c_str());
 			}
 		}
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 		{
 			YYCC::ConsoleHelper::WriteLine(YYCC_U8("YYCC::ArgParser::ArgumentList::CreateFromWin32"));
 			auto result = YYCC::ArgParser::ArgumentList::CreateFromWin32();

@@ -11,7 +11,7 @@ Due to legacy reason, Windows defines various things which are not compatible wi
 YYCC has a way to solve the issue introduced above.
 
 \code
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 #include <WinImportPrefix.hpp>
 #include <Windows.h>
 #include "other_header_depend_on_windows.h"

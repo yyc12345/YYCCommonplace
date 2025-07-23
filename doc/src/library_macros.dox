@@ -73,7 +73,7 @@ Assume \c blabla() function is Windows specific.
 We have following example code:
 
 \code
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 blabla();
 #endif
 \endcode

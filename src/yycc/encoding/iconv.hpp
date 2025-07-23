@@ -1,7 +1,7 @@
 #pragma once
 #include "../macro/os_detector.hpp"
 
-#if YYCC_FEAT_ICONV || (YYCC_OS != YYCC_OS_WINDOWS)
+#if YYCC_FEAT_ICONV || !defined(YYCC_OS_WINDOWS)
 
 #include "../macro/class_copy_move.hpp"
 #include "../patch/expected.hpp"

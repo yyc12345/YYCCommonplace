@@ -1,7 +1,7 @@
 #pragma once
 #include "../macro/os_detector.hpp"
 
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 #include "../patch/expected.hpp"
 #include "../string.hpp"

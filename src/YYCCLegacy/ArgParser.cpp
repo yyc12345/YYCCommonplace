@@ -3,7 +3,7 @@
 #include "EncodingHelper.hpp"
 #include "ConsoleHelper.hpp"
 
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 #include "WinImportPrefix.hpp"
 #include <Windows.h>
 #include <shellapi.h>
@@ -24,7 +24,7 @@ namespace YYCC::ArgParser {
 		return ArgumentList(std::move(args));
 	}
 
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 	ArgumentList ArgumentList::CreateFromWin32() {
 		// Reference: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw
 

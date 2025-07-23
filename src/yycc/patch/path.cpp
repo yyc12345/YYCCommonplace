@@ -12,7 +12,7 @@ namespace yycc::patch::path {
     // So we need add feature test macro at the same time.
 
     std::filesystem::path to_std_path(const NS_YYCC_STRING::u8string_view& u8_path) {
-// #if YYCC_OS == YYCC_OS_WINDOWS
+// #if defined(YYCC_OS_WINDOWS)
 
 //         // convert path to wchar
 //         std::wstring wpath;
@@ -29,7 +29,7 @@ namespace yycc::patch::path {
     }
 
     NS_YYCC_STRING::u8string to_u8string(const std::filesystem::path& path) {
-// #if YYCC_OS == YYCC_OS_WINDOWS
+// #if defined(YYCC_OS_WINDOWS)
 
 //         // get and convert to utf8
 //         NS_YYCC_STRING::u8string u8_path;

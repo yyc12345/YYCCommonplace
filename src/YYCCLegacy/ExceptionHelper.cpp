@@ -1,5 +1,5 @@
 #include "ExceptionHelper.hpp"
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 #include "WinFctHelper.hpp"
 #include "ConsoleHelper.hpp"

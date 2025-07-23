@@ -1,6 +1,6 @@
 #include "windows.hpp"
 
-#if YYCC_OS == YYCC_OS_WINDOWS
+#if defined(YYCC_OS_WINDOWS)
 
 #include "../string/reinterpret.hpp"
 #include <limits>
