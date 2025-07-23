@@ -228,6 +228,9 @@ namespace yycc::encoding::windows {
     // The convertion between UTF is implemented by c16rtomb, c32rtomb, mbrtoc16 and mbrtoc32.
     // These function is locale related in C++ standard, but in Microsoft STL, it's only for UTF8.
     // So we can use them safely in Win32 environment.
+    // Reference:
+    // * https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/c16rtomb-c32rtomb1?view=msvc-170
+    // * https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/mbrtoc16-mbrtoc323?view=msvc-170
 
     // 1 UTF32 unit can produe 4 UTF8 units or 2 UTF16 units in theory.
     // So we pre-allocate memory for the result to prevent allocating memory multiple times.
@@ -280,8 +283,9 @@ namespace yycc::encoding::windows {
         std::mbstate_t state{};
         char mbout[MB_LEN_MAX]{};
         for (char16_t c : src) {
-            std::size_t rc = std::c16rtomb(mbout, c, &state);
-            if (rc != (std::size_t) -1) dst.append(reinterpret_cast<NS_YYCC_STRING::u8char*>(mbout), rc);
+            size_t rc = std::c16rtomb(mbout, c, &state);
+
+            if (rc != (size_t) -1) dst.append(reinterpret_cast<NS_YYCC_STRING::u8char*>(mbout), rc);
             else return ConvError::InvalidUtf16;
         }
         return dst;
@@ -340,8 +344,9 @@ namespace yycc::encoding::windows {
         std::mbstate_t state{};
         char mbout[MB_LEN_MAX]{};
         for (char32_t c : src) {
-            std::size_t rc = std::c32rtomb(mbout, c, &state);
-            if (rc != (std::size_t) -1) dst.append(reinterpret_cast<NS_YYCC_STRING::u8char*>(mbout), rc);
+            size_t rc = std::c32rtomb(mbout, c, &state);
+
+            if (rc != (size_t) -1) dst.append(reinterpret_cast<NS_YYCC_STRING::u8char*>(mbout), rc);
             else return ConvError::InvalidUtf32;
         }
         return dst;

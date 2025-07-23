@@ -1,10 +1,10 @@
-#include "utf.hpp"
+#include "stlcvt.hpp"
 #include <locale>
 
 #define NS_YYCC_STRING ::yycc::string
 #define NS_YYCC_PATCH_EXPECTED ::yycc::patch::expected
 
-namespace yycc::encoding::utf {
+namespace yycc::encoding::stlcvt {
 
 #pragma region Generic Converter
 

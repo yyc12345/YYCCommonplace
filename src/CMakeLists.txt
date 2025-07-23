@@ -15,7 +15,7 @@ PRIVATE
     yycc/string/op.cpp
     yycc/rust/panic.cpp
     yycc/patch/path.cpp
-    yycc/encoding/utf.cpp
+    yycc/encoding/stlcvt.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
     yycc/encoding/pycodec.cpp
@@ -68,7 +68,7 @@ FILES
     yycc/patch/contains.hpp
     yycc/patch/starts_ends_with.hpp
     yycc/patch/expected.hpp
-    yycc/encoding/utf.hpp
+    yycc/encoding/stlcvt.hpp
     yycc/encoding/windows.hpp
     yycc/encoding/iconv.hpp
     yycc/encoding/pycodec.hpp

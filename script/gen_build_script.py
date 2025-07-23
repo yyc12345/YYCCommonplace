@@ -1,15 +1,16 @@
-import jinja2
 import argparse
-import os
-import io
+import typing
 import re
 import shlex
+from pathlib import Path
+from dataclasses import dataclass
+import jinja2
 
 def validate_cpp_ver(ver: str) -> str:
     if re.match(r'^[0-9]+$', ver) is not None: return ver
     else: raise argparse.ArgumentTypeError('invalid version of C++ standard.')
 
-def write_line(f: io.TextIOWrapper, val: str) -> None:
+def write_line(f: typing.TextIO, val: str) -> None:
     f.write(val)
     f.write('\n')
 
@@ -24,55 +25,51 @@ def escape_cmd_argument(arg):
 def escape_sh_argument(arg):
     return shlex.quote(arg)
 
+@dataclass
 class ScriptSettings:
-    m_CppVersion: str
-    m_BuildDoc: bool
-    m_PIC: bool
-
-    def __init__(self, cpp_ver: str, build_doc: bool, pic: bool):
-        self.m_CppVersion = cpp_ver
-        self.m_BuildDoc = build_doc
-        self.m_PIC = pic
+    cpp_version: str
+    build_doc: bool
+    pic: bool
 
 class TemplateRender:
-    m_Loader: jinja2.BaseLoader
-    m_Environment: jinja2.Environment
+    loader: jinja2.BaseLoader
+    environment: jinja2.Environment
 
-    m_WinTemplate: jinja2.Template
-    m_LinuxTemplate: jinja2.Template
+    win_template: jinja2.Template
+    linux_template: jinja2.Template
 
-    m_Settings: ScriptSettings
+    settings: ScriptSettings
 
     def __init__(self, settings: ScriptSettings) -> None:
-        self.m_Loader = jinja2.FileSystemLoader(self.__get_dir())
-        self.m_Environment = jinja2.Environment(loader=self.m_Loader)
+        self.loader = jinja2.FileSystemLoader(self.__get_dir())
+        self.environment = jinja2.Environment(loader=self.loader)
 
-        self.m_WinTemplate = self.m_Environment.get_template('win_build.template.bat')
-        self.m_LinuxTemplate = self.m_Environment.get_template('linux_build.template.sh')
+        self.win_template = self.environment.get_template('win_build.bat.jinja')
+        self.linux_template = self.environment.get_template('linux_build.sh.jinja')
 
-        self.m_Settings = settings
+        self.settings = settings
 
-    def __get_dir(self) -> str:
-        return os.path.dirname(__file__)
+    def __get_dir(self) -> Path:
+        return Path(__file__).resolve().parent
 
     def __escape_path(self, val: str, is_win: bool) -> str:
         if is_win: return escape_cmd_argument(val)
         else: return escape_sh_argument(val)
 
     def __render(self, template: jinja2.Template, dest_file: str, is_win: bool) -> None:
-        with open(os.path.join(self.__get_dir(), dest_file), 'w', encoding='utf-8') as f:
+        with open(self.__get_dir() / dest_file, 'w', encoding='utf-8') as f:
             f.write(template.render(
-                repo_root_dir = self.__escape_path(os.path.dirname(self.__get_dir()), is_win),
-                cpp_version = self.m_Settings.m_CppVersion,
-                build_doc = self.m_Settings.m_BuildDoc,
-                pic = settings.m_PIC
+                repo_root_dir = self.__escape_path(str(self.__get_dir().parent), is_win),
+                cpp_version = self.settings.cpp_version,
+                build_doc = self.settings.build_doc,
+                pic = settings.pic
             ))
 
     def render_win_script(self) -> None:
-        self.__render(self.m_WinTemplate, 'win_build.bat', True)
+        self.__render(self.win_template, 'win_build.bat', True)
     
     def render_linux_script(self) -> None:
-        self.__render(self.m_LinuxTemplate, 'linux_build.sh', False)
+        self.__render(self.linux_template, 'linux_build.sh', False)
     
 
 if __name__ == '__main__':
