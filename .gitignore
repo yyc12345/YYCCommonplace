@@ -1,6 +1,6 @@
 # -------------------- Output --------------------
 out/
-src/YYCC/YYCCVersion.hpp
+src/yycc/version.hpp
 CMakeSettings.json
 
 # -------------------- VSCode --------------------

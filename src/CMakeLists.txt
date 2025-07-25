@@ -14,24 +14,10 @@ PRIVATE
     yycc/string/reinterpret.cpp
     yycc/string/op.cpp
     yycc/rust/panic.cpp
-    yycc/patch/path.cpp
     yycc/encoding/stlcvt.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
     yycc/encoding/pycodec.cpp
-    # YYCC/COMHelper.cpp
-    # YYCC/ArgParser.cpp
-    # YYCC/ConfigManager.cpp
-    # YYCC/ConsoleHelper.cpp
-    # YYCC/DialogHelper.cpp
-    # YYCC/EncodingHelper.cpp
-    # YYCC/ExceptionHelper.cpp
-    # YYCC/StdPatch.cpp
-    # YYCC/IOHelper.cpp
-    # YYCC/StringHelper.cpp
-    # YYCC/WinFctHelper.cpp
-    # # Natvis (only for MSVC)
-    # $<$<CXX_COMPILER_ID:MSVC>:YYCC.natvis>
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -40,63 +26,29 @@ FILES
     # Headers
     yycc.hpp
     yycc/version.hpp
+    yycc/primitive.hpp
     yycc/prelude/core.hpp
     yycc/prelude/rust.hpp
     yycc/macro/version_cmp.hpp
-    yycc/macro/feature_probe.hpp
     yycc/macro/os_detector.hpp
     yycc/macro/endian_detector.hpp
     yycc/macro/compiler_detector.hpp
     yycc/macro/class_copy_move.hpp
-    yycc/string.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp
     yycc/num/parse.hpp
     yycc/num/stringify.hpp
-    yycc/rust/primitive.hpp
     yycc/rust/panic.hpp
     yycc/rust/option.hpp
     yycc/rust/result.hpp
-    yycc/rust/num/parse.hpp
-    yycc/rust/num/stringify.hpp
-    yycc/windows/unsafe_suppressor.hpp
     yycc/windows/import_guard_head.hpp
     yycc/windows/import_guard_tail.hpp
     yycc/constraint.hpp
     yycc/constraint/builder.hpp
-    yycc/patch/path.hpp
-    yycc/patch/contains.hpp
-    yycc/patch/starts_ends_with.hpp
-    yycc/patch/expected.hpp
     yycc/encoding/stlcvt.hpp
     yycc/encoding/windows.hpp
     yycc/encoding/iconv.hpp
     yycc/encoding/pycodec.hpp
-
-    # # Headers
-    # # Common headers
-    # YYCC/Constraints.hpp
-    # YYCC/COMHelper.hpp
-    # YYCC/ArgParser.hpp
-    # YYCC/ConfigManager.hpp
-    # YYCC/ConsoleHelper.hpp
-    # YYCC/DialogHelper.hpp
-    # YYCC/EncodingHelper.hpp
-    # YYCC/EnumHelper.hpp
-    # YYCC/ExceptionHelper.hpp
-    # YYCC/StdPatch.hpp
-    # YYCC/IOHelper.hpp
-    # YYCC/ParserHelper.hpp
-    # YYCC/StringHelper.hpp
-    # YYCC/WinFctHelper.hpp
-    # # Windows including guard pair
-    # YYCC/WinImportPrefix.hpp
-    # YYCC/WinImportSuffix.hpp
-    # # Internal
-    # YYCC/YYCCVersion.hpp
-    # YYCC/YYCCInternal.hpp
-    # # Exposed
-    # YYCCommonplace.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace
@@ -116,14 +68,9 @@ target_link_libraries(YYCCommonplace
 PRIVATE
     $<$<BOOL:${WIN32}>:DbgHelp.lib>
 )
-# Setup C++ standard
-target_compile_features(YYCCommonplace PUBLIC cxx_std_17)
-set_target_properties(YYCCommonplace PROPERTIES CXX_EXTENSION OFF)
 # Setup macros
 target_compile_definitions(YYCCommonplace
 PUBLIC
-    # Debug macro. And it should populate to child projects
-    $<$<BOOL:${YYCC_DEBUG_UE_FILTER}>:YYCC_DEBUG_UE_FILTER>
     # Iconv environment macro
     $<$<BOOL:${YYCC_ENFORCE_ICONV}>:YYCC_FEAT_ICONV>
     # OS macro
@@ -136,14 +83,21 @@ PUBLIC
     # Endian macro
     $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},LITTLE_ENDIAN>:YYCC_ENDIAN_LITTLE>
     $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},BIG_ENDIAN>:YYCC_ENDIAN_BIG>
-PRIVATE
-    # Unicode charset for private using
+    # Use Unicode charset on MSVC
     $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
     $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>
+    # Fix MSVC shit
+    $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+    $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_DEPRECATE>
+    $<$<CXX_COMPILER_ID:MSVC>:_CRT_NONSTDC_NO_WARNINGS>
+    $<$<CXX_COMPILER_ID:MSVC>:_CRT_NONSTDC_NO_DEPRECATE>
+    # Fix Windows header file shit
+    $<$<BOOL:${WIN32}>:WIN32_LEAN_AND_MEAN>
+    $<$<BOOL:${WIN32}>:NOMINMAX>
 )
 target_compile_options(YYCCommonplace
-# Order build as UTF-8 in MSVC
-PRIVATE
+PUBLIC
+    # Order build as UTF-8 in MSVC
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )
 

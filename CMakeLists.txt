@@ -4,11 +4,15 @@ project(YYCC
     LANGUAGES CXX
 )
 
+# Setup C++ standard
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Provide options
 option(YYCC_BUILD_TESTBENCH "Build testbench of YYCCommonplace." OFF)
 option(YYCC_BUILD_DOC "Build document of YYCCommonplace." OFF)
 option(YYCC_ENFORCE_ICONV "Enforce iconv support for this library (e.g. in MSYS2 environment)." OFF)
-option(YYCC_DEBUG_UE_FILTER "YYCC developer used switch for testing Windows unhandled exception filter. Should not set to ON!!!" OFF)
 
 # Setup install path from CMake provided install path for convenient use.
 include(GNUInstallDirs)

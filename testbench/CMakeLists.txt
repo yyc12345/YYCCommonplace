@@ -34,20 +34,6 @@ PRIVATE
     YYCCommonplace
     GTest::gtest_main
 )
-# Setup C++ standard
-target_compile_features(YYCCTestbench PUBLIC cxx_std_17)
-set_target_properties(YYCCTestbench PROPERTIES CXX_EXTENSION OFF)
-# Order Unicode charset for private using
-target_compile_definitions(YYCCTestbench
-PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
-    $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>
-)
-# Order build as UTF-8 in MSVC
-target_compile_options(YYCCTestbench
-PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
-)
 
 # Discover all test
 include(GoogleTest)

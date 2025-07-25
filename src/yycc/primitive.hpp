@@ -1,9 +1,9 @@
 #pragma once
 #include <cstdint>
 #include <cstddef>
-#include "../string.hpp"
+#include <string_view>
 
-namespace yycc::rust::primitive {
+namespace yycc::primitive {
 
 	// `bool` is keyword so should not declare it anymore.
 	// `char` is keyword so should not declare it anymore.
@@ -23,6 +23,6 @@ namespace yycc::rust::primitive {
 	using f32 = float;
 	using f64 = double;
 
-	using str = ::yycc::string::u8string_view;
+	using str = std::u8string_view;
 }
 
