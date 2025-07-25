@@ -9,8 +9,8 @@
 namespace yycc::string::op {
 
     enum class FormatError {
-        NullFormat,  ///< Given format string is nullptr.
-        NoExpSize, ///< Fail to fetch the expected size of result.
+        NullFormat,     ///< Given format string is nullptr.
+        NoDesiredSize,  ///< Fail to fetch the expected size of result.
         BadWrittenSize, ///< The written size is different with expected size.
     };
 

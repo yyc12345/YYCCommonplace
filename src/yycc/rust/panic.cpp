@@ -1,12 +1,9 @@
 #include "panic.hpp"
-#include "../macro/feature_probe.hpp"
 
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
-#if defined(YYCC_CPPFEAT_STACKTRACE)
 #include <stacktrace>
-#endif
 
 namespace yycc::rust::panic {
 
@@ -24,12 +21,8 @@ namespace yycc::rust::panic {
         // User custom message
         dst << "note: " << msg << std::endl;
         // Stacktrace message if we support it.
-#if defined(YYCC_CPPFEAT_STACKTRACE)
         dst << "stacktrace: " << std::endl;
         dst << std::stacktrace::current() << std::endl;
-#else
-        dst << "there is no stacktrace because your C++ runtime do not support it." << std::endl;
-#endif
         // // Restore color
         // dst << RESET;
 

@@ -1,38 +1,26 @@
 #include "stlcvt.hpp"
 #include <locale>
 
-#define NS_YYCC_STRING ::yycc::string
-#define NS_YYCC_PATCH_EXPECTED ::yycc::patch::expected
-
 namespace yycc::encoding::stlcvt {
 
 #pragma region Generic Converter
 
     /*
-     * NOTE:
+     * YYC MARK:
      * According to the documentation introduced in CppReference.
      * The standard library is guaranteed to provide several specific specializations of \c std::codecvt.
-     * The UTF8 char type in UTF8 related specializations of \c std::codecvt is different.
-     * It is also independend from we defined char type.
-     * So it is essential define a type which can correctly trigger specific specializations of \c std::codecv in there.
+     * The UTF8 char type in UTF8 related specializations of \c std::codecvt is different in different C++ standard.
+     * But the oldest C++ version YYCC supported is C++ 23, char8_t is the only viable UTF8 char type for \c std::codecvt.
+     * So we can simply and safely use it to correctly trigger specific specializations of \c std::codecv in there.
     */
 
-#if defined(YYCC_CPPFEAT_UTF8)
-    using CodecvtUtf8Char = char8_t;
-#else
-    using CodecvtUtf8Char = char;
-#endif
+    template<typename TChar>
+        requires(std::is_same_v<TChar, char16_t> || std::is_same_v<TChar, char32_t>)
+    using CodecvtFacet = std::codecvt<TChar, char8_t, std::mbstate_t>;
 
-    template<typename TChar,
-             std::enable_if_t<std::is_same_v<TChar, char16_t> || std::is_same_v<TChar, char32_t>, int>
-             = 0>
-    using CodecvtFacet = std::codecvt<TChar, CodecvtUtf8Char, std::mbstate_t>;
-
-    template<typename TChar,
-             std::enable_if_t<std::is_same_v<TChar, char16_t> || std::is_same_v<TChar, char32_t>, int>
-             = 0>
-    static ConvResult<std::basic_string<TChar>> generic_to_utf_other(
-        const NS_YYCC_STRING::u8string_view& src) {
+    template<typename TChar>
+        requires(std::is_same_v<TChar, char16_t> || std::is_same_v<TChar, char32_t>)
+    static ConvResult<std::basic_string<TChar>> generic_to_utf_other(const std::u8string_view& src) {
         // Reference:
         // https://en.cppreference.com/w/cpp/locale/codecvt/in
 
@@ -52,38 +40,27 @@ namespace yycc::encoding::stlcvt {
         // convertion preparation
         std::mbstate_t mb{};
         dst.resize(src.size());
-        const CodecvtUtf8Char *intern_from = reinterpret_cast<const CodecvtUtf8Char*>(src.data()),
-                              *intern_from_end = reinterpret_cast<const CodecvtUtf8Char*>(
-                                  src.data() + src.size()),
-                              *intern_from_next = nullptr;
-        TChar *extern_to = dst.data(), *extern_to_end = dst.data() + dst.size(),
-              *extern_to_next = nullptr;
+        const char8_t *intern_from = reinterpret_cast<const char8_t*>(src.data()),
+                      *intern_from_end = reinterpret_cast<const char8_t*>(src.data() + src.size()), *intern_from_next = nullptr;
+        TChar *extern_to = dst.data(), *extern_to_end = dst.data() + dst.size(), *extern_to_next = nullptr;
         // do convertion
-        auto result = this_codecvt.in(mb,
-                                      intern_from,
-                                      intern_from_end,
-                                      intern_from_next,
-                                      extern_to,
-                                      extern_to_end,
-                                      extern_to_next);
+        auto result = this_codecvt.in(mb, intern_from, intern_from_end, intern_from_next, extern_to, extern_to_end, extern_to_next);
 
         // check result
-        if (result != CodecvtFacet<TChar>::ok) return ConvError();
+        if (result != CodecvtFacet<TChar>::ok) return std::unexpected(ConvError{});
         // resize result and return
         dst.resize(extern_to_next - dst.data());
         return dst;
     }
 
-    template<typename TChar,
-             std::enable_if_t<std::is_same_v<TChar, char16_t> || std::is_same_v<TChar, char32_t>, int>
-             = 0>
-    static ConvResult<NS_YYCC_STRING::u8string> generic_to_utf8(
-        const std::basic_string_view<TChar>& src) {
+    template<typename TChar>
+        requires(std::is_same_v<TChar, char16_t> || std::is_same_v<TChar, char32_t>)
+    static ConvResult<std::u8string> generic_to_utf8(const std::basic_string_view<TChar>& src) {
         // Reference:
         // https://en.cppreference.com/w/cpp/locale/codecvt/out
 
         // prepare return value
-        NS_YYCC_STRING::u8string dst;
+        std::u8string dst;
 
         // if src is empty, return directly
         if (src.empty()) {
@@ -99,102 +76,43 @@ namespace yycc::encoding::stlcvt {
         // do convertion preparation
         std::mbstate_t mb{};
         dst.resize(src.size() * this_codecvt.max_length());
-        const TChar *intern_from = src.data(), *intern_from_end = src.data() + src.size(),
-                    *intern_from_next = nullptr;
-        CodecvtUtf8Char *extern_to = reinterpret_cast<CodecvtUtf8Char*>(dst.data()),
-                        *extern_to_end = reinterpret_cast<CodecvtUtf8Char*>(dst.data() + dst.size()),
-                        *extern_to_next = nullptr;
+        const TChar *intern_from = src.data(), *intern_from_end = src.data() + src.size(), *intern_from_next = nullptr;
+        char8_t *extern_to = reinterpret_cast<char8_t*>(dst.data()), *extern_to_end = reinterpret_cast<char8_t*>(dst.data() + dst.size()),
+                *extern_to_next = nullptr;
         // do convertion
-        auto result = this_codecvt.out(mb,
-                                       intern_from,
-                                       intern_from_end,
-                                       intern_from_next,
-                                       extern_to,
-                                       extern_to_end,
-                                       extern_to_next);
+        auto result = this_codecvt.out(mb, intern_from, intern_from_end, intern_from_next, extern_to, extern_to_end, extern_to_next);
 
         // check result
-        if (result != CodecvtFacet<TChar>::ok) return ConvError();
+        if (result != CodecvtFacet<TChar>::ok) return std::unexpected(ConvError{});
         // resize result and retuen
-        dst.resize(extern_to_next - reinterpret_cast<CodecvtUtf8Char*>(dst.data()));
+        dst.resize(extern_to_next - reinterpret_cast<char8_t*>(dst.data()));
         return dst;
     }
 
-#pragma endregion
+#pragma endregion Converter
 
-#pragma region Help Macros
+#pragma region
 
-#define CONVFN_TYPE1(fct_name, src_char_type, dst_char_type) \
-    namespace expected = NS_YYCC_PATCH_EXPECTED; \
-    auto rv = priv_##fct_name(src); \
-    if (expected::is_value(rv)) { \
-        dst = std::move(expected::get_value(rv)); \
-        return true; \
-    } else { \
-        return false; \
-    }
-
-#define CONVFN_TYPE2(fct_name, src_char_type, dst_char_type) \
-    std::basic_string<dst_char_type> rv; \
-    if (fct_name(src, rv)) return rv; \
-    else throw std::runtime_error("fail to convert utf string");
-
-#pragma endregion
-
-#pragma region UTF8 -> UTF16
-
-    ConvResult<std::u16string> priv_to_utf16(const NS_YYCC_STRING::u8string_view& src) {
+    ConvResult<std::u16string> to_utf16(const std::u8string_view& src) {
+        // UTF8 -> UTF16
         return generic_to_utf_other<char16_t>(src);
     }
-    bool to_utf16(const NS_YYCC_STRING::u8string_view& src, std::u16string& dst) {
-        CONVFN_TYPE1(to_utf16, NS_YYCC_STRING::u8char, char16_t);
-    }
-    std::u16string to_utf16(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE2(to_utf16, NS_YYCC_STRING::u8char, char16_t);
-    }
 
-#pragma endregion
-
-#pragma region UTF16 -> UTF8
-
-    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::u16string_view& src) {
+    ConvResult<std::u8string> to_utf8(const std::u16string_view& src) {
+        // UTF16 -> UTF8
         return generic_to_utf8<char16_t>(src);
     }
-    bool to_utf8(const std::u16string_view& src, NS_YYCC_STRING::u8string& dst) {
-        CONVFN_TYPE1(to_utf8, char16_t, NS_YYCC_STRING::u8char);
-    }
-    NS_YYCC_STRING::u8string to_utf8(const std::u16string_view& src) {
-        CONVFN_TYPE2(to_utf8, char16_t, NS_YYCC_STRING::u8char);
-    }
 
-#pragma endregion
-
-#pragma region UTF8 -> UTF32
-
-    ConvResult<std::u32string> priv_to_utf32(const NS_YYCC_STRING::u8string_view& src) {
+    ConvResult<std::u32string> to_utf32(const std::u8string_view& src) {
+        // UTF8 -> UTF32
         return generic_to_utf_other<char32_t>(src);
     }
-    bool to_utf32(const NS_YYCC_STRING::u8string_view& src, std::u32string& dst) {
-        CONVFN_TYPE1(to_utf32, NS_YYCC_STRING::u8char, char32_t);
-    }
-    std::u32string to_utf32(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE2(to_utf32, NS_YYCC_STRING::u8char, char32_t);
-    }
 
-#pragma endregion
-
-#pragma region UTF32 -> UTF8
-
-    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::u32string_view& src) {
+    ConvResult<std::u8string> to_utf8(const std::u32string_view& src) {
+        // UTF32 -> UTF8
         return generic_to_utf8<char32_t>(src);
     }
-    bool to_utf8(const std::u32string_view& src, NS_YYCC_STRING::u8string& dst) {
-        CONVFN_TYPE1(to_utf8, char32_t, NS_YYCC_STRING::u8char);
-    }
-    NS_YYCC_STRING::u8string to_utf8(const std::u32string_view& src) {
-        CONVFN_TYPE2(to_utf8, char32_t, NS_YYCC_STRING::u8char);
-    }
 
 #pragma endregion
 
-} // namespace yycc::encoding::utf
+} // namespace yycc::encoding::stlcvt

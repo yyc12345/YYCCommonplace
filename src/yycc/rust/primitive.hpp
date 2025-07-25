@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <string_view>
 
-namespace yycc::primitive {
+namespace yycc::rust::primitive {
 
 	// `bool` is keyword so should not declare it anymore.
 	// `char` is keyword so should not declare it anymore.

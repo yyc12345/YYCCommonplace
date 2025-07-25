@@ -27,7 +27,7 @@ namespace yycc::string::op {
         // Check expected size.
         if (count < 0) {
             // Invalid length returned by vsnprintf.
-            return std::unexpected(FormatError::NoExpSize);
+            return std::unexpected(FormatError::NoDesiredSize);
         }
         va_end(args1);
 

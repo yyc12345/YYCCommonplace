@@ -1,16 +1,13 @@
 #pragma once
 
-// Include YYCC prelude first
-#include "core.hpp"
-
 // Rust prelude section
-#include "../rust/primitive.hpp"
-#include "../rust/result.hpp"
-#include "../rust/option.hpp"
-#include "../rust/panic.hpp"
+#include "primitive.hpp"
+#include "result.hpp"
+#include "option.hpp"
+#include "panic.hpp"
 #include <vector>
 
-namespace yycc::prelude::rust {
+namespace yycc::rust::prelude {
     // Include primitive types
 
 #define NS_RUST_PRIMITIVE ::yycc::rust::primitive
@@ -35,7 +32,7 @@ namespace yycc::prelude::rust {
 #undef NS_RUST_PRIMITIVE
 
     // Other types
-    using String = ::yycc::string::u8string;
+    using String = std::u8string;
     template<typename T>
     using Vec = std::vector<T>;
 
@@ -49,4 +46,4 @@ namespace yycc::prelude::rust {
 } // namespace yycc::prelude::rust
 
 // Expose all members
-using namespace yycc::prelude::rust;
+using namespace ::yycc::rust::prelude;

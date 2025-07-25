@@ -1,10 +1,12 @@
 #pragma once
 #include <optional>
 
-/// @brief The reproduction of Rust Option type.
-/// @details
-/// This namespace reproduce Rust Option type, and its members Some and None in C++.
-/// However Option is not important than Result, so its implementation is very casual.
+/**
+ * @brief The reproduction of Rust Option type.
+ * @details
+ * This namespace reproduce Rust Option type, and its members Some and None in C++.
+ * However Option is not important than Result, so its implementation is very casual.
+ */
 namespace yycc::rust::option {
 
     template<typename T>

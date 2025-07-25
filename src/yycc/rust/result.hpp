@@ -1,9 +1,5 @@
 #pragma once
-#include "../macro/feature_probe.hpp"
-
-#if defined(YYCC_CPPFEAT_EXPECTED)
 #include <expected>
-#endif
 
 /**
  * @brief The reproduction of Rust Option type.
@@ -42,8 +38,6 @@
  */
 namespace yycc::rust::result {
 
-#if defined(YYCC_CPPFEAT_EXPECTED)
-
     /**
      * @brief Equivalent Rust \c Result in C++
      * @tparam T The type of the expected value.
@@ -79,7 +73,5 @@ namespace yycc::rust::result {
     ResultType Err(Args &&...args) {
         return ResultType(std::unexpect, std::forward<Args>(args)...);
     }
-
-#endif
 
 } // namespace yycc::rust::result

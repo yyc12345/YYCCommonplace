@@ -3,18 +3,17 @@
 
 #if defined(YYCC_OS_WINDOWS)
 
-#include "../patch/expected.hpp"
-#include "../string.hpp"
+#include <string>
+#include <string_view>
+#include <expected>
 #include <cstdint>
-
-#define NS_YYCC_STRING ::yycc::string
-#define NS_YYCC_PATCH_EXPECTED ::yycc::patch::expected
 
 namespace yycc::encoding::windows {
 
+    /// @brief The type of Windows code page.
     using CodePage = uint32_t;
 
-    /// @private
+    /// @brief The possible error kind occurs in this module.
     enum class ConvError {
         TooLargeLength, ///< The length of given string is too large exceeding the maximum capacity of Win32 function.
         NoDesiredSize,  ///< Can not compute the desired size of result string.
@@ -25,73 +24,98 @@ namespace yycc::encoding::windows {
         IncompleteUtf8, ///< Given UTF8 string is incomplete.
     };
 
-    /// @private
+    /// @brief The result type in this module.
     template<typename T>
-    using ConvResult = NS_YYCC_PATCH_EXPECTED::Expected<T, ConvError>;
+    using ConvResult = std::expected<T, ConvError>;
 
-    // WChar -> Char
-    ConvResult<std::string> priv_to_char(const std::wstring_view& src, CodePage code_page);
-    bool to_char(const std::wstring_view& src, std::string& dst, CodePage code_page);
-    std::string to_char(const std::wstring_view& src, CodePage code_page);
+    /**
+     * @brief WChar -> Char
+     * @param src
+     * @param code_page
+     * @return
+     */
+    ConvResult<std::string> to_char(const std::wstring_view& src, CodePage code_page);
 
-    // Char -> WChar
-    ConvResult<std::wstring> priv_to_wchar(const std::string_view& src, CodePage code_page);
-    bool to_wchar(const std::string_view& src, std::wstring& dst, CodePage code_page);
-    std::wstring to_wchar(const std::string_view& src, CodePage code_page);
+    /**
+     * @brief Char -> WChar
+     * @param src
+     * @param code_page
+     * @return
+     */
+    ConvResult<std::wstring> to_wchar(const std::string_view& src, CodePage code_page);
 
-    // Char -> Char
-    // This is the combination of "WChar -> Char" and "Char -> WChar"
-    ConvResult<std::string> priv_to_char(const std::string_view& src, CodePage src_code_page, CodePage dst_code_page);
-    bool to_char(const std::string_view& src, std::string& dst, CodePage src_code_page, CodePage dst_code_page);
-    std::string to_char(const std::string_view& src, CodePage src_code_page, CodePage dst_code_page);
+    /**
+     * @brief Char -> Char
+     * @details This is the combination of "WChar -> Char" and "Char -> WChar"
+     * @param src
+     * @param src_code_page
+     * @param dst_code_page
+     * @return
+     */
+    ConvResult<std::string> to_char(const std::string_view& src, CodePage src_code_page, CodePage dst_code_page);
 
-    // WChar -> UTF8
-    // This is the specialization of "WChar -> Char"
-    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::wstring_view& src);
-    bool to_utf8(const std::wstring_view& src, NS_YYCC_STRING::u8string& dst);
-    NS_YYCC_STRING::u8string to_utf8(const std::wstring_view& src);
+    /**
+     * @brief WChar -> UTF8
+     * @details This is the specialization of "WChar -> Char"
+     * @param src
+     * @return
+     */
+    ConvResult<std::u8string> to_utf8(const std::wstring_view& src);
 
-    // UTF8 -> WChar
-    // This is the specialization of "Char -> WChar"
-    ConvResult<std::wstring> priv_to_wchar(const NS_YYCC_STRING::u8string_view& src);
-    bool to_wchar(const NS_YYCC_STRING::u8string_view& src, std::wstring& dst);
-    std::wstring to_wchar(const NS_YYCC_STRING::u8string_view& src);
+    /**
+     * @brief UTF8 -> WChar
+     * @details This is the specialization of "Char -> WChar"
+     * @param src
+     * @return
+     */
+    ConvResult<std::wstring> to_wchar(const std::u8string_view& src);
 
-    // Char -> UTF8
-    // This is the specialization of "Char -> Char"
-    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::string_view& src, CodePage code_page);
-    bool to_utf8(const std::string_view& src, NS_YYCC_STRING::u8string& dst, CodePage code_page);
-    NS_YYCC_STRING::u8string to_utf8(const std::string_view& src, CodePage code_page);
+    /**
+     * @brief Char -> UTF8
+     * @details This is the specialization of "Char -> Char"
+     * @param src
+     * @param code_page
+     * @return
+     */
+    ConvResult<std::u8string> to_utf8(const std::string_view& src, CodePage code_page);
 
-    // UTF8 -> Char
-    // This is the specialization of "Char -> Char"
-    ConvResult<std::string> priv_to_char(const NS_YYCC_STRING::u8string_view& src, CodePage code_page);
-    bool to_char(const NS_YYCC_STRING::u8string_view& src, std::string& dst, CodePage code_page);
-    std::string to_char(const NS_YYCC_STRING::u8string_view& src, CodePage code_page);
+    /**
+     * @brief UTF8 -> Char
+     * @details This is the specialization of "Char -> Char"
+     * @param src
+     * @param code_page
+     * @return
+     */
+    ConvResult<std::string> to_char(const std::u8string_view& src, CodePage code_page);
 
-    // UTF8 -> UTF16
-    ConvResult<std::u16string> priv_to_utf16(const NS_YYCC_STRING::u8string_view& src);
-    bool to_utf16(const NS_YYCC_STRING::u8string_view& src, std::u16string& dst);
-    std::u16string to_utf16(const NS_YYCC_STRING::u8string_view& src);
+    /**
+     * @brief UTF8 -> UTF16
+     * @param src
+     * @return
+     */
+    ConvResult<std::u16string> to_utf16(const std::u8string_view& src);
 
-    // UTF16 -> UTF8
-    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::u16string_view& src);
-    bool to_utf8(const std::u16string_view& src, NS_YYCC_STRING::u8string& dst);
-    NS_YYCC_STRING::u8string to_utf8(const std::u16string_view& src);
+    /**
+     * @brief UTF16 -> UTF8
+     * @param src
+     * @return
+     */
+    ConvResult<std::u8string> to_utf8(const std::u16string_view& src);
 
-    // UTF8 -> UTF32
-    ConvResult<std::u32string> priv_to_utf32(const NS_YYCC_STRING::u8string_view& src);
-    bool to_utf32(const NS_YYCC_STRING::u8string_view& src, std::u32string& dst);
-    std::u32string to_utf32(const NS_YYCC_STRING::u8string_view& src);
+    /**
+     * @brief UTF8 -> UTF32
+     * @param src
+     * @return
+     */
+    ConvResult<std::u32string> to_utf32(const std::u8string_view& src);
 
-    // UTF32 -> UTF8
-    ConvResult<NS_YYCC_STRING::u8string> priv_to_utf8(const std::u32string_view& src);
-    bool to_utf8(const std::u32string_view& src, NS_YYCC_STRING::u8string& dst);
-    NS_YYCC_STRING::u8string to_utf8(const std::u32string_view& src);
+    /**
+     * @brief UTF32 -> UTF8
+     * @param src
+     * @return
+     */
+    ConvResult<std::u8string> to_utf8(const std::u32string_view& src);
 
 } // namespace yycc::encoding::windows
-
-#undef NS_YYCC_PATCH_EXPECTED
-#undef NS_YYCC_STRING
 
 #endif

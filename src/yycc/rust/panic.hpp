@@ -1,10 +1,6 @@
 #pragma once
-#include "../macro/feature_probe.hpp"
 #include <string_view>
-
-#if defined(YYCC_CPPFEAT_FORMAT)
 #include <format>
-#endif
 
 /**
  * @brief Provides Rust-style panic functionality for immediate program termination on unrecoverable errors.
@@ -38,13 +34,7 @@ namespace yycc::rust::panic {
      * The macro parameters are the message to format and its arguments, following \c std::format syntax.
      * This macro essentially calls \c std::format internally.
      */
-#if defined(YYCC_CPPFEAT_FORMAT)
-#if defined(YYCC_CPPFEAT_VA_OPT)
 #define RS_PANICF(msg, ...) RS_PANIC(std::format(msg __VA_OPT__(, ) __VA_ARGS__))
-#else
-#define RS_PANICF(msg, ...) RS_PANIC(std::format(msg, ##__VA_ARGS__))
-#endif
-#endif
 
     /**
      * @brief Immediately crashes the entire program like Rust's \c panic! macro.

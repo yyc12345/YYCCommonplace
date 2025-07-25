@@ -26,9 +26,6 @@ FILES
     # Headers
     yycc.hpp
     yycc/version.hpp
-    yycc/primitive.hpp
-    yycc/prelude/core.hpp
-    yycc/prelude/rust.hpp
     yycc/macro/version_cmp.hpp
     yycc/macro/os_detector.hpp
     yycc/macro/endian_detector.hpp
@@ -38,6 +35,8 @@ FILES
     yycc/string/op.hpp
     yycc/num/parse.hpp
     yycc/num/stringify.hpp
+    yycc/rust/prelude.hpp
+    yycc/rust/primitive.hpp
     yycc/rust/panic.hpp
     yycc/rust/option.hpp
     yycc/rust/result.hpp
