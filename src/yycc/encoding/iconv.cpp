@@ -2,18 +2,12 @@
 
 #if YYCC_FEAT_ICONV || !defined(YYCC_OS_WINDOWS)
 
-#include "../string/reinterpret.hpp"
 #include "../macro/endian_detector.hpp"
 #include <cerrno>
 #include <stdexcept>
 #include <cstdint>
 #include <cstdlib>
 #include <vector>
-#include <iconv.h>
-
-#define NS_YYCC_STRING ::yycc::string
-#define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
-#define NS_YYCC_PATCH_EXPECTED ::yycc::patch::expected
 
 #pragma region Iconv Shit Fix
 
@@ -23,6 +17,8 @@
 // I can't simply redefine it, because I can't make sure that this "iconv" is defined in that way on all platforms.
 // So I can only write some definitions of functions and types here, and extract the functions and types I need before I declare the namespace.
 // And at the same time remove those annoying macro definitions. Hopefully, the compiler will optimize these wrapper functions.
+
+#include <iconv.h>
 
 typedef iconv_t that_iconv_t;
 static iconv_t that_iconv_open(const char* tocode, const char* fromcode) {
@@ -56,8 +52,8 @@ namespace yycc::encoding::iconv {
         PrivToken(const CodeName& from_code, const CodeName& to_code) : inner(INVALID_ICONV_TOKEN) {
             // We must cast them into string container, not string view,
             // because they may not have NULL terminator.
-            std::string iconv_from_code = NS_YYCC_STRING_REINTERPRET::as_ordinary(from_code),
-                        iconv_to_code = NS_YYCC_STRING_REINTERPRET::as_ordinary(to_code);
+            std::string iconv_from_code(from_code);
+            std::string iconv_to_code(to_code);
             // Call iconv_t creator
             that_iconv_t descriptor = that_iconv_open(iconv_to_code.c_str(), iconv_from_code.c_str());
             if (descriptor == INVALID_ICONV_TOKEN) {
@@ -131,12 +127,12 @@ namespace yycc::encoding::iconv {
 
         // Unwrap and check iconv_t
         that_iconv_t cd = token.get_inner()->get_inner();
-        if (cd == INVALID_ICONV_TOKEN) return ConvError::InvalidCd;
+        if (cd == INVALID_ICONV_TOKEN) return std::unexpected(ConvError::InvalidCd);
 
         // Check empty input
         if (str_from_len == 0u) return str_to;
         // Check nullptr input variables
-        if (str_from_buf == nullptr) return ConvError::NullPointer;
+        if (str_from_buf == nullptr) return std::unexpected(ConvError::NullPointer);
 
         // ===== Do Iconv =====
         // setup input variables
@@ -168,9 +164,9 @@ namespace yycc::encoding::iconv {
         // check error
         if (nchars == ICONV_ERR_RV) {
             if (errno == EILSEQ) {
-                return ConvError::InvalidMbSeq;
+                return std::unexpected(ConvError::InvalidMbSeq);
             } else if (errno == EINVAL) {
-                return ConvError::IncompleteMbSeq;
+                return std::unexpected(ConvError::IncompleteMbSeq);
             } else {
                 throw std::runtime_error("impossible errno when calling iconv_open()");
             }
@@ -191,57 +187,39 @@ namespace yycc::encoding::iconv {
     // That's not what we expected.
     // So we need manually check runtime endian and explicitly specify endian in code name.
 
-    static const NS_YYCC_STRING::u8char* UTF8_CODENAME_LITERAL = YYCC_U8("UTF-8");
-    static const NS_YYCC_STRING::u8char* WCHAR_CODENAME_LITERAL = YYCC_U8("WCHAR_T");
-    static const NS_YYCC_STRING::u8char* fetch_utf16_codename() {
+    using namespace std::literals::string_view_literals;
+
+    constexpr auto UTF8_CODENAME_LITERAL = "UTF-8"sv;
+    constexpr auto WCHAR_CODENAME_LITERAL = "WCHAR_T"sv;
+    constexpr auto UTF16_CODENAME_LITERAL =
 #if defined(YYCC_ENDIAN_LITTLE)
-        return YYCC_U8("UTF16LE");
+        "UTF16LE"sv;
 #else
-        return YYCC_U8("UTF16BE");
+        "UTF16BE"sv;
 #endif
-    }
-    static const NS_YYCC_STRING::u8char* UTF16_CODENAME_LITERAL = fetch_utf16_codename();
-    static const NS_YYCC_STRING::u8char* fetch_utf32_codename() {
+    constexpr auto UTF32_CODENAME_LITERAL =
 #if defined(YYCC_ENDIAN_LITTLE)
-        return YYCC_U8("UTF32LE");
+        "UTF32LE"sv;
 #else
-        return YYCC_U8("UTF32BE");
+        "UTF32BE"sv;
 #endif
-    }
-    static const NS_YYCC_STRING::u8char* UTF32_CODENAME_LITERAL = fetch_utf32_codename();
 
     // TODO:
     // There is a memory copy in this function. Consider optimizing it in future.
     // A possible solution is that create a std::vector-like wrapper for std::basic_string and std::basic_string_view.
     // We call them VecString and VecStringView, and use them in "iconv_kernel" instead of real std::vector.
     // They exposed interface are std::vector-like but its inner is std::basic_string and std::basic_string_view.
-#define CONVFN_TYPE0(src_char_type, dst_char_type) \
-    namespace expected = NS_YYCC_PATCH_EXPECTED; \
+#define USER_CONVFN(src_char_type, dst_char_type) \
     auto rv = iconv_kernel(this->token, reinterpret_cast<const uint8_t*>(src.data()), src.size()); \
-    if (expected::is_value(rv)) { \
-        const auto& dst = expected::get_value(rv); \
+    if (rv.has_value()) { \
+        const auto& dst = rv.value(); \
         if constexpr (sizeof(dst_char_type) > 1u) { \
-            if (dst.size() % sizeof(dst_char_type) != 0u) return ConvError::BadRv; \
+            if (dst.size() % sizeof(dst_char_type) != 0u) return std::unexpected(ConvError::BadRv); \
         } \
         return std::basic_string<dst_char_type>(reinterpret_cast<const dst_char_type*>(dst.data()), dst.size() / sizeof(dst_char_type)); \
     } else { \
-        return expected::get_error(rv); \
+        return std::unexpected(rv.error()); \
     }
-
-#define CONVFN_TYPE1(fct_name, src_char_type, dst_char_type) \
-    namespace expected = NS_YYCC_PATCH_EXPECTED; \
-    auto rv = this->priv_##fct_name(src); \
-    if (expected::is_value(rv)) { \
-        dst = std::move(expected::get_value(rv)); \
-        return true; \
-    } else { \
-        return false; \
-    }
-
-#define CONVFN_TYPE2(fct_name, src_char_type, dst_char_type) \
-    std::basic_string<dst_char_type> rv; \
-    if (this->fct_name(src, rv)) return rv; \
-    else throw std::runtime_error("fail to convert string in Win32 function");
 
 #pragma endregion
 
@@ -251,16 +229,8 @@ namespace yycc::encoding::iconv {
 
     CharToUtf8::~CharToUtf8() {}
 
-    ConvResult<NS_YYCC_STRING::u8string> CharToUtf8::priv_to_utf8(const std::string_view& src) {
-        CONVFN_TYPE0(char, NS_YYCC_STRING::u8char);
-    }
-
-    bool CharToUtf8::to_utf8(const std::string_view& src, NS_YYCC_STRING::u8string& dst) {
-        CONVFN_TYPE1(to_utf8, char, NS_YYCC_STRING::u8char);
-    }
-
-    NS_YYCC_STRING::u8string CharToUtf8::to_utf8(const std::string_view& src) {
-        CONVFN_TYPE2(to_utf8, char, NS_YYCC_STRING::u8char);
+    ConvResult<std::u8string> CharToUtf8::priv_to_utf8(const std::string_view& src) {
+        USER_CONVFN(char, char8_t);
     }
 
 #pragma endregion
@@ -271,16 +241,8 @@ namespace yycc::encoding::iconv {
 
     Utf8ToChar::~Utf8ToChar() {}
 
-    ConvResult<std::string> Utf8ToChar::priv_to_char(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE0(NS_YYCC_STRING::u8char, char);
-    }
-
-    bool Utf8ToChar::to_char(const NS_YYCC_STRING::u8string_view& src, std::string& dst) {
-        CONVFN_TYPE1(to_char, NS_YYCC_STRING::u8char, char);
-    }
-
-    std::string Utf8ToChar::to_char(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE2(to_char, NS_YYCC_STRING::u8char, char);
+    ConvResult<std::string> Utf8ToChar::priv_to_char(const std::u8string_view& src) {
+        USER_CONVFN(char8_t, char);
     }
 
 #pragma endregion
@@ -291,16 +253,8 @@ namespace yycc::encoding::iconv {
 
     WcharToUtf8::~WcharToUtf8() {}
 
-    ConvResult<NS_YYCC_STRING::u8string> WcharToUtf8::priv_to_utf8(const std::wstring_view& src) {
-        CONVFN_TYPE0(wchar_t, NS_YYCC_STRING::u8char);
-    }
-
-    bool WcharToUtf8::to_utf8(const std::wstring_view& src, NS_YYCC_STRING::u8string& dst) {
-        CONVFN_TYPE1(to_utf8, wchar_t, NS_YYCC_STRING::u8char);
-    }
-
-    NS_YYCC_STRING::u8string WcharToUtf8::to_utf8(const std::wstring_view& src) {
-        CONVFN_TYPE2(to_utf8, wchar_t, NS_YYCC_STRING::u8char);
+    ConvResult<std::u8string> WcharToUtf8::priv_to_utf8(const std::wstring_view& src) {
+        USER_CONVFN(wchar_t, char8_t);
     }
 
 #pragma endregion
@@ -311,16 +265,8 @@ namespace yycc::encoding::iconv {
 
     Utf8ToWchar::~Utf8ToWchar() {}
 
-    ConvResult<std::wstring> Utf8ToWchar::priv_to_wchar(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE0(NS_YYCC_STRING::u8char, wchar_t);
-    }
-
-    bool Utf8ToWchar::to_wchar(const NS_YYCC_STRING::u8string_view& src, std::wstring& dst) {
-        CONVFN_TYPE1(to_wchar, NS_YYCC_STRING::u8char, wchar_t);
-    }
-
-    std::wstring Utf8ToWchar::to_wchar(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE2(to_wchar, NS_YYCC_STRING::u8char, wchar_t);
+    ConvResult<std::wstring> Utf8ToWchar::priv_to_wchar(const std::u8string_view& src) {
+        USER_CONVFN(char8_t, wchar_t);
     }
 
 #pragma endregion
@@ -331,16 +277,8 @@ namespace yycc::encoding::iconv {
 
     Utf8ToUtf16::~Utf8ToUtf16() {}
 
-    ConvResult<std::u16string> Utf8ToUtf16::priv_to_utf16(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE0(NS_YYCC_STRING::u8char, char16_t);
-    }
-
-    bool Utf8ToUtf16::to_utf16(const NS_YYCC_STRING::u8string_view& src, std::u16string& dst) {
-        CONVFN_TYPE1(to_utf16, NS_YYCC_STRING::u8char, char16_t);
-    }
-
-    std::u16string Utf8ToUtf16::to_utf16(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE2(to_utf16, NS_YYCC_STRING::u8char, char16_t);
+    ConvResult<std::u16string> Utf8ToUtf16::priv_to_utf16(const std::u8string_view& src) {
+        USER_CONVFN(char8_t, char16_t);
     }
 
 #pragma endregion
@@ -351,16 +289,8 @@ namespace yycc::encoding::iconv {
 
     Utf16ToUtf8::~Utf16ToUtf8() {}
 
-    ConvResult<NS_YYCC_STRING::u8string> Utf16ToUtf8::priv_to_utf8(const std::u16string_view& src) {
-        CONVFN_TYPE0(char16_t, NS_YYCC_STRING::u8char);
-    }
-
-    bool Utf16ToUtf8::to_utf8(const std::u16string_view& src, NS_YYCC_STRING::u8string& dst) {
-        CONVFN_TYPE1(to_utf8, char16_t, NS_YYCC_STRING::u8char);
-    }
-
-    NS_YYCC_STRING::u8string Utf16ToUtf8::to_utf8(const std::u16string_view& src) {
-        CONVFN_TYPE2(to_utf8, char16_t, NS_YYCC_STRING::u8char);
+    ConvResult<std::u8string> Utf16ToUtf8::priv_to_utf8(const std::u16string_view& src) {
+        USER_CONVFN(char16_t, char8_t);
     }
 
 #pragma endregion
@@ -371,16 +301,8 @@ namespace yycc::encoding::iconv {
 
     Utf8ToUtf32::~Utf8ToUtf32() {}
 
-    ConvResult<std::u32string> Utf8ToUtf32::priv_to_utf32(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE0(NS_YYCC_STRING::u8char, char32_t);
-    }
-
-    bool Utf8ToUtf32::to_utf32(const NS_YYCC_STRING::u8string_view& src, std::u32string& dst) {
-        CONVFN_TYPE1(to_utf32, NS_YYCC_STRING::u8char, char32_t);
-    }
-
-    std::u32string Utf8ToUtf32::to_utf32(const NS_YYCC_STRING::u8string_view& src) {
-        CONVFN_TYPE2(to_utf32, NS_YYCC_STRING::u8char, char32_t);
+    ConvResult<std::u32string> Utf8ToUtf32::priv_to_utf32(const std::u8string_view& src) {
+        USER_CONVFN(char8_t, char32_t);
     }
 
 #pragma endregion
@@ -391,16 +313,8 @@ namespace yycc::encoding::iconv {
 
     Utf32ToUtf8::~Utf32ToUtf8() {}
 
-    ConvResult<NS_YYCC_STRING::u8string> Utf32ToUtf8::priv_to_utf8(const std::u32string_view& src) {
-        CONVFN_TYPE0(char32_t, NS_YYCC_STRING::u8char);
-    }
-
-    bool Utf32ToUtf8::to_utf8(const std::u32string_view& src, NS_YYCC_STRING::u8string& dst) {
-        CONVFN_TYPE1(to_utf8, char32_t, NS_YYCC_STRING::u8char);
-    }
-
-    NS_YYCC_STRING::u8string Utf32ToUtf8::to_utf8(const std::u32string_view& src) {
-        CONVFN_TYPE2(to_utf8, char32_t, NS_YYCC_STRING::u8char);
+    ConvResult<std::u8string> Utf32ToUtf8::priv_to_utf8(const std::u32string_view& src) {
+        USER_CONVFN(char32_t, char8_t);
     }
 
 #pragma endregion

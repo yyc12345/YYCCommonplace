@@ -1,5 +1,13 @@
 #pragma once
 
+/**
+ * @file
+ * When you use YYCCommonplace, please make sure that you include this header first,
+ * before including any other headers of YYCC.
+ * This header contain essential check macros and version infos.
+ * They are crucial before using YYCC.
+ */
+
 // Library Version and Comparison Macros
 #include "yycc/version.hpp"
 #include "yycc/macro/version_cmp.hpp"
