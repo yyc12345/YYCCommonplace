@@ -229,7 +229,7 @@ namespace yycc::encoding::iconv {
 
     CharToUtf8::~CharToUtf8() {}
 
-    ConvResult<std::u8string> CharToUtf8::priv_to_utf8(const std::string_view& src) {
+    ConvResult<std::u8string> CharToUtf8::to_utf8(const std::string_view& src) {
         USER_CONVFN(char, char8_t);
     }
 
@@ -241,7 +241,7 @@ namespace yycc::encoding::iconv {
 
     Utf8ToChar::~Utf8ToChar() {}
 
-    ConvResult<std::string> Utf8ToChar::priv_to_char(const std::u8string_view& src) {
+    ConvResult<std::string> Utf8ToChar::to_char(const std::u8string_view& src) {
         USER_CONVFN(char8_t, char);
     }
 
@@ -253,7 +253,7 @@ namespace yycc::encoding::iconv {
 
     WcharToUtf8::~WcharToUtf8() {}
 
-    ConvResult<std::u8string> WcharToUtf8::priv_to_utf8(const std::wstring_view& src) {
+    ConvResult<std::u8string> WcharToUtf8::to_utf8(const std::wstring_view& src) {
         USER_CONVFN(wchar_t, char8_t);
     }
 
@@ -265,7 +265,7 @@ namespace yycc::encoding::iconv {
 
     Utf8ToWchar::~Utf8ToWchar() {}
 
-    ConvResult<std::wstring> Utf8ToWchar::priv_to_wchar(const std::u8string_view& src) {
+    ConvResult<std::wstring> Utf8ToWchar::to_wchar(const std::u8string_view& src) {
         USER_CONVFN(char8_t, wchar_t);
     }
 
@@ -277,7 +277,7 @@ namespace yycc::encoding::iconv {
 
     Utf8ToUtf16::~Utf8ToUtf16() {}
 
-    ConvResult<std::u16string> Utf8ToUtf16::priv_to_utf16(const std::u8string_view& src) {
+    ConvResult<std::u16string> Utf8ToUtf16::to_utf16(const std::u8string_view& src) {
         USER_CONVFN(char8_t, char16_t);
     }
 
@@ -289,7 +289,7 @@ namespace yycc::encoding::iconv {
 
     Utf16ToUtf8::~Utf16ToUtf8() {}
 
-    ConvResult<std::u8string> Utf16ToUtf8::priv_to_utf8(const std::u16string_view& src) {
+    ConvResult<std::u8string> Utf16ToUtf8::to_utf8(const std::u16string_view& src) {
         USER_CONVFN(char16_t, char8_t);
     }
 
@@ -301,7 +301,7 @@ namespace yycc::encoding::iconv {
 
     Utf8ToUtf32::~Utf8ToUtf32() {}
 
-    ConvResult<std::u32string> Utf8ToUtf32::priv_to_utf32(const std::u8string_view& src) {
+    ConvResult<std::u32string> Utf8ToUtf32::to_utf32(const std::u8string_view& src) {
         USER_CONVFN(char8_t, char32_t);
     }
 
@@ -313,7 +313,7 @@ namespace yycc::encoding::iconv {
 
     Utf32ToUtf8::~Utf32ToUtf8() {}
 
-    ConvResult<std::u8string> Utf32ToUtf8::priv_to_utf8(const std::u32string_view& src) {
+    ConvResult<std::u8string> Utf32ToUtf8::to_utf8(const std::u32string_view& src) {
         USER_CONVFN(char32_t, char8_t);
     }
 

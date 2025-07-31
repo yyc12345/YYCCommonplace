@@ -3,7 +3,7 @@
 #include <yycc.hpp>
 #include <yycc/string/reinterpret.hpp>
 
-#include <yycc/prelude/core.hpp>
+#include <yycc/rust/prelude.hpp>
 
 #define REINTERPRET ::yycc::string::reinterpret
 #define CONST_VOID_PTR(p) reinterpret_cast<const void*>(p)
@@ -11,7 +11,7 @@
 
 namespace yycctest::string::reinterpret {
 
-    static u8string PROBE(YYCC_U8("Test"));
+    static std::u8string PROBE(u8"Test");
 
     TEST(StringReinterpret, ConstPointer) {
         const auto* src = PROBE.data();
@@ -34,7 +34,7 @@ namespace yycctest::string::reinterpret {
     }
 
     TEST(StringReinterpret, String) {
-        auto src = u8string(PROBE);
+        auto src = std::u8string(PROBE);
         auto dst = REINTERPRET::as_ordinary(src);
         auto new_src = REINTERPRET::as_utf8(dst);
 
@@ -46,7 +46,7 @@ namespace yycctest::string::reinterpret {
     }
 
     TEST(StringReinterpret, StringView) {
-        auto src = u8string_view(PROBE);
+        auto src = std::u8string_view(PROBE);
         auto dst = REINTERPRET::as_ordinary_view(src);
         auto new_src = REINTERPRET::as_utf8_view(dst);
 

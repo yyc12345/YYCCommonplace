@@ -2,91 +2,92 @@
 #include <yycc.hpp>
 #include <yycc/string/op.hpp>
 
-#include <yycc/prelude/core.hpp>
+#include <yycc/rust/prelude.hpp>
 
 #define OP ::yycc::string::op
+using namespace std::literals::string_view_literals;
 
 namespace yycctest::string::op {
 
     TEST(StringOp, Printf) {
-        auto rv = OP::printf(YYCC_U8("%s == %s"), YYCC_U8("Hello World"), YYCC_U8("Hello, world"));
-        EXPECT_EQ(rv, YYCC_U8("Hello World == Hello, world"));
+        auto rv = OP::printf(u8"%s == %s", u8"Hello World", u8"Hello, world");
+        EXPECT_EQ(rv, u8"Hello World == Hello, world");
     }
 
     TEST(StringOp, Replace) {
         // Normal case
         {
-            auto rv = OP::replace(YYCC_U8("aabbcc"), YYCC_U8("bb"), YYCC_U8("dd"));
-            EXPECT_EQ(rv, YYCC_U8("aaddcc"));
+            auto rv = OP::replace(u8"aabbcc", u8"bb", u8"dd");
+            EXPECT_EQ(rv, u8"aaddcc");
         }
         // No matched expected string
         {
-            auto rv = OP::replace(YYCC_U8("aabbcc"), YYCC_U8("zz"), YYCC_U8("yy"));
-            EXPECT_EQ(rv, YYCC_U8("aabbcc"));
+            auto rv = OP::replace(u8"aabbcc", u8"zz", u8"yy");
+            EXPECT_EQ(rv, u8"aabbcc");
         }
         // Empty expected string
         {
-            auto rv = OP::replace(YYCC_U8("aabbcc"), u8string_view(), YYCC_U8("zz"));
-            EXPECT_EQ(rv, YYCC_U8("aabbcc"));
+            auto rv = OP::replace(u8"aabbcc", std::u8string_view(), u8"zz");
+            EXPECT_EQ(rv, u8"aabbcc");
         }
         // Empty replace string
         {
-            auto rv = OP::replace(YYCC_U8("aaaabbaa"), YYCC_U8("aa"), YYCC_U8(""));
-            EXPECT_EQ(rv, YYCC_U8("bb"));
+            auto rv = OP::replace(u8"aaaabbaa", u8"aa", u8"");
+            EXPECT_EQ(rv, u8"bb");
         }
         // Nested replacing
         {
-            auto rv = OP::replace(YYCC_U8("aaxcc"), YYCC_U8("x"), YYCC_U8("yx"));
-            EXPECT_EQ(rv, YYCC_U8("aayxcc"));
+            auto rv = OP::replace(u8"aaxcc", u8"x", u8"yx");
+            EXPECT_EQ(rv, u8"aayxcc");
         }
         // Empty source string
         {
-            auto rv = OP::replace(u8string_view(), YYCC_U8(""), YYCC_U8("xy"));
-            EXPECT_EQ(rv, YYCC_U8(""));
+            auto rv = OP::replace(std::u8string_view(), u8"", u8"xy");
+            EXPECT_EQ(rv, u8"");
         }
     }
 
     TEST(StringOp, Lower) {
-        auto rv = OP::to_lower(YYCC_U8("LOWER"));
-        EXPECT_EQ(rv, YYCC_U8("lower"));
+        auto rv = OP::to_lower(u8"LOWER");
+        EXPECT_EQ(rv, u8"lower");
     }
 
     TEST(StringOp, Upper) {
-        auto rv = OP::to_upper(YYCC_U8("upper"));
-        EXPECT_EQ(rv, YYCC_U8("UPPER"));
+        auto rv = OP::to_upper(u8"upper");
+        EXPECT_EQ(rv, u8"UPPER");
     }
 
     TEST(StringOp, Join) {
-        std::vector<u8string> datas{YYCC_U8(""), YYCC_U8("1"), YYCC_U8("2"), YYCC_U8("")};
-        auto rv = OP::join(datas.begin(), datas.end(), YYCC_U8(", "));
-        EXPECT_EQ(rv, YYCC_U8(", 1, 2, "));
+        std::vector<std::u8string_view> datas{u8""sv, u8"1"sv, u8"2"sv, u8""sv};
+        auto rv = OP::join(datas.begin(), datas.end(), u8", ");
+        EXPECT_EQ(rv, u8", 1, 2, ");
     }
 
     TEST(StringOp, Split) {
         // Normal
         {
-            auto rv = OP::split(YYCC_U8(", 1, 2, "), YYCC_U8(", "));
+            auto rv = OP::split(u8", 1, 2, ", u8", ");
             ASSERT_EQ(rv.size(), 4u);
-            EXPECT_EQ(rv[0], YYCC_U8(""));
-            EXPECT_EQ(rv[1], YYCC_U8("1"));
-            EXPECT_EQ(rv[2], YYCC_U8("2"));
-            EXPECT_EQ(rv[3], YYCC_U8(""));
+            EXPECT_EQ(rv[0], u8"");
+            EXPECT_EQ(rv[1], u8"1");
+            EXPECT_EQ(rv[2], u8"2");
+            EXPECT_EQ(rv[3], u8"");
         }
         // No matched delimiter
         {
-            auto rv = OP::split(YYCC_U8("test"), YYCC_U8("-"));
+            auto rv = OP::split(u8"test", u8"-");
             ASSERT_EQ(rv.size(), 1u);
-            EXPECT_EQ(rv[0], YYCC_U8("test"));
+            EXPECT_EQ(rv[0], u8"test");
         }
         // Empty delimiter
         {
-            auto rv = OP::split(YYCC_U8("test"), u8string_view());
+            auto rv = OP::split(u8"test", std::u8string_view());
             ASSERT_EQ(rv.size(), 1u);
-            EXPECT_EQ(rv[0], YYCC_U8("test"));
+            EXPECT_EQ(rv[0], u8"test");
         }
         // Empty source string
         {
-            auto rv = OP::split(u8string_view(), YYCC_U8(""));
+            auto rv = OP::split(std::u8string_view(), u8"");
             ASSERT_EQ(rv.size(), 1u);
             EXPECT_TRUE(rv[0].empty());
         }

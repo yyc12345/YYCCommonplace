@@ -10,18 +10,12 @@ PRIVATE
     yycc/string/reinterpret.cpp
     yycc/num/parse.cpp
     yycc/num/stringify.cpp
-    yycc/rust/num/parse.cpp
-    yycc/rust/num/stringify.cpp
-    yycc/patch/contains.cpp
-    yycc/patch/starts_ends_with.cpp
 )
 target_sources(YYCCTestbench
 PRIVATE
 FILE_SET HEADERS
 FILES
-    shared/parse_template.hpp
-    shared/stringify_template.hpp
-    shared/utf_literal.hpp
+    yycc/encoding/utf_literal.hpp
 )
 # Setup headers
 target_include_directories(YYCCTestbench

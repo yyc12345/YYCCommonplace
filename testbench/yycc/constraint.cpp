@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
 #include <yycc/constraint.hpp>
-#include <yycc/prelude/rust.hpp>
+
+#include <yycc/rust/prelude.hpp>
 
 #define CONSTRAINT ::yycc::constraint::Constraint
 

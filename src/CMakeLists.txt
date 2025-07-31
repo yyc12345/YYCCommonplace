@@ -17,7 +17,7 @@ PRIVATE
     yycc/encoding/stlcvt.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
-    yycc/encoding/pycodec.cpp
+    #yycc/encoding/pycodec.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -28,6 +28,7 @@ FILES
     yycc/version.hpp
     yycc/macro/version_cmp.hpp
     yycc/macro/os_detector.hpp
+    yycc/macro/stl_detector.hpp
     yycc/macro/endian_detector.hpp
     yycc/macro/compiler_detector.hpp
     yycc/macro/class_copy_move.hpp
@@ -73,8 +74,9 @@ PUBLIC
     # Iconv environment macro
     $<$<BOOL:${YYCC_ENFORCE_ICONV}>:YYCC_FEAT_ICONV>
     # OS macro
-    $<$<BOOL:${WIN32}>:YYCC_OS_WINDOWS>
+    $<$<PLATFORM_ID:Windows>:YYCC_OS_WINDOWS>
     $<$<PLATFORM_ID:Linux>:YYCC_OS_LINUX>
+    $<$<PLATFORM_ID:Darwin>:YYCC_OS_MACOS>
     # Compiler macro
     $<$<CXX_COMPILER_ID:GNU>:YYCC_CC_GCC>
     $<$<CXX_COMPILER_ID:Clang>:YYCC_CC_CLANG>
@@ -100,7 +102,14 @@ PUBLIC
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )
 
-# TODO: Fix GCC stacktrace link issue
+# Fix GCC std::stacktrace link error
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
+        target_link_libraries(YYCCommonplace PRIVATE stdc++exp)
+    else ()
+        target_link_libraries(YYCCommonplace PRIVATE stdc++_libbacktrace)
+    endif ()
+endif ()
 
 # Install binary and headers
 install(TARGETS YYCCommonplace

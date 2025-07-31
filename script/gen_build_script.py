@@ -25,7 +25,7 @@ def escape_cmd_argument(arg):
 def escape_sh_argument(arg):
     return shlex.quote(arg)
 
-@dataclass
+@dataclass(frozen=True)
 class ScriptSettings:
     cpp_version: str
     build_doc: bool

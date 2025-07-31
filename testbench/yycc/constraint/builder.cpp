@@ -2,9 +2,10 @@
 #include <yycc.hpp>
 #include <yycc/constraint/builder.hpp>
 
-#include <yycc/prelude/rust.hpp>
+#include <yycc/rust/prelude.hpp>
 
 #define BUILDER ::yycc::constraint::builder
+using namespace std::literals::string_view_literals;
 
 namespace yycctest::constraint::builder {
 
@@ -56,8 +57,7 @@ namespace yycctest::constraint::builder {
     enum class TestEnum : u8 { Entry1 = 0, Entry2 = 1, Entry3 = 2 };
 
     TEST(ConstraintBuilder, EnumConstraint) {
-        auto c = BUILDER::enum_constraint({TestEnum::Entry1, TestEnum::Entry2, TestEnum::Entry3},
-                                          1u);
+        auto c = BUILDER::enum_constraint({TestEnum::Entry1, TestEnum::Entry2, TestEnum::Entry3}, 1u);
         ASSERT_TRUE(c.support_check());
         ASSERT_TRUE(c.support_clamp());
         TEST_SUCCESS(c, TestEnum::Entry1);
@@ -67,16 +67,13 @@ namespace yycctest::constraint::builder {
     }
 
     TEST(ConstraintBuilder, StrEnumConstraint) {
-        auto c = BUILDER::strenum_constraint({YYCC_U8("first-entry"),
-                                              YYCC_U8("second-entry"),
-                                              YYCC_U8("third-entry")},
-                                             1u);
+        auto c = BUILDER::strenum_constraint({u8"first-entry"sv, u8"second-entry"sv, u8"third-entry"sv}, 1u);
         ASSERT_TRUE(c.support_check());
         ASSERT_TRUE(c.support_clamp());
-        TEST_SUCCESS(c, YYCC_U8("first-entry"));
-        TEST_SUCCESS(c, YYCC_U8("second-entry"));
-        TEST_SUCCESS(c, YYCC_U8("third-entry"));
-        TEST_FAIL(c, YYCC_U8("wtf?"), YYCC_U8("second-entry"));
+        TEST_SUCCESS(c, u8"first-entry");
+        TEST_SUCCESS(c, u8"second-entry");
+        TEST_SUCCESS(c, u8"third-entry");
+        TEST_FAIL(c, u8"wtf?", u8"second-entry");
     }
 
 } // namespace yycctest::constraint::builder

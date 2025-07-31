@@ -1,8 +1,5 @@
 #pragma once
 #include "../macro/os_detector.hpp"
-
-#if YYCC_FEAT_ICONV || !defined(YYCC_OS_WINDOWS)
-
 #include "../macro/class_copy_move.hpp"
 #include <string>
 #include <string_view>
@@ -51,6 +48,8 @@ namespace yycc::encoding::iconv {
     template<typename T>
     using ConvResult = std::expected<T, ConvError>;
 
+#if YYCC_FEAT_ICONV || !defined(YYCC_OS_WINDOWS)
+
     /// @brief Char -> UTF8
     class CharToUtf8 {
     public:
@@ -60,7 +59,7 @@ namespace yycc::encoding::iconv {
         YYCC_DEFAULT_MOVE(CharToUtf8)
 
     public:
-        ConvResult<std::u8string> priv_to_utf8(const std::string_view& src);
+        ConvResult<std::u8string> to_utf8(const std::string_view& src);
 
     private:
         Token token;
@@ -75,7 +74,7 @@ namespace yycc::encoding::iconv {
         YYCC_DEFAULT_MOVE(Utf8ToChar)
 
     public:
-        ConvResult<std::string> priv_to_char(const std::u8string_view& src);
+        ConvResult<std::string> to_char(const std::u8string_view& src);
 
     private:
         Token token;
@@ -90,7 +89,7 @@ namespace yycc::encoding::iconv {
         YYCC_DEFAULT_MOVE(WcharToUtf8)
 
     public:
-        ConvResult<std::u8string> priv_to_utf8(const std::wstring_view& src);
+        ConvResult<std::u8string> to_utf8(const std::wstring_view& src);
 
     private:
         Token token;
@@ -105,7 +104,7 @@ namespace yycc::encoding::iconv {
         YYCC_DEFAULT_MOVE(Utf8ToWchar)
 
     public:
-        ConvResult<std::wstring> priv_to_wchar(const std::u8string_view& src);
+        ConvResult<std::wstring> to_wchar(const std::u8string_view& src);
 
     private:
         Token token;
@@ -120,7 +119,7 @@ namespace yycc::encoding::iconv {
         YYCC_DEFAULT_MOVE(Utf8ToUtf16)
 
     public:
-        ConvResult<std::u16string> priv_to_utf16(const std::u8string_view& src);
+        ConvResult<std::u16string> to_utf16(const std::u8string_view& src);
 
     private:
         Token token;
@@ -135,7 +134,7 @@ namespace yycc::encoding::iconv {
         YYCC_DEFAULT_MOVE(Utf16ToUtf8)
 
     public:
-        ConvResult<std::u8string> priv_to_utf8(const std::u16string_view& src);
+        ConvResult<std::u8string> to_utf8(const std::u16string_view& src);
 
     private:
         Token token;
@@ -150,7 +149,7 @@ namespace yycc::encoding::iconv {
         YYCC_DEFAULT_MOVE(Utf8ToUtf32)
 
     public:
-        ConvResult<std::u32string> priv_to_utf32(const std::u8string_view& src);
+        ConvResult<std::u32string> to_utf32(const std::u8string_view& src);
 
     private:
         Token token;
@@ -165,12 +164,12 @@ namespace yycc::encoding::iconv {
         YYCC_DEFAULT_MOVE(Utf32ToUtf8)
 
     public:
-        ConvResult<std::u8string> priv_to_utf8(const std::u32string_view& src);
+        ConvResult<std::u8string> to_utf8(const std::u32string_view& src);
 
     private:
         Token token;
     };
 
-} // namespace yycc::encoding::iconv
-
 #endif
+
+} // namespace yycc::encoding::iconv

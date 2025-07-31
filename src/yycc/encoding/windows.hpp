@@ -1,8 +1,6 @@
 #pragma once
 #include "../macro/os_detector.hpp"
-
-#if defined(YYCC_OS_WINDOWS)
-
+#include "../macro/stl_detector.hpp"
 #include <string>
 #include <string_view>
 #include <expected>
@@ -27,6 +25,8 @@ namespace yycc::encoding::windows {
     /// @brief The result type in this module.
     template<typename T>
     using ConvResult = std::expected<T, ConvError>;
+
+#if defined(YYCC_OS_WINDOWS)
 
     /**
      * @brief WChar -> Char
@@ -88,6 +88,12 @@ namespace yycc::encoding::windows {
      */
     ConvResult<std::string> to_char(const std::u8string_view& src, CodePage code_page);
 
+    // YYC MARK:
+    // UTF convertion only works on Microsoft STL.
+    // See implementation for more details
+
+#if defined(YYCC_STL_MSSTL)
+
     /**
      * @brief UTF8 -> UTF16
      * @param src
@@ -116,6 +122,8 @@ namespace yycc::encoding::windows {
      */
     ConvResult<std::u8string> to_utf8(const std::u32string_view& src);
 
-} // namespace yycc::encoding::windows
+#endif
 
 #endif
+
+} // namespace yycc::encoding::windows

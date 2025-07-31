@@ -120,6 +120,8 @@ namespace yycc::encoding::windows {
     // * https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/c16rtomb-c32rtomb1?view=msvc-170
     // * https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/mbrtoc16-mbrtoc323?view=msvc-170
 
+#if defined(YYCC_STL_MSSTL)
+
     // 1 UTF32 unit can produe 4 UTF8 units or 2 UTF16 units in theory.
     // So we pre-allocate memory for the result to prevent allocating memory multiple times.
     constexpr size_t MULTIPLE_UTF8_TO_UTF16 = 1u;
@@ -205,6 +207,8 @@ namespace yycc::encoding::windows {
         }
         return dst;
     }
+
+#endif
 
 #pragma endregion
 

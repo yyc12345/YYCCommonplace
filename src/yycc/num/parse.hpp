@@ -40,7 +40,7 @@ namespace yycc::num::parse {
      */
     template<typename T>
         requires(std::is_floating_point_v<T>)
-    ParseResult<T> parse(const std::u8string_view& strl, std::chars_format fmt) {
+    ParseResult<T> parse(const std::u8string_view& strl, std::chars_format fmt = std::chars_format::general) {
         namespace reinterpret = NS_YYCC_STRING_REINTERPRET;
 
         T rv;
@@ -75,7 +75,7 @@ namespace yycc::num::parse {
      */
     template<typename T>
         requires(std::is_integral_v<T> && !std::is_same_v<T, bool>)
-    ParseResult<T> parse(const std::u8string_view& strl, int base) {
+    ParseResult<T> parse(const std::u8string_view& strl, int base = 10) {
         namespace reinterpret = NS_YYCC_STRING_REINTERPRET;
 
         T rv;
@@ -115,7 +115,7 @@ namespace yycc::num::parse {
         // Compare result
         if (lower_case == u8"true") return true;
         else if (lower_case == u8"false") return false;
-        else return ParseError::InvalidString;
+        else return std::unexpected(ParseError::InvalidString);
     }
 
 } // namespace yycc::num::parse

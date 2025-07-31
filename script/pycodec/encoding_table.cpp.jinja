@@ -1,0 +1,23 @@
+static const std::map<std::u8string_view, std::u8string_view> ALIAS_MAP {
+{% for token in tokens -%}
+{% for alias in token.alias -%}
+    { u8"{{ alias }}"sv, u8"{{ token.name }}"sv },
+{% endfor -%}
+{% endfor -%}
+};
+
+static const std::map<std::u8string_view, CodePage> WINCP_MAP {
+{% for token in tokens -%}
+{% if token.code_page is not none -%}
+    { u8"{{ token.name }}"sv, static_cast<CodePage>({{ token.code_page }}u) },
+{% endif -%}
+{% endfor -%}
+};
+
+static const std::map<std::u8string_view, std::string_view> ICONV_MAP {
+{% for token in tokens -%}
+{% if token.iconv_code is not none -%}
+    { u8"{{ token.name }}"sv, "{{ token.iconv_code }}"sv },
+{% endif -%}
+{% endfor -%}
+};
