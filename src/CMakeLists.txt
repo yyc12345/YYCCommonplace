@@ -32,6 +32,7 @@ FILES
     yycc/macro/endian_detector.hpp
     yycc/macro/compiler_detector.hpp
     yycc/macro/class_copy_move.hpp
+    yycc/flag_enum.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp
     yycc/num/parse.hpp
