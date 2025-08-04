@@ -4,6 +4,7 @@ add_executable(YYCCTestbench "")
 target_sources(YYCCTestbench
 PRIVATE
     main.cpp
+    yycc/macro/version_cmp.cpp
     yycc/constraint.cpp
     yycc/constraint/builder.cpp
     yycc/string/op.cpp

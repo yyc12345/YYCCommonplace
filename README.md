@@ -16,7 +16,7 @@ This project require at least CMake 3.23 to build. We suggest that you only use 
 
 See documentation for how to build this project.
 
-> [!INFO]  
+> [!NOTE]  
 > When building with testbench, you may face link error with GoogleTest. This issue is caused by that the binary provided by your package manager is built in C++ 17 and its ABI is incompatible with C++ 23. The solution is that download GoogleTest source code and build it in C++ 23 on your own. See this [GitHub Issue](https://github.com/google/googletest/issues/4591) for more infomation.
 > Oppositely, you don't need care about this issue if you just want to build YYCC self.
 
