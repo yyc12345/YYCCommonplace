@@ -80,7 +80,7 @@ PRIVATE
 target_compile_definitions(YYCCommonplace
 PUBLIC
     # Iconv environment macro
-    $<$<BOOL:${YYCC_ENFORCE_ICONV}>:YYCC_FEAT_ICONV>
+    $<$<BOOL:${Iconv_FOUND}>:YYCC_FEAT_ICONV>
     # OS macro
     $<$<PLATFORM_ID:Windows>:YYCC_OS_WINDOWS>
     $<$<PLATFORM_ID:Linux>:YYCC_OS_LINUX>

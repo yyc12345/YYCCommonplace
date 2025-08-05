@@ -48,7 +48,7 @@ namespace yycc::encoding::iconv {
     template<typename T>
     using ConvResult = std::expected<T, ConvError>;
 
-#if YYCC_FEAT_ICONV || !defined(YYCC_OS_WINDOWS)
+#if defined(YYCC_FEAT_ICONV)
 
     /// @brief Char -> UTF8
     class CharToUtf8 {

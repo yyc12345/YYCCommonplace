@@ -1,6 +1,6 @@
 #include "iconv.hpp"
 
-#if YYCC_FEAT_ICONV || !defined(YYCC_OS_WINDOWS)
+#if defined(YYCC_FEAT_ICONV)
 
 #include "../macro/endian_detector.hpp"
 #include <cerrno>
