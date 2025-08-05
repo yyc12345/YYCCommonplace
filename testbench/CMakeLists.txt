@@ -8,6 +8,7 @@ PRIVATE
     yycc/flag_enum.cpp
     yycc/constraint.cpp
     yycc/constraint/builder.cpp
+    yycc/patch/ptr_pad.cpp
     yycc/string/op.cpp
     yycc/string/reinterpret.cpp
     yycc/num/parse.cpp

@@ -6,11 +6,11 @@
 
 #if defined(YYCC_OS_WINDOWS)
 
-// Windows also will generate following macros
-// which may cause the function sign is different in Windows and other platforms.
+// Windows also will generate following macros which may cause 
+// the function sign is different in Windows and other platforms.
 // So we simply remove them.
-// Because #undef will not throw error if there are no matched macro,
-// so we simply #undef them directly.
+// At the same time, because `#undef` will not throw error if there are no matched macro,
+// we can simply use `#undef` to remove them directly.
 #undef GetObject
 #undef GetClassName
 #undef LoadImage

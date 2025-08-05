@@ -10,24 +10,7 @@
  * See also \ref io_helper.
 */
 namespace YYCC::IOHelper {
-	
-#if UINTPTR_MAX == UINT32_MAX
-#define PRI_XPTR_LEFT_PADDING "08"
-#elif UINTPTR_MAX == UINT64_MAX
-	/**
-	 * @brief The left-padding zero format string of HEX-printed pointer type.
-	 * @details
-	 * When printing a pointer with HEX style, we always hope it can be left-padded with some zero for easy reading.
-	 * In different architecture, the size of this padding is differnet too so we create this macro.
-	 * 
-	 * In 32-bit environment, it will be "08" meaning left pad zero until 8 number position.
-	 * In 64-bit environment, it will be "016" meaning left pad zero until 16 number position.
-	*/
-#define PRI_XPTR_LEFT_PADDING "016"
-#else
-#error "Not supported pointer size."
-#endif
-	
+
 	/// @brief C++ standard deleter for std::FILE*
 	class StdFileDeleter {
 	public:

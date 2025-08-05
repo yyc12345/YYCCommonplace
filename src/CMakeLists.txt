@@ -13,6 +13,7 @@ PRIVATE
     # Sources
     yycc/string/reinterpret.cpp
     yycc/string/op.cpp
+    yycc/patch/fopen.cpp
     yycc/rust/panic.cpp
     yycc/encoding/stlcvt.cpp
     yycc/encoding/windows.cpp
@@ -31,10 +32,13 @@ FILES
     yycc/macro/stl_detector.hpp
     yycc/macro/endian_detector.hpp
     yycc/macro/compiler_detector.hpp
+    yycc/macro/ptr_size_detector.hpp
     yycc/macro/class_copy_move.hpp
     yycc/flag_enum.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp
+    yycc/patch/ptr_pad.hpp
+    yycc/patch/fopen.hpp
     yycc/num/parse.hpp
     yycc/num/stringify.hpp
     yycc/rust/prelude.hpp
@@ -85,6 +89,9 @@ PUBLIC
     # Endian macro
     $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},LITTLE_ENDIAN>:YYCC_ENDIAN_LITTLE>
     $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},BIG_ENDIAN>:YYCC_ENDIAN_BIG>
+    # Pointer size macro
+    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},4>:YYCC_PTRSIZE_32>
+    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:YYCC_PTRSIZE_64>
     # Use Unicode charset on MSVC
     $<$<CXX_COMPILER_ID:MSVC>:UNICODE>
     $<$<CXX_COMPILER_ID:MSVC>:_UNICODE>
