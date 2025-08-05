@@ -41,6 +41,9 @@ FILES
     yycc/patch/fopen.hpp
     yycc/num/parse.hpp
     yycc/num/stringify.hpp
+    yycc/num/safe_cast.hpp
+    yycc/num/safe_op.hpp
+    yycc/num/op.hpp
     yycc/rust/prelude.hpp
     yycc/rust/primitive.hpp
     yycc/rust/panic.hpp

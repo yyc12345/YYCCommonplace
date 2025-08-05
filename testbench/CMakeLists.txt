@@ -13,6 +13,9 @@ PRIVATE
     yycc/string/reinterpret.cpp
     yycc/num/parse.cpp
     yycc/num/stringify.cpp
+    yycc/num/op.cpp
+    yycc/num/safe_cast.cpp
+    yycc/num/safe_op.cpp
 )
 target_sources(YYCCTestbench
 PRIVATE
