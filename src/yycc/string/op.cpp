@@ -1,5 +1,4 @@
 #include "op.hpp"
-
 #include <algorithm>
 
 namespace yycc::string::op {

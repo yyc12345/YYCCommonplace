@@ -2,12 +2,18 @@
 #include <yycc.hpp>
 #include <yycc/num/op.hpp>
 
+#include <yycc/rust/prelude.hpp>
+
 #define OP ::yycc::num::op
 
 namespace yycctest::num::op {
 
     TEST(NumOp, DivCeil) {
-        EXPECT_EQ(OP::div_ceil<uint32_t>(7, 4), UINT32_C(2));
+        // Normal case
+        EXPECT_EQ(OP::div_ceil<u32>(8, 4), UINT32_C(2));
+        EXPECT_EQ(OP::div_ceil<u32>(7, 4), UINT32_C(2));
+        // Limit case
+        EXPECT_EQ(OP::div_ceil<u8>(255, 2), UINT8_C(128));
     }
 
 }

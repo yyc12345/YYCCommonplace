@@ -10,12 +10,11 @@
 */
 namespace yycc::flag_enum {
 
-    // YYC MARK:
-    //
     // Reference:
     // Enum operator overload: https://stackoverflow.com/a/71107019
     // Constexpr operator overload: https://stackoverflow.com/a/17746099
-    //
+
+    // YYC MARK:
     // Currently, the solution of "Constexpr operator overload" is not used.
     // We use explicit way, "Enum operator overload".
 

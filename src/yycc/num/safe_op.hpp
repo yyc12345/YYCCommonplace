@@ -24,54 +24,68 @@
 
 /**
  * @brief The namespace providing Rust-like safe arithmetic operations.
+ * @details
+ * After writing some programs in Rust, I've deeply realized the richness of operators for primitive types in Rust.
+ * You can explicitly specify the behavior of arithmetic overflow
+ * (choose one of wrapping, checked, overflowing, and saturating).
+ * Therefore, I'm replicating these convenient features from Rust in this namespace.
+ * 
+ * Additionally, I provide a bunch of extra operations, called ordinary operation.
+ * These functions are just an alias to wrapping operator, indicating wrapping is the normal case.
+ * These normal operators will not have any undefined behavior which C++ will make.
+ * It basically like \c Add, \c Sub, \c Mul, and \c Div traits in Rust,
+ * providing safe operations for primitive types.
  */
 namespace yycc::num::safe_op {
 
-    // YYC MARK:
-    // 在使用Rust编写一些程序后，深刻地认识到Rust中针对基本类型的运算符的丰富程度。
-    // 可以显式地指定运算溢出的行为（wrapping，checked，overflowing，saturating四选一）
-    // 因此我在这个命名空间里复刻Rust中的这些便利功能。
+    /*
+    Implementation notes:
 
-    // YYC MARK:
-    // 实现说明：
-    //     * Wrapping 运算：
-    //         - 无符号整数直接使用默认溢出行为。
-    //         - 有符号整数通过无符号类型转换模拟溢出回绕。
-    //     * Checked 运算：
-    //         - 使用编译器内置函数检测溢出，返回std::optional<T>。
-    //         - 除零或溢出时返回std::nullopt。
-    //     * Overflowing 运算：
-    //         - 返回包含结果和溢出标志的结构体OverflowResult<T>。
-    //         - 显式处理除零和有符号最小值除以-1的情况。
-    //     * Saturating 运算：
-    //         - 溢出时返回类型最大值或最小值。
-    //         - 根据操作数符号判断饱和方向。
+    - Wrapping operation:
+        - Unsigned integer use default overflow behavior.
+        - Signed integer will be casted into unsigned integer before operation to simulate wrapping overflow.
+    - Checked operation:
+        - Use compiler built-in function to detect overflow, return std::optional<T>.
+        - Return std::nullopt when division by zero or overflow.
+    - Overflowing operation:
+        - Return std::pair<T, bool> where bool indicates whether overflow occurs.
+        - Explicitly handle 2 division undefined behavior:
+            - Division by zero.
+            - Signed minimum value divided by -1.
+    - Saturating operation:
+        - Return maximum or minimum value when overflow or underflow occurs.
+        - Determine saturation direction (overflow or underflow) based on operand sign.
+    */
 
 #pragma region Undefined Behaviors
 
-    // YYC MARK:
-    // 需要注意以下未定义行为：
-    // * 有符号整数运算结果超出该类型表示范围时（如 INT_MAX + 1），行为未定义。
-    // * 对 INT_MIN / -1 的除法可能溢出，导致UB。
-    // * 无符号整数溢出时行为是明确定义的（按模 2^N 回绕），但需注意逻辑错误。
-    // * 除数为零时行为未定义。
+    /*
+    YYC MARK:
+    Following undefined behaviors should be noticed:
+    - Signed integer overflow and underflow (e.g. INT_MAX + 1).
+    - Perform `INT_MIN / -1` division.
+    - The right operand in division is zero.
+    */
 
     /**
      * @private
-     * @brief 两数相加，同时考虑有符号整数溢出的未定义行为
-     * @param a 加法的左操作数
-     * @param b 加法的右操作数
-     * @return 考虑了有符号整数未定义行为的加法结果。
+     * @brief Adds two numbers while considering the undefined behavior of signed integer overflow.
+     * @tparam T Integer type
+     * @param[in] a The left operand of the addition
+     * @param[in] b The right operand of the addition
+     * @return The result of the addition that takes into account the undefined behavior of signed integers.
      */
     template<typename T>
         requires std::integral<T>
     T ub_signed_int_add(T a, T b) {
         if constexpr (std::is_unsigned_v<T>) {
-            // 无符号数的加减乘都是自然回绕的，可以直接使用运算符。
+            // Add, Sub, Mul and Div for unsigned integer is natural wrapping.
+            // So we can use operator simply and directly.
             return a + b;
         } else {
-            // 有符号数的溢出在C++中是未定义的。
-            // 所以需要使用位操作强制转换为无符号进行计算，然后再转回来。
+            // In C++, it is undefined behavior that signed integer overflow.
+            // So we need cast them into unsigned integer forcely before operation,
+            // do operation for them, and cast the result back to simulate wrapping overflow.
             using UT = std::make_unsigned_t<T>;
             return static_cast<T>(static_cast<UT>(a) + static_cast<UT>(b));
         }
@@ -79,10 +93,11 @@ namespace yycc::num::safe_op {
 
     /**
      * @private
-     * @brief 两数相减，同时考虑有符号整数溢出的未定义行为
-     * @param a 减法的左操作数
-     * @param b 减法的右操作数
-     * @return 考虑了有符号整数未定义行为的减法结果。
+     * @brief Subtracts two numbers while considering the undefined behavior of signed integer overflow.
+     * @tparam T Integer type
+     * @param[in] a The left operand of the subtraction
+     * @param[in] b The right operand of the subtraction
+     * @return The result of the subtraction that takes into account the undefined behavior of signed integers.
      */
     template<typename T>
         requires std::integral<T>
@@ -97,10 +112,11 @@ namespace yycc::num::safe_op {
 
     /**
      * @private
-     * @brief 两数相乘，同时考虑有符号整数溢出的未定义行为
-     * @param a 乘法的左操作数
-     * @param b 乘法的右操作数
-     * @return 考虑了有符号整数未定义行为的乘法结果。
+     * @brief Multiplies two numbers while considering the undefined behavior of signed integer overflow.
+     * @tparam T Integer type
+     * @param[in] a The left operand of the multiplication
+     * @param[in] b The right operand of the multiplication
+     * @return The result of the multiplication that takes into account the undefined behavior of signed integers.
      */
     template<typename T>
         requires std::integral<T>
@@ -115,17 +131,19 @@ namespace yycc::num::safe_op {
 
     /**
      * @private
-     * @brief 检查有符号最小值除以-1时的未定义行为
-     * @param a 除法的左操作数
-     * @param b 除法的右操作数
-     * @return 如果会发生未定义行为，则为true，否则为false
+     * @brief Checks for undefined behavior when dividing the minimum signed integer value by -1.
+     * @tparam T Integer type
+     * @param[in] a The left operand of the division
+     * @param[in] b The right operand of the division
+     * @return Returns true if undefined behavior will occur, false otherwise.
      */
     template<typename T>
         requires std::integral<T>
     bool ub_signed_int_min_div_minus_one(T a, T b) {
         if constexpr (std::is_signed_v<T>) {
-            // 对有符号数来说， INT_MIN / -1 的除法可能溢出
-            // （如 INT_MIN == -INT_MIN - 1 时），导致未定义行为。
+            // For signed value, `INT_MIN / -1` may cause overflow,
+            // which finally cause the undefined behavior,
+            // due to the truth that `INT_MIN == -INT_MIN - 1`.
             if (b == -1 && a == std::numeric_limits<T>::min()) {
                 return true;
             } else {
@@ -138,11 +156,11 @@ namespace yycc::num::safe_op {
 
     /**
      * @private
-     * @brief 检查除以0的未定义行为
-     * @details 如果发生除以0，则引发panic
-     * @param a 除法的左操作数
-     * @param b 除法的右操作数
-     * @return 如果会发生未定义行为，则为true，否则为false
+     * @brief Checks for the undefined behavior of division by zero.
+     * @tparam T Integer type
+     * @param[in] a The left operand of the division
+     * @param[in] b The right operand of the division
+     * @return Returns true if undefined behavior will occur, false otherwise.
      */
     template<typename T>
         requires std::integral<T>
@@ -155,18 +173,19 @@ namespace yycc::num::safe_op {
 #pragma region Hardware Operation Overflow
 
 // YYC MARK:
-// 定义一个方便在Windows函数中计算的宏
+// If we are using Windows function family,
+// we define a convenient macro assisting overflow calculation.
 #if defined(YYCC_HARDWARE_OVERFLOW_WIN32_FNS)
 #define WIN_EASY_OPER(fn, ty, a, b, c) FAILED(fn(static_cast<ty>(a), static_cast<ty>(b), reinterpret_cast<ty*>(c)))
 #endif
 
     /**
      * @private
-     * @brief 基于硬件指令的带溢出检测的加法
-     * @param[in] a 加法的左操作数
-     * @param[in] b 加法的右操作数
-     * @param[out] c 存放结果的引用
-     * @return 如果发生溢出，则为true，否则为false。
+     * @brief Addition with overflow detection based on hardware instructions.
+     * @param[in] a The left operand of the addition.
+     * @param[in] b The right operand of the addition.
+     * @param[out] c The pointer to the variable storing result.
+     * @return Returns true if an overflow occurs, false otherwise.
      */
     template<typename T>
         requires std::integral<T>
@@ -203,8 +222,9 @@ namespace yycc::num::safe_op {
                 static_assert(std::false_type::value, "not supported integral type.");
             }
         }
-        // 由于Windows函数限制，如果发生溢出，函数不会计算结果。
-        // 所以我们要手动填写回绕了的结果
+        // Due to the limitation of Windows function family,
+        // if overflow or underflow occurs, there is no calculation result.
+        // So we need fill the wrapping value manually.
         if (overflow) *c = ub_signed_int_add<T>(a, b);
         return overflow;
 #endif
@@ -212,11 +232,11 @@ namespace yycc::num::safe_op {
 
     /**
      * @private
-     * @brief 基于硬件指令的带溢出检测的减法
-     * @param[in] a 减法的左操作数
-     * @param[in] b 减法的右操作数
-     * @param[out] c 存放结果的引用
-     * @return 如果发生溢出，则为true，否则为false。
+     * @brief Subtraction with overflow detection based on hardware instructions.
+     * @param[in] a The left operand of the subtraction.
+     * @param[in] b The right operand of the subtraction.
+     * @param[out] c The pointer to the variable storing the result.
+     * @return Returns true if an overflow occurs, false otherwise.
      */
     template<typename T>
         requires std::integral<T>
@@ -253,7 +273,7 @@ namespace yycc::num::safe_op {
                 static_assert(std::false_type::value, "not supported integral type.");
             }
         }
-        // 同理，手算溢出值
+        // Similarly, manually calculate wrapping value.
         if (overflow) *c = ub_signed_int_sub<T>(a, b);
         return overflow;
 #endif
@@ -261,11 +281,11 @@ namespace yycc::num::safe_op {
 
     /**
      * @private
-     * @brief 基于硬件指令的带溢出检测的乘法
-     * @param[in] a 乘法的左操作数
-     * @param[in] b 乘法的右操作数
-     * @param[out] c 存放结果的引用
-     * @return 如果发生溢出，则为true，否则为false。
+     * @brief Multiplication with overflow detection based on hardware instructions.
+     * @param[in] a The left operand of the multiplication.
+     * @param[in] b The right operand of the multiplication.
+     * @param[out] c The reference to the variable storing the result.
+     * @return Returns true if an overflow occurs, false otherwise.
      */
     template<typename T>
         requires std::integral<T>
@@ -302,13 +322,14 @@ namespace yycc::num::safe_op {
                 static_assert(std::false_type::value, "not supported integral type.");
             }
         }
-        // 同理，手算溢出值
+        // Similarly, manually calculate wrapping value.
         if (overflow) *c = ub_signed_int_mul<T>(a, b);
         return overflow;
 #endif
     }
 
-// YYC MARK: 删除定义的宏，防止污染
+// YYC MARK:
+// Delete the defined macro to prevent polluting the content later.
 #if defined(YYCC_HARDWARE_OVERFLOW_WIN32_FNS)
 #undef WIN_EASY_OPER
 #endif
@@ -318,36 +339,64 @@ namespace yycc::num::safe_op {
 #pragma region Wrapping operations
 
     // YYC MARK:
-    // 使用 wrapping_* 方法在所有模式下进行包裹。
+    // wrapping_* function family will wrap the result in any scenario.
 
+    /**
+     * @brief Performs a wrapping addition operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the addition.
+     * @param[in] b The right operand of the addition.
+     * @return The wrapping result of the addition operation.
+     */
     template<typename T>
         requires std::integral<T>
     T wrapping_add(T a, T b) {
         return ub_signed_int_add(a, b);
     }
 
+    /**
+     * @brief Performs a wrapping subtraction operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the subtraction.
+     * @param[in] b The right operand of the subtraction.
+     * @return The wrapping result of the subtraction operation.
+     */
     template<typename T>
         requires std::integral<T>
     T wrapping_sub(T a, T b) {
         return ub_signed_int_sub(a, b);
     }
 
+    /**
+     * @brief Performs a wrapping multiplication operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the multiplication.
+     * @param[in] b The right operand of the multiplication.
+     * @return The wrapping result of the multiplication operation.
+     */
     template<typename T>
         requires std::integral<T>
     T wrapping_mul(T a, T b) {
         return ub_signed_int_mul(a, b);
     }
 
+    /**
+     * @brief Performs a wrapping division operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the division.
+     * @param[in] b The right operand of the division.
+     * @return The wrapping result of the division operation.
+     * @exception std::logic_error If division by zero occurs.
+     */
     template<typename T>
         requires std::integral<T>
     T wrapping_div(T a, T b) {
-        // 除以0是未定义行为
+        // Division by zero is undefined behavior.
         if (ub_div_zero(a, b)) throw std::logic_error("div with 0");
-        // 对有符号数来说， INT_MIN / -1 的除法可能溢出
-        // （如 INT_MIN == -INT_MIN - 1 时），导致未定义行为。
+        // `INT_MIN / -1` overflow undefined behavior.
         if (ub_signed_int_min_div_minus_one(a, b))
-            // 此时a就是有符号整数最小值，直接返回他即可。
-            // 不需要再通过std::numeric_limits去访问最小值。
+            // "a" self is the minimum value of signed integer, return it directly.
+            // There is no need to re-fetch it by std::numeric_limits.
             return a;
         return a / b;
     }
@@ -356,8 +405,17 @@ namespace yycc::num::safe_op {
 
 #pragma region Checked operations
 
-    // YYC MARK: 使用 checked_* 方法时发生溢出，则返回 None 值
+    // YYC MARK:
+    // If overflow occurs when using checked_* function family,
+    // these functions will return std::nullopt, otherwise the computed result.
 
+    /**
+     * @brief Performs a checked addition operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the addition.
+     * @param[in] b The right operand of the addition.
+     * @return An std::optional containing the result if no overflow occurs, otherwise std::nullopt.
+     */
     template<typename T>
         requires std::integral<T>
     std::optional<T> checked_add(T a, T b) {
@@ -366,6 +424,13 @@ namespace yycc::num::safe_op {
         return result;
     }
 
+    /**
+     * @brief Performs a checked subtraction operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the subtraction.
+     * @param[in] b The right operand of the subtraction.
+     * @return An std::optional containing the result if no overflow occurs, otherwise std::nullopt.
+     */
     template<typename T>
         requires std::integral<T>
     std::optional<T> checked_sub(T a, T b) {
@@ -374,6 +439,13 @@ namespace yycc::num::safe_op {
         return result;
     }
 
+    /**
+     * @brief Performs a checked multiplication operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the multiplication.
+     * @param[in] b The right operand of the multiplication.
+     * @return An std::optional containing the result if no overflow occurs, otherwise std::nullopt.
+     */
     template<typename T>
         requires std::integral<T>
     std::optional<T> checked_mul(T a, T b) {
@@ -382,12 +454,22 @@ namespace yycc::num::safe_op {
         return result;
     }
 
+    /**
+     * @brief Performs a checked division operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the division.
+     * @param[in] b The right operand of the division.
+     * @return
+     * An std::optional containing the result,
+     * if no undefined behavior (division by zero or overflow) occurs,
+     * otherwise std::nullopt.
+     */
     template<typename T>
         requires std::integral<T>
     std::optional<T> checked_div(T a, T b) {
-        // 除以0返回空值
+        // Division by zero is undefined behavior.
         if (ub_div_zero(a, b)) return std::nullopt;
-        // 溢出返回空值
+        // `INT_MIN / -1` overflow undefined behavior.
         if (ub_signed_int_min_div_minus_one(a, b)) return std::nullopt;
         return a / b;
     }
@@ -396,13 +478,15 @@ namespace yycc::num::safe_op {
 
 #pragma region Overflowing operations
 
-    // YYC MARK: 使用 overflowing_* 方法返回该值和一个指示是否存在溢出的布尔值
+    // YYC MARK:
+    // overflowing_* function family return a tuple with 2 items as the result.
+    // First is the wrapping value and second is a boolean indicates whether overflow occurs.
 
     /**
-     * @brief Overflow系列运算函数返回的结果
+     * @brief The result returned by the overflow function family.
      * @details
-     * 第一项为运算结果。
-     * 第二项为指示是否发生了溢出，true为溢出，否则为false。
+     * The first item is the operation result.
+     * The second item indicates whether an overflow has occurred. true means overflow, otherwise false.
      */
     template<typename T>
         requires std::integral<T>
@@ -435,11 +519,11 @@ namespace yycc::num::safe_op {
     template<typename T>
         requires std::integral<T>
     OverflowingPair<T> overflowing_div(T a, T b) {
-        // 除以0需要panic
+        // Division by zero is undefined behavior.
         if (ub_div_zero(a, b)) throw std::logic_error("div with 0");
-        // 溢出只可能发生在有符号最小值除以-1上
+        // `INT_MIN / -1` overflow undefined behavior.
         if (ub_signed_int_min_div_minus_one(a, b)) {
-            // a就是最小值，无需再次获取
+            // "a" self is minimum value, no need to get it again.
             return std::make_pair(a, true);
         } else {
             return std::make_pair(a / b, false);
@@ -450,25 +534,41 @@ namespace yycc::num::safe_op {
 
 #pragma region Saturating operations
 
-    // YYC MARK: 使用 saturating_* 方法使值达到最小值或最大值
-    // 无符号的溢出判定较为简单，有符号的则稍显复杂，具体遵守如下规则
-    // 认识到对于有符号：abs(MIN) = abs(MAX) + 1
-    // * 加法：
-    //     - 区间运算[a, b] + [c, d] = [a+c, b+d]
-    //     - 正+正 -> [0, MAX] + [0, MAX] -> [0, 2 * MAX]，可能上溢 -> 饱和到max
-    //     - 负+负 -> [MIN, -1] + [MIN, -1] -> [2 * MIN, -2]，可能下溢 -> 饱和到min
-    //     - 正+负 -> [0, MAX] + [MIN, -1] -> [MIN, MAX - 1]，不可能溢出
-    // * 减法：
-    //     - 区间运算[a, b] - [c, d] = [a-d, b-c]
-    //     - 正-负 -> [0, MAX] - [MIN, -1] -> [1, MAX - MIN]，可能上溢 -> 饱和到max
-    //     - 负-正 -> [MIN, -1] - [0, MAX] -> [MIN - MAX, -1]，可能下溢 -> 饱和到min
-    //     - 正-正 -> [0, MAX] - [0, MAX] -> [-MAX, MAX]，不可能溢出
-    //     - 负-负 -> [MIN, -1] - [MIN, -1] -> [MIN + 1, -(MIN + 1)]，不可能溢出
-    // * 乘法：
-    //     - 正*正 -> 可能上溢 -> 饱和到max
-    //     - 正*负 -> 可能下溢 -> 饱和到min
-    //     - 负*负 -> 可能上溢 -> 饱和到max
+    /*
+    YYC MARK:
+    The direction of saturation is pretty simple for unsigned integer.
+    However, it is slightly complex for signed integer.
+    In detail, it follow following rules:
 
+    Acknowledge the truth for signed integer: abs(MIN) = abs(MAX) + 1
+    - ADD operation:
+        - Range operation rule: [a, b] + [c, d] = [a+c, b+d]
+        - Pos+Pos -> [0, MAX] + [0, MAX] -> [0, 2 * MAX]. May overflow -> Saturating to MAX.
+        - Neg+Neg -> [MIN, -1] + [MIN, -1] -> [2 * MIN, -2]. May underflow -> Saturating to MIN.
+        - Pos+Neg -> [0, MAX] + [MIN, -1] -> [MIN, MAX - 1]. Impossible overflow or underflow.
+    - SUB Operation:
+        - Range operation rule: [a, b] - [c, d] = [a-d, b-c]
+        - Pos-Neg -> [0, MAX] - [MIN, -1] -> [1, MAX - MIN]. Maybe overflow -> Saturating to MAX.
+        - Neg-Pos -> [MIN, -1] - [0, MAX] -> [MIN - MAX, -1]. Maybe underflow -> Saturating to MIN.
+        - Pos-Pos -> [0, MAX] - [0, MAX] -> [-MAX, MAX]. Impossible overflow or underflow.
+        - Neg-Neg -> [MIN, -1] - [MIN, -1] -> [MIN + 1, -(MIN + 1)]. Impossible overflow or underflow.
+    - MUL Operation:
+        - Pos*Pos -> Maybe overflow -> Saturating to MAX.
+        - Pos*Neg -> Maybe underflow -> Saturating to MIN.
+        - Neg*Neg -> Maybe overflow -> Saturating to MAX.
+    */
+
+    /**
+     * @brief Performs a saturating addition operation on two integers.
+     * @details
+     * If an overflow occurs during the addition, 
+     * the result will be saturated to the maximum/minimum value,
+     * according to the the direction of overflow (overflow or underflow).
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the addition.
+     * @param[in] b The right operand of the addition.
+     * @return The result of the saturating addition operation.
+     */
     template<typename T>
         requires std::integral<T>
     T saturating_add(T a, T b) {
@@ -478,13 +578,25 @@ namespace yycc::num::safe_op {
             if constexpr (std::is_unsigned_v<T>) {
                 return Limits::max();
             } else {
-                // 溢出只可能发生在同号情况，因此只判定其中一个操作数的符号即可。
+                // Overflow only occurs when 2 operand have same sign.
+                // So we simply check the sign of one of them.
                 return (a > 0) ? Limits::max() : Limits::min();
             }
         }
         return result;
     }
 
+    /**
+     * @brief Performs a saturating subtraction operation on two integers.
+     * @details
+     * If an overflow occurs during the subtraction, 
+     * the result will be saturated to the maximum/minimum value,
+     * according to the the direction of overflow (overflow or underflow).
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the subtraction.
+     * @param[in] b The right operand of the subtraction.
+     * @return The result of the saturating subtraction operation.
+     */
     template<typename T>
         requires std::integral<T>
     T saturating_sub(T a, T b) {
@@ -494,14 +606,26 @@ namespace yycc::num::safe_op {
             if constexpr (std::is_unsigned_v<T>) {
                 return 0;
             } else {
-                // 溢出只可能发生在异号情况，因此只判定两个操作数的大小即可。
-                // a < b，则a为负，否则a为正
+                // Overflow only occurs when 2 operand have different sign.
+                // So we simply compare these 2 operand.
+                // If a < b, then "a" is negative, otherwise positive.
                 return (a < b) ? Limits::min() : Limits::max();
             }
         }
         return result;
     }
 
+    /**
+     * @brief Performs a saturating multiplication operation on two integers.
+     * @details
+     * If an overflow occurs during the multiplication, 
+     * the result will be saturated to the maximum/minimum value,
+     * according to the the direction of overflow (overflow or underflow).
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the multiplication.
+     * @param[in] b The right operand of the multiplication.
+     * @return The result of the saturating multiplication operation.
+     */
     template<typename T>
         requires std::integral<T>
     T saturating_mul(T a, T b) {
@@ -511,19 +635,32 @@ namespace yycc::num::safe_op {
             if constexpr (std::is_unsigned_v<T>) {
                 return Limits::max();
             } else {
-                // 做异号判定，如果XOR为true，则为异号
+                // Check whether 2 operands have different sign.
+                // If the result of XOR is true, these 2 operands should have different sign.
                 return ((a ^ b) < 0) ? Limits::min() : Limits::max();
             }
         }
         return result;
     }
 
+    /**
+     * @brief Performs a saturating division operation on two integers.
+     * @details
+     * If an overflow occurs during the division, 
+     * the result will be saturated to the maximum/minimum value,
+     * according to the the direction of overflow (overflow or underflow).
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the division.
+     * @param[in] b The right operand of the division.
+     * @return The result of the saturating division operation.
+     * @exception std::logic_error If division by zero occurs.
+     */
     template<typename T>
         requires std::integral<T>
     T saturating_div(T a, T b) {
-        // 除以0需要panic
+        // Division by zero is undefined behavior.
         if (ub_div_zero(a, b)) throw std::logic_error("div with zero");
-        // 如果发生最小值除以0的情况，那么溢出到最大值
+        // `INT_MIN / -1` overflow undefined behavior.
         if (ub_signed_int_min_div_minus_one(a, b)) {
             return std::numeric_limits<T>::max();
         } else {
@@ -536,27 +673,57 @@ namespace yycc::num::safe_op {
 #pragma region Ordinary operations
 
     // YYC MARK:
-    // 以Rust的方式进行四则运算，不存在未定义行为。
-    // 默认的四则运算与wrapping_*系列函数行为一致。
+    // Rust-way add, sub, mul and div operators.
+    // There is no any undefined behavior which may occurs in these functions.
+    // These normal operator is just an alias to wrapping_* function family.
 
+    /**
+     * @brief Performs an addition operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the addition.
+     * @param[in] b The right operand of the addition.
+     * @return The result of the addition operation.
+     */
     template<typename T>
         requires std::integral<T>
     T add(T a, T b) {
         return wrapping_add(a, b);
     }
 
+    /**
+     * @brief Performs a subtraction operation on two integers.
+     * @tparam T Integer type
+     * @param[in] a The left operand of the subtraction.
+     * @param[in] b The right operand of the subtraction.
+     * @return The result of the subtraction operation.
+     */
     template<typename T>
         requires std::integral<T>
     T sub(T a, T b) {
         return wrapping_sub(a, b);
     }
 
+    /**
+     * @brief Performs a multiplication operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the multiplication.
+     * @param[in] b The right operand of the multiplication.
+     * @return The result of the multiplication operation.
+     */
     template<typename T>
         requires std::integral<T>
     T mul(T a, T b) {
         return wrapping_mul(a, b);
     }
 
+    /**
+     * @brief Performs a division operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the division.
+     * @param[in] b The right operand of the division.
+     * @return The result of the division operation.
+     * @exception std::logic_error If division by zero or value overflow occurs.
+     */
     template<typename T>
         requires std::integral<T>
     T div(T a, T b) {
@@ -567,6 +734,7 @@ namespace yycc::num::safe_op {
 
 } // namespace yycc::num::safe_op
 
-// YYC MARK: 删除宏定义，防止污染后面的内容
+// YYC MARK:
+// Delete the macro definition to prevent polluting the content later.
 #undef YYCC_HARDWARE_OVERFLOW_GCC_FNS
 #undef YYCC_HARDWARE_OVERFLOW_WIN32_FNS
