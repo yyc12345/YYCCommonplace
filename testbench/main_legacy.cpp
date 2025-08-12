@@ -142,49 +142,6 @@ namespace YYCCTestbench {
 
 	}
 
-	static void EncodingTestbench() {
-		// get test tuple size
-		size_t count = c_UTF8TestStrTable.size();
-
-		// check the convertion between given string
-		for (size_t i = 0u; i < count; ++i) {
-			// get item
-			const auto& u8str = c_UTF8TestStrTable[i];
-			const auto& u16str = c_UTF16TestStrTable[i];
-			const auto& u32str = c_UTF32TestStrTable[i];
-
-			// create cache variables
-			YYCC::yycc_u8string u8cache;
-			std::u16string u16cache;
-			std::u32string u32cache;
-
-			// do convertion check
-			Assert(YYCC::EncodingHelper::UTF8ToUTF16(u8str, u16cache) && u16cache == u16str, YYCC_U8("YYCC::EncodingHelper::UTF8ToUTF16"));
-			Assert(YYCC::EncodingHelper::UTF8ToUTF32(u8str, u32cache) && u32cache == u32str, YYCC_U8("YYCC::EncodingHelper::UTF8ToUTF32"));
-
-			Assert(YYCC::EncodingHelper::UTF16ToUTF8(u16str, u8cache) && u8cache == u8str, YYCC_U8("YYCC::EncodingHelper::UTF16ToUTF8"));
-			Assert(YYCC::EncodingHelper::UTF32ToUTF8(u32str, u8cache) && u8cache == u8str, YYCC_U8("YYCC::EncodingHelper::UTF32ToUTF8"));
-		}
-
-		// check wstring convertion on windows
-#if defined(YYCC_OS_WINDOWS)
-		for (size_t i = 0u; i < count; ++i) {
-			// get item
-			const auto& u8str = c_UTF8TestStrTable[i];
-			const auto& wstr = c_WStrTestStrTable[i];
-
-			// create cache variables
-			YYCC::yycc_u8string u8cache;
-			std::wstring wcache;
-
-			// do convertion check
-			Assert(YYCC::EncodingHelper::UTF8ToWchar(u8str.c_str(), wcache) && wcache == wstr, YYCC_U8("YYCC::EncodingHelper::UTF8ToWchar"));
-			Assert(YYCC::EncodingHelper::WcharToUTF8(wstr.c_str(), u8cache) && u8cache == u8str, YYCC_U8("YYCC::EncodingHelper::WcharToUTF8"));
-		}
-#endif
-
-	}
-
 	static void DialogTestbench() {
 #if defined(YYCC_OS_WINDOWS)
 

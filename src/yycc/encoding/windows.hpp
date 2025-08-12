@@ -30,61 +30,61 @@ namespace yycc::encoding::windows {
 
     /**
      * @brief WChar -> Char
-     * @param src
-     * @param code_page
-     * @return
+     * @param[in] src The string to be converted.
+     * @param[in] code_page The code page of native string.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::string> to_char(const std::wstring_view& src, CodePage code_page);
 
     /**
      * @brief Char -> WChar
-     * @param src
-     * @param code_page
-     * @return
+     * @param[in] src The string to be converted.
+     * @param[in] code_page The code page of native string.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::wstring> to_wchar(const std::string_view& src, CodePage code_page);
 
     /**
      * @brief Char -> Char
      * @details This is the combination of "WChar -> Char" and "Char -> WChar"
-     * @param src
-     * @param src_code_page
-     * @param dst_code_page
-     * @return
+     * @param[in] src The string to be converted.
+     * @param[in] src_code_page The code page of source string.
+     * @param[in] dst_code_page The code page of destination string.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::string> to_char(const std::string_view& src, CodePage src_code_page, CodePage dst_code_page);
 
     /**
      * @brief WChar -> UTF8
      * @details This is the specialization of "WChar -> Char"
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u8string> to_utf8(const std::wstring_view& src);
 
     /**
      * @brief UTF8 -> WChar
      * @details This is the specialization of "Char -> WChar"
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::wstring> to_wchar(const std::u8string_view& src);
 
     /**
      * @brief Char -> UTF8
      * @details This is the specialization of "Char -> Char"
-     * @param src
-     * @param code_page
-     * @return
+     * @param[in] src The string to be converted.
+     * @param[in] code_page The code page of native string.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u8string> to_utf8(const std::string_view& src, CodePage code_page);
 
     /**
      * @brief UTF8 -> Char
      * @details This is the specialization of "Char -> Char"
-     * @param src
-     * @param code_page
-     * @return
+     * @param[in] src The string to be converted.
+     * @param[in] code_page The code page of native string.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::string> to_char(const std::u8string_view& src, CodePage code_page);
 
@@ -96,29 +96,29 @@ namespace yycc::encoding::windows {
 
     /**
      * @brief UTF8 -> UTF16
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u16string> to_utf16(const std::u8string_view& src);
 
     /**
      * @brief UTF16 -> UTF8
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u8string> to_utf8(const std::u16string_view& src);
 
     /**
      * @brief UTF8 -> UTF32
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u32string> to_utf32(const std::u8string_view& src);
 
     /**
      * @brief UTF32 -> UTF8
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u8string> to_utf8(const std::u32string_view& src);
 

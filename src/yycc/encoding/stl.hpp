@@ -14,29 +14,29 @@ namespace yycc::encoding::stl {
 
     /**
      * @brief UTF8 -> UTF16
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u16string> to_utf16(const std::u8string_view& src);
 
     /**
      * @brief UTF16 -> UTF8
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u8string> to_utf8(const std::u16string_view& src);
 
     /**
      * @brief UTF8 -> UTF32
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u32string> to_utf32(const std::u8string_view& src);
 
     /**
      * @brief UTF32 -> UTF8
-     * @param src
-     * @return
+     * @param[in] src The string to be converted.
+     * @return The converted string, or error occurring.
      */
     ConvResult<std::u8string> to_utf8(const std::u32string_view& src);
 
