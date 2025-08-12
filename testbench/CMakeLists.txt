@@ -3,6 +3,8 @@ add_executable(YYCCTestbench "")
 # Setup testbench sources
 target_sources(YYCCTestbench
 PRIVATE
+    shared/literals.cpp
+
     main.cpp
     yycc/macro/version_cmp.cpp
     yycc/flag_enum.cpp
@@ -16,12 +18,15 @@ PRIVATE
     yycc/num/op.cpp
     yycc/num/safe_cast.cpp
     yycc/num/safe_op.cpp
+    yycc/encoding/stl.cpp
+    yycc/encoding/windows.cpp
+    yycc/encoding/iconv.cpp
 )
 target_sources(YYCCTestbench
 PRIVATE
 FILE_SET HEADERS
 FILES
-    yycc/encoding/utf_literal.hpp
+    shared/literals.hpp
 )
 # Setup headers
 target_include_directories(YYCCTestbench
