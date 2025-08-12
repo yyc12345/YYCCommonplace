@@ -18,7 +18,8 @@ PRIVATE
     yycc/encoding/stl.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
-    #yycc/encoding/pycodec.cpp
+
+    yycc/carton/pycodec.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -56,7 +57,8 @@ FILES
     yycc/encoding/stl.hpp
     yycc/encoding/windows.hpp
     yycc/encoding/iconv.hpp
-    yycc/encoding/pycodec.hpp
+
+    yycc/carton/pycodec.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace

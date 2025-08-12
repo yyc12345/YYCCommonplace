@@ -6,7 +6,7 @@
 using namespace std::literals::string_view_literals;
 namespace op = ::yycc::string::op;
 
-namespace yycc::encoding::pycodec {
+namespace yycc::carton::pycodec {
 
 #pragma region Encoding Name
 

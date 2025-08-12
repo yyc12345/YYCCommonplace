@@ -21,6 +21,8 @@ PRIVATE
     yycc/encoding/stl.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
+    
+    yycc/carton/pycodec.cpp
 )
 target_sources(YYCCTestbench
 PRIVATE

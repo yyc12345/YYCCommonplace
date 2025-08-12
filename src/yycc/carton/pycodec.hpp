@@ -9,12 +9,12 @@
 // Choose the backend of PyCodec module
 #if defined(YYCC_FEAT_ICONV)
 // We try Iconv first in any cases.
-#include "iconv.hpp"
+#include "../encoding/iconv.hpp"
 #define YYCC_PYCODEC_ICONV_BACKEND
 #define YYCC_PYCODEC_BACKEND_NS ::yycc::encoding::iconv
 #elif defined(YYCC_OS_WINDOWS) && defined(YYCC_STL_MSSTL)
 // If we can not use Iconv, we try to fallback to Windows implementation.
-#include "windows.hpp"
+#include "../encoding/windows.hpp"
 #define YYCC_PYCODEC_WIN32_BACKEND
 #define YYCC_PYCODEC_BACKEND_NS ::yycc::encoding::windows
 #else
@@ -22,7 +22,7 @@
 #error "Can not find viable encoding convertion solution in current environment for PyCodec module."
 #endif
 
-namespace yycc::encoding::pycodec {
+namespace yycc::carton::pycodec {
 
     /// @brief The universal name of encoding.
     using EncodingName = std::u8string_view;
