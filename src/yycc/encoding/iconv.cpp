@@ -151,7 +151,7 @@ namespace yycc::encoding::iconv {
 
             // resize for container and its variables
             str_to.resize(str_to.size() + ICONV_INC_LEN);
-            outbytesleft = str_to.size();
+            outbytesleft += ICONV_INC_LEN;
 
             // assign new outbuf from failed position
             outbuf = reinterpret_cast<char*>(str_to.data()) + len;
@@ -193,15 +193,15 @@ namespace yycc::encoding::iconv {
     constexpr auto WCHAR_CODENAME_LITERAL = "WCHAR_T"sv;
     constexpr auto UTF16_CODENAME_LITERAL =
 #if defined(YYCC_ENDIAN_LITTLE)
-        "UTF16LE"sv;
+        "UTF-16LE"sv;
 #else
-        "UTF16BE"sv;
+        "UTF-16BE"sv;
 #endif
     constexpr auto UTF32_CODENAME_LITERAL =
 #if defined(YYCC_ENDIAN_LITTLE)
-        "UTF32LE"sv;
+        "UTF-32LE"sv;
 #else
-        "UTF32BE"sv;
+        "UTF-32BE"sv;
 #endif
 
     // TODO:
@@ -210,7 +210,7 @@ namespace yycc::encoding::iconv {
     // We call them VecString and VecStringView, and use them in "iconv_kernel" instead of real std::vector.
     // They exposed interface are std::vector-like but its inner is std::basic_string and std::basic_string_view.
 #define USER_CONVFN(src_char_type, dst_char_type) \
-    auto rv = iconv_kernel(this->token, reinterpret_cast<const uint8_t*>(src.data()), src.size()); \
+    auto rv = iconv_kernel(this->token, reinterpret_cast<const uint8_t*>(src.data()), src.size() * sizeof(src_char_type)); \
     if (rv.has_value()) { \
         const auto& dst = rv.value(); \
         if constexpr (sizeof(dst_char_type) > 1u) { \
