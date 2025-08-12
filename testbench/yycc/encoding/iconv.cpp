@@ -111,6 +111,5 @@ namespace yycctest::encoding::iconv {
         }
     }
 
-
 #endif
-}
+} // namespace yycctest::encoding::iconv

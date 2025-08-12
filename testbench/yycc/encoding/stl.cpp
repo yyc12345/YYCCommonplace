@@ -53,4 +53,4 @@ namespace yycctest::encoding::stl {
         }
     }
 
-}
+} // namespace yycctest::encoding::stl
