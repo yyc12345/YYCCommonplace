@@ -71,11 +71,11 @@ namespace yycc::encoding::iconv {
                 that_iconv_close(this->inner);
             }
         }
-        PrivToken(PrivToken&& rhs) : inner(rhs.inner) {
+        PrivToken(PrivToken&& rhs) noexcept : inner(rhs.inner) {
             // Reset rhs inner
             rhs.inner = INVALID_ICONV_TOKEN;
         }
-        PrivToken& operator=(PrivToken&& rhs) {
+        PrivToken& operator=(PrivToken&& rhs) noexcept {
             // Free self first
             if (this->inner != INVALID_ICONV_TOKEN) {
                 that_iconv_close(this->inner);
@@ -99,16 +99,32 @@ namespace yycc::encoding::iconv {
 
 #pragma region Token
 
-    Token::Token(const CodeName& from_code, const CodeName& to_code) : inner(std::make_unique<PrivToken>(from_code, to_code)) {}
+    Token::Token(const CodeName& from_code, const CodeName& to_code) : inner(nullptr) {
+        this->inner = new PrivToken(from_code, to_code);
+    }
 
-    Token::~Token() {}
+    Token::~Token() {
+        if (this->inner != nullptr) {
+            delete this->inner;
+        }
+    }
+
+    Token::Token(Token&& rhs) noexcept : inner(rhs.inner) {
+        rhs.inner = nullptr;
+    }
+
+    Token& Token::operator=(Token&& rhs) noexcept {
+        this->inner = rhs.inner;
+        rhs.inner = nullptr;
+        return *this;
+    }
 
     bool Token::is_valid() const {
         return this->inner->is_valid();
     }
 
     PrivToken* Token::get_inner() const {
-        return this->inner.get();
+        return this->inner;
     }
 
 #pragma endregion

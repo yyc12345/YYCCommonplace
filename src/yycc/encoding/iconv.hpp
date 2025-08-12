@@ -4,7 +4,6 @@
 #include <string>
 #include <string_view>
 #include <expected>
-#include <memory>
 
 namespace yycc::encoding::iconv {
 
@@ -25,14 +24,15 @@ namespace yycc::encoding::iconv {
     public:
         Token(const CodeName& from_code, const CodeName& to_code);
         ~Token();
+        Token(Token&& rhs) noexcept;
+        Token& operator=(Token&& rhs) noexcept;
         YYCC_DELETE_COPY(Token)
-        YYCC_DEFAULT_MOVE(Token)
 
         bool is_valid() const;
         PrivToken* get_inner() const;
 
     private:
-        std::unique_ptr<PrivToken> inner;
+        PrivToken* inner;
     };
 
     /// @brief The possible error occurs in this module.

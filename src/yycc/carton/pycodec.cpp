@@ -397,14 +397,6 @@ namespace yycc::carton::pycodec {
 
 #pragma region Char -> UTF8
 
-    //     CharToUtf8::CharToUtf8(const EncodingName& name) :
-    // #if defined(YYCC_PYCODEC_WIN32_BACKEND)
-    //         code_page(fetch)
-    // #else
-    //         inner(fetch_iconv_name())
-    // #endif
-    //     {}
-
     CharToUtf8::CharToUtf8(const EncodingName& name) : inner(std::nullopt) {
 #if defined(YYCC_PYCODEC_WIN32_BACKEND)
         auto rv = fetch_code_page(name);
@@ -436,7 +428,7 @@ namespace yycc::carton::pycodec {
         if (rv.has_value()) inner = rv.value();
 #else
         auto rv = fetch_iconv_name(name);
-        if (rv.has_value()) inner = YYCC_PYCODEC_BACKEND_NS::CharToUtf8(rv.value());
+        if (rv.has_value()) inner = YYCC_PYCODEC_BACKEND_NS::Utf8ToChar(rv.value());
 #endif
     }
 
