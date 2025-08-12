@@ -3,7 +3,7 @@
 #include <string_view>
 #include <expected>
 
-namespace yycc::encoding::stlcvt {
+namespace yycc::encoding::stl {
 
     /// @brief Possible convertion error occurs in this module.
     struct ConvError {};
@@ -38,6 +38,6 @@ namespace yycc::encoding::stlcvt {
      * @param src
      * @return
      */
-    ConvResult<std::u8string> utf8(const std::u32string_view& src);
+    ConvResult<std::u8string> to_utf8(const std::u32string_view& src);
 
 }
