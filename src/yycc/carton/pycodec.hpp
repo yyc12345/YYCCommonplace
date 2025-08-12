@@ -4,6 +4,8 @@
 #include "../macro/class_copy_move.hpp"
 #include <string>
 #include <string_view>
+#include <variant>
+#include <optional>
 #include <expected>
 
 // Choose the backend of PyCodec module
@@ -27,15 +29,25 @@ namespace yycc::carton::pycodec {
     /// @brief The universal name of encoding.
     using EncodingName = std::u8string_view;
 
+    /// @brief The alias to error type of backend.
+    using ConvBackendError = YYCC_PYCODEC_BACKEND_NS::ConvError;
+
+    /// @brief The error occurs in this module self.
+    enum class ConvFrontendError {
+        NoSuchName, ///< Can not find suitable backend token for given encoding name.
+    };
+
     /// @brief The possible error occurs in this module.
     class ConvError {
     public:
-        using Error = YYCC_PYCODEC_BACKEND_NS::ConvError;
-        ConvError(const Error& err);
+        ConvError(const ConvBackendError& err);
+        ConvError(const ConvFrontendError& err);
+        ConvError(ConvBackendError&& err) noexcept;
+        ConvError(ConvFrontendError&& err) noexcept;
         YYCC_DEFAULT_COPY_MOVE(ConvError)
 
     private:
-        Error inner;
+        std::variant<ConvBackendError, ConvFrontendError> inner;
     };
 
     /// @brief The result type of this module.
@@ -62,9 +74,9 @@ namespace yycc::carton::pycodec {
 
     private:
 #if defined(YYCC_PYCODEC_WIN32_BACKEND)
-        YYCC_PYCODEC_BACKEND_NS::CodePage code_page;
+        std::optional<YYCC_PYCODEC_BACKEND_NS::CodePage> inner;
 #else
-        YYCC_PYCODEC_BACKEND_NS::CharToUtf8 inner;
+        std::optional<YYCC_PYCODEC_BACKEND_NS::CharToUtf8> inner;
 #endif
     };
 
@@ -81,9 +93,9 @@ namespace yycc::carton::pycodec {
 
     private:
 #if defined(YYCC_PYCODEC_WIN32_BACKEND)
-        YYCC_PYCODEC_BACKEND_NS::CodePage code_page;
+        std::optional<YYCC_PYCODEC_BACKEND_NS::CodePage> inner;
 #else
-        YYCC_PYCODEC_BACKEND_NS::Utf8ToChar inner;
+        std::optional<YYCC_PYCODEC_BACKEND_NS::Utf8ToChar> inner;
 #endif
     };
 
@@ -189,4 +201,4 @@ namespace yycc::carton::pycodec {
 #endif
     };
 
-} // namespace yycc::encoding::pycodec
+} // namespace yycc::carton::pycodec

@@ -8,6 +8,15 @@ namespace op = ::yycc::string::op;
 
 namespace yycc::carton::pycodec {
 
+    /// @brief Error occurs when fetching token from encoding name.
+    enum class FetchError {
+        NoSuchName, ///< Given name can not be resolved.
+    };
+
+    /// @brief The Result type used when fetching token from encoding name.
+    template<typename T>
+    using FetchResult = std::expected<T, FetchError>;
+
 #pragma region Encoding Name
 
     static const std::map<std::u8string_view, std::u8string_view> ALIAS_MAP{
@@ -274,16 +283,15 @@ namespace yycc::carton::pycodec {
         {u8"utf_7"sv, static_cast<CodePage>(65000u)},       {u8"utf_8"sv, static_cast<CodePage>(65001u)},
     };
 
-    static bool fetch_code_page(const std::u8string_view& enc_name, CodePage& out_cp) {
+    static FetchResult<CodePage> fetch_code_page(const std::u8string_view& enc_name) {
         // resolve alias
         std::u8string resolved_name = resolve_encoding_alias(enc_name);
         // find code page
         op::lower(resolved_name);
         auto finder = WINCP_MAP.find(resolved_name);
-        if (finder == WINCP_MAP.end()) return false;
+        if (finder == WINCP_MAP.end()) return std::unexpected(FetchError::NoSuchName);
         // okey, we found it.
-        out_cp = finder->second;
-        return true;
+        return finder->second;
     }
 
 #else
@@ -352,16 +360,15 @@ namespace yycc::carton::pycodec {
         {u8"utf_8"sv, "UTF-8"sv},
     };
 
-    static bool fetch_iconv_name(const std::u8string_view& enc_name, std::string& out_code) {
+    static FetchResult<std::string_view> fetch_iconv_name(const std::u8string_view& enc_name) {
         // resolve alias
         std::u8string resolved_name = resolve_encoding_alias(enc_name);
         // find code page
         op::lower(resolved_name);
         auto finder = ICONV_MAP.find(resolved_name);
-        if (finder == ICONV_MAP.end()) return false;
+        if (finder == ICONV_MAP.end()) return std::unexpected(FetchError::NoSuchName);
         // okey, we found it.
-        out_code = finder->second;
-        return true;
+        return finder->second;
     }
 
 #endif
@@ -370,15 +377,19 @@ namespace yycc::carton::pycodec {
 
 #pragma region Misc
 
-    ConvError::ConvError(const ConvError::Error& err) : inner(err) {}
+    ConvError::ConvError(const ConvBackendError& err) : inner(err) {}
+
+    ConvError::ConvError(const ConvFrontendError& err) : inner(err) {}
+
+    ConvError::ConvError(ConvBackendError&& err) noexcept : inner(std::move(err)) {}
+
+    ConvError::ConvError(ConvFrontendError&& err) noexcept : inner(std::move(err)) {}
 
     bool is_valid_encoding_name(const EncodingName& name) {
 #if defined(YYCC_PYCODEC_WIN32_BACKEND)
-        CodePage unused;
-        return fetch_code_page(name, unused);
+        return fetch_code_page(name).has_value();
 #else
-        std::string unused;
-        return fetch_iconv_name(name, unused);
+        return fetch_iconv_name(name).has_value();
 #endif
     }
 
@@ -386,87 +397,156 @@ namespace yycc::carton::pycodec {
 
 #pragma region Char -> UTF8
 
-    CharToUtf8::CharToUtf8(const EncodingName& name) :
+    //     CharToUtf8::CharToUtf8(const EncodingName& name) :
+    // #if defined(YYCC_PYCODEC_WIN32_BACKEND)
+    //         code_page(fetch)
+    // #else
+    //         inner(fetch_iconv_name())
+    // #endif
+    //     {}
+
+    CharToUtf8::CharToUtf8(const EncodingName& name) : inner(std::nullopt) {
 #if defined(YYCC_PYCODEC_WIN32_BACKEND)
-        code_page(fetch)
+        auto rv = fetch_code_page(name);
+        if (rv.has_value()) inner = rv.value();
 #else
-        inner(fetch_iconv_name())
+        auto rv = fetch_iconv_name(name);
+        if (rv.has_value()) inner = YYCC_PYCODEC_BACKEND_NS::CharToUtf8(rv.value());
 #endif
-    {}
+    }
 
+    CharToUtf8::~CharToUtf8() {}
 
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-#pragma region
+    ConvResult<std::u8string> CharToUtf8::to_utf8(const std::string_view& src) {
+        if (!inner.has_value()) return std::unexpected(ConvFrontendError::NoSuchName);
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        return YYCC_PYCODEC_BACKEND_NS::to_utf8(src, inner.value());
+#else
+        return inner.value().to_utf8(src);
+#endif
+    }
 
 #pragma endregion
 
-#pragma region
+#pragma region UTF8 -> Char
+
+    Utf8ToChar::Utf8ToChar(const EncodingName& name) : inner(std::nullopt) {
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        auto rv = fetch_code_page(name);
+        if (rv.has_value()) inner = rv.value();
+#else
+        auto rv = fetch_iconv_name(name);
+        if (rv.has_value()) inner = YYCC_PYCODEC_BACKEND_NS::CharToUtf8(rv.value());
+#endif
+    }
+
+    Utf8ToChar::~Utf8ToChar() {}
+
+    ConvResult<std::string> Utf8ToChar::to_char(const std::u8string_view& src) {
+        if (!inner.has_value()) return std::unexpected(ConvFrontendError::NoSuchName);
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        return YYCC_PYCODEC_BACKEND_NS::to_char(src, inner.value());
+#else
+        return inner.value().to_char(src);
+#endif
+    }
 
 #pragma endregion
 
-#pragma region
+#pragma region WChar -> UTF8
+
+    WcharToUtf8::WcharToUtf8() : inner() {}
+
+    WcharToUtf8::~WcharToUtf8() {}
+
+    ConvResult<std::u8string> WcharToUtf8::to_utf8(const std::wstring_view& src) {
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        return YYCC_PYCODEC_BACKEND_NS::to_utf8(src);
+#else
+        return inner.to_utf8(src);
+#endif
+    }
 
 #pragma endregion
 
-#pragma region
+#pragma region UTF8 -> WChar
+
+    Utf8ToWchar::Utf8ToWchar() : inner() {}
+
+    Utf8ToWchar::~Utf8ToWchar() {}
+
+    ConvResult<std::wstring> Utf8ToWchar::to_wchar(const std::u8string_view& src) {
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        return YYCC_PYCODEC_BACKEND_NS::to_wchar(src);
+#else
+        return inner.to_wchar(src);
+#endif
+    }
 
 #pragma endregion
 
-#pragma region
+#pragma region UTF8 -> UTF16
+
+    Utf8ToUtf16::Utf8ToUtf16() : inner() {}
+
+    Utf8ToUtf16::~Utf8ToUtf16() {}
+
+    ConvResult<std::u16string> Utf8ToUtf16::to_utf16(const std::u8string_view& src) {
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        return YYCC_PYCODEC_BACKEND_NS::to_utf16(src);
+#else
+        return inner.to_utf16(src);
+#endif
+    }
 
 #pragma endregion
 
-#pragma region
+#pragma region UTF16 -> UTF8
+
+    Utf16ToUtf8::Utf16ToUtf8() : inner() {}
+
+    Utf16ToUtf8::~Utf16ToUtf8() {}
+
+    ConvResult<std::u8string> Utf16ToUtf8::to_utf8(const std::u16string_view& src) {
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        return YYCC_PYCODEC_BACKEND_NS::to_utf8(src);
+#else
+        return inner.to_utf8(src);
+#endif
+    }
 
 #pragma endregion
 
-#pragma region
+#pragma region UTF8 -> UTF32
+
+    Utf8ToUtf32::Utf8ToUtf32() : inner() {}
+
+    Utf8ToUtf32::~Utf8ToUtf32() {}
+
+    ConvResult<std::u32string> Utf8ToUtf32::to_utf32(const std::u8string_view& src) {
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        return YYCC_PYCODEC_BACKEND_NS::to_utf32(src);
+#else
+        return inner.to_utf32(src);
+#endif
+    }
 
 #pragma endregion
 
-#pragma region
+#pragma region UTF32 -> UTF8
+
+    Utf32ToUtf8::Utf32ToUtf8() : inner() {}
+
+    Utf32ToUtf8::~Utf32ToUtf8() {}
+
+    ConvResult<std::u8string> Utf32ToUtf8::to_utf8(const std::u32string_view& src) {
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+        return YYCC_PYCODEC_BACKEND_NS::to_utf8(src);
+#else
+        return inner.to_utf8(src);
+#endif
+    }
 
 #pragma endregion
 
-#pragma region
-
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-#pragma region
-
-#pragma endregion
-
-} // namespace yycc::encoding::pycodec
+} // namespace yycc::carton::pycodec
