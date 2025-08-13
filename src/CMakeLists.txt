@@ -15,6 +15,9 @@ PRIVATE
     yycc/string/op.cpp
     yycc/patch/fopen.cpp
     yycc/rust/panic.cpp
+    yycc/windows/com.cpp
+    #yycc/windows/dialog.cpp
+    yycc/windows/winfct.cpp
     yycc/encoding/stl.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
@@ -52,6 +55,9 @@ FILES
     yycc/rust/result.hpp
     yycc/windows/import_guard_head.hpp
     yycc/windows/import_guard_tail.hpp
+    yycc/windows/com.hpp
+    #yycc/windows/dialog.hpp
+    yycc/windows/winfct.hpp
     yycc/constraint.hpp
     yycc/constraint/builder.hpp
     yycc/encoding/stl.hpp
@@ -115,7 +121,8 @@ PUBLIC
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
     # Order preprocessor conformance mode (fix __VA_OPT__ error in MSVC)
     $<$<CXX_COMPILER_ID:MSVC>:/Zc:preprocessor>
-
+    # Resolve MSVC __cplusplus macro value error.
+    $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>
 )
 
 # Fix GCC std::stacktrace link error

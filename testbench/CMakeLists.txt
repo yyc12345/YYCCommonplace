@@ -22,6 +22,9 @@ PRIVATE
     yycc/encoding/stl.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
+    yycc/windows/com.cpp
+    #yycc/windows/dialog.cpp
+    yycc/windows/winfct.cpp
     
     yycc/carton/pycodec.cpp
 )

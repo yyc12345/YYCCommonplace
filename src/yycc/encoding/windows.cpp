@@ -143,16 +143,17 @@ namespace yycc::encoding::windows {
         // Due to the shitty design of mbrtoc16, it forcely assume that passed string is null-terminated.
         // And the third argument should >= 1.
         // However, our given string is string view which do not have null-terminated guaranteen.
-        // 
+        //
         // So we manually check whether we have reach the tail of string and simulate a fake null terminal.
         // If string is still processing, we pass given string.
         // If we have reach the tail of string, we pass our homemade NULL_TERMINAL to this function to make it works normally.
-        // 
+        //
         // This is a stupid polyfill, however, it I do not do this,
         // there is a bug that the second part of surrogate pair will be dropped in final string,
         // if there is a Unicode character located at the tail of string which need surrogate pair to be presented.
         static const char NULL_TERMINAL = '\0';
-        while (size_t rc = std::mbrtoc16(&c16, (ptr < end ? ptr : &NULL_TERMINAL), (ptr < end ? end - ptr : sizeof(NULL_TERMINAL)), &state)) {
+        while (
+            size_t rc = std::mbrtoc16(&c16, (ptr < end ? ptr : &NULL_TERMINAL), (ptr < end ? end - ptr : sizeof(NULL_TERMINAL)), &state)) {
             if (rc == (size_t) -1) return std::unexpected(ConvError::EncodeUtf8);
             else if (rc == (size_t) -2) return std::unexpected(ConvError::IncompleteUtf8);
             else if (rc == (size_t) -3) dst.push_back(c16); // from earlier surrogate pair
@@ -174,7 +175,7 @@ namespace yycc::encoding::windows {
         size_t rc = 1; // Assign it to ONE to avoid mismatching surrogate pair checker when string is empty.
         for (char16_t c : src) {
             rc = std::c16rtomb(mbout, c, &state);
-            
+
             if (rc == (size_t) -1) return std::unexpected(ConvError::InvalidUtf16);
             else dst.append(reinterpret_cast<char8_t*>(mbout), rc);
         }
