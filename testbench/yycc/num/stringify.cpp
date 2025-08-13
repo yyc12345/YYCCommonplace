@@ -11,7 +11,7 @@ namespace yycctest::num::stringify {
 #define TEST_SUCCESS(type_t, value, string_value, ...) \
     { \
         type_t cache = value; \
-        std::u8string ret = STRINGIFY::stringify<type_t>(cache __VA_OPT__(, ) __VA_ARGS__); \
+        std::u8string ret = STRINGIFY::stringify<type_t>(cache __VA_OPT__(,) __VA_ARGS__); \
         EXPECT_EQ(ret, string_value); \
     }
 

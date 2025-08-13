@@ -113,6 +113,9 @@ target_compile_options(YYCCommonplace
 PUBLIC
     # Order build as UTF-8 in MSVC
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
+    # Order preprocessor conformance mode (fix __VA_OPT__ error in MSVC)
+    $<$<CXX_COMPILER_ID:MSVC>:/Zc:preprocessor>
+
 )
 
 # Fix GCC std::stacktrace link error

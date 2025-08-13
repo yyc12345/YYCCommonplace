@@ -34,7 +34,7 @@ namespace yycc::rust::panic {
      * The macro parameters are the message to format and its arguments, following \c std::format syntax.
      * This macro essentially calls \c std::format internally.
      */
-#define RS_PANICF(msg, ...) RS_PANIC(std::format(msg __VA_OPT__(, ) __VA_ARGS__))
+#define RS_PANICF(msg, ...) RS_PANIC(std::format(msg __VA_OPT__(,) __VA_ARGS__))
 
     /**
      * @brief Immediately crashes the entire program like Rust's \c panic! macro.

@@ -14,7 +14,7 @@ namespace yycctest::num::parse {
 #define TEST_SUCCESS(type_t, expected_value, string_value, ...) \
     { \
         std::u8string cache_string(string_value); \
-        auto rv = PARSE::parse<type_t>(cache_string __VA_OPT__(, ) __VA_ARGS__); \
+        auto rv = PARSE::parse<type_t>(cache_string __VA_OPT__(,) __VA_ARGS__); \
         ASSERT_TRUE(rv.has_value()); \
         EXPECT_EQ(rv.value(), expected_value); \
     }
@@ -22,7 +22,7 @@ namespace yycctest::num::parse {
 #define TEST_FAIL(type_t, string_value, ...) \
     { \
         std::u8string cache_string(string_value); \
-        auto rv = PARSE::parse<type_t>(cache_string __VA_OPT__(, ) __VA_ARGS__); \
+        auto rv = PARSE::parse<type_t>(cache_string __VA_OPT__(,) __VA_ARGS__); \
         EXPECT_FALSE(rv.has_value()); \
     }
 
