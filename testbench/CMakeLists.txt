@@ -11,6 +11,7 @@ PRIVATE
     yycc/constraint.cpp
     yycc/constraint/builder.cpp
     yycc/patch/ptr_pad.cpp
+    yycc/patch/fopen.cpp
     yycc/string/op.cpp
     yycc/string/reinterpret.cpp
     yycc/num/parse.cpp
