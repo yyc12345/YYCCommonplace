@@ -17,6 +17,11 @@
 
 // Import essential header if we are using Windows function family.
 #if defined(YYCC_HARDWARE_OVERFLOW_WIN32_FNS)
+// YYC MARK:
+// This macro is crucial for including "intsafe.h"
+// Without this, "intsafe.h" will not enable signed integral operations.
+#define ENABLE_INTSAFE_SIGNED_FUNCTIONS
+
 #include "../windows/import_guard_head.hpp"
 #include <intsafe.h>
 #include "../windows/import_guard_tail.hpp"
