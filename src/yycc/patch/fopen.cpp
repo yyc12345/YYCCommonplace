@@ -24,7 +24,8 @@ namespace yycc::patch::fopen {
 
         // check convertion success
         if (wmode.has_value() && wpath.has_value()) {
-            // call microsoft specified fopen which support wchar as argument.
+            // Call MSVCRT specified fopen which support wchar as argument.
+            // Reference: https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-170
             return _wfopen(wpath.value().c_str(), wmode.value().c_str());
         } else {
             // fail to convert encoding

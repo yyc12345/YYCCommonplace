@@ -35,14 +35,10 @@ namespace yycc::constraint::builder {
         T default_entry = il.begin()[default_index];
         std::set<T> entries(il);
 
-        // TODO: modify it as `contain` once we finish patch namespace.
-        auto fn_check = [entries](const T& val) -> bool { return entries.find(val) != entries.end(); };
+        auto fn_check = [entries](const T& val) -> bool { return entries.contains(val); };
         auto fn_clamp = [entries, default_entry](const T& val) -> T {
-            if (entries.find(val) != entries.end()) {
-                return val;
-            } else {
-                return default_entry;
-            }
+            if (entries.contains(val)) return val;
+            else return default_entry;
         };
         return Constraint<T>(std::move(fn_check), fn_clamp);
     }
