@@ -393,6 +393,15 @@ namespace yycc::carton::pycodec {
 #endif
     }
 
+    // YYC MARK:
+    // Define a macro for following class ctor
+    // We only need initialize member if we are in Iconv environment.
+#if defined(YYCC_PYCODEC_WIN32_BACKEND)
+#define CTOR_INITLIST_TYPE1
+#else
+#define CTOR_INITLIST_TYPE1 : inner()
+#endif
+
 #pragma endregion
 
 #pragma region Char -> UTF8
@@ -447,7 +456,7 @@ namespace yycc::carton::pycodec {
 
 #pragma region WChar -> UTF8
 
-    WcharToUtf8::WcharToUtf8() : inner() {}
+    WcharToUtf8::WcharToUtf8() CTOR_INITLIST_TYPE1 {}
 
     WcharToUtf8::~WcharToUtf8() {}
 
@@ -463,7 +472,7 @@ namespace yycc::carton::pycodec {
 
 #pragma region UTF8 -> WChar
 
-    Utf8ToWchar::Utf8ToWchar() : inner() {}
+    Utf8ToWchar::Utf8ToWchar() CTOR_INITLIST_TYPE1 {}
 
     Utf8ToWchar::~Utf8ToWchar() {}
 
@@ -479,7 +488,7 @@ namespace yycc::carton::pycodec {
 
 #pragma region UTF8 -> UTF16
 
-    Utf8ToUtf16::Utf8ToUtf16() : inner() {}
+    Utf8ToUtf16::Utf8ToUtf16() CTOR_INITLIST_TYPE1 {}
 
     Utf8ToUtf16::~Utf8ToUtf16() {}
 
@@ -495,7 +504,7 @@ namespace yycc::carton::pycodec {
 
 #pragma region UTF16 -> UTF8
 
-    Utf16ToUtf8::Utf16ToUtf8() : inner() {}
+    Utf16ToUtf8::Utf16ToUtf8() CTOR_INITLIST_TYPE1 {}
 
     Utf16ToUtf8::~Utf16ToUtf8() {}
 
@@ -511,7 +520,7 @@ namespace yycc::carton::pycodec {
 
 #pragma region UTF8 -> UTF32
 
-    Utf8ToUtf32::Utf8ToUtf32() : inner() {}
+    Utf8ToUtf32::Utf8ToUtf32() CTOR_INITLIST_TYPE1 {}
 
     Utf8ToUtf32::~Utf8ToUtf32() {}
 
@@ -527,7 +536,7 @@ namespace yycc::carton::pycodec {
 
 #pragma region UTF32 -> UTF8
 
-    Utf32ToUtf8::Utf32ToUtf8() : inner() {}
+    Utf32ToUtf8::Utf32ToUtf8() CTOR_INITLIST_TYPE1 {}
 
     Utf32ToUtf8::~Utf32ToUtf8() {}
 
