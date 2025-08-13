@@ -139,12 +139,23 @@ namespace yycc::encoding::windows {
         const char* ptr = reinterpret_cast<const char*>(src.data());
         const char* end = ptr + src.size();
 
-        while (ptr < end) {
-            size_t rc = std::mbrtoc16(&c16, ptr, end - ptr, &state);
-
+        // YYC MARK:
+        // Due to the shitty design of mbrtoc16, it forcely assume that passed string is null-terminated.
+        // And the third argument should >= 1.
+        // However, our given string is string view which do not have null-terminated guaranteen.
+        // 
+        // So we manually check whether we have reach the tail of string and simulate a fake null terminal.
+        // If string is still processing, we pass given string.
+        // If we have reach the tail of string, we pass our homemade NULL_TERMINAL to this function to make it works normally.
+        // 
+        // This is a stupid polyfill, however, it I do not do this,
+        // there is a bug that the second part of surrogate pair will be dropped in final string,
+        // if there is a Unicode character located at the tail of string which need surrogate pair to be presented.
+        static const char NULL_TERMINAL = '\0';
+        while (size_t rc = std::mbrtoc16(&c16, (ptr < end ? ptr : &NULL_TERMINAL), (ptr < end ? end - ptr : sizeof(NULL_TERMINAL)), &state)) {
             if (rc == (size_t) -1) return std::unexpected(ConvError::EncodeUtf8);
             else if (rc == (size_t) -2) return std::unexpected(ConvError::IncompleteUtf8);
-            else if (rc != (size_t) -3) dst.push_back(c16); // from earlier surrogate pair
+            else if (rc == (size_t) -3) dst.push_back(c16); // from earlier surrogate pair
             else {
                 dst.push_back(c16);
                 ptr += rc;
@@ -160,12 +171,23 @@ namespace yycc::encoding::windows {
 
         std::mbstate_t state{};
         char mbout[MB_LEN_MAX]{};
+        size_t rc = 1; // Assign it to ONE to avoid mismatching surrogate pair checker when string is empty.
         for (char16_t c : src) {
-            size_t rc = std::c16rtomb(mbout, c, &state);
-
-            if (rc != (size_t) -1) dst.append(reinterpret_cast<char8_t*>(mbout), rc);
-            else return std::unexpected(ConvError::InvalidUtf16);
+            rc = std::c16rtomb(mbout, c, &state);
+            
+            if (rc == (size_t) -1) return std::unexpected(ConvError::InvalidUtf16);
+            else dst.append(reinterpret_cast<char8_t*>(mbout), rc);
         }
+
+        if (rc == 0) {
+            // YYC MARK:
+            // If rc is zero after processing all chars,
+            // it means that we are aborted when processing an UTF16 surrogate pair.
+            // We should report it as an error.
+            return std::unexpected(ConvError::InvalidUtf16);
+        }
+
+        // Okey, return result.
         return dst;
     }
 
@@ -180,11 +202,14 @@ namespace yycc::encoding::windows {
         const char* end = ptr + src.size();
 
         while (ptr < end) {
+            // YYC MARK:
+            // There is no surrogate pair in UTF32,
+            // so we do not need do that stupid things in UTF8 to UTF32 functions.
             size_t rc = std::mbrtoc32(&c32, ptr, end - ptr, &state);
 
             if (rc == (size_t) -1) return std::unexpected(ConvError::EncodeUtf8);
             else if (rc == (size_t) -2) return std::unexpected(ConvError::IncompleteUtf8);
-            else if (rc != (size_t) -3) throw std::runtime_error("no surrogates in UTF-32");
+            else if (rc == (size_t) -3) throw std::runtime_error("no surrogates in UTF-32");
             else dst.push_back(c32);
 
             ptr += rc;
@@ -202,9 +227,14 @@ namespace yycc::encoding::windows {
         for (char32_t c : src) {
             size_t rc = std::c32rtomb(mbout, c, &state);
 
-            if (rc != (size_t) -1) dst.append(reinterpret_cast<char8_t*>(mbout), rc);
-            else return std::unexpected(ConvError::InvalidUtf32);
+            if (rc == (size_t) -1) return std::unexpected(ConvError::InvalidUtf32);
+            else dst.append(reinterpret_cast<char8_t*>(mbout), rc);
         }
+
+        // YYC MARK:
+        // There is no surrogate pair for UTF32,
+        // so this "if" statement only presented in UTF16 to UTF8 function.
+        // In this function, we directly return value.
         return dst;
     }
 
