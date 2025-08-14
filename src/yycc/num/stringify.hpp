@@ -55,6 +55,7 @@ namespace yycc::num::stringify {
             throw std::runtime_error("unreachable code.");
         }
     }
+
     /**
      * @brief Return the string representation of given integral value.
      * @tparam T The type derived from integral type except bool type.
@@ -82,6 +83,7 @@ namespace yycc::num::stringify {
             throw std::runtime_error("unreachable code.");
         }
     }
+    
     /**
      * @brief Return the string representation of given bool value.
      * @tparam T The type derived from bool type.

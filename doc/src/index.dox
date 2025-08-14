@@ -29,6 +29,9 @@
 
     \li \subpage intro
 
+    \li \subpage premise_and_principle
+
+    <!--
     \li \subpage library_macros
 
     \li \subpage library_encoding
@@ -46,20 +49,24 @@
     \li \subpage std_patch
 
     \li \subpage enum_helper
+    -->
 
     <B>Advanced Features</B>
 
+    <!--
     \li \subpage constraints
 
     \li \subpage config_manager
 
     \li \subpage arg_parser
+    -->
 
   </TD>
   <TD ALIGN="LEFT" VALIGN="TOP">
 
     <B>Windows Specific Features</B>
 
+    <!--
     \li \subpage win_import
 
     \li \subpage com_helper
@@ -69,6 +76,7 @@
     \li \subpage win_fct_helper
 
     \li \subpage exception_helper
+    -->
 
   </TD>
 </TR>

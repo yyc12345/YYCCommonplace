@@ -31,8 +31,7 @@ namespace yycc::num::parse {
     using ParseResult = std::expected<T, ParseError>;
 
     /**
-     * @private
-     * @brief Internal parsing function for floating point types
+     * @brief Parse given string into floating point types
      * @tparam T Floating point type (float, double, etc)
      * @param strl The UTF-8 string view to parse
      * @param fmt The floating point format to use
@@ -66,8 +65,7 @@ namespace yycc::num::parse {
     }
 
     /**
-     * @private
-     * @brief Internal parsing function for integral types (except bool)
+     * @brief Parse given string into integral types (except bool)
      * @tparam T Integral type (int, long, etc)
      * @param strl The UTF-8 string view to parse
      * @param base Numeric base (2-36)
@@ -101,8 +99,7 @@ namespace yycc::num::parse {
     }
 
     /**
-     * @private
-     * @brief Internal parsing function for boolean type
+     * @brief Parse given string into boolean type
      * @tparam T Must be bool type
      * @param strl The UTF-8 string view to parse ("true" or "false", case insensitive)
      * @return ParseResult<bool> containing either the parsed value or a ParseError

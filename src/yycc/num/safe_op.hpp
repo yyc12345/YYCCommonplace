@@ -491,12 +491,19 @@ namespace yycc::num::safe_op {
      * @brief The result returned by the overflow function family.
      * @details
      * The first item is the operation result.
-     * The second item indicates whether an overflow has occurred. true means overflow, otherwise false.
+     * The second item indicating whether an overflow has occurred. True means overflow, otherwise false.
      */
     template<typename T>
         requires std::integral<T>
     using OverflowingPair = std::pair<T, bool>;
 
+    /**
+     * @brief Performs an addition operation with overflow detection.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the addition.
+     * @param[in] b The right operand of the addition.
+     * @return A pair holding result and overflow flag.
+     */
     template<typename T>
         requires std::integral<T>
     OverflowingPair<T> overflowing_add(T a, T b) {
@@ -505,6 +512,13 @@ namespace yycc::num::safe_op {
         return std::make_pair(result, overflow);
     }
 
+    /**
+     * @brief Performs a subtraction operation with overflow detection.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the subtraction.
+     * @param[in] b The right operand of the subtraction.
+     * @return A pair holding result and overflow flag.
+     */
     template<typename T>
         requires std::integral<T>
     OverflowingPair<T> overflowing_sub(T a, T b) {
@@ -513,6 +527,13 @@ namespace yycc::num::safe_op {
         return std::make_pair(result, overflow);
     }
 
+    /**
+     * @brief Performs a multiplication operation with overflow detection.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the multiplication.
+     * @param[in] b The right operand of the multiplication.
+     * @return A pair holding result and overflow flag.
+     */
     template<typename T>
         requires std::integral<T>
     OverflowingPair<T> overflowing_mul(T a, T b) {
@@ -521,6 +542,14 @@ namespace yycc::num::safe_op {
         return std::make_pair(result, overflow);
     }
 
+    /**
+     * @brief Performs a division operation with overflow detection.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the division.
+     * @param[in] b The right operand of the division.
+     * @return A pair holding result and overflow flag.
+     * @exception std::logic_error If division by zero occurs.
+     */
     template<typename T>
         requires std::integral<T>
     OverflowingPair<T> overflowing_div(T a, T b) {

@@ -6,7 +6,7 @@ YYCCommonplace, or YYC Commonplace (abbr. YYCC),
 is a static library providing various useful C++ functions 
 when programming with standard library or Windows environment.
 
-During the development of a few projects, 
+At the beginning, during the development of a few projects, 
 I gradually understand how Windows make the compromise with the code written by its old developers, 
 and what is developer wanted in contemporary C++ standard library under Windows environment. 
 So I create this static library for all of my C++ project.
@@ -15,6 +15,16 @@ I can use a clear and easy way to manage these codes.
 I can easily fix issues found in project using this library by updating a single project, 
 rather than fixing these duplicated code in each project one by one 
 because all of them share the same implementations.
+This is the origin of the 1.x version of YYCC.
+
+After a few years ago, I start to write in Rust and more complicated codes.
+I was allured by Rust and hope all these feature Rust holded can be adapted into C++,
+so I start to refactor this library in modern way.
+However, the compatibility with low C++ standard version is now become the shortcoming of this library.
+I was forced to considering the compatibility with C++ 17 and it cause a huge work.
+So, after think twice, I decide to drop the support of C++ 17, which the higest C++ standard I can used for Virtools project.
+And increase the standard to C++ 23 directly to have better experience.
+That's the origin of the 2.x version of YYCC.
 
 This project mainly is served for my personal use. 
 But I would be honored if you would like to use this in your project. 
@@ -46,17 +56,18 @@ Thus I can have a similar Linux C++ programming experience on Windows.
 
 The eccentric decision of standard commission also is the reason why I create this library.
 
-\li C++ standard commission loves to bring one feature with N concepts and P assistant classes.
+\li C++ standard commission prefer to provide one function with very fundamental classes and functions
+and programmer need to write too much code to achieve a simple work.
 \li C++ standard commission seems doesn't want to bring any features the programmer urgent needed.
 \li C++ standard commission loves delete programmer loved convenient functions and classes.
 \li etc...
 
 There is not a proper way to \e format a string in C++ until C++ 20 (\c std::format).
 String related functions, such as split, lower, higher, replace, now still not be included in standard library.
-Programmer loved, easy to used UTF8 procession functions and classes was deprecate now and will be removed in future.
+Programmer loved, easy to used encoding convertion functions and classes are deprecate now and will be removed in future.
 
 That's why I create this library.
-I bring these function in this library.
+I bring these functions in this library.
 Not industrial level, but easy to use and have enough performance in my project.
 
 \subsection intro__why__boost Boost Issues
@@ -65,7 +76,7 @@ Bosst is a powerful C++ library. But the shortcoming is overt. It's tooooo big.
 This drawback will be more obvious considering the bad dependency mechanism of C++.
 Although the most of Boost sub-library is header-only, but some library still need to link with Boost.
 It order you download the whole Boost library and extract it in your hard disk.
-Cost more than half hours, 5+ GB disk space and the life time of your disk.
+Cost more than half hour of your life, 5+ GB disk space and the life time of your disk.
 
 The functions belonging to Boost is industrial level.
 But what I want is not industrial level functions.
@@ -74,6 +85,7 @@ I don't need extreme performance. I just want my code works.
 
 So I create this library, bring some Boost functions with ordinary but not bad implementation.
 
+<!--
 \section intro__usage Library Usage
 
 Before using this library, I suggest you read this manual fully to have a full overview of this library.
@@ -187,5 +199,5 @@ YYCC CMake build script contains a special option called \c YYCC_DEBUG_UE_FILTER
 If you set it to true, it will add a public macro \c YYCC_DEBUG_UE_FILTER to YYCC project.
 This macro will enable special code path for the convenience of debugging \ref exception_helper related features.
 So in common use, user should not enable this option.
-
+-->
 */
