@@ -28,6 +28,7 @@ PRIVATE
     yycc/windows/winfct.cpp
     
     yycc/carton/pycodec.cpp
+    yycc/carton/wcwidth.cpp
 )
 target_sources(YYCCTestbench
 PRIVATE

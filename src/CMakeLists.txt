@@ -24,6 +24,7 @@ PRIVATE
     yycc/encoding/iconv.cpp
 
     yycc/carton/pycodec.cpp
+    yycc/carton/wcwidth.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -67,6 +68,7 @@ FILES
     yycc/encoding/iconv.hpp
 
     yycc/carton/pycodec.hpp
+    yycc/carton/wcwidth.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace

@@ -19,6 +19,7 @@ namespace yycc::carton::pycodec {
 
 #pragma region Encoding Name
 
+    // clang-format off
     static const std::map<std::u8string_view, std::u8string_view> ALIAS_MAP{
         {u8"646"sv, u8"ascii"sv},
         {u8"us-ascii"sv, u8"ascii"sv},
@@ -224,6 +225,7 @@ namespace yycc::carton::pycodec {
         {u8"utf-8"sv, u8"utf_8"sv},
         {u8"cp65001"sv, u8"utf_8"sv},
     };
+    // clang-format on
 
     /**
      * @brief Resolve encoding name alias and fetch real encoding name.
@@ -248,40 +250,74 @@ namespace yycc::carton::pycodec {
 
     using CodePage = YYCC_PYCODEC_BACKEND_NS::CodePage;
 
-    static const std::map<std::u8string_view, CodePage> WINCP_MAP{
-        {u8"ascii"sv, static_cast<CodePage>(437u)},         {u8"big5"sv, static_cast<CodePage>(950u)},
-        {u8"cp037"sv, static_cast<CodePage>(037u)},         {u8"cp437"sv, static_cast<CodePage>(437u)},
-        {u8"cp500"sv, static_cast<CodePage>(500u)},         {u8"cp720"sv, static_cast<CodePage>(720u)},
-        {u8"cp737"sv, static_cast<CodePage>(737u)},         {u8"cp775"sv, static_cast<CodePage>(775u)},
-        {u8"cp850"sv, static_cast<CodePage>(850u)},         {u8"cp852"sv, static_cast<CodePage>(852u)},
-        {u8"cp855"sv, static_cast<CodePage>(855u)},         {u8"cp857"sv, static_cast<CodePage>(857u)},
-        {u8"cp858"sv, static_cast<CodePage>(858u)},         {u8"cp860"sv, static_cast<CodePage>(860u)},
-        {u8"cp861"sv, static_cast<CodePage>(861u)},         {u8"cp862"sv, static_cast<CodePage>(862u)},
-        {u8"cp863"sv, static_cast<CodePage>(863u)},         {u8"cp864"sv, static_cast<CodePage>(864u)},
-        {u8"cp865"sv, static_cast<CodePage>(865u)},         {u8"cp866"sv, static_cast<CodePage>(866u)},
-        {u8"cp869"sv, static_cast<CodePage>(869u)},         {u8"cp874"sv, static_cast<CodePage>(874u)},
-        {u8"cp875"sv, static_cast<CodePage>(875u)},         {u8"cp932"sv, static_cast<CodePage>(932u)},
-        {u8"cp949"sv, static_cast<CodePage>(949u)},         {u8"cp950"sv, static_cast<CodePage>(950u)},
-        {u8"cp1026"sv, static_cast<CodePage>(1026u)},       {u8"cp1140"sv, static_cast<CodePage>(1140u)},
-        {u8"cp1250"sv, static_cast<CodePage>(1250u)},       {u8"cp1251"sv, static_cast<CodePage>(1251u)},
-        {u8"cp1252"sv, static_cast<CodePage>(1252u)},       {u8"cp1253"sv, static_cast<CodePage>(1253u)},
-        {u8"cp1254"sv, static_cast<CodePage>(1254u)},       {u8"cp1255"sv, static_cast<CodePage>(1255u)},
-        {u8"cp1256"sv, static_cast<CodePage>(1256u)},       {u8"cp1257"sv, static_cast<CodePage>(1257u)},
-        {u8"cp1258"sv, static_cast<CodePage>(1258u)},       {u8"euc_jp"sv, static_cast<CodePage>(20932u)},
-        {u8"euc_kr"sv, static_cast<CodePage>(51949u)},      {u8"gb2312"sv, static_cast<CodePage>(936u)},
-        {u8"gbk"sv, static_cast<CodePage>(936u)},           {u8"gb18030"sv, static_cast<CodePage>(54936u)},
-        {u8"hz"sv, static_cast<CodePage>(52936u)},          {u8"iso2022_jp"sv, static_cast<CodePage>(50220u)},
-        {u8"iso2022_kr"sv, static_cast<CodePage>(50225u)},  {u8"latin_1"sv, static_cast<CodePage>(28591u)},
-        {u8"iso8859_2"sv, static_cast<CodePage>(28592u)},   {u8"iso8859_3"sv, static_cast<CodePage>(28593u)},
-        {u8"iso8859_4"sv, static_cast<CodePage>(28594u)},   {u8"iso8859_5"sv, static_cast<CodePage>(28595u)},
-        {u8"iso8859_6"sv, static_cast<CodePage>(28596u)},   {u8"iso8859_7"sv, static_cast<CodePage>(28597u)},
-        {u8"iso8859_8"sv, static_cast<CodePage>(28598u)},   {u8"iso8859_9"sv, static_cast<CodePage>(28599u)},
-        {u8"iso8859_13"sv, static_cast<CodePage>(28603u)},  {u8"iso8859_15"sv, static_cast<CodePage>(28605u)},
-        {u8"johab"sv, static_cast<CodePage>(1361u)},        {u8"mac_cyrillic"sv, static_cast<CodePage>(10007u)},
-        {u8"mac_greek"sv, static_cast<CodePage>(10006u)},   {u8"mac_iceland"sv, static_cast<CodePage>(10079u)},
-        {u8"mac_turkish"sv, static_cast<CodePage>(10081u)}, {u8"shift_jis"sv, static_cast<CodePage>(932u)},
-        {u8"utf_7"sv, static_cast<CodePage>(65000u)},       {u8"utf_8"sv, static_cast<CodePage>(65001u)},
+    // clang-format off
+    static const std::map<std::u8string_view, CodePage> WINCP_MAP {
+        { u8"ascii"sv, static_cast<CodePage>(437u) },
+        { u8"big5"sv, static_cast<CodePage>(950u) },
+        { u8"cp037"sv, static_cast<CodePage>(037u) },
+        { u8"cp437"sv, static_cast<CodePage>(437u) },
+        { u8"cp500"sv, static_cast<CodePage>(500u) },
+        { u8"cp720"sv, static_cast<CodePage>(720u) },
+        { u8"cp737"sv, static_cast<CodePage>(737u) },
+        { u8"cp775"sv, static_cast<CodePage>(775u) },
+        { u8"cp850"sv, static_cast<CodePage>(850u) },
+        { u8"cp852"sv, static_cast<CodePage>(852u) },
+        { u8"cp855"sv, static_cast<CodePage>(855u) },
+        { u8"cp857"sv, static_cast<CodePage>(857u) },
+        { u8"cp858"sv, static_cast<CodePage>(858u) },
+        { u8"cp860"sv, static_cast<CodePage>(860u) },
+        { u8"cp861"sv, static_cast<CodePage>(861u) },
+        { u8"cp862"sv, static_cast<CodePage>(862u) },
+        { u8"cp863"sv, static_cast<CodePage>(863u) },
+        { u8"cp864"sv, static_cast<CodePage>(864u) },
+        { u8"cp865"sv, static_cast<CodePage>(865u) },
+        { u8"cp866"sv, static_cast<CodePage>(866u) },
+        { u8"cp869"sv, static_cast<CodePage>(869u) },
+        { u8"cp874"sv, static_cast<CodePage>(874u) },
+        { u8"cp875"sv, static_cast<CodePage>(875u) },
+        { u8"cp932"sv, static_cast<CodePage>(932u) },
+        { u8"cp949"sv, static_cast<CodePage>(949u) },
+        { u8"cp950"sv, static_cast<CodePage>(950u) },
+        { u8"cp1026"sv, static_cast<CodePage>(1026u) },
+        { u8"cp1140"sv, static_cast<CodePage>(1140u) },
+        { u8"cp1250"sv, static_cast<CodePage>(1250u) },
+        { u8"cp1251"sv, static_cast<CodePage>(1251u) },
+        { u8"cp1252"sv, static_cast<CodePage>(1252u) },
+        { u8"cp1253"sv, static_cast<CodePage>(1253u) },
+        { u8"cp1254"sv, static_cast<CodePage>(1254u) },
+        { u8"cp1255"sv, static_cast<CodePage>(1255u) },
+        { u8"cp1256"sv, static_cast<CodePage>(1256u) },
+        { u8"cp1257"sv, static_cast<CodePage>(1257u) },
+        { u8"cp1258"sv, static_cast<CodePage>(1258u) },
+        { u8"euc_jp"sv, static_cast<CodePage>(20932u) },
+        { u8"euc_kr"sv, static_cast<CodePage>(51949u) },
+        { u8"gb2312"sv, static_cast<CodePage>(936u) },
+        { u8"gbk"sv, static_cast<CodePage>(936u) },
+        { u8"gb18030"sv, static_cast<CodePage>(54936u) },
+        { u8"hz"sv, static_cast<CodePage>(52936u) },
+        { u8"iso2022_jp"sv, static_cast<CodePage>(50220u) },
+        { u8"iso2022_kr"sv, static_cast<CodePage>(50225u) },
+        { u8"latin_1"sv, static_cast<CodePage>(28591u) },
+        { u8"iso8859_2"sv, static_cast<CodePage>(28592u) },
+        { u8"iso8859_3"sv, static_cast<CodePage>(28593u) },
+        { u8"iso8859_4"sv, static_cast<CodePage>(28594u) },
+        { u8"iso8859_5"sv, static_cast<CodePage>(28595u) },
+        { u8"iso8859_6"sv, static_cast<CodePage>(28596u) },
+        { u8"iso8859_7"sv, static_cast<CodePage>(28597u) },
+        { u8"iso8859_8"sv, static_cast<CodePage>(28598u) },
+        { u8"iso8859_9"sv, static_cast<CodePage>(28599u) },
+        { u8"iso8859_13"sv, static_cast<CodePage>(28603u) },
+        { u8"iso8859_15"sv, static_cast<CodePage>(28605u) },
+        { u8"johab"sv, static_cast<CodePage>(1361u) },
+        { u8"mac_cyrillic"sv, static_cast<CodePage>(10007u) },
+        { u8"mac_greek"sv, static_cast<CodePage>(10006u) },
+        { u8"mac_iceland"sv, static_cast<CodePage>(10079u) },
+        { u8"mac_turkish"sv, static_cast<CodePage>(10081u) },
+        { u8"shift_jis"sv, static_cast<CodePage>(932u) },
+        { u8"utf_7"sv, static_cast<CodePage>(65000u) },
+        { u8"utf_8"sv, static_cast<CodePage>(65001u) },
     };
+    // clang-format on
 
     static FetchResult<CodePage> fetch_code_page(const std::u8string_view& enc_name) {
         // resolve alias
@@ -296,6 +332,7 @@ namespace yycc::carton::pycodec {
 
 #else
 
+    // clang-format off
     static const std::map<std::u8string_view, std::string_view> ICONV_MAP{
         {u8"ascii"sv, "ASCII"sv},
         {u8"big5"sv, "BIG5"sv},
@@ -359,6 +396,7 @@ namespace yycc::carton::pycodec {
         {u8"utf_7"sv, "UTF-7"sv},
         {u8"utf_8"sv, "UTF-8"sv},
     };
+    // clang-format on
 
     static FetchResult<std::string_view> fetch_iconv_name(const std::u8string_view& enc_name) {
         // resolve alias
