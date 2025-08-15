@@ -7,6 +7,11 @@ PRIVATE
 
     main.cpp
     yycc/macro/version_cmp.cpp
+    yycc/macro/os_detector.cpp
+    yycc/macro/compiler_detector.cpp
+    yycc/macro/endian_detector.cpp
+    yycc/macro/ptr_size_detector.cpp
+    yycc/macro/stl_detector.cpp
     yycc/flag_enum.cpp
     yycc/constraint.cpp
     yycc/constraint/builder.cpp

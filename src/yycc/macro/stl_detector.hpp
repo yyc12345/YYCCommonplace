@@ -17,9 +17,9 @@ namespace yycc::macro::stl {
 
     /// @brief The STL implementation kind.
     enum class StlKind {
-        MSSTL,    ///< Microsoft STL
-        GNUSTL,   ///< GNU STL
-        CLANGSTL  ///< Clang STL
+        MsStl,    ///< Microsoft STL
+        GnuStl,   ///< GNU STL
+        ClangStl  ///< Clang STL
     };
 
     /**
@@ -28,11 +28,11 @@ namespace yycc::macro::stl {
      */
     inline constexpr StlKind get_stl() {
 #if defined(YYCC_STL_MSSTL)
-        return StlKind::MSSTL;
+        return StlKind::MsStl;
 #elif defined(YYCC_STL_GNUSTL)
-        return StlKind::GNUSTL;
+        return StlKind::GnuStl;
 #else
-        return StlKind::CLANGSTL;
+        return StlKind::ClangStl;
 #endif
     }
 
