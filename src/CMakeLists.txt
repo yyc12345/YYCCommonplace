@@ -26,6 +26,7 @@ PRIVATE
     yycc/carton/pycodec.cpp
     yycc/carton/termcolor.cpp
     yycc/carton/wcwidth.cpp
+    yycc/carton/tabulate.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -71,6 +72,7 @@ FILES
     yycc/carton/pycodec.hpp
     yycc/carton/termcolor.hpp
     yycc/carton/wcwidth.hpp
+    yycc/carton/tabulate.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace

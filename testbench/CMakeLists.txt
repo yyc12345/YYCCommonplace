@@ -3,9 +3,10 @@ add_executable(YYCCTestbench "")
 # Setup testbench sources
 target_sources(YYCCTestbench
 PRIVATE
+    main.cpp
+    
     shared/literals.cpp
 
-    main.cpp
     yycc/macro/version_cmp.cpp
     yycc/macro/os_detector.cpp
     yycc/macro/compiler_detector.cpp
@@ -35,6 +36,7 @@ PRIVATE
     yycc/carton/pycodec.cpp
     yycc/carton/termcolor.cpp
     yycc/carton/wcwidth.cpp
+    yycc/carton/tabulate.cpp
 )
 target_sources(YYCCTestbench
 PRIVATE
