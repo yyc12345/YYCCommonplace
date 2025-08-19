@@ -24,6 +24,7 @@ PRIVATE
     yycc/encoding/iconv.cpp
 
     yycc/carton/pycodec.cpp
+    yycc/carton/termcolor.cpp
     yycc/carton/wcwidth.cpp
 )
 target_sources(YYCCommonplace 
@@ -68,6 +69,7 @@ FILES
     yycc/encoding/iconv.hpp
 
     yycc/carton/pycodec.hpp
+    yycc/carton/termcolor.hpp
     yycc/carton/wcwidth.hpp
 )
 # Setup header infomations

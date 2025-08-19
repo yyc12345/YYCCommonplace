@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
 #include <yycc/flag_enum.hpp>
+#include <cinttypes>
 
 #include <yycc/rust/prelude.hpp>
 
@@ -72,6 +73,11 @@ namespace yycctest::flag_enum {
         EXPECT_TRUE(FLAG_ENUM::boolean(TestEnum::Bit1));
         EXPECT_TRUE(FLAG_ENUM::boolean(TestEnum::InvBit8));
         EXPECT_TRUE(FLAG_ENUM::boolean(TestEnum::MergedBit247));
+    }
+
+    TEST(FlagEnum, Integer) {
+        EXPECT_EQ(FLAG_ENUM::integer(TestEnum::Empty), UINT8_C(0));
+        EXPECT_EQ(FLAG_ENUM::integer(TestEnum::Bit1), UINT8_C(1));
     }
 
 }

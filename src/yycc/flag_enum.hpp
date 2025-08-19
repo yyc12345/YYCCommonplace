@@ -191,4 +191,17 @@ namespace yycc::flag_enum {
         return static_cast<bool>(static_cast<ut>(e));
     }
 
+    /**
+     * @brief Cast given enum flags to its equvalent underlying integer value like performing <TT>static_cast<std::underlying_type_t<T>>(e)</TT>
+     * @tparam TEnum Enum type for processing.
+     * @param e The enum flags to be cast.
+     * @return The equvalent integer value of given enum flag.
+     */
+    template<typename TEnum>
+        requires(std::is_enum_v<TEnum>)
+    constexpr std::underlying_type_t<TEnum> integer(TEnum e) {
+        using ut = std::underlying_type_t<TEnum>;
+        return static_cast<ut>(e);
+    }
+
 } // namespace yycc::flag_enum
