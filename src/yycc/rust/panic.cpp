@@ -1,9 +1,13 @@
 #include "panic.hpp"
-
+#include "../carton/termcolor.hpp"
+#include "../string/reinterpret.hpp"
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <stacktrace>
+
+#define TERMCOLOR ::yycc::carton::termcolor
+#define REINTERPRET ::yycc::string::reinterpret
 
 namespace yycc::rust::panic {
 
@@ -11,11 +15,9 @@ namespace yycc::rust::panic {
         // Output message in stderr.
         auto& dst = std::cerr;
 
-        // TODO: Fix colorful output when finishing `termcolor` lib.
-
         // Print error message if we support it.
-        // // Setup color
-        // dst << FOREGROUND<Color::Red>;
+        // Setup color
+        dst << REINTERPRET::as_ordinary_view(TERMCOLOR::foreground(TERMCOLOR::Color::Red));
         // File name and line number message
         dst << "program paniked at " << std::quoted(file) << ":Ln" << line << std::endl;
         // User custom message
@@ -23,8 +25,8 @@ namespace yycc::rust::panic {
         // Stacktrace message if we support it.
         dst << "stacktrace: " << std::endl;
         dst << std::stacktrace::current() << std::endl;
-        // // Restore color
-        // dst << RESET;
+        // Restore color
+        dst << REINTERPRET::as_ordinary_view(TERMCOLOR::reset());;
 
         // Make sure all messages are flushed into screen.
         dst.flush();

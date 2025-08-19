@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
 #include <yycc/carton/wcwidth.hpp>
+#include <yycc/carton/termcolor.hpp>
 
 #define WCWDITH ::yycc::carton::wcwidth
+#define TERMCOLOR ::yycc::carton::termcolor
 
 namespace yycctest::carton::wcwidth {
 
@@ -43,10 +45,10 @@ namespace yycctest::carton::wcwidth {
     }
 
     TEST(CartonWcwdith, Termcolor) {
-        // TODO: Fix this after finish "termcolor".
-        // assert_eq!(wcswidth(&colored("abc", Color::Red, Default::default(), Default::default())), 3);
-        // assert_eq!(wcswidth(&colored("中文", Color::Red, Default::default(), Default::default())), 4);
-        // assert_eq!(wcswidth(&colored("ありがとう", Color::Red, Default::default(), Default::default())), 10);
+        using Color = TERMCOLOR::Color;
+        TEST_SUCCESS(TERMCOLOR::colored(u8"abc", Color::Red), 3);
+        TEST_SUCCESS(TERMCOLOR::colored(u8"中文", Color::Red), 4);
+        TEST_SUCCESS(TERMCOLOR::colored(u8"ありがとう", Color::Red), 10);
     }
 
 } // namespace yycctest::carton::wcwidth
