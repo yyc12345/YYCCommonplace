@@ -100,7 +100,9 @@ PUBLIC
     # OS macro
     $<$<PLATFORM_ID:Windows>:YYCC_OS_WINDOWS>
     $<$<PLATFORM_ID:Linux>:YYCC_OS_LINUX>
+    $<$<PLATFORM_ID:Android>:YYCC_OS_LINUX> # We brutally think Android as Linux.
     $<$<PLATFORM_ID:Darwin>:YYCC_OS_MACOS>
+    $<$<PLATFORM_ID:iOS>:YYCC_OS_MACOS> # We brutally think iOS as macOS.
     # Compiler macro
     $<$<CXX_COMPILER_ID:GNU>:YYCC_CC_GCC>
     $<$<CXX_COMPILER_ID:Clang>:YYCC_CC_CLANG>
@@ -132,15 +134,6 @@ PUBLIC
     # Resolve MSVC __cplusplus macro value error.
     $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>
 )
-
-# Fix GCC std::stacktrace link error
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
-        target_link_libraries(YYCCommonplace PRIVATE stdc++exp)
-    else ()
-        target_link_libraries(YYCCommonplace PRIVATE stdc++_libbacktrace)
-    endif ()
-endif ()
 
 # Install binary and headers
 install(TARGETS YYCCommonplace

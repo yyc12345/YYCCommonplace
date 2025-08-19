@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <cstdio>
 
 namespace yycc::patch::fopen {
 
