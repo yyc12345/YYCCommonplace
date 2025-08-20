@@ -152,8 +152,13 @@ namespace yycc::encoding::windows {
         // there is a bug that the second part of surrogate pair will be dropped in final string,
         // if there is a Unicode character located at the tail of string which need surrogate pair to be presented.
         static const char NULL_TERMINAL = '\0';
-        while (
-            size_t rc = std::mbrtoc16(&c16, (ptr < end ? ptr : &NULL_TERMINAL), (ptr < end ? end - ptr : sizeof(NULL_TERMINAL)), &state)) {
+        while (true) {
+            bool not_tail = ptr < end;
+            const char* new_ptr = not_tail ? ptr : &NULL_TERMINAL;
+            size_t new_size = not_tail ? end - ptr : sizeof(NULL_TERMINAL);
+            size_t rc = std::mbrtoc16(&c16, new_ptr, new_size, &state);
+            if (!rc) break;
+
             if (rc == (size_t) -1) return std::unexpected(ConvError::EncodeUtf8);
             else if (rc == (size_t) -2) return std::unexpected(ConvError::IncompleteUtf8);
             else if (rc == (size_t) -3) dst.push_back(c16); // from earlier surrogate pair
