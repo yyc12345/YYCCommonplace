@@ -300,6 +300,9 @@ StatementMacros:
   - YYCC_DEFAULT_COPY
   - YYCC_DEFAULT_MOVE
   - YYCC_DEFAULT_COPY_MOVE
+  - YYCC_DECL_COPY
+  - YYCC_DECL_MOVE
+  - YYCC_DECL_COPY_MOVE
 TableGenBreakInsideDAGArg: DontBreak
 TabWidth:        4
 UseTab:          Never

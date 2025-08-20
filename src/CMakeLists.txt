@@ -17,7 +17,7 @@ PRIVATE
     yycc/rust/panic.cpp
     yycc/rust/env.cpp
     yycc/windows/com.cpp
-    #yycc/windows/dialog.cpp
+    yycc/windows/dialog.cpp
     yycc/windows/winfct.cpp
     yycc/encoding/stl.cpp
     yycc/encoding/windows.cpp
@@ -61,7 +61,7 @@ FILES
     yycc/windows/import_guard_head.hpp
     yycc/windows/import_guard_tail.hpp
     yycc/windows/com.hpp
-    #yycc/windows/dialog.hpp
+    yycc/windows/dialog.hpp
     yycc/windows/winfct.hpp
     yycc/constraint.hpp
     yycc/constraint/builder.hpp

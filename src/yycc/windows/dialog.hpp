@@ -6,13 +6,18 @@
 #include "../macro/class_copy_move.hpp"
 #include "com.hpp"
 #include <string>
+#include <string_view>
 #include <vector>
 #include <initializer_list>
+#include <expected>
+#include <optional>
 
 #include "import_guard_head.hpp"
 #include <Windows.h>
 #include <shlobj_core.h>
 #include "import_guard_tail.hpp"
+
+#define NS_YYCC_WINDOWS_COM ::yycc::windows::com
 
 /**
  * @brief The namespace providing Windows universal dialog features.
@@ -22,39 +27,62 @@
 */
 namespace yycc::windows::dialog {
 
+    /// @brief The error occurs in this module.
+    enum class DialogError {
+        BadEncoding,     ///< Error occurs when perform encoding convertion.
+        TooManyFilters,  ///< The size of file filters list is too large for Windows.
+        IndexOverflow,   ///< Default filter index is too large for Windows.
+        IndexOutOfRange, ///< Default filter index is out of range of filters list.
+        NoSuchDir,       ///< Given initial directory path is invalid.
+        BadCOMCall,      ///< Some COM function calls failed.
+    };
+
+    /// @brief The result type used in this module.
+    template<typename T>
+    using DialogResult = std::expected<T, DialogError>;
+
     /**
      * @private
 	 * @brief The class representing the file types region in file dialog.
 	 * @details 
-	 * This class is served for Windows used. 
+	 * This class is private and served for Windows used. 
 	 * Programmer should \b not create this class manually.
 	*/
     class WinFileFilters {
         friend class FileFilters;
-        friend class WinFileDialog;
 
     public:
-        WinFileFilters() : m_WinFilters(), m_WinDataStruct(nullptr) {}
-        YYCC_DELETE_COPY_MOVE(WinFileFilters)
-
-        /// @brief Get the count of available file filters
-        UINT GetFilterCount() const { return static_cast<UINT>(m_WinFilters.size()); }
-        /// @brief Get pointer to Windows used file filters declarations
-        const COMDLG_FILTERSPEC* GetFilterSpecs() const { return m_WinDataStruct.get(); }
-
-    protected:
         using WinFilterModes = std::wstring;
         using WinFilterName = std::wstring;
         using WinFilterPair = std::pair<WinFilterName, WinFilterModes>;
 
-        std::vector<WinFilterPair> m_WinFilters;
-        std::unique_ptr<COMDLG_FILTERSPEC[]> m_WinDataStruct;
+    public:
+        WinFileFilters();
+        ~WinFileFilters();
+        YYCC_DECL_COPY_MOVE(WinFileFilters)
 
-        /// @brief Clear all current file filters
-        void Clear() {
-            m_WinDataStruct.reset();
-            m_WinFilters.clear();
-        }
+    public:
+        /**
+         * @brief Get the count of available file filters
+         * @return Count of file filters.
+         */
+        UINT get_filter_count() const;
+        /**
+         * @brief Get pointer to Windows used file filters declarations
+         * @return Pointer for Windows use.
+         */
+        const COMDLG_FILTERSPEC* get_filter_specs() const;
+
+    private:
+        /**
+         * @brief Update COMDLG_FILTERSPEC according to file filter list.
+         * @remarks Programmer \b MUST call this function after you modify m_WinFilters.
+         */
+        void update();
+
+    private:
+        std::vector<WinFilterPair> m_WinFilters;
+        std::vector<COMDLG_FILTERSPEC> m_WinDataStruct;
     };
 
     /**
@@ -62,52 +90,51 @@ namespace yycc::windows::dialog {
 	 * @details 
 	 * This class is served for programmer using.
 	 * But you don't need create it on your own.
-	 * You can simply fetch it by FileDialog::ConfigreFileTypes ,
+	 * You can simply fetch it by FileDialog::ConfigreFileTypes(),
 	 * because this class is a part of FileDialog.
 	*/
     class FileFilters {
     public:
-        FileFilters() : m_Filters() {}
-        YYCC_DELETE_COPY_MOVE(FileFilters)
+        using FilterModes = std::vector<std::u8string>;
+        using FilterName = std::u8string;
+        using FilterPair = std::pair<FilterName, FilterModes>;
 
+    public:
+        FileFilters();
+        ~FileFilters();
+        YYCC_DEFAULT_COPY_MOVE(FileFilters)
+
+    public:
         /**
 		 * @brief Add a filter pair in file types list.
 		 * @param[in] filter_name The friendly name of the filter.
 		 * @param[in] il 
 		 * A C++ initialize list containing acceptable file filter pattern.
-		 * Every entries must be `const yycc_char8_t*` representing a single filter pattern.
-		 * The list at least should have one valid pattern.
-		 * This function will not validate these filter patterns, so please write them carefully.
+		 * Every entries must be a string representing a single filter pattern.
+		 * This list at least should have one pattern.
 		 * @return True if added success, otherwise false.
-		 * @remarks
-		 * This function allow you register multiple filter patterns for single friendly name.
-		 * For example: <TT>Add(u8"Microsoft Word (*.doc; *.docx)", {u8"*.doc", u8"*.docx"})</TT>
+         * @warning This function will not validate the content of these filter patterns, so please write them carefully.
+         * @exception std::invalid_argument Given filtern name is blank, or filter patterns is empty.
 		*/
-        bool Add(const yycc_char8_t* filter_name, std::initializer_list<const yycc_char8_t*> il);
+        void add_filter(const std::u8string_view& filter_name, std::initializer_list<std::u8string_view> il);
         /**
-		 * @brief Get the count of added filter pairs.
-		 * @return The count of already added filter pairs.
-		*/
-        size_t Count() const { return m_Filters.size(); }
-
-        /// @brief Clear filter pairs for following re-use.
-        void Clear() { m_Filters.clear(); }
+         * @brief Get the count of added file filters.
+         * @return The count of added file filters.
+         */
+        size_t get_count() const;
+        /**
+         * @brief Clear filter pairs for following re-use.
+         */
+        void clear();
 
         /**
-		 * @brief Generate Windows dialog system used data struct.
-		 * @param[out] win_result The class receiving the generated filter data struct.
-		 * @return True if generation success, otherwise false.
-		 * @remarks 
-		 * Programmer should not call this function, 
-		 * this function is used as YYCC internal code.
-		*/
-        bool Generate(WinFileFilters& win_result) const;
+         * @private
+         * @brief Build Windows used file filters struct.
+         * @return Built Windows used struct, or error occurs.
+         */
+        DialogResult<WinFileFilters> to_windows() const;
 
-    protected:
-        using FilterModes = std::vector<std::u8string>;
-        using FilterName = std::u8string;
-        using FilterPair = std::pair<FilterName, FilterModes>;
-
+    private:
         std::vector<FilterPair> m_Filters;
     };
 
@@ -122,36 +149,33 @@ namespace yycc::windows::dialog {
         friend class FileDialog;
 
     public:
-        WinFileDialog() :
-            m_WinOwner(NULL), m_WinFileTypes(), m_WinDefaultFileTypeIndex(0u), m_HasTitle(false), m_HasInitFileName(false), m_WinTitle(),
-            m_WinInitFileName(), m_WinInitDirectory(nullptr) {}
-        YYCC_DELETE_COPY_MOVE(WinFileDialog)
+        WinFileDialog();
+        ~WinFileDialog();
+        YYCC_DECL_COPY(WinFileDialog)
+        YYCC_DEFAULT_MOVE(WinFileDialog)
 
         /// @brief Get whether this dialog has owner.
-        bool HasOwner() const { return m_WinOwner != NULL; }
+        bool has_owner() const;
         /// @brief Get the \c HWND of dialog owner.
-        HWND GetOwner() const { return m_WinOwner; }
-
-        /// @brief Get the struct holding Windows used file filters data.
-        const WinFileFilters& GetFileTypes() const { return m_WinFileTypes; }
-        /// @brief Get the index of default selected file filter.
-        UINT GetDefaultFileTypeIndex() const { return m_WinDefaultFileTypeIndex; }
-
+        HWND get_owner() const;
         /// @brief Get whether dialog has custom title.
-        bool HasTitle() const { return m_HasTitle; }
+        bool has_title() const;
         /// @brief Get custom title of dialog.
-        const wchar_t* GetTitle() const { return m_WinTitle.c_str(); }
+        const wchar_t* get_title() const;
         /// @brief Get whether dialog has custom initial file name.
-        bool HasInitFileName() const { return m_HasInitFileName; }
+        bool has_init_file_name() const;
         /// @brief Get custom initial file name of dialog
-        const wchar_t* GetInitFileName() const { return m_WinInitFileName.c_str(); }
-
+        const wchar_t* get_init_file_name() const;
         /// @brief Get whether dialog has custom initial directory.
-        bool HasInitDirectory() const { return m_WinInitDirectory.get() != nullptr; }
+        bool has_init_directory() const;
         /// @brief Get custom initial directory of dialog.
-        IShellItem* GetInitDirectory() const { return m_WinInitDirectory.get(); }
+        IShellItem* get_init_directory() const;
+        /// @brief Get the struct holding Windows used file filters data.
+        const WinFileFilters& get_file_types() const;
+        /// @brief Get the index of default selected file filter.
+        UINT get_default_file_type_index() const;
 
-    protected:
+    private:
         HWND m_WinOwner;
         WinFileFilters m_WinFileTypes;
         /**
@@ -162,20 +186,8 @@ namespace yycc::windows::dialog {
 		 * Because the same field located in FileDialog is 0-based index.
 		*/
         UINT m_WinDefaultFileTypeIndex;
-        bool m_HasTitle, m_HasInitFileName;
-        std::wstring m_WinTitle, m_WinInitFileName;
-        com::SmartIShellItem m_WinInitDirectory;
-
-        /// @brief Clear all data and reset them to default value.
-        void Clear() {
-            m_WinOwner = nullptr;
-            m_WinFileTypes.Clear();
-            m_WinDefaultFileTypeIndex = 0u;
-            m_HasTitle = m_HasInitFileName = false;
-            m_WinTitle.clear();
-            m_WinInitFileName.clear();
-            m_WinInitDirectory.reset();
-        }
+        std::optional<std::wstring> m_WinTitle, m_WinInitFileName;
+        NS_YYCC_WINDOWS_COM::SmartIShellItem m_WinInitDirectory;
     };
 
     /**
@@ -186,79 +198,71 @@ namespace yycc::windows::dialog {
 	*/
     class FileDialog {
     public:
-        FileDialog() :
-            m_Owner(NULL), m_FileTypes(), m_DefaultFileTypeIndex(0u), m_Title(), m_InitFileName(), m_InitDirectory(), m_HasTitle(false),
-            m_HasInitFileName(false), m_HasInitDirectory(false) {}
-        YYCC_DELETE_COPY_MOVE(FileDialog)
+        FileDialog();
+        ~FileDialog();
+        YYCC_DEFAULT_COPY_MOVE(FileDialog)
 
         /**
 		 * @brief Set the owner of dialog.
 		 * @param[in] owner The \c HWND pointing to the owner of dialog, or NULL to remove owner.
 		*/
-        void SetOwner(HWND owner) { m_Owner = owner; }
+        void set_owner(HWND owner);
         /**
 		 * @brief Set custom title of dialog
-		 * @param[in] title The string pointer to custom title, or nullptr to remove it.
+		 * @param[in] title The string pointer to custom title.
 		*/
-        void SetTitle(const yycc_char8_t* title) {
-            if (m_HasTitle = title != nullptr) m_Title = title;
-        }
+        void set_title(const std::u8string_view& title);
+        /**
+         * @brief Remove custom title of dialog (keep system default)
+         */
+        void unset_title();
+        /**
+		 * @brief Set the initial file name of dialog
+		 * @details If set, the file name will always be same one when opening dialog.
+		 * @param[in] init_filename String pointer to initial file name.
+		*/
+        void set_init_file_name(const std::u8string_view& init_filename);
+        /**
+         * @brief Remove custom initial file name of dialog (keep system default)
+         */
+        void unset_init_file_name();
+        /**
+		 * @brief Set the initial directory of dialog
+		 * @details If set, the opended directory will always be the same one when opening dialog
+		 * @param[in] init_dir String pointer to initial directory.
+		*/
+        void set_init_directory(const std::u8string_view& init_dir);
+        /**
+         * @brief Remove custom initial directory of dialog (keep system default)
+         */
+        void unset_init_directory();
         /**
 		 * @brief Fetch the struct describing file filters for future configuration.
 		 * @return The reference to the struct describing file filters.
 		*/
-        FileFilters& ConfigreFileTypes() { return m_FileTypes; }
+        FileFilters& configre_file_types();
         /**
 		 * @brief Set the index of default selected file filter.
 		 * @param[in] idx 
-		 * The index to default one.
+		 * The index to default file filter.
 		 * This must be a valid index in file filters.
 		*/
-        void SetDefaultFileTypeIndex(size_t idx) { m_DefaultFileTypeIndex = idx; }
+        void set_default_file_type_index(size_t idx);
         /**
-		 * @brief Set the initial file name of dialog
-		 * @details If set, the file name will always be same one when opening dialog.
-		 * @param[in] init_filename String pointer to initial file name, or nullptr to remove it.
-		*/
-        void SetInitFileName(const yycc_char8_t* init_filename) {
-            if (m_HasInitFileName = init_filename != nullptr) m_InitFileName = init_filename;
-        }
-        /**
-		 * @brief Set the initial directory of dialog
-		 * @details If set, the opended directory will always be the same one when opening dialog
-		 * @param[in] init_dir 
-		 * String pointer to initial directory.
-		 * Invalid path or nullptr will remove this feature.
-		*/
-        void SetInitDirectory(const yycc_char8_t* init_dir) {
-            if (m_HasInitDirectory = init_dir != nullptr) m_InitDirectory = init_dir;
-        }
-
-        /// @brief Clear file dialog parameters for following re-use.
-        void Clear() {
-            m_Owner = nullptr;
-            m_HasTitle = m_HasInitFileName = m_HasInitDirectory = false;
-            m_Title.clear();
-            m_InitFileName.clear();
-            m_InitDirectory.clear();
-            m_FileTypes.Clear();
-            m_DefaultFileTypeIndex = 0u;
-        }
+         * @brief Clear file dialog parameters for following re-use.
+         */
+        void clear();
 
         /**
-		 * @brief Generate Windows dialog system used data struct.
-		 * @param[out] win_result The class receiving the generated filter data struct.
-		 * @return True if generation is success, otherwise false.
-		 * @remarks 
-		 * Programmer should not call this function.
-		 * This function is used as YYCC internal code.
+         * @private
+		 * @brief Build Windows used dialog info struct.
+		 * @return Built Windows used struct, or error occurs.
 		*/
-        bool Generate(WinFileDialog& win_result) const;
+        DialogResult<WinFileDialog> to_windows() const;
 
     protected:
         HWND m_Owner;
-        bool m_HasTitle, m_HasInitFileName, m_HasInitDirectory;
-        std::u8string m_Title, m_InitFileName, m_InitDirectory;
+        std::optional<std::u8string> m_Title, m_InitFileName, m_InitDirectory;
         FileFilters m_FileTypes;
         /**
 		 * @brief The default selected file type in dialog
@@ -271,34 +275,42 @@ namespace yycc::windows::dialog {
     };
 
     /**
+     * @brief The result after user close the dialog.
+     * @details
+     * It is an alias to \c std::optional.
+     * If it do not have value, it means that user click "Cancel" button.
+     * otherwise it contain a value that user selected in dialog.
+     */
+    template<typename T>
+    using DialogOutcome = std::optional<T>;
+
+    /**
 	 * @brief Open the dialog which order user select single file to open.
 	 * @param[in] params The configuration of dialog.
-	 * @param[out] ret Full path to user selected file.
-	 * @return False if user calcel the operation or something went wrong, otherwise true.
+	 * @return Full path to user selected file, or nothing (click "Cancel"), or error occurs.
 	*/
-    bool OpenFileDialog(const FileDialog& params, std::u8string& ret);
+    DialogResult<DialogOutcome<std::u8string>> open_file(const FileDialog& params);
     /**
 	 * @brief Open the dialog which order user select multiple file to open.
 	 * @param[in] params The configuration of dialog.
-	 * @param[out] ret The list of full path of user selected files.
-	 * @return False if user calcel the operation or something went wrong, otherwise true.
+	 * @return The list of full path of user selected files, or nothing (click "Cancel"), or error occurs.
 	*/
-    bool OpenMultipleFileDialog(const FileDialog& params, std::vector<std::u8string>& ret);
+    DialogResult<DialogOutcome<std::vector<std::u8string>>> open_files(const FileDialog& params);
     /**
 	 * @brief Open the dialog which order user select single file to save.
 	 * @param[in] params The configuration of dialog.
-	 * @param[out] ret Full path to user selected file.
-	 * @return False if user calcel the operation or something went wrong, otherwise true.
+	 * @return Full path to user selected file, or nothing (click "Cancel"), or error occurs.
 	*/
-    bool SaveFileDialog(const FileDialog& params, std::u8string& ret);
+    DialogResult<DialogOutcome<std::u8string>> save_file(const FileDialog& params);
     /**
 	 * @brief Open the dialog which order user select single directory to open.
 	 * @param[in] params The configuration of dialog.
-	 * @param[out] ret Full path to user selected directory.
-	 * @return False if user calcel the operation or something went wrong, otherwise true.
+	 * @return Full path to user selected directory, or nothing (click "Cancel"), or error occurs.
 	*/
-    bool OpenFolderDialog(const FileDialog& params, std::u8string& ret);
+    DialogResult<DialogOutcome<std::u8string>> open_folder(const FileDialog& params);
 
 }
+
+#undef NS_YYCC_WINDOWS_COM
 
 #endif
