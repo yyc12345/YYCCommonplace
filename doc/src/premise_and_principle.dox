@@ -35,4 +35,13 @@ Due to the limitation of \c std::format, we only can use ordinary string as its 
 For the compatibility with C++ standard library exception,
 we only can use ordinary string as the message of exception.
 
+\section premise_and_principle__cmake All in CMake
+
+Since YYCC 2.0 version, we do not provide MSVC install layout.
+Any projects use this project should use CMake or CMake-compatible software as its build system.
+
+The reason why we make this decision is that some essential contents are written in CMake files.
+For example, some environment detection macros and Windows environment patches.
+If you do not use CMake, these contents will not be presented in project and cause bad behavior when using this project.
+
 */

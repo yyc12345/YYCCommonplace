@@ -27,9 +27,10 @@ def escape_sh_argument(arg):
 
 @dataclass(frozen=True)
 class ScriptSettings:
+    pic: bool
     cpp_version: str
     build_doc: bool
-    pic: bool
+    build_testbench: bool
 
 class TemplateRender:
     loader: jinja2.BaseLoader
@@ -86,7 +87,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-d', '--build-doc',
         action='store_true', dest='build_doc',
-        help='Build YYCC without documentation.'
+        help='Build YYCC with documentation.'
     )
     parser.add_argument(
         '-p', '--pic',
