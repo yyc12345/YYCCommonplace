@@ -7,94 +7,6 @@ namespace Console = YYCC::ConsoleHelper;
 
 namespace YYCCTestbench {
 
-#pragma region Unicode Test Data
-
-	// UNICODE Test Strings
-	// Ref: https://stackoverflow.com/questions/478201/how-to-test-an-application-for-correct-encoding-e-g-utf-8
-#define TEST_UNICODE_STR_JAPAN "\u30E6\u30FC\u30B6\u30FC\u5225\u30B5\u30A4\u30C8"
-#define TEST_UNICODE_STR_CHINA "\u7B80\u4F53\u4E2D\u6587"
-#define TEST_UNICODE_STR_KOREA "\uD06C\uB85C\uC2A4 \uD50C\uB7AB\uD3FC\uC73C\uB85C"
-#define TEST_UNICODE_STR_ISRAEL "\u05DE\u05D3\u05D5\u05E8\u05D9\u05DD \u05DE\u05D1\u05D5\u05E7\u05E9\u05D9\u05DD"
-#define TEST_UNICODE_STR_EGYPT "\u0623\u0641\u0636\u0644 \u0627\u0644\u0628\u062D\u0648\u062B"
-#define TEST_UNICODE_STR_GREECE "\u03A3\u1F72 \u03B3\u03BD\u03C9\u03C1\u03AF\u03B6\u03C9 \u1F00\u03C0\u1F78"
-#define TEST_UNICODE_STR_RUSSIA "\u0414\u0435\u0441\u044F\u0442\u0443\u044E \u041C\u0435\u0436\u0434\u0443\u043D\u0430\u0440\u043E\u0434\u043D\u0443\u044E"
-#define TEST_UNICODE_STR_THAILAND "\u0E41\u0E1C\u0E48\u0E19\u0E14\u0E34\u0E19\u0E2E\u0E31\u0E48\u0E19\u0E40\u0E2A\u0E37\u0E48\u0E2D\u0E21\u0E42\u0E17\u0E23\u0E21\u0E41\u0E2A\u0E19\u0E2A\u0E31\u0E07\u0E40\u0E27\u0E0A"
-#define TEST_UNICODE_STR_FRANCE "fran\u00E7ais langue \u00E9trang\u00E8re"
-#define TEST_UNICODE_STR_SPAIN "ma\u00F1ana ol\u00E9"
-#define TEST_UNICODE_STR_MATHMATICS "\u222E E\u22C5da = Q,  n \u2192 \u221E, \u2211 f(i) = \u220F g(i)"
-#define TEST_UNICODE_STR_EMOJI "\U0001F363 \u2716 \U0001F37A" // sushi x beer mug
-
-#define CONCAT(prefix, strl) prefix ## strl
-#define CPP_U8_LITERAL(strl) YYCC_U8(strl)
-#define CPP_U16_LITERAL(strl) CONCAT(u, strl)
-#define CPP_U32_LITERAL(strl) CONCAT(U, strl)
-#define CPP_WSTR_LITERAL(strl) CONCAT(L, strl)
-
-	static std::vector<YYCC::yycc_u8string> c_UTF8TestStrTable {
-		CPP_U8_LITERAL(TEST_UNICODE_STR_JAPAN),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_CHINA),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_KOREA),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_ISRAEL),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_EGYPT),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_GREECE),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_RUSSIA),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_THAILAND),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_FRANCE),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_SPAIN),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_MATHMATICS),
-		CPP_U8_LITERAL(TEST_UNICODE_STR_EMOJI),
-	};
-	static std::vector<std::wstring> c_WStrTestStrTable {
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_JAPAN),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_CHINA),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_KOREA),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_ISRAEL),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_EGYPT),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_GREECE),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_RUSSIA),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_THAILAND),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_FRANCE),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_SPAIN),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_MATHMATICS),
-		CPP_WSTR_LITERAL(TEST_UNICODE_STR_EMOJI),
-	};
-	static std::vector<std::u16string> c_UTF16TestStrTable {
-		CPP_U16_LITERAL(TEST_UNICODE_STR_JAPAN),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_CHINA),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_KOREA),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_ISRAEL),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_EGYPT),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_GREECE),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_RUSSIA),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_THAILAND),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_FRANCE),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_SPAIN),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_MATHMATICS),
-		CPP_U16_LITERAL(TEST_UNICODE_STR_EMOJI),
-	};
-	static std::vector<std::u32string> c_UTF32TestStrTable {
-		CPP_U32_LITERAL(TEST_UNICODE_STR_JAPAN),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_CHINA),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_KOREA),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_ISRAEL),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_EGYPT),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_GREECE),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_RUSSIA),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_THAILAND),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_FRANCE),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_SPAIN),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_MATHMATICS),
-		CPP_U32_LITERAL(TEST_UNICODE_STR_EMOJI),
-	};
-
-#undef CPP_WSTR_LITERAL
-#undef CPP_U32_LITERAL
-#undef CPP_U16_LITERAL
-#undef CPP_U8_LITERAL
-#undef CONCAT
-
-#pragma endregion
-
 	static void Assert(bool condition, const YYCC::yycc_char8_t* description) {
 		if (condition) {
 			Console::FormatLine(YYCC_U8(YYCC_COLOR_LIGHT_GREEN("OK: %s")), description);
@@ -105,24 +17,6 @@ namespace YYCCTestbench {
 	}
 
 	static void ConsoleTestbench() {
-		// Color Test
-		Console::EnableColorfulConsole();
-		Console::WriteLine(YYCC_U8("Color Test:"));
-
-#define TEST_MACRO(col) Console::WriteLine(YYCC_U8("\t" YYCC_COLOR_ ## col ("\u2588\u2588") YYCC_COLOR_LIGHT_ ## col("\u2588\u2588") " " #col " / LIGHT " #col ));
-		// U+2588 is full block
-
-		TEST_MACRO(BLACK);
-		TEST_MACRO(RED);
-		TEST_MACRO(GREEN);
-		TEST_MACRO(YELLOW);
-		TEST_MACRO(BLUE);
-		TEST_MACRO(MAGENTA);
-		TEST_MACRO(CYAN);
-		TEST_MACRO(WHITE);
-
-#undef TEST_MACRO
-
 		// UTF8 Output Test
 		Console::WriteLine(YYCC_U8("UTF8 Output Test:"));
 		for (const auto& strl : c_UTF8TestStrTable) {
@@ -140,40 +34,6 @@ namespace YYCCTestbench {
 			else Console::FormatLine(YYCC_U8(YYCC_COLOR_LIGHT_RED("\tNOT Matched! Got: %s")), gotten.c_str());
 		}
 
-	}
-
-	static void DialogTestbench() {
-#if defined(YYCC_OS_WINDOWS)
-
-		YYCC::yycc_u8string ret;
-		std::vector<YYCC::yycc_u8string> rets;
-
-		YYCC::DialogHelper::FileDialog params;
-		auto& filters = params.ConfigreFileTypes();
-		filters.Add(YYCC_U8("Microsoft Word (*.docx; *.doc)"), { YYCC_U8("*.docx"), YYCC_U8("*.doc") });
-		filters.Add(YYCC_U8("Microsoft Excel (*.xlsx; *.xls)"), { YYCC_U8("*.xlsx"), YYCC_U8("*.xls") });
-		filters.Add(YYCC_U8("Microsoft PowerPoint (*.pptx; *.ppt)"), { YYCC_U8("*.pptx"), YYCC_U8("*.ppt") });
-		filters.Add(YYCC_U8("Text File (*.txt)"), { YYCC_U8("*.txt") });
-		filters.Add(YYCC_U8("All Files (*.*)"), { YYCC_U8("*.*") });
-		params.SetDefaultFileTypeIndex(0u);
-		if (YYCC::DialogHelper::OpenFileDialog(params, ret)) {
-			Console::FormatLine(YYCC_U8("Open File: %s"), ret.c_str());
-		}
-		if (YYCC::DialogHelper::OpenMultipleFileDialog(params, rets)) {
-			Console::WriteLine(YYCC_U8("Open Multiple Files:"));
-			for (const auto& item : rets) {
-				Console::FormatLine(YYCC_U8("\t%s"), item.c_str());
-			}
-		}
-		if (YYCC::DialogHelper::SaveFileDialog(params, ret)) {
-			Console::FormatLine(YYCC_U8("Save File: %s"), ret.c_str());
-		}
-		params.Clear();
-		if (YYCC::DialogHelper::OpenFolderDialog(params, ret)) {
-			Console::FormatLine(YYCC_U8("Open Folder: %s"), ret.c_str());
-		}
-
-#endif
 	}
 
 	static void ExceptionTestbench() {
@@ -208,72 +68,6 @@ namespace YYCCTestbench {
 		YYCC::ExceptionHelper::Unregister();
 
 #endif
-	}
-
-	static void WinFctTestbench() {
-#if defined(YYCC_OS_WINDOWS)
-
-		HMODULE test_current_module;
-		Assert((test_current_module = YYCC::WinFctHelper::GetCurrentModule()) != nullptr, YYCC_U8("YYCC::WinFctHelper::GetCurrentModule"));
-		Console::FormatLine(YYCC_U8("Current Module HANDLE: 0x%" PRI_XPTR_LEFT_PADDING PRIXPTR), test_current_module);
-
-		YYCC::yycc_u8string test_temp;
-		Assert(YYCC::WinFctHelper::GetTempDirectory(test_temp), YYCC_U8("YYCC::WinFctHelper::GetTempDirectory"));
-		Console::FormatLine(YYCC_U8("Temp Directory: %s"), test_temp.c_str());
-
-		YYCC::yycc_u8string test_module_name;
-		Assert(YYCC::WinFctHelper::GetModuleFileName(YYCC::WinFctHelper::GetCurrentModule(), test_module_name), YYCC_U8("YYCC::WinFctHelper::GetModuleFileName"));
-		Console::FormatLine(YYCC_U8("Current Module File Name: %s"), test_module_name.c_str());
-
-		YYCC::yycc_u8string test_localappdata_path;
-		Assert(YYCC::WinFctHelper::GetLocalAppData(test_localappdata_path), YYCC_U8("YYCC::WinFctHelper::GetLocalAppData"));
-		Console::FormatLine(YYCC_U8("Local AppData: %s"), test_localappdata_path.c_str());
-
-		Assert(YYCC::WinFctHelper::IsValidCodePage(static_cast<UINT>(1252)), YYCC_U8("YYCC::WinFctHelper::IsValidCodePage"));
-		Assert(!YYCC::WinFctHelper::IsValidCodePage(static_cast<UINT>(114514)), YYCC_U8("YYCC::WinFctHelper::IsValidCodePage"));
-
-		// MARK: There is no testbench for MoveFile, CopyFile DeleteFile.
-		// Because they can operate file system files.
-		// And may cause test environment entering unstable status.
-
-#endif
-	}
-
-	static void StdPatchTestbench() {
-
-		// Std Path
-
-		std::filesystem::path test_path;
-		for (const auto& strl : c_UTF8TestStrTable) {
-			test_path /= YYCC::StdPatch::ToStdPath(strl);
-		}
-		YYCC::yycc_u8string test_slashed_path(YYCC::StdPatch::ToUTF8Path(test_path));
-
-#if defined(YYCC_OS_WINDOWS)
-		std::wstring wdelimiter(1u, std::filesystem::path::preferred_separator);
-		YYCC::yycc_u8string delimiter(YYCC::EncodingHelper::WcharToUTF8(wdelimiter));
-#else
-		YYCC::yycc_u8string delimiter(1u, std::filesystem::path::preferred_separator);
-#endif
-		YYCC::yycc_u8string test_joined_path(YYCC::StringHelper::Join(c_UTF8TestStrTable.begin(), c_UTF8TestStrTable.end(), delimiter));
-
-		Assert(test_slashed_path == test_joined_path, YYCC_U8("YYCC::StdPatch::ToStdPath, YYCC::StdPatch::ToUTF8Path"));
-
-		// StartsWith, EndsWith
-		YYCC::yycc_u8string test_starts_ends_with(YYCC_U8("aaabbbccc"));
-		Assert(YYCC::StdPatch::StartsWith(test_starts_ends_with, YYCC_U8("aaa")), YYCC_U8("YYCC::StdPatch::StartsWith"));
-		Assert(!YYCC::StdPatch::StartsWith(test_starts_ends_with, YYCC_U8("ccc")), YYCC_U8("YYCC::StdPatch::StartsWith"));
-		Assert(!YYCC::StdPatch::EndsWith(test_starts_ends_with, YYCC_U8("aaa")), YYCC_U8("YYCC::StdPatch::EndsWith"));
-		Assert(YYCC::StdPatch::EndsWith(test_starts_ends_with, YYCC_U8("ccc")), YYCC_U8("YYCC::StdPatch::EndsWith"));
-
-		// Contains
-		std::set<int> test_set { 1, 2, 3, 4, 6, 7 };
-		Assert(YYCC::StdPatch::Contains(test_set, static_cast<int>(1)), YYCC_U8("YYCC::StdPatch::Contains"));
-		Assert(!YYCC::StdPatch::Contains(test_set, static_cast<int>(5)), YYCC_U8("YYCC::StdPatch::Contains"));
-		std::map<int, float> test_map { { 1, 1.0f }, { 4, 4.0f } };
-		Assert(YYCC::StdPatch::Contains(test_map, static_cast<int>(1)), YYCC_U8("YYCC::StdPatch::Contains"));
-		Assert(!YYCC::StdPatch::Contains(test_map, static_cast<int>(5)), YYCC_U8("YYCC::StdPatch::Contains"));
-
 	}
 
 	enum class TestEnum : int8_t {

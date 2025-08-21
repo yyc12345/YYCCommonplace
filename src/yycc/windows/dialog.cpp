@@ -70,8 +70,8 @@ namespace yycc::windows::dialog {
         // Assign data one by one
         for (auto i = 0; i < n; ++i) {
             // Fetch item
-            const auto& filter = m_WinFilters[n];
-            auto& data_struct = m_WinDataStruct[n];
+            const auto& filter = m_WinFilters[i];
+            auto& data_struct = m_WinDataStruct[i];
             // Assign pointer
             data_struct.pszName = filter.first.c_str();
             data_struct.pszSpec = filter.second.c_str();
@@ -151,6 +151,8 @@ namespace yycc::windows::dialog {
         rv.update();
 
         // okey, return value
+        // please note that we do not check whether this list is empty in there.
+        // this was done in generic_file_dialog() function.
         return rv;
     }
 
@@ -337,10 +339,6 @@ namespace yycc::windows::dialog {
         else rv.m_WinFileTypes = std::move(win_file_types.value());
 
         // check and assign default file type index
-        // check whether it is out of filters range
-        if (m_DefaultFileTypeIndex >= m_FileTypes.get_count()) {
-            return std::unexpected(DialogError::IndexOutOfRange);
-        }
         // check whether it can be safely casted into UINT.
         auto win_def_index_base0 = SAFECAST::try_to<UINT>(m_DefaultFileTypeIndex);
         if (!win_def_index_base0.has_value()) {
@@ -351,7 +349,9 @@ namespace yycc::windows::dialog {
         if (!win_def_index.has_value()) {
             return std::unexpected(DialogError::IndexOverflow);
         }
-        // okey, assign it
+        // okey, assign it.
+        // please note we do not check the relation between this variable and file filters.
+        // this was done in generic_file_dialog() function.
         rv.m_WinDefaultFileTypeIndex = win_def_index.value();
 
         // everything is okey
@@ -485,11 +485,21 @@ namespace yycc::windows::dialog {
 
         // set file types and default file index when we picking file
         if constexpr (EDialogType != GenericFileDialogType::OpenFolder) {
-            // set file types list
+            // fetch file filters
             const auto& file_filters = win_params.get_file_types();
+
+            // first, check whether file filters is empty
+            if (file_filters.get_filter_count() == 0) {
+                return std::unexpected(DialogError::EmptyFilters);
+            }
+            // then validate index
+            if (win_params.get_default_file_type_index() > file_filters.get_filter_count()) {
+                return std::unexpected(DialogError::IndexOutOfRange);
+            }
+
+            // set file types list
             hr = pfd->SetFileTypes(file_filters.get_filter_count(), file_filters.get_filter_specs());
             if (FAILED(hr)) return BAD_COM_CALL;
-
             // set default file type index
             hr = pfd->SetFileTypeIndex(win_params.get_default_file_type_index());
             if (FAILED(hr)) return BAD_COM_CALL;
@@ -578,7 +588,7 @@ namespace yycc::windows::dialog {
             if (inner.has_value()) {
                 const auto& vec = inner.value();
                 if (vec.size() != 1u) throw std::logic_error("return value doesn't contain exactly one item");
-                else return std::move(vec.front());
+                else return vec.front();
             } else {
                 return std::nullopt;
             }

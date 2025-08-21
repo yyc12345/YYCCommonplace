@@ -32,6 +32,7 @@ namespace yycc::windows::dialog {
         BadEncoding,     ///< Error occurs when perform encoding convertion.
         TooManyFilters,  ///< The size of file filters list is too large for Windows.
         IndexOverflow,   ///< Default filter index is too large for Windows.
+        EmptyFilters,    ///< File filters is empty when picking file.
         IndexOutOfRange, ///< Default filter index is out of range of filters list.
         NoSuchDir,       ///< Given initial directory path is invalid.
         BadCOMCall,      ///< Some COM function calls failed.
