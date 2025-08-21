@@ -365,11 +365,11 @@ namespace yycc::windows::dialog {
     enum class GenericFileDialogType { OpenFile, OpenFiles, SaveFile, OpenFolder };
 
     /**
-	 * @brief Extract display name from given IShellItem*.
-	 * @param[in] item The pointer to IShellItem for extracting.
-	 * @return Extract display name, or error occurs.
-	 * @remarks This is an assist function of generic_file_dialog().
-	*/
+     * @brief Extract display name from given IShellItem*.
+     * @param[in] item The pointer to IShellItem for extracting.
+     * @return Extract display name, or error occurs.
+     * @remarks This is an assist function of generic_file_dialog().
+    */
     static DialogResult<std::u8string> extract_display_name(IShellItem* item) {
         // fetch display name from IShellItem*
         LPWSTR display_name_ptr;
@@ -382,14 +382,14 @@ namespace yycc::windows::dialog {
     }
 
     /**
-	 * @brief Generic file dialog.
+     * @brief Generic file dialog.
      * @details This function is the real underlying function of all dialog functions.
-	 * @param[in] params User specified parameter controlling the behavior of this file dialog, including title, file types and etc.
-	 * @return
+     * @param[in] params User specified parameter controlling the behavior of this file dialog, including title, file types and etc.
+     * @return
      * The full path to user selected files or folders.
-	 * For multiple selection, the count of items >= 1. For others, the count of item must be 1.
+     * For multiple selection, the count of items >= 1. For others, the count of item must be 1.
      * Or nothing (click "Cancel"), or error occurs.
-	*/
+    */
     template<GenericFileDialogType EDialogType>
     static DialogResult<DialogOutcome<std::vector<std::u8string>>> generic_file_dialog(const FileDialog& params) {
         // Reference: https://learn.microsoft.com/en-us/windows/win32/shell/common-file-dialog
