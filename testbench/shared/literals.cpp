@@ -157,7 +157,7 @@ namespace yyccshared::literals {
 
 #pragma region OtherLiterals Data
 
-    std::vector<OtherLiteral> OTHERLIT_OTHERSTR_VEC{{"\xC4\xE3\xBA\xC3\xD6\xD0\xB9\xFA", UINT32_C(936), "GBK", u8"gbk"}};
+    static std::vector<OtherLiteral> OTHERLIT_OTHERSTR_VEC{{"\xC4\xE3\xBA\xC3\xD6\xD0\xB9\xFA", UINT32_C(936), "GBK", u8"gbk"}};
 
 #define OTHER_STR_GBK "\u4f60\u597d\u4e2d\u56fd"
 

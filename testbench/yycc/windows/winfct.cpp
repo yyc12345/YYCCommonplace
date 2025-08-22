@@ -26,9 +26,10 @@ namespace yycctest::windows::winfct {
     }
 
     TEST(WindowsWinFct, IsValidCodePage) {
+        // Test valid code page
         EXPECT_TRUE(WINFCT::is_valid_code_page(437));
         EXPECT_TRUE(WINFCT::is_valid_code_page(65001));
-
+        // This code page must be invalid
         EXPECT_FALSE(WINFCT::is_valid_code_page(6161));
     }
 
