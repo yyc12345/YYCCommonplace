@@ -20,6 +20,7 @@ PRIVATE
     yycc/windows/com.cpp
     yycc/windows/dialog.cpp
     yycc/windows/winfct.cpp
+    yycc/windows/console.cpp
     yycc/encoding/stl.cpp
     yycc/encoding/windows.cpp
     yycc/encoding/iconv.cpp
@@ -65,6 +66,7 @@ FILES
     yycc/windows/com.hpp
     yycc/windows/dialog.hpp
     yycc/windows/winfct.hpp
+    yycc/windows/console.hpp
     yycc/constraint.hpp
     yycc/constraint/builder.hpp
     yycc/encoding/stl.hpp

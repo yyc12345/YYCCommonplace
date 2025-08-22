@@ -33,6 +33,7 @@ PRIVATE
     yycc/windows/com.cpp
     yycc/windows/dialog.cpp
     yycc/windows/winfct.cpp
+    yycc/windows/console.cpp
     
     yycc/carton/pycodec.cpp
     yycc/carton/termcolor.cpp

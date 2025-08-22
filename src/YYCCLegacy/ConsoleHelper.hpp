@@ -12,16 +12,6 @@
 namespace YYCC::ConsoleHelper {
 
 	/**
-	 * @brief Enable console color support for Windows.
-	 * @details This actually is enable virtual console feature for \c stdout and \c stderr.
-	 * @return True if success, otherwise false.
-	 * @remarks 
-	 * This function only works on Windows and do nothing on other platforms such as Linux,
-	 * because we assume all terminals existing on other platform support color feature as default.
-	*/
-	bool EnableColorfulConsole();
-
-	/**
 	 * @brief Reads the next line of UTF8 characters from the standard input stream.
 	 * @return
 	 * The next line of UTF8 characters from the input stream.

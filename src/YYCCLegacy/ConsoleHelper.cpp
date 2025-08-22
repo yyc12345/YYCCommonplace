@@ -18,19 +18,6 @@ namespace YYCC::ConsoleHelper {
 #pragma region Windows Specific Functions
 #if defined(YYCC_OS_WINDOWS)
 
-	static bool RawEnableColorfulConsole(FILE* fs) {
-		if (!_isatty(_fileno(fs))) return false;
-
-		HANDLE h_output;
-		DWORD dw_mode;
-
-		h_output = (HANDLE)_get_osfhandle(_fileno(fs));
-		if (!GetConsoleMode(h_output, &dw_mode)) return false;
-		if (!SetConsoleMode(h_output, dw_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT)) return false;
-
-		return true;
-	}
-
 	/*
 	Reference:
 	* https://stackoverflow.com/questions/45575863/how-to-print-utf-8-strings-to-stdcout-on-windows
@@ -159,22 +146,6 @@ namespace YYCC::ConsoleHelper {
 
 #endif
 #pragma endregion
-
-	bool EnableColorfulConsole() {
-#if defined(YYCC_OS_WINDOWS)
-
-		bool ret = true;
-		ret &= RawEnableColorfulConsole(stdout);
-		ret &= RawEnableColorfulConsole(stderr);
-		return ret;
-
-#else
-
-		// just return true and do nothing
-		return true;
-
-#endif
-	}
 
 	yycc_u8string ReadLine() {
 #if defined(YYCC_OS_WINDOWS)
