@@ -29,6 +29,7 @@ PRIVATE
     yycc/carton/termcolor.cpp
     yycc/carton/wcwidth.cpp
     yycc/carton/tabulate.cpp
+    yycc/carton/csconsole.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -77,6 +78,7 @@ FILES
     yycc/carton/termcolor.hpp
     yycc/carton/wcwidth.hpp
     yycc/carton/tabulate.hpp
+    yycc/carton/csconsole.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace
