@@ -13,6 +13,7 @@ PRIVATE
     # Sources
     yycc/string/reinterpret.cpp
     yycc/string/op.cpp
+    yycc/string/stream.cpp
     yycc/patch/fopen.cpp
     yycc/rust/panic.cpp
     yycc/rust/env.cpp
@@ -45,6 +46,7 @@ FILES
     yycc/flag_enum.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp
+    yycc/string/stream.hpp
     yycc/patch/ptr_pad.hpp
     yycc/patch/fopen.hpp
     yycc/num/parse.hpp

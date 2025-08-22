@@ -19,8 +19,9 @@ PRIVATE
     yycc/patch/ptr_pad.cpp
     yycc/patch/fopen.cpp
     yycc/rust/env.cpp
-    yycc/string/op.cpp
     yycc/string/reinterpret.cpp
+    yycc/string/op.cpp
+    yycc/string/stream.cpp
     yycc/num/parse.cpp
     yycc/num/stringify.cpp
     yycc/num/op.cpp
