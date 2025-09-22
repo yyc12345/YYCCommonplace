@@ -29,7 +29,6 @@ namespace yycc::windows::dialog {
 
     /// @brief The error occurs in this module.
     enum class DialogError {
-        BadEncoding,     ///< Error occurs when perform encoding convertion.
         TooManyFilters,  ///< The size of file filters list is too large for Windows.
         IndexOverflow,   ///< Default filter index is too large for Windows.
         EmptyFilters,    ///< File filters is empty when picking file.
@@ -310,7 +309,7 @@ namespace yycc::windows::dialog {
     */
     DialogResult<DialogOutcome<std::u8string>> open_folder(const FileDialog& params);
 
-}
+} // namespace yycc::windows::dialog
 
 #undef NS_YYCC_WINDOWS_COM
 

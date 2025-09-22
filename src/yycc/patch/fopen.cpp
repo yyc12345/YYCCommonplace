@@ -18,19 +18,9 @@ namespace yycc::patch::fopen {
 
     std::FILE* fopen(const char8_t* u8_filepath, const char8_t* u8_mode) {
 #if defined(YYCC_OS_WINDOWS)
-        // convert mode and file path to wchar
-        auto wmode = ENC::to_wchar(u8_mode);
-        auto wpath = ENC::to_wchar(u8_filepath);
-
-        // check convertion success
-        if (wmode.has_value() && wpath.has_value()) {
-            // Call MSVCRT specified fopen which support wchar as argument.
-            // Reference: https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-170
-            return _wfopen(wpath.value().c_str(), wmode.value().c_str());
-        } else {
-            // fail to convert encoding
-            return nullptr;
-        }
+        // Convert encoding first, and call MSVCRT specified fopen which support wchar as argument.
+        // Reference: https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fopen-wfopen?view=msvc-170
+        return _wfopen(ENC::to_wchar(u8_filepath).value().c_str(), ENC::to_wchar(u8_mode).value().c_str());
 #else
         return std::fopen(REINTERPRET::as_ordinary(u8_filepath), REINTERPRET::as_ordinary(u8_mode));
 #endif

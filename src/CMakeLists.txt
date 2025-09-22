@@ -31,6 +31,7 @@ PRIVATE
     yycc/carton/tabulate.cpp
     yycc/carton/ironpad.cpp
     yycc/carton/csconsole.cpp
+    #yycc/carton/clap/option.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -46,6 +47,7 @@ FILES
     yycc/macro/compiler_detector.hpp
     yycc/macro/ptr_size_detector.hpp
     yycc/macro/class_copy_move.hpp
+    yycc/macro/printf_checker.hpp
     yycc/flag_enum.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp
@@ -81,6 +83,9 @@ FILES
     yycc/carton/tabulate.hpp
     yycc/carton/ironpad.hpp
     yycc/carton/csconsole.hpp
+    yycc/carton/clap.hpp
+    yycc/carton/clap/types.hpp
+    yycc/carton/clap/option.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace

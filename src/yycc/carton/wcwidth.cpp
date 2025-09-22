@@ -468,11 +468,8 @@ namespace yycc::carton::wcwidth {
     }
 
     Result<size_t> wcswidth(const std::u8string_view& rhs) {
-        // Cast encoding
-        auto u32str = ENC::to_utf32(rhs);
-        if (!u32str.has_value()) return std::unexpected(Error::BadEncoding);
-        // Call underlying function
-        return wcswidth(u32str.value());
+        // Cast encoding and call underlying function
+        return wcswidth(ENC::to_utf32(rhs).value());
     }
 
 } // namespace yycc::carton::wcwidth

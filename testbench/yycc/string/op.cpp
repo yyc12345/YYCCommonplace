@@ -10,8 +10,16 @@ using namespace std::literals::string_view_literals;
 namespace yycctest::string::op {
 
     TEST(StringOp, Printf) {
-        auto rv = OP::printf(u8"%s == %s", u8"Hello World", u8"Hello, world");
-        EXPECT_EQ(rv, u8"Hello World == Hello, world");
+        // UTF8 string
+        {
+            auto rv = OP::printf(u8"%s == %s", u8"Hello World", u8"Hello, world");
+            EXPECT_EQ(rv, u8"Hello World == Hello, world");
+        }
+        // Ordinary string
+        {
+            auto rv = OP::printf("%s == %s", "Hello World", "Hello, world");
+            EXPECT_EQ(rv, "Hello World == Hello, world");
+        }
     }
 
     TEST(StringOp, Replace) {

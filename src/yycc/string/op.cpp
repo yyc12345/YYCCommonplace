@@ -1,18 +1,20 @@
 #include "op.hpp"
+#include <type_traits>
 #include <algorithm>
+#include <stdexcept>
 
 namespace yycc::string::op {
 
 #pragma region Printf VPrintf
 
+    /// @brief The concept for all viable char type in printf function family
     template<typename TChar>
-        requires(sizeof(TChar) == sizeof(char))
-    static FormatResult<std::basic_string<TChar>> generic_printf(const TChar* format, va_list argptr) {
+    concept PrintfSupportedChar = std::is_same_v<TChar, char> || std::is_same_v<TChar, char8_t>;
+
+    template<PrintfSupportedChar TChar>
+    static std::basic_string<TChar> generic_printf(const TChar* format, va_list argptr) {
         // Prepare result
         std::basic_string<TChar> rv;
-
-        // Check format
-        if (format == nullptr) return std::unexpected(FormatError::NullFormat);
 
         // Prepare variable arguments
         va_list args1;
@@ -21,12 +23,13 @@ namespace yycc::string::op {
         va_copy(args2, argptr);
 
         // The return value is desired char count without NULL terminal.
-        // Minus number means error.
+        // Negative number means error.
         int count = std::vsnprintf(nullptr, 0, reinterpret_cast<const char*>(format), args1);
         // Check expected size.
         if (count < 0) {
             // Invalid length returned by vsnprintf.
-            return std::unexpected(FormatError::NoDesiredSize);
+            // This may be caused by invalid format string
+            throw std::logic_error("fail to determine the size of formatted string");
         }
         va_end(args1);
 
@@ -39,14 +42,15 @@ namespace yycc::string::op {
         // Check written size.
         if (write_result < 0 || write_result > count) {
             // Invalid write result in vsnprintf.
-            return std::unexpected(FormatError::BadWrittenSize);
+            // Idk why this can happen.
+            throw std::logic_error("the size of written formatted string is not expected");
         }
 
         // Return value
         return rv;
     }
 
-    FormatResult<std::u8string> printf(const char8_t* format, ...) {
+    std::u8string printf(const char8_t* format, ...) {
         va_list argptr;
         va_start(argptr, format);
         auto rv = vprintf(format, argptr);
@@ -54,11 +58,11 @@ namespace yycc::string::op {
         return rv;
     }
 
-    FormatResult<std::u8string> vprintf(const char8_t* format, va_list argptr) {
+    std::u8string vprintf(const char8_t* format, va_list argptr) {
         return generic_printf(format, argptr);
     }
 
-    FormatResult<std::string> printf(const char* format, ...) {
+    std::string printf(const char* format, ...) {
         va_list argptr;
         va_start(argptr, format);
         auto rv = vprintf(format, argptr);
@@ -66,7 +70,7 @@ namespace yycc::string::op {
         return rv;
     }
 
-    FormatResult<std::string> vprintf(const char* format, va_list argptr) {
+    std::string vprintf(const char* format, va_list argptr) {
         return generic_printf(format, argptr);
     }
 

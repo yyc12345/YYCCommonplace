@@ -108,9 +108,7 @@ namespace yycc::carton::csconsole {
         if (GetConsoleMode(hStdOut, &dwConsoleMode)) {
             // console handle, use WriteConsoleW.
             // convert utf8 string to wide char first
-            auto rv = ENC::to_wchar(strl);
-            if (!rv.has_value()) return;
-            std::wstring wstrl(std::move(rv.value()));
+            std::wstring wstrl = ENC::to_wchar(strl).value();
             size_t wstrl_size = wstrl.size();
             // write string with size check
             if (wstrl_size <= std::numeric_limits<DWORD>::max()) {
@@ -171,11 +169,8 @@ namespace yycc::carton::csconsole {
             // treat as format string
             va_list argcpy;
             va_copy(argcpy, argptr);
-            auto rv = OP::vprintf(u8_fmt, argcpy);
+            strl = OP::vprintf(u8_fmt, argcpy);
             va_end(argcpy);
-            // check format result
-            if (!rv.has_value()) return;
-            else strl = std::move(rv.value());
         } else {
             // treat as plain string
             strl = u8_fmt;

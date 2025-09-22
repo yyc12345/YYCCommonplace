@@ -39,6 +39,7 @@ PRIVATE
     yycc/carton/termcolor.cpp
     yycc/carton/wcwidth.cpp
     yycc/carton/tabulate.cpp
+    yycc/carton/clap.cpp
 )
 target_sources(YYCCTestbench
 PRIVATE

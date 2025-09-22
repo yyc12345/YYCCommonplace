@@ -25,10 +25,7 @@ namespace yycc::rust::env {
 #if defined(YYCC_OS_WINDOWS)
         // Reference: https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getenvironmentvariablew
         // Convert to wchar
-        auto wname = ENC::to_wchar(name);
-        if (!wname.has_value()) {
-            return std::unexpected(EnvError::BadEncoding);
-        }
+        auto wname = ENC::to_wchar(name).value();
 
         // Prepare a variable with proper init size for holding value.
         std::wstring wvalue;
@@ -42,7 +39,7 @@ namespace yycc::rust::env {
             // So we forcely use checked add and sub for this bad behavior.
             auto fct_size = SAFEOP::checked_add<size_t>(wvalue.size(), 1);
             if (!fct_size.has_value()) return std::unexpected(EnvError::BadArithmetic);
-            auto rv = ::GetEnvironmentVariableW(wname.value().c_str(), wvalue.data(), fct_size.value());
+            auto rv = ::GetEnvironmentVariableW(wname.c_str(), wvalue.data(), fct_size.value());
 
             // Check the return value
             if (rv == 0) {
@@ -95,20 +92,10 @@ namespace yycc::rust::env {
 #if defined(YYCC_OS_WINDOWS)
         // Reference: https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-setenvironmentvariablew
 
-        // Convert to wchar
-        auto wname = ENC::to_wchar(name);
-        auto wvalue = ENC::to_wchar(value);
-        if (!(wname.has_value() && wvalue.has_value())) {
-            return std::unexpected(EnvError::BadEncoding);
-        }
-
-        // Delete variable and check result.
-        auto rv = ::SetEnvironmentVariableW(wname.value().c_str(), wvalue.value().c_str());
-        if (!rv) {
-            return std::unexpected(EnvError::BadCall);
-        }
-
-        return {};
+        // Convert to wchar, set variable, and check result.
+        auto rv = ::SetEnvironmentVariableW(ENC::to_wchar(name).value().c_str(), ENC::to_wchar(value).value().c_str());
+        if (!rv) return std::unexpected(EnvError::BadCall);
+        else return {};
 #else
         // Reference: https://pubs.opengroup.org/onlinepubs/9699919799/functions/setenv.html
 
@@ -129,19 +116,10 @@ namespace yycc::rust::env {
 #if defined(YYCC_OS_WINDOWS)
         // Reference: https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-setenvironmentvariablew
 
-        // Convert to wchar
-        auto wname = ENC::to_wchar(name);
-        if (!wname.has_value()) {
-            return std::unexpected(EnvError::BadEncoding);
-        }
-
-        // Delete variable and check result.
-        auto rv = ::SetEnvironmentVariableW(wname.value().c_str(), NULL);
-        if (!rv) {
-            return std::unexpected(EnvError::BadCall);
-        }
-
-        return {};
+        // Convert to wchar, delete variable, and check result.
+        auto rv = ::SetEnvironmentVariableW(ENC::to_wchar(name).value().c_str(), NULL);
+        if (!rv) return std::unexpected(EnvError::BadCall);
+        else return {};
 #else
         // Reference: https://pubs.opengroup.org/onlinepubs/9699919799/functions/unsetenv.html
 

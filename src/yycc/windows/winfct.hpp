@@ -15,8 +15,7 @@ namespace yycc::windows::winfct {
 
     /// @brief All errors occur in this module.
     enum class WinFctError {
-        Backend,  ///< Error occurs when calling Win32 functions.
-        Encoding, ///< Can not perform encoding convertion.
+        Win32,  ///< Error occurs when calling Win32 functions.
         NoCom,    ///< No COM environment.
     };
 

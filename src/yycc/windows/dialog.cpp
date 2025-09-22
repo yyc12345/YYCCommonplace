@@ -130,21 +130,15 @@ namespace yycc::windows::dialog {
         // build new Windows oriented string vector
         for (const auto& item : m_Filters) {
             // convert name to wchar
-            auto win_name = ENC::to_wchar(item.first);
-            if (!win_name.has_value()) {
-                return std::unexpected(DialogError::BadEncoding);
-            }
+            auto win_name = ENC::to_wchar(item.first).value();
 
             // join pattern string and convert to wchar
             const auto& modes = item.second;
             auto joined_modes = OP::join(modes.begin(), modes.end(), u8";");
-            auto win_modes = ENC::to_wchar(joined_modes);
-            if (!win_modes.has_value()) {
-                return std::unexpected(DialogError::BadEncoding);
-            }
+            auto win_modes = ENC::to_wchar(joined_modes).value();
 
             // append this pair
-            rv.m_WinFilters.emplace_back(std::make_pair(win_name.value(), win_modes.value()));
+            rv.m_WinFilters.emplace_back(std::make_pair(win_name, win_modes));
         }
 
         // update data struct
@@ -305,28 +299,21 @@ namespace yycc::windows::dialog {
 
         // build title and init file name
         if (m_Title.has_value()) {
-            auto win_title = ENC::to_wchar(m_Title.value());
-            if (!win_title.has_value()) return std::unexpected(DialogError::BadEncoding);
-            else rv.m_WinTitle = win_title.value();
+            rv.m_WinTitle = ENC::to_wchar(m_Title.value()).value();
         } else rv.m_WinTitle = std::nullopt;
         if (m_InitFileName.has_value()) {
-            auto win_init_file_name = ENC::to_wchar(m_InitFileName.value());
-            if (!win_init_file_name.has_value()) return std::unexpected(DialogError::BadEncoding);
-            else rv.m_WinInitFileName = win_init_file_name.value();
+            rv.m_WinInitFileName = ENC::to_wchar(m_InitFileName.value()).value();
         } else rv.m_WinInitFileName = std::nullopt;
 
         // fetch init directory
         if (m_InitDirectory.has_value()) {
             // convert to wchar path
-            auto w_init_dir = ENC::to_wchar(m_InitDirectory.value());
-            if (!w_init_dir.has_value()) {
-                return std::unexpected(DialogError::BadEncoding);
-            }
+            auto w_init_dir = ENC::to_wchar(m_InitDirectory.value()).value();
 
             // fetch IShellItem*
             // Ref: https://stackoverflow.com/questions/76306324/how-to-set-default-folder-for-ifileopendialog-interface
             IShellItem* init_directory = NULL;
-            HRESULT hr = SHCreateItemFromParsingName(w_init_dir.value().c_str(), NULL, IID_PPV_ARGS(&init_directory));
+            HRESULT hr = SHCreateItemFromParsingName(w_init_dir.c_str(), NULL, IID_PPV_ARGS(&init_directory));
             if (FAILED(hr)) return std::unexpected(DialogError::NoSuchDir);
 
             // assign IShellItem*
@@ -378,7 +365,7 @@ namespace yycc::windows::dialog {
         WINCOM::SmartLPWSTR display_name(display_name_ptr);
 
         // convert result and return
-        return ENC::to_utf8(display_name.get()).transform_error([](auto err) { return DialogError::BadEncoding; });
+        return ENC::to_utf8(display_name.get()).value();
     }
 
     /**

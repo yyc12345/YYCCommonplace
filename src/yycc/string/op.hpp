@@ -1,50 +1,41 @@
 #pragma once
+#include "../macro/printf_checker.hpp"
 #include <string>
 #include <string_view>
 #include <cstdarg>
 #include <functional>
 #include <vector>
-#include <expected>
 
 namespace yycc::string::op {
 
-    enum class FormatError {
-        NullFormat,     ///< Given format string is nullptr.
-        NoDesiredSize,  ///< Fail to fetch the expected size of result.
-        BadWrittenSize, ///< The written size is different with expected size.
-    };
-
-    template<typename T>
-    using FormatResult = std::expected<T, FormatError>;
-
     /**
      * @brief Perform an UTF8 string formatting operation.
      * @param[in] format The format string.
      * @param[in] ... Argument list of format string.
-     * @return The formatted result, or the fail reason.
+     * @return The formatted result.
     */
-    FormatResult<std::u8string> printf(const char8_t* format, ...);
+    std::u8string printf(YYCC_PRINTF_CHECK_FMTSTR const char8_t* format, ...) YYCC_PRINTF_CHECK_ATTR(1, 2);
     /**
      * @brief Perform an UTF8 string formatting operation.
      * @param[in] format The format string.
      * @param[in] argptr Argument list of format string.
-     * @return The formatted result, or the fail reason.
+     * @return The formatted result.
     */
-    FormatResult<std::u8string> vprintf(const char8_t* format, va_list argptr);
+    std::u8string vprintf(const char8_t* format, va_list argptr);
     /**
      * @brief Perform an ordinary string formatting operation.
      * @param[in] format The format string.
      * @param[in] ... Argument list of format string.
-     * @return The formatted result, or the fail reason.
+     * @return The formatted result.
     */
-    FormatResult<std::string> printf(const char* format, ...);
+    std::string printf(YYCC_PRINTF_CHECK_FMTSTR const char* format, ...) YYCC_PRINTF_CHECK_ATTR(1, 2);
     /**
      * @brief Perform an ordinary string formatting operation.
      * @param[in] format The format string.
      * @param[in] argptr Argument list of format string.
-     * @return The formatted result, or the fail reason.
+     * @return The formatted result.
     */
-    FormatResult<std::string> vprintf(const char* format, va_list argptr);
+    std::string vprintf(const char* format, va_list argptr);
 
     /**
 	 * @brief Modify given string with all occurrences of substring \e old replaced by \e new.

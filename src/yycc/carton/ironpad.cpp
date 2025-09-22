@@ -63,11 +63,9 @@ namespace yycc::carton::ironpad {
             // check singleton
             // build mutex string first
             auto mutex_name = OP::printf(u8"Global\\%" PRIu32 ".{61634294-d23c-43f9-8490-b5e09837eede}", GetCurrentProcessId());
-            if (!mutex_name.has_value()) return false;
-            auto w_mutex_name = ENC::to_wchar(mutex_name.value());
-            if (!w_mutex_name.has_value()) return false;
+            auto wmutex_name = ENC::to_wchar(mutex_name).value();
             // create mutex
-            m_SingletonMutex = CreateMutexW(NULL, FALSE, w_mutex_name.value().c_str());
+            m_SingletonMutex = CreateMutexW(NULL, FALSE, wmutex_name.c_str());
             DWORD errcode = GetLastError();
             // check whether be created
             if (m_SingletonMutex == NULL) return false;
@@ -303,18 +301,17 @@ namespace yycc::carton::ironpad {
             DWORD process_id = GetCurrentProcessId();
             // conbine them as a file name prefix
             auto u8_filename_prefix = OP::printf(u8"%s.%" PRIu32, u8_process_name.c_str(), process_id);
-            if (!u8_filename_prefix.has_value()) return std::nullopt;
             // then get file name for log and minidump
             std::u8string u8_filename;
             switch (kind) {
                 case FileKind::LogFile:
-                    u8_filename = u8_filename_prefix.value() + u8".log";
+                    u8_filename = u8_filename_prefix + u8".log";
                     break;
                 case FileKind::CoredumpFile:
-                    u8_filename = u8_filename_prefix.value() + u8".dmp";
+                    u8_filename = u8_filename_prefix + u8".dmp";
                     break;
                 default:
-                    u8_filename = u8_filename_prefix.value();
+                    u8_filename = u8_filename_prefix;
                     break;
             }
 
@@ -451,11 +448,9 @@ namespace yycc::carton::ironpad {
          * @details This function will write coredump of given exception into given file path.
          */
         void do_coredump(const std::u8string_view& u8_filename, LPEXCEPTION_POINTERS info) {
-            // convert file encoding
-            // if convertion failed, return
-            auto filename_rv = ENC::to_wchar(u8_filename);
-            if (!filename_rv.has_value()) return;
-            std::wstring filename = filename_rv.value();
+            // convert file encoding.
+            // it must be okey.
+            auto filename = ENC::to_wchar(u8_filename).value();
 
             // open file and write
             HANDLE hFile = CreateFileW(filename.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -554,15 +549,11 @@ namespace yycc::carton::ironpad {
 	     * @param[in] ... The argument to be formatted.
 	    */
         void log_format_line(std::FILE* fs, const char8_t* fmt, ...) {
-            // do format first
+            // write to file and console
             va_list arg;
             va_start(arg, fmt);
-            auto fmt_rv = OP::vprintf(fmt, arg);
+            log_write_line(fs, OP::vprintf(fmt, arg).c_str());
             va_end(arg);
-            // write to file and console
-            if (fmt_rv.has_value()) {
-                log_write_line(fs, fmt_rv.value().c_str());
-            }
         }
     };
 

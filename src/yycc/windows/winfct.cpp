@@ -21,7 +21,7 @@ namespace yycc::windows::winfct {
                                        (LPCWSTR) get_current_module,
                                        &hModule);
         if (rv) return hModule;
-        else return std::unexpected(WinFctError::Backend);
+        else return std::unexpected(WinFctError::Win32);
     }
 
     WinFctResult<std::u8string> get_temp_directory() {
@@ -33,7 +33,7 @@ namespace yycc::windows::winfct {
         while (true) {
             if ((expected_size = ::GetTempPathW(static_cast<DWORD>(wpath.size()), wpath.data())) == 0) {
                 // failed, return
-                return std::unexpected(WinFctError::Backend);
+                return std::unexpected(WinFctError::Win32);
             }
 
             if (expected_size > static_cast<DWORD>(wpath.size())) {
@@ -47,7 +47,7 @@ namespace yycc::windows::winfct {
         }
 
         // convert to utf8 and return
-        return ENC::to_utf8(wpath).transform_error([](auto err) { return WinFctError::Encoding; });
+        return ENC::to_utf8(wpath).value();
     }
 
     WinFctResult<std::u8string> get_module_file_name(HINSTANCE hModule) {
@@ -58,7 +58,7 @@ namespace yycc::windows::winfct {
         while (true) {
             if ((copied_size = ::GetModuleFileNameW(hModule, wpath.data(), static_cast<DWORD>(wpath.size()))) == 0) {
                 // failed, return
-                return std::unexpected(WinFctError::Backend);
+                return std::unexpected(WinFctError::Win32);
             }
 
             // check insufficient buffer
@@ -73,7 +73,7 @@ namespace yycc::windows::winfct {
         }
 
         // convert to utf8 and return
-        return ENC::to_utf8(wpath).transform_error([](auto err) { return WinFctError::Encoding; });
+        return ENC::to_utf8(wpath).value();
     }
 
     bool is_valid_code_page(UINT code_page) {
@@ -82,41 +82,32 @@ namespace yycc::windows::winfct {
     }
 
     WinFctResult<void> copy_file(const std::u8string_view& lpExistingFileName, const std::u8string_view& lpNewFileName, BOOL bFailIfExists) {
-        auto wExistingFileName = ENC::to_wchar(lpExistingFileName);
-        auto wNewFileName = ENC::to_wchar(lpNewFileName);
-        if (!(wExistingFileName.has_value() && wNewFileName.has_value())) {
-            return std::unexpected(WinFctError::Encoding);
-        }
+        auto wExistingFileName = ENC::to_wchar(lpExistingFileName).value();
+        auto wNewFileName = ENC::to_wchar(lpNewFileName).value();
 
-        if (!::CopyFileW(wExistingFileName.value().c_str(), wNewFileName.value().c_str(), bFailIfExists)) {
-            return std::unexpected(WinFctError::Backend);
+        if (!::CopyFileW(wExistingFileName.c_str(), wNewFileName.c_str(), bFailIfExists)) {
+            return std::unexpected(WinFctError::Win32);
         }
 
         return {};
     }
 
     WinFctResult<void> move_file(const std::u8string_view& lpExistingFileName, const std::u8string_view& lpNewFileName) {
-        auto wExistingFileName = ENC::to_wchar(lpExistingFileName);
-        auto wNewFileName = ENC::to_wchar(lpNewFileName);
-        if (!(wExistingFileName.has_value() && wNewFileName.has_value())) {
-            return std::unexpected(WinFctError::Encoding);
-        }
+        auto wExistingFileName = ENC::to_wchar(lpExistingFileName).value();
+        auto wNewFileName = ENC::to_wchar(lpNewFileName).value();
 
-        if (!::MoveFileW(wExistingFileName.value().c_str(), wNewFileName.value().c_str())) {
-            return std::unexpected(WinFctError::Backend);
+        if (!::MoveFileW(wExistingFileName.c_str(), wNewFileName.c_str())) {
+            return std::unexpected(WinFctError::Win32);
         }
 
         return {};
     }
 
     WinFctResult<void> delete_file(const std::u8string_view& lpFileName) {
-        auto wFileName = ENC::to_wchar(lpFileName);
-        if (!wFileName.has_value()) {
-            return std::unexpected(WinFctError::Encoding);
-        }
+        auto wFileName = ENC::to_wchar(lpFileName).value();
 
-        if (!::DeleteFileW(wFileName.value().c_str())) {
-            return std::unexpected(WinFctError::Backend);
+        if (!::DeleteFileW(wFileName.c_str())) {
+            return std::unexpected(WinFctError::Win32);
         }
 
         return {};
@@ -144,11 +135,11 @@ namespace yycc::windows::winfct {
         // fetch path
         LPWSTR raw_known_path;
         HRESULT hr = SHGetKnownFolderPath(*pId, KF_FLAG_CREATE, NULL, &raw_known_path);
-        if (FAILED(hr)) return std::unexpected(WinFctError::Backend);
+        if (FAILED(hr)) return std::unexpected(WinFctError::Win32);
         COM::SmartLPWSTR known_path(raw_known_path);
 
         // convert to utf8 and return
-        return ENC::to_utf8(known_path.get()).transform_error([](auto err) { return WinFctError::Encoding; });
+        return ENC::to_utf8(known_path.get()).value();
     }
 
 #endif

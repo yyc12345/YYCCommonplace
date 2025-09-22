@@ -31,7 +31,6 @@ namespace yycc::carton::wcwidth {
 
     /// @brief Error occurs in this module
     enum class Error {
-        BadEncoding,   ///< Given
         BadAnsiEscSeq, ///< Bad char when processing ANSI Escape Sequence
         BadCsiSeq,     ///< Bad char when processing CSI Sequence.
     };
