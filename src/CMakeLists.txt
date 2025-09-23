@@ -31,7 +31,8 @@ PRIVATE
     yycc/carton/tabulate.cpp
     yycc/carton/ironpad.cpp
     yycc/carton/csconsole.cpp
-    #yycc/carton/clap/option.cpp
+    yycc/carton/clap/option.cpp
+    yycc/carton/clap/variable.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -86,6 +87,7 @@ FILES
     yycc/carton/clap.hpp
     yycc/carton/clap/types.hpp
     yycc/carton/clap/option.hpp
+    yycc/carton/clap/variable.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace
