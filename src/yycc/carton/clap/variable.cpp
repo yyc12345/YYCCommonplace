@@ -1,4 +1,5 @@
 #include "variable.hpp"
+#include "../../string/format.hpp"
 #include <stdexcept>
 #include <format>
 

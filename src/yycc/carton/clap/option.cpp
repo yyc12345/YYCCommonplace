@@ -1,5 +1,6 @@
 #include "option.hpp"
 #include "../../string/op.hpp"
+#include "../../string/format.hpp"
 #include <stdexcept>
 #include <format>
 
@@ -117,7 +118,8 @@ namespace yycc::carton::clap::option {
         if (short_name.has_value()) {
             std::u8string short_name_value(short_name.value());
             if (this->long_names.contains(short_name_value)) {
-                throw std::logic_error(std::format("short name {} is duplicated with same long name", short_name_value));
+                throw std::logic_error(
+                    std::format("short name {} is duplicated with same long name", short_name_value));
             }
             auto [_, ok] = this->short_names.try_emplace(short_name_value, token);
             if (!ok) {
@@ -128,7 +130,8 @@ namespace yycc::carton::clap::option {
         if (long_name.has_value()) {
             std::u8string long_name_value(long_name.value());
             if (this->short_names.contains(long_name_value)) {
-                throw std::logic_error(std::format("long name {} is duplicated with same short name", long_name_value));
+                throw std::logic_error(
+                    std::format("long name {} is duplicated with same short name", long_name_value));
             }
             auto [_, ok] = this->long_names.try_emplace(long_name_value, token);
             if (!ok) {
