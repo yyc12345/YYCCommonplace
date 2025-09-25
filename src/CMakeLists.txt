@@ -13,8 +13,8 @@ PRIVATE
     # Sources
     yycc/string/reinterpret.cpp
     yycc/string/op.cpp
-    yycc/string/stream.cpp
     yycc/patch/fopen.cpp
+    yycc/patch/stream.cpp
     yycc/rust/panic.cpp
     yycc/rust/env.cpp
     yycc/windows/com.cpp
@@ -31,10 +31,11 @@ PRIVATE
     yycc/carton/tabulate.cpp
     yycc/carton/ironpad.cpp
     yycc/carton/csconsole.cpp
-    yycc/carton/clap/option.cpp
-    yycc/carton/clap/variable.cpp
-    yycc/carton/clap/summary.cpp
-    yycc/carton/clap/application.cpp
+    #yycc/carton/clap/option.cpp
+    #yycc/carton/clap/variable.cpp
+    #yycc/carton/clap/summary.cpp
+    #yycc/carton/clap/application.cpp
+    #yycc/carton/clap/manual.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -54,10 +55,10 @@ FILES
     yycc/flag_enum.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp
-    yycc/string/stream.hpp
-    yycc/string/format.hpp
     yycc/patch/ptr_pad.hpp
     yycc/patch/fopen.hpp
+    yycc/patch/stream.hpp
+    yycc/patch/format.hpp
     yycc/num/parse.hpp
     yycc/num/stringify.hpp
     yycc/num/safe_cast.hpp
@@ -93,6 +94,7 @@ FILES
     yycc/carton/clap/variable.hpp
     yycc/carton/clap/summary.hpp
     yycc/carton/clap/application.hpp
+    yycc/carton/clap/manual.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace

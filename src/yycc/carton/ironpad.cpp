@@ -82,6 +82,8 @@ namespace yycc::carton::ironpad {
             m_UserCallback = callback;
             // mark registered
             m_IsRegistered = true;
+
+            return true;
         }
         /**
 		 * @brief Try to unregister unhandled exception handler.

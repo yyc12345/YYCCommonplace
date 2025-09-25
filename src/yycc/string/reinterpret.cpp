@@ -2,6 +2,9 @@
 
 namespace yycc::string::reinterpret {
 
+    char8_t as_utf8(const char& src) {
+        return static_cast<char8_t>(src);
+    }
     const char8_t* as_utf8(const char* src) {
         return reinterpret_cast<const char8_t*>(src);
     }
@@ -15,6 +18,9 @@ namespace yycc::string::reinterpret {
         return std::u8string_view(reinterpret_cast<const char8_t*>(src.data()), src.size());
     }
 
+    char as_ordinary(char8_t src) {
+        return static_cast<char>(src);
+    }
     const char* as_ordinary(const char8_t* src) {
         return reinterpret_cast<const char*>(src);
     }

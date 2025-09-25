@@ -8,14 +8,45 @@
  * By including this file directly, you will have abilities that use UTF8 string as argument in \c std::format with \c char char type.
 */
 #pragma once
-#include "reinterpret.hpp"
+#include "../string/reinterpret.hpp"
 #include <format>
 #include <string>
 #include <string_view>
 
 #define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
 
+#pragma region Utf8 Format
+
+namespace yycc::patch::format {
+
+    // TODO: order all use of std::format redirect to this function.
+
+    template<class... Args>
+    std::string format(std::format_string<Args...> fmt, Args&&... args) {
+        return std::vformat(fmt.get(), std::make_format_args(args...));
+    }
+
+    template<class... Args>
+    std::u8string format(const std::u8string_view& fmt, Args&&... args) {
+        return NS_YYCC_STRING_REINTERPRET::as_utf8(
+            std::vformat(NS_YYCC_STRING_REINTERPRET::as_ordinary_view(fmt), std::make_format_args(args...)));
+    }
+
+} // namespace yycc::patch::format
+
+#pragma endregion
+
 #pragma region Utf8 Formatter
+
+// Add std::formatter specialization for "char8_t"
+template<>
+struct std::formatter<char8_t, char> {
+    constexpr auto parse(auto& ctx) { return underlying_formatter.parse(ctx); }
+    auto format(const char8_t& str, auto& ctx) const { return underlying_formatter.format(NS_YYCC_STRING_REINTERPRET::as_ordinary(str), ctx); }
+
+private:
+    std::formatter<char, char> underlying_formatter{};
+};
 
 // Add std::formatter specialization for "char8_t*"
 template<>
@@ -43,7 +74,9 @@ private:
 template<std::size_t N>
 struct std::formatter<char8_t[N], char> {
     constexpr auto parse(auto& ctx) { return underlying_formatter.parse(ctx); }
-    auto format(const char8_t (&str)[N], auto& ctx) const { return underlying_formatter.format(std::basic_string_view<char>(str, N), ctx); }
+    auto format(const char8_t (&str)[N], auto& ctx) const {
+        return underlying_formatter.format(std::basic_string_view<char>(NS_YYCC_STRING_REINTERPRET::as_ordinary(str), N - 1), ctx);
+    }
 
 private:
     std::formatter<std::basic_string_view<char>, char> underlying_formatter{};

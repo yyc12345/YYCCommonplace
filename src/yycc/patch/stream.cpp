@@ -1,9 +1,9 @@
 #include "stream.hpp"
-#include "reinterpret.hpp"
+#include "../string/reinterpret.hpp"
 
 #define REINTERPRET ::yycc::string::reinterpret
 
-namespace yycc::string::stream {
+namespace yycc::patch::stream {
 
     std::ostream& operator<<(std::ostream& os, const std::u8string_view& u8str) {
         os << REINTERPRET::as_ordinary_view(u8str);

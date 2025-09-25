@@ -18,10 +18,11 @@ PRIVATE
     yycc/constraint/builder.cpp
     yycc/patch/ptr_pad.cpp
     yycc/patch/fopen.cpp
+    yycc/patch/stream.cpp
+    yycc/patch/format.cpp
     yycc/rust/env.cpp
     yycc/string/reinterpret.cpp
     yycc/string/op.cpp
-    yycc/string/stream.cpp
     yycc/num/parse.cpp
     yycc/num/stringify.cpp
     yycc/num/op.cpp

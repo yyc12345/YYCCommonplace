@@ -2,6 +2,7 @@
 #include "summary.hpp"
 #include "option.hpp"
 #include "variable.hpp"
+#include "../../macro/class_copy_move.hpp"
 
 #define NS_YYCC_CLAP ::yycc::carton::clap
 
