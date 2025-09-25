@@ -20,6 +20,7 @@
 namespace yycc::patch::format {
 
     // TODO: order all use of std::format redirect to this function.
+    // TODO: all use of OP::printf should also switch to this function if possible.
 
     template<class... Args>
     std::string format(std::format_string<Args...> fmt, Args&&... args) {

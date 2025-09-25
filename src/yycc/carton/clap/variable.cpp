@@ -1,9 +1,9 @@
 #include "variable.hpp"
 #include "../../patch/format.hpp"
 #include <stdexcept>
-#include <format>
 
 #define TYPES ::yycc::carton::clap::types
+#define FORMAT ::yycc::patch::format
 
 namespace yycc::carton::clap::variable {
 
@@ -55,7 +55,7 @@ namespace yycc::carton::clap::variable {
         std::u8string name(var.get_name());
         auto [_, ok] = this->names.try_emplace(name, token);
         if (!ok) {
-            throw std::logic_error(std::format("duplicated variable name {}", name));
+            throw std::logic_error(FORMAT::format("duplicated variable name {}", name));
         }
 
         this->variables.emplace_back(RegisteredVariable(token, std::move(var)));

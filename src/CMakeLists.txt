@@ -31,11 +31,11 @@ PRIVATE
     yycc/carton/tabulate.cpp
     yycc/carton/ironpad.cpp
     yycc/carton/csconsole.cpp
-    #yycc/carton/clap/option.cpp
-    #yycc/carton/clap/variable.cpp
-    #yycc/carton/clap/summary.cpp
-    #yycc/carton/clap/application.cpp
-    #yycc/carton/clap/manual.cpp
+    yycc/carton/clap/option.cpp
+    yycc/carton/clap/variable.cpp
+    yycc/carton/clap/summary.cpp
+    yycc/carton/clap/application.cpp
+    yycc/carton/clap/manual.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC

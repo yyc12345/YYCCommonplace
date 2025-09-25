@@ -8,6 +8,7 @@ namespace yycc::carton::clap::summary {
     class Summary {
     public:
         Summary(const std::u8string_view& name,
+                const std::u8string_view& bin_name,
                 const std::u8string_view& author,
                 const std::u8string_view& version,
                 const std::u8string_view& description);
@@ -16,12 +17,13 @@ namespace yycc::carton::clap::summary {
 
     public:
         std::u8string_view get_name() const;
+        std::u8string_view get_bin_name() const;
         std::u8string_view get_author() const;
         std::u8string_view get_version() const;
         std::u8string_view get_description() const;
 
     private:
-        std::u8string name, author, version, description;
+        std::u8string name, bin_name, author, version, description;
     };
 
 }

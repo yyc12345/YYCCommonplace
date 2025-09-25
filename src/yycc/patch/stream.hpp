@@ -10,6 +10,8 @@
  */
 namespace yycc::patch::stream {
 
+    // TODO: replace all old way of outputing utf8 string with this new way.
+
     std::ostream& operator<<(std::ostream& os, const std::u8string_view& u8str);
     std::ostream& operator<<(std::ostream& os, const char8_t* u8str);
     std::ostream& operator<<(std::ostream& os, char8_t u8chr);

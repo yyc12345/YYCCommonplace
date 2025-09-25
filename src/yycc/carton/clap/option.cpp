@@ -1,11 +1,9 @@
 #include "option.hpp"
-#include "../../string/op.hpp"
 #include "../../patch/format.hpp"
 #include <stdexcept>
-#include <format>
 
 #define TYPES ::yycc::carton::clap::types
-#define OP ::yycc::string::op
+#define FORMAT ::yycc::patch::format
 
 namespace yycc::carton::clap::option {
 
@@ -23,13 +21,13 @@ namespace yycc::carton::clap::option {
         if (short_name.has_value()) {
             const auto& short_name_value = short_name.value();
             if (!legal_short_name(short_name_value)) {
-                throw std::logic_error(std::format("invalid short name {}", short_name_value));
+                throw std::logic_error(FORMAT::format("invalid short name {}", short_name_value));
             }
         }
         if (long_name.has_value()) {
             const auto& long_name_value = long_name.value();
             if (!legal_long_name(long_name_value)) {
-                throw std::logic_error(std::format("invalid long name {}", long_name_value));
+                throw std::logic_error(FORMAT::format("invalid long name {}", long_name_value));
             }
         }
     }
@@ -55,13 +53,13 @@ namespace yycc::carton::clap::option {
     std::u8string Option::to_showcase_name() const {
         if (short_name.has_value()) {
             if (long_name.has_value()) {
-                return OP::printf(u8"%s%s %s%s", TYPES::DASH, short_name.value().c_str(), TYPES::DOUBLE_DASH, long_name.value().c_str());
+                return FORMAT::format(u8"{}{} {}{}", TYPES::DASH, short_name.value(), TYPES::DOUBLE_DASH, long_name.value());
             } else {
-                return OP::printf(u8"%s%s", TYPES::DASH, short_name.value().c_str());
+                return FORMAT::format(u8"{}{}", TYPES::DASH, short_name.value());
             }
         } else {
             if (long_name.has_value()) {
-                return OP::printf(u8"%s%s", TYPES::DOUBLE_DASH, long_name.value().c_str());
+                return FORMAT::format(u8"{}{}", TYPES::DOUBLE_DASH, long_name.value());
             } else {
                 throw std::runtime_error("both long name and short name are empty");
             }
@@ -70,7 +68,7 @@ namespace yycc::carton::clap::option {
 
     std::u8string Option::to_showcase_value() const {
         if (value_hint.has_value()) {
-            return OP::printf(u8"<%s>", value_hint.value().c_str());
+            return FORMAT::format(u8"<{}>", value_hint.value());
         } else {
             return {};
         }
@@ -119,11 +117,11 @@ namespace yycc::carton::clap::option {
             std::u8string short_name_value(short_name.value());
             if (this->long_names.contains(short_name_value)) {
                 throw std::logic_error(
-                    std::format("short name {} is duplicated with same long name", short_name_value));
+                    FORMAT::format("short name {} is duplicated with same long name", short_name_value));
             }
             auto [_, ok] = this->short_names.try_emplace(short_name_value, token);
             if (!ok) {
-                throw std::logic_error(std::format("duplicate short name {}", short_name_value));
+                throw std::logic_error(FORMAT::format("duplicate short name {}", short_name_value));
             }
         }
         const auto& long_name = opt.get_long_name();
@@ -131,11 +129,11 @@ namespace yycc::carton::clap::option {
             std::u8string long_name_value(long_name.value());
             if (this->short_names.contains(long_name_value)) {
                 throw std::logic_error(
-                    std::format("long name {} is duplicated with same short name", long_name_value));
+                    FORMAT::format("long name {} is duplicated with same short name", long_name_value));
             }
             auto [_, ok] = this->long_names.try_emplace(long_name_value, token);
             if (!ok) {
-                throw std::logic_error(std::format("duplicate long name {}", long_name_value));
+                throw std::logic_error(FORMAT::format("duplicate long name {}", long_name_value));
             }
         }
 

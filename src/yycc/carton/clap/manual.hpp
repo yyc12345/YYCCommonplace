@@ -7,7 +7,7 @@
 #define NS_YYCC_CLAP ::yycc::carton::clap
 #define NS_YYCC_TABULATE ::yycc::carton::tabulate
 
-namespace yycc::carton::clap::manual::Manual {
+namespace yycc::carton::clap::manual {
 
     struct ManualTr {
     public:
@@ -20,7 +20,7 @@ namespace yycc::carton::clap::manual::Manual {
         std::u8string usage_title, usage_body;
         std::u8string avail_opt, avail_var;
     };
-    
+
     class Manual {
     public:
         Manual(const NS_YYCC_CLAP::application::Application& app, ManualTr&& trctx = ManualTr());
@@ -43,7 +43,7 @@ namespace yycc::carton::clap::manual::Manual {
         NS_YYCC_TABULATE::Tabulate var_printer;
     };
 
-}
+} // namespace yycc::carton::clap::manual
 
 #undef NS_YYCC_TABULATE
 #undef NS_YYCC_CLAP
