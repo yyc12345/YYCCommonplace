@@ -71,6 +71,28 @@ namespace yycctest::string::op {
         EXPECT_EQ(rv, u8", 1, 2, ");
     }
 
+    TEST(StringOp, Strip) {
+        // Normal strip
+        {
+            auto rv = OP::to_strip(u8" \taaa\n", u8" \t\r\n");
+            EXPECT_EQ(rv, u8"aaa");
+        }
+
+        // Special strip
+        {
+            auto rv = OP::to_strip(u8"가가가aaaㄲㄲㄲ", u8"가ㄲ");
+            EXPECT_EQ(rv, u8"aaa");
+        }
+        {
+            auto rv = OP::to_strip(u8"가가가aaaㄲㄲㄲ", u8"가");
+            EXPECT_EQ(rv, u8"aaaㄲㄲㄲ");
+        }
+        {
+            auto rv = OP::to_strip(u8"가가가aaaㄲㄲㄲ", u8"ㄲ");
+            EXPECT_EQ(rv, u8"가가가aaa");
+        }
+    }
+
     TEST(StringOp, Split) {
         // Normal
         {

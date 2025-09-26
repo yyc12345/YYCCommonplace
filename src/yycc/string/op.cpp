@@ -166,6 +166,151 @@ namespace yycc::string::op {
 
 #pragma endregion
 
+#pragma region Strip
+
+#pragma region Code Point Iterator
+
+    class CodePointIterator {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = std::u8string_view;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const std::u8string_view*;
+        using reference = const std::u8string_view&;
+
+    private:
+        std::u8string_view current_str;
+        std::u8string_view next_str;
+
+    public:
+        CodePointIterator(const std::u8string_view& strl) : current_str(), next_str(strl) { ++(*this); }
+
+        reference operator*() const { return this->current_str; }
+
+        pointer operator->() const { return &this->current_str; }
+
+        CodePointIterator& operator++() {
+            // move next string to current string and analyse it
+            current_str = next_str;
+            next_str = std::u8string_view();
+
+            // we only process it if there is some chars
+            if (!current_str.empty()) {
+                // extract the string to be checked
+                std::u8string_view strl = current_str;
+
+                // get how many bytes this code point occupied.
+                size_t bytes_to_skip = evaluate_utf8_byte_count(strl.front());
+                // if evaluate skip size is overflow the whole size of string, throw exception
+                if (bytes_to_skip > strl.size()) throw std::runtime_error("bad utf8 sequence. no sufficient continuation bytes.");
+                // check following bytes are starts with 0b10
+                for (size_t i = 1; i < bytes_to_skip; ++i) {
+                    check_continuation_byte(strl[i]);
+                }
+
+                // Everything is okey, set current string and next string
+                current_str = strl.substr(0, bytes_to_skip);
+                next_str = strl.substr(bytes_to_skip);
+            }
+
+            // return self
+            return *this;
+        }
+
+        CodePointIterator operator++(int) {
+            CodePointIterator temp = *this;
+            ++(*this);
+            return temp;
+        }
+
+        bool operator==(const CodePointIterator& other) const {
+            return this->current_str == other.current_str && this->next_str == other.next_str;
+        }
+
+        bool operator!=(const CodePointIterator& other) const { return !(*this == other); }
+
+    private:
+        /**
+         * @brief Calulate how many bytes following code point occupied according to first byte of sequence.
+         * @param[in] byte First sequence for checking.
+         * @return The size of following code point occupied ranging from 1 to 4 (inclusive).
+         */
+        size_t evaluate_utf8_byte_count(char8_t c) const {
+            auto byte = static_cast<uint8_t>(c);
+            if ((byte & 0x80) == 0x00) return 1; // 0xxxxxxx
+            if ((byte & 0xE0) == 0xC0) return 2; // 110xxxxx
+            if ((byte & 0xF0) == 0xE0) return 3; // 1110xxxx
+            if ((byte & 0xF8) == 0xF0) return 4; // 11110xxx
+            throw std::runtime_error("invalid utf8 sequence. bad start byte");
+        }
+        /**
+         * @brief Check whether given byte is a valid continuation byte in UTF8.
+         * @param[in] c Byte for checking.
+         */
+        void check_continuation_byte(char8_t c) const {
+            auto byte = static_cast<uint8_t>(c);
+            if ((byte & 0xC0) != 0x80) {
+                throw std::runtime_error("bad utf8 sequence. no sufficient continuation bytes.");
+            }
+        }
+    };
+
+#pragma endregion
+
+#pragma region Code Point
+
+    class CodePoint {
+    private:
+        std::u8string_view u8str;
+
+    public:
+        explicit CodePoint(std::u8string_view u8str) : u8str(u8str) {}
+
+        CodePointIterator begin() const { return CodePointIterator(u8str); }
+
+        CodePointIterator end() const {
+            // Pass empty string view indicate end.
+            return CodePointIterator(std::u8string_view());
+        }
+    };
+
+#pragma endregion
+
+    template<bool bDoLeft, bool bDoRight>
+    void internal_strip(std::u8string& strl, const std::u8string_view& words) {
+        if constexpr (bDoLeft) {
+        }
+
+        if constexpr (bDoRight) {
+        }
+    }
+
+    void strip(std::u8string& strl, const std::u8string_view& words) {}
+
+    std::u8string to_strip(const std::u8string_view& strl, const std::u8string_view& words) {
+        std::u8string rv(strl);
+        strip(rv, words);
+        return rv;
+    }
+
+    void lstrip(std::u8string& strl, const std::u8string_view& words) {}
+
+    std::u8string to_lstrip(const std::u8string_view& strl, const std::u8string_view& words) {
+        std::u8string rv(strl);
+        lstrip(rv, words);
+        return rv;
+    }
+
+    void rstrip(std::u8string& strl, const std::u8string_view& words) {}
+
+    std::u8string to_rstrip(const std::u8string_view& strl, const std::u8string_view& words) {
+        std::u8string rv(strl);
+        rstrip(rv, words);
+        return rv;
+    }
+
+#pragma endregion
+
 #pragma region Split
 
     // Reference:
