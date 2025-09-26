@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <functional>
 #include <vector>
+#include <optional>
 
 namespace yycc::string::op {
 
@@ -125,33 +126,93 @@ namespace yycc::string::op {
     // TODO:
     // Add strip, lstrip and rstrip functions.
 
+#pragma region Split
+
+    /**
+     * @brief Iterator class for lazy splitting of strings.
+     */
+    class LazySplitIterator {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = std::u8string_view;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const std::u8string_view*;
+        using reference = const std::u8string_view&;
+
+    private:
+        /**
+         * @brief Current splitted item.
+         * @details Currently already splitted item for user fetching.
+         * If this value is std::nullopt, it means that we are reach the split process endpoint.
+         */
+        std::optional<std::u8string_view> m_current_str;
+        /**
+         * @brief The string passed to the next of iterator.
+         * @details It actually the remains after split excluding delimiter.
+         */
+        std::optional<std::u8string_view> m_next_str;
+        std::u8string_view m_delimiter; ///< Delimiter
+
+    public:
+        LazySplitIterator(std::optional<std::u8string_view> strl, const std::u8string_view& delimiter);
+
+        reference operator*() const;
+        pointer operator->() const;
+        LazySplitIterator& operator++();
+        LazySplitIterator operator++(int);
+        bool operator==(const LazySplitIterator& other) const;
+        bool operator!=(const LazySplitIterator& other) const;
+    };
+
+    /**
+     * @brief Class for lazy splitting of strings.
+     */
+    class LazySplit {
+    private:
+        std::u8string_view m_strl;      ///< Original string
+        std::u8string_view m_delimiter; ///< Delimiter
+
+    public:
+        LazySplit(const std::u8string_view& strl, const std::u8string_view& delimiter);
+        LazySplitIterator begin() const;
+        LazySplitIterator end() const;
+    };
+
+    /**
+     * @brief Lazily split given string with specified delimiter.
+     * @param[in] strl The string need to be splitting.
+     * @param[in] delimiter The delimiter for splitting.
+     * @return
+     * LazySplit object that can be used in range-based for loops.
+     * \par
+     * Every items in result is a splitted entries.
+     * If given string or delimiter are empty,
+     * the result container will only contain one entry which is equal to given string.
+     */
+    LazySplit lazy_split(const std::u8string_view& strl, const std::u8string_view& delimiter);
     /**
      * @brief Split given string with specified delimiter as string view.
+     * @details
+     * If your split involve large items, please consider using lazy_split(),
+     * because it split entries one by one rather than one time output.
      * @param[in] strl The string need to be splitting.
-     * @param[in] _delimiter The delimiter for splitting.
-     * @return
-     * The split result with string view format.
-     * This will not produce any copy of original string.
-     * \par
-     * If given string or delimiter are empty,
-     * the result container will only contain 1 entry which is equal to given string.
-     * @see Split(const std::u8string_view&, const char8_t*)
+     * @param[in] delimiter The delimiter for splitting.
+     * @return Split result in string view format.
+     * @see lazy_split() for more about aplit rules.
     */
-    std::vector<std::u8string_view> split(const std::u8string_view& strl, const std::u8string_view& _delimiter);
+    std::vector<std::u8string_view> split(const std::u8string_view& strl, const std::u8string_view& delimiter);
     /**
 	 * @brief Split given string with specified delimiter.
+     * @details
+     * If there is no requirement about storing result, 
+     * please consider using split() becuase it use less memory.
 	 * @param[in] strl The string need to be splitting.
-	 * @param[in] _delimiter The delimiter for splitting.
-	 * @return 
-	 * The split result.
-	 * \par
-	 * If given string or delimiter are empty,
-	 * the result container will only contain 1 entry which is equal to given string.
+	 * @param[in] delimiter The delimiter for splitting.
+	 * @return Split result in string format.
+     * @see lazy_split() for more about aplit rules.
 	*/
-    std::vector<std::u8string> split_owned(const std::u8string_view& strl, const std::u8string_view& _delimiter);
+    std::vector<std::u8string> split_owned(const std::u8string_view& strl, const std::u8string_view& delimiter);
 
-    // TODO:
-    // Add lazy_split(const std::u8string_view& strl, const std::u8string_view& _delimiter);
-    // Once we add it, we need redirect all split function into it.
+#pragma endregion
 
 } // namespace yycc::string::op

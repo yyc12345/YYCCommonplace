@@ -168,45 +168,115 @@ namespace yycc::string::op {
 
 #pragma region Split
 
-    std::vector<std::u8string_view> split(const std::u8string_view& strl, const std::u8string_view& _delimiter) {
-        // Reference:
-        // https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
+    // Reference:
+    // https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 
-        // prepare return value
+#pragma region Lazy Split Iterator
+
+    LazySplitIterator::LazySplitIterator(std::optional<std::u8string_view> strl, const std::u8string_view& delimiter) :
+        m_current_str(std::nullopt), m_next_str(strl), m_delimiter(delimiter) {
+        // We can archive result by assign string into next string,
+        // and call next operator.
+        ++(*this);
+    }
+
+    LazySplitIterator::reference LazySplitIterator::operator*() const {
+        return m_current_str.value();
+    }
+
+    LazySplitIterator::pointer LazySplitIterator::operator->() const {
+        return &m_current_str.value();
+    }
+
+    LazySplitIterator& LazySplitIterator::operator++() {
+        // move next string to current string and clear next string
+        m_current_str = m_next_str;
+        m_next_str = std::nullopt;
+
+        // check whether there is string to be spliited
+        if (m_current_str.has_value()) {
+            // extract string
+            const auto strl = m_current_str.value();
+
+            // if delimiter is empty, return original string.
+            // if string need to be splitted is empty, return original string (empty string).
+            if (strl.empty() || m_delimiter.empty()) {
+                m_current_str = strl;
+                m_next_str = std::nullopt;
+            } else {
+                // start spliting
+                size_t current = 0;
+                if ((current = strl.find(m_delimiter)) != std::u8string_view::npos) {
+                    // We still can find items, split it and put into 2 string view respectively.
+                    m_current_str = strl.substr(0, current);
+                    m_next_str = strl.substr(current + m_delimiter.size());
+                } else {
+                    // We can not find any more delimiter, so this is the last item
+                    m_current_str = strl;
+                    m_next_str = std::nullopt;
+                }
+            }
+        } else {
+            // No value. Initialize as an end iterator.
+            m_current_str = std::nullopt;
+            m_next_str = std::nullopt;
+        }
+
+        // return self
+        return *this;
+    }
+
+    LazySplitIterator LazySplitIterator::operator++(int) {
+        LazySplitIterator temp = *this;
+        ++(*this);
+        return temp;
+    }
+
+    bool LazySplitIterator::operator==(const LazySplitIterator& other) const {
+        return (this->m_current_str == other.m_current_str) && (this->m_next_str == other.m_next_str)
+               && (this->m_delimiter == other.m_delimiter);
+    }
+
+    bool LazySplitIterator::operator!=(const LazySplitIterator& other) const {
+        return !(*this == other);
+    }
+
+#pragma endregion
+
+#pragma region Lazy Split
+
+    LazySplit::LazySplit(const std::u8string_view& strl, const std::u8string_view& delimiter) : m_strl(strl), m_delimiter(delimiter) {}
+
+    LazySplitIterator LazySplit::begin() const {
+        return LazySplitIterator(m_strl, m_delimiter);
+    }
+
+    LazySplitIterator LazySplit::end() const {
+        // Pass std::nullopt to indicate end.
+        return LazySplitIterator(std::nullopt, m_delimiter);
+    }
+
+#pragma endregion
+
+    LazySplit lazy_split(const std::u8string_view& strl, const std::u8string_view& delimiter) {
+        return LazySplit(strl, delimiter);
+    }
+
+    std::vector<std::u8string_view> split(const std::u8string_view& strl, const std::u8string_view& delimiter) {
+        // use lazy split iterator to do the splitting
         std::vector<std::u8string_view> elems;
-
-        // if string need to be splitted is empty, return original string (empty string).
-        // if delimiter is empty, return original string.
-        std::u8string delimiter(_delimiter);
-        if (strl.empty() || delimiter.empty()) {
-            elems.emplace_back(strl);
-            return elems;
-        }
-
-        // start spliting
-        std::size_t previous = 0, current;
-        while ((current = strl.find(delimiter.c_str(), previous)) != std::u8string::npos) {
-            elems.emplace_back(strl.substr(previous, current - previous));
-            previous = current + delimiter.size();
-        }
-        // try insert last part but prevent possible out of range exception
-        if (previous <= strl.size()) {
-            elems.emplace_back(strl.substr(previous));
+        for (const auto& strl_view : lazy_split(strl, delimiter)) {
+            elems.emplace_back(strl_view);
         }
         return elems;
     }
 
-    std::vector<std::u8string> split_owned(const std::u8string_view& strl, const std::u8string_view& _delimiter) {
-        // call split view
-        auto view_result = split(strl, _delimiter);
-
-        // copy string view result to string
+    std::vector<std::u8string> split_owned(const std::u8string_view& strl, const std::u8string_view& delimiter) {
+        // use lazy split iterator to do the splitting
         std::vector<std::u8string> elems;
-        elems.reserve(view_result.size());
-        for (const auto& strl_view : view_result) {
+        for (const auto& strl_view : lazy_split(strl, delimiter)) {
             elems.emplace_back(std::u8string(strl_view));
         }
-        // return copied result
         return elems;
     }
 
