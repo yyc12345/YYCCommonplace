@@ -27,6 +27,7 @@
 #define REINTERPRET ::yycc::string::reinterpret
 #define WINFCT ::yycc::windows::winfct
 #define FOPEN ::yycc::patch::fopen
+
 using namespace std::literals::string_view_literals;
 
 namespace yycc::carton::ironpad {

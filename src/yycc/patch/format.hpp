@@ -19,8 +19,6 @@
 
 namespace yycc::patch::format {
 
-    // TODO: all use of OP::printf should also switch to this function if possible.
-
     template<class... Args>
     std::string format(std::format_string<Args...> fmt, Args&&... args) {
         return std::vformat(fmt.get(), std::make_format_args(args...));
