@@ -1,13 +1,14 @@
 #include "tabulate.hpp"
 #include "wcwidth.hpp"
 #include "../num/safe_op.hpp"
-#include "../string/reinterpret.hpp"
+#include "../patch/stream.hpp"
 #include <stdexcept>
 #include <ranges>
 
 #define WCWIDTH ::yycc::carton::wcwidth
-#define REINTERPRET ::yycc::string::reinterpret
 #define SAFEOP ::yycc::num::safe_op
+
+using namespace yycc::patch::stream;
 
 namespace yycc::carton::tabulate {
 
@@ -94,38 +95,34 @@ namespace yycc::carton::tabulate {
         std::u8string_view spaces_view(spaces);
 
         // Print table
-        // Define a convenient macro
-#define CVT(data) REINTERPRET::as_ordinary_view(data)
         // Show header
         if (this->header_display) {
-            dst << CVT(this->prefix_string);
+            dst << this->prefix_string;
             for (const auto [index, item] : std::views::enumerate(header)) {
                 auto diff = SAFEOP::saturating_sub(widths.get_column_width(index), item.get_text_width());
-                dst << CVT(item.get_text()) << CVT(spaces_view.substr(0, diff)) << " ";
+                dst << item.get_text() << spaces_view.substr(0, diff) << " ";
             }
             dst << std::endl;
         }
         // Show bar
         if (this->bar_display) {
-            dst << CVT(this->prefix_string);
+            dst << this->prefix_string;
             auto bar_width = this->bar.get_text_width();
             for (auto index : std::views::iota(ZERO, n)) {
                 auto diff = SAFEOP::saturating_sub(widths.get_column_width(index), bar_width);
-                dst << CVT(this->bar.get_text()) << CVT(spaces_view.substr(0, diff)) << " ";
+                dst << this->bar.get_text() << spaces_view.substr(0, diff) << " ";
             }
             dst << std::endl;
         }
         // Show data
         for (const auto& row : this->rows) {
-            dst << CVT(this->prefix_string);
+            dst << this->prefix_string;
             for (const auto [index, item] : std::views::enumerate(row)) {
                 auto diff = SAFEOP::saturating_sub(widths.get_column_width(index), item.get_text_width());
-                dst << CVT(item.get_text()) << CVT(spaces_view.substr(0, diff)) << " ";
+                dst << item.get_text() << spaces_view.substr(0, diff) << " ";
             }
             dst << std::endl;
         }
-        // Undef macro
-#undef CVT
     }
 
     size_t Tabulate::get_column_count() const {

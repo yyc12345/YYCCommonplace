@@ -1,13 +1,13 @@
 #include "termcolor.hpp"
 #include "../flag_enum.hpp"
-#include "../string/reinterpret.hpp"
+#include "../patch/stream.hpp"
 #include <stdexcept>
 #include <bit>
 
 #define FLAG_ENUM ::yycc::flag_enum
-#define REINTERPRET ::yycc::string::reinterpret
 
 using namespace std::literals::string_view_literals;
+using namespace yycc::patch::stream;
 
 namespace yycc::carton::termcolor {
 
@@ -213,7 +213,7 @@ namespace yycc::carton::termcolor {
     }
 
     void cprint(const std::u8string_view& words, Color foreground, Color background, Attribute styles, std::ostream& dst) {
-        dst << REINTERPRET::as_ordinary_view(colored(words, foreground, background, styles));
+        dst << colored(words, foreground, background, styles);
     }
 
     void ecprint(const std::u8string_view& words, Color foreground, Color background, Attribute styles) {

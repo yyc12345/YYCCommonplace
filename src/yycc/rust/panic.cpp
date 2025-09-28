@@ -1,12 +1,13 @@
 #include "panic.hpp"
 #include "../carton/termcolor.hpp"
-#include "../string/reinterpret.hpp"
+#include "../patch/stream.hpp"
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
 
 #define TERMCOLOR ::yycc::carton::termcolor
-#define REINTERPRET ::yycc::string::reinterpret
+
+using namespace yycc::patch::stream;
 
 namespace yycc::rust::panic {
 
@@ -23,13 +24,13 @@ namespace yycc::rust::panic {
 
         // Print error message if we support it.
         // Setup color
-        dst << REINTERPRET::as_ordinary_view(TERMCOLOR::foreground(TERMCOLOR::Color::Red));
+        dst << TERMCOLOR::foreground(TERMCOLOR::Color::Red);
         // File name and line number message
         dst << "program paniked at " << std::quoted(file) << ":Ln" << line << std::endl;
         // User custom message
         dst << "note: " << msg << std::endl;
         // Restore color
-        dst << REINTERPRET::as_ordinary_view(TERMCOLOR::reset());;
+        dst << TERMCOLOR::reset();
 
         // Make sure all messages are flushed into screen.
         dst.flush();
