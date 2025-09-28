@@ -1,4 +1,5 @@
 #pragma once
+#include "../patch/format.hpp"
 #include <string_view>
 #include <format>
 
@@ -24,17 +25,13 @@ namespace yycc::rust::panic {
 
     /**
      * @brief Immediately crashes the entire program like Rust's \c panic! macro.
-     * @details The macro parameter is the additional message to display.
-     */
-#define RS_PANIC(msg) ::yycc::rust::panic::panic(__FILE__, __LINE__, (msg))
-
-    /**
-     * @brief Immediately crashes the entire program like Rust's \c panic! macro.
      * @details
      * The macro parameters are the message to format and its arguments, following \c std::format syntax.
      * This macro essentially calls \c std::format internally.
+     * However, this format function is specially modified that it can accept UTF8 format string and UTF8 string argument.
+     * More preciously, it is "format" in \c yycc::patch::format namespace.
      */
-#define RS_PANICF(msg, ...) RS_PANIC(std::format(msg __VA_OPT__(,) __VA_ARGS__))
+#define RS_PANIC(msg, ...) ::yycc::rust::panic::panic(__FILE__, __LINE__, ::yycc::patch::format::format(msg __VA_OPT__(, ) __VA_ARGS__))
 
     /**
      * @brief Immediately crashes the entire program like Rust's \c panic! macro.
@@ -45,6 +42,6 @@ namespace yycc::rust::panic {
      * @param[in] line Line number in source file where panic occurred. Usually filled by macros.
      * @param[in] msg Message to display during panic.
      */
-    [[noreturn]] void panic(const char* file, int line, const std::string_view& msg);
+    [[noreturn]] void panic(const char* file, int line, const std::u8string_view& msg);
 
 } // namespace yycc::rust::panic

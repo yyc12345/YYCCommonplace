@@ -18,7 +18,7 @@ namespace yycc::rust::panic {
     // It seems that STL providers are not ready for this feature. So I decide remove it entirely.
     // Once every STL probiders have ready for this, I will add it back.
 
-    void panic(const char* file, int line, const std::string_view& msg) {
+    void panic(const char* file, int line, const std::u8string_view& msg) {
         // Output message in stderr.
         auto& dst = std::cerr;
 
