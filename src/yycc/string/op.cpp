@@ -1,4 +1,7 @@
 #include "op.hpp"
+#include <map>
+#include <memory>
+#include <iterator>
 #include <type_traits>
 #include <algorithm>
 #include <stdexcept>
@@ -172,7 +175,7 @@ namespace yycc::string::op {
 
     class CodePointIterator {
     public:
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::input_iterator_tag;
         using value_type = std::u8string_view;
         using difference_type = std::ptrdiff_t;
         using pointer = const std::u8string_view*;
@@ -276,37 +279,147 @@ namespace yycc::string::op {
 
 #pragma endregion
 
+#pragma region Trie Tree Node
+
+    struct TrieTreeNode {
+        TrieTreeNode() : is_end(false), children() {}
+        bool is_end;                                               ///< Whether this node is a viable end.
+        std::map<char8_t, std::unique_ptr<TrieTreeNode>> children; ///< The children node.
+    };
+
+#pragma endregion
+
+#pragma region Trie Tree
+
+    class TrieTree {
+    private:
+        std::unique_ptr<TrieTreeNode> root;
+
+    public:
+        TrieTree() : root(std::make_unique<TrieTreeNode>()) {
+            // Do not accept root element always (no empty string).
+            root->is_end = false;
+        }
+        
+        /**
+         * @brief Insert new words in trie tree.
+         * @details
+         * The reason why use iterator, rather than string view, is that in strip function, we may need insert a string backwardly,
+         * so using string view reverse iterator and iterator argument can easily achieve this goal without any more burden.
+         * @tparam InputIt The iterator following input iterator name convention.
+         * @param[in] first The head of iterator.
+         * @param[in] last The tail of iterator.
+         */
+        template<std::input_iterator InputIt>
+            requires std::is_same_v<std::iter_value_t<InputIt>, char8_t>
+        void insert(InputIt first, InputIt last) {
+            // prevent empty string
+            if (first == last) return;
+
+            // insert item
+            TrieTreeNode* node = root.get();
+            for (auto it = first; it != last; ++it) {
+                char8_t c = *it;
+                if (node->children.find(c) == node->children.end()) {
+                    node->children[c] = std::make_unique<TrieTreeNode>();
+                }
+                node = node->children[c].get();
+            }
+            node->is_end = true;
+        }
+
+        /**
+         * @brief Check whether given words has prefix stored in this trie tree.
+         * @details Same reason for using iterator as function argument.
+         * @tparam InputIt The iterator following input iterator name convention.
+         * @param[in] first The head of iterator.
+         * @param[in] last The tail of iterator.
+         * @return \c std::nullopt if there is no match, otherwise the length of matched prefix.
+         */
+        template<std::input_iterator InputIt>
+            requires std::is_same_v<std::iter_value_t<InputIt>, char8_t>
+        std::optional<size_t> search(InputIt first, InputIt last) {
+            TrieTreeNode* node = root.get();
+            size_t cnt = 0;
+
+            for (auto it = first; it != last; ++it) {
+                char8_t c = *it;
+                auto finder = node->children.find(c);
+                if (finder == node->children.end()) {
+                    // There is no more matching, break the while.
+                    break;
+                } else {
+                    // There are more matching item, find next one.
+                    node = finder->second.get();
+                    ++cnt;
+                }
+            }
+
+            // YYC MARK:
+            // There is a fatal bug for Trie Tree, but it doesn't matter with our usage scenario.
+            // 
+            // Assume there is two string "ab" and "abcd". If user give "abc",
+            // we should match it with "ab" prefix, but this function will return there is no match.
+            // However, this is impossible for UTF8 sequence.
+            // There is no possibility that two UTF8 sequence, indicating two different Unicode code point respectively,
+            // has the same prefix and different length. Because their first byte must be different,
+            // the first byte indicate the length of sequence.
+            // 
+            // This result also can be proven for suffix, 
+            // because first byte must not be equal to any other continuation bytes.
+            // It is impossible that they have same "ab".
+            // 
+            // So it is safe for our usage scenario although this bug is presented.
+
+            // check whether current is valid end.
+            // if it is, return the count of prefix, otherwise return nothing.
+            if (node->is_end) {
+                return cnt;
+            } else {
+                return std::nullopt;
+            }
+        }
+    };
+
+#pragma endregion
+
     template<bool bDoLeft, bool bDoRight>
-    void internal_strip(std::u8string& strl, const std::u8string_view& words) {
+    std::u8string_view internal_strip(const std::u8string_view& strl, const std::u8string_view& words) {
+        std::optional<TrieTree> prefix, suffix;
+        if constexpr (bDoLeft) prefix = TrieTree();
+        if constexpr (bDoRight) suffix = TrieTree();
+
+        CodePoint code_point(words);
+        for (const auto& seq : code_point) {
+            if (prefix.has_value()) prefix.value().insert(seq.begin(), seq.end());
+            if (suffix.has_value()) suffix.value().insert(seq.rbegin(), seq.rend());
+        }
+
+        std::u8string_view striped = strl;
         if constexpr (bDoLeft) {
+            while (auto cnt = prefix.value().search(striped.begin(), striped.end())) {
+                striped = striped.substr(cnt.value());
+            }
         }
-
         if constexpr (bDoRight) {
+            while (auto cnt = suffix.value().search(striped.rbegin(), striped.rend())) {
+                striped = striped.substr(0, striped.size() - cnt.value());
+            }
         }
+
+        return striped;
     }
 
-    void strip(std::u8string& strl, const std::u8string_view& words) {}
-
-    std::u8string to_strip(const std::u8string_view& strl, const std::u8string_view& words) {
-        std::u8string rv(strl);
-        strip(rv, words);
-        return rv;
+    std::u8string_view strip(const std::u8string_view& strl, const std::u8string_view& words) {
+        return internal_strip<true, true>(strl, words);
     }
 
-    void lstrip(std::u8string& strl, const std::u8string_view& words) {}
-
-    std::u8string to_lstrip(const std::u8string_view& strl, const std::u8string_view& words) {
-        std::u8string rv(strl);
-        lstrip(rv, words);
-        return rv;
+    std::u8string_view lstrip(const std::u8string_view& strl, const std::u8string_view& words) {
+        return internal_strip<true, false>(strl, words);
     }
 
-    void rstrip(std::u8string& strl, const std::u8string_view& words) {}
-
-    std::u8string to_rstrip(const std::u8string_view& strl, const std::u8string_view& words) {
-        std::u8string rv(strl);
-        rstrip(rv, words);
-        return rv;
+    std::u8string_view rstrip(const std::u8string_view& strl, const std::u8string_view& words) {
+        return internal_strip<false, true>(strl, words);
     }
 
 #pragma endregion

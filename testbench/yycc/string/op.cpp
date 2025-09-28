@@ -74,22 +74,39 @@ namespace yycctest::string::op {
     TEST(StringOp, Strip) {
         // Normal strip
         {
-            auto rv = OP::to_strip(u8" \taaa\n", u8" \t\r\n");
+            auto rv = OP::strip(u8" \taaa\n", u8" \t\r\n");
             EXPECT_EQ(rv, u8"aaa");
+        }
+        {
+            auto rv = OP::lstrip(u8" \taaa\n", u8" \t\r\n");
+            EXPECT_EQ(rv, u8"aaa\n");
+        }
+        {
+            auto rv = OP::rstrip(u8" \taaa\n", u8" \t\r\n");
+            EXPECT_EQ(rv, u8" \taaa");
         }
 
         // Special strip
         {
-            auto rv = OP::to_strip(u8"∞°∞°∞°aaa§¢§¢§¢", u8"∞°§¢");
+            auto rv = OP::strip(u8"ÂïäÂïäÂïäaaa„ÅÇ„ÅÇ„ÅÇ", u8"Âïä„ÅÇ");
             EXPECT_EQ(rv, u8"aaa");
         }
         {
-            auto rv = OP::to_strip(u8"∞°∞°∞°aaa§¢§¢§¢", u8"∞°");
-            EXPECT_EQ(rv, u8"aaa§¢§¢§¢");
+            auto rv = OP::strip(u8"ÂïäÂïäÂïäaaa„ÅÇ„ÅÇ„ÅÇ", u8"Âïä");
+            EXPECT_EQ(rv, u8"aaa„ÅÇ„ÅÇ„ÅÇ");
         }
         {
-            auto rv = OP::to_strip(u8"∞°∞°∞°aaa§¢§¢§¢", u8"§¢");
-            EXPECT_EQ(rv, u8"∞°∞°∞°aaa");
+            auto rv = OP::strip(u8"ÂïäÂïäÂïäaaa„ÅÇ„ÅÇ„ÅÇ", u8"„ÅÇ");
+            EXPECT_EQ(rv, u8"ÂïäÂïäÂïäaaa");
+        }
+
+        // Possible buggy strip.
+        // We use 2 UTF8 code points introduced following:
+        // U+00AA  (UTF-8: C2 AA)
+        // U+1002A (UTF-8 : F0 90 80 AA)
+        {
+            auto rv = OP::rstrip(u8"aaa\u00AA", u8"\u00AA\U0001002A");
+            EXPECT_EQ(rv, u8"aaa");
         }
     }
 

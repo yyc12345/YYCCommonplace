@@ -145,46 +145,25 @@ namespace yycc::string::op {
      * @brief Remove leading and trailing whitespace from the string.
      * @param[in,out] strl The string to be stripped.
      * @param[in] words The characters to be stripped.
+     * @return The string view with leading and trailing whitespace removed.
      */
-    void strip(std::u8string& strl, const std::u8string_view& words);
-    /**
-     * @brief Return a copy of the string with leading and trailing whitespace removed.
-     * @param[in] strl The string to be stripped.
-     * @param[in] words The characters to be stripped.
-     * @return The copy of the string with leading and trailing whitespace removed.
-     */
-    std::u8string to_strip(const std::u8string_view& strl, const std::u8string_view& words);
+    std::u8string_view strip(const std::u8string_view& strl, const std::u8string_view& words);
 
     /**
      * @brief Remove leading whitespace from the string.
      * @param[in,out] strl The string to be stripped.
      * @param[in] words The characters to be stripped.
+     * @return The string view with leading whitespace removed.
      */
-    void lstrip(std::u8string& strl, const std::u8string_view& words);
-
-    /**
-     * @brief Return a copy of the string with leading whitespace removed.
-     * @param[in] strl The string to be stripped.
-     * @param[in] words The characters to be stripped.
-     * @return The copy of the string with leading whitespace removed.
-     */
-    std::u8string to_lstrip(const std::u8string_view& strl, const std::u8string_view& words);
+    std::u8string_view lstrip(const std::u8string_view& strl, const std::u8string_view& words);
 
     /**
      * @brief Remove trailing whitespace from the string.
      * @param[in,out] strl The string to be stripped.
      * @param[in] words The characters to be stripped.
+     * @return The string view with trailing whitespace removed.
      */
-    void rstrip(std::u8string& strl, const std::u8string_view& words);
-
-    /**
-     * @brief Return a copy of the string with trailing whitespace removed.
-     * @param[in] strl The string to be stripped.
-     * @param[in] words The characters to be stripped.
-     * @return The copy of the string with trailing whitespace removed.
-     */
-    std::u8string to_rstrip(const std::u8string_view& strl, const std::u8string_view& words);
-
+    std::u8string_view rstrip(const std::u8string_view& strl, const std::u8string_view& words);
 
 #pragma endregion
 
@@ -195,7 +174,7 @@ namespace yycc::string::op {
      */
     class LazySplitIterator {
     public:
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::input_iterator_tag;
         using value_type = std::u8string_view;
         using difference_type = std::ptrdiff_t;
         using pointer = const std::u8string_view*;
