@@ -4,19 +4,13 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <stacktrace>
 
 #define TERMCOLOR ::yycc::carton::termcolor
 
 using namespace yycc::patch::stream;
 
 namespace yycc::rust::panic {
-
-    // TODO:
-    // I sadly remove the stacktrace feature for panic function.
-    // Because in GCC, it has link error (can be fixed by extra link option).
-    // In Clang, it even lack the whole header file.
-    // It seems that STL providers are not ready for this feature. So I decide remove it entirely.
-    // Once every STL probiders have ready for this, I will add it back.
 
     void panic(const char* file, int line, const std::u8string_view& msg) {
         // Output message in stderr.
@@ -29,6 +23,9 @@ namespace yycc::rust::panic {
         dst << "program paniked at " << std::quoted(file) << ":Ln" << line << std::endl;
         // User custom message
         dst << "note: " << msg << std::endl;
+        // Stacktrace message if we support it.
+        dst << "stacktrace: " << std::endl;
+        dst << std::stacktrace::current() << std::endl;
         // Restore color
         dst << TERMCOLOR::reset();
 

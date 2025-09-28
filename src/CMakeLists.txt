@@ -157,6 +157,15 @@ PUBLIC
     $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>
 )
 
+# Fix GCC std::stacktrace link error
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
+        target_link_libraries(YYCCommonplace PRIVATE stdc++exp)
+    else ()
+        target_link_libraries(YYCCommonplace PRIVATE stdc++_libbacktrace)
+    endif ()
+endif ()
+
 # Install binary and headers
 install(TARGETS YYCCommonplace
     EXPORT YYCCommonplaceTargets
