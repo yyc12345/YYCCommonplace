@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 #include <optional>
+#include <iterator>
 
 namespace yycc::string::op {
 
@@ -67,13 +68,12 @@ namespace yycc::string::op {
     /**
 	 * @brief The data provider of general join function.
 	 * @details
+     * This data provider is more like Rust iterator.
 	 * For programmer using lambda to implement this function pointer:
-	 * \li During calling, implementation should assign the reference of string view passed in argument
-	 * to the string which need to be joined.
-	 * \li Function return true to continue joining. otherwise return false to stop joining. 
-	 * The argument content assigned in the calling returning false is not included in join process.
+     * \li Return \c std::nullopt if there is no more data for join.
+     * \li Return \c std::u8string_view for the data of join.
 	*/
-    using JoinDataProvider = std::function<bool(std::u8string_view&)>;
+    using JoinDataProvider = std::function<std::optional<std::u8string_view>()>;
     /**
 	 * @brief Universal join function.
 	 * @details
@@ -96,16 +96,15 @@ namespace yycc::string::op {
 	 * @param[in] delimiter The delimiter used for joining.
 	 * @return The result string of joining.
 	*/
-    template<class InputIt>
+    template<std::input_iterator InputIt>
+        requires std::is_constructible_v<std::u8string_view, std::iter_value_t<InputIt>>
     std::u8string join(InputIt first, InputIt last, const std::u8string_view& delimiter) {
         return join(
-            [&first, &last](std::u8string_view& view) -> bool {
-                // if we reach tail, return false to stop join process
-                if (first == last) return false;
+            [&first, &last]() -> std::optional<std::u8string_view> {
+                // if we reach tail, return std::nullopt to stop join process
+                if (first == last) return std::nullopt;
                 // otherwise fetch data, inc iterator and return.
-                view = *first;
-                ++first;
-                return true;
+                return std::u8string_view(*(first++));
             },
             delimiter);
     }

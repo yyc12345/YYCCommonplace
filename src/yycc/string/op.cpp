@@ -1,7 +1,6 @@
 #include "op.hpp"
 #include <map>
 #include <memory>
-#include <iterator>
 #include <type_traits>
 #include <algorithm>
 #include <stdexcept>
@@ -113,19 +112,15 @@ namespace yycc::string::op {
     std::u8string join(JoinDataProvider fct_data, const std::u8string_view& delimiter) {
         std::u8string ret;
         bool is_first = true;
-        std::u8string_view element;
 
         // fetch element
-        while (fct_data(element)) {
-            // insert delimiter
+        while (auto item = fct_data()) {
+            // append delimiter if it is not first
             if (is_first) is_first = false;
-            else {
-                // append delimiter.
-                ret.append(delimiter);
-            }
+            else ret.append(delimiter);
 
-            // insert element if it is not empty
-            if (!element.empty()) ret.append(element);
+            // append element
+            ret.append(item.value());
         }
 
         return ret;
