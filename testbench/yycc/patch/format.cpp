@@ -11,25 +11,25 @@ namespace yycctest::patch::format {
     static constexpr std::u8string_view PROBE_STRING_VIEW(PROBE);
 
     TEST(PatchFormat, OrdinaryFormat) {
-        auto rv = FORMAT::format("{}{}{}{}{}{} world!",
+        auto rv = FORMAT::format("{:c}{}{}{}{}{} world!",
                                  PROBE[0],
                                  PROBE_STRING.data(),
                                  PROBE_STRING.c_str(),
                                  PROBE,
                                  PROBE_STRING,
                                  PROBE_STRING_VIEW);
-        EXPECT_EQ(rv, "104hellohellohellohellohello world!");
+        EXPECT_EQ(rv, "hhellohellohellohellohello world!");
     }
 
     TEST(PatchFormat, Utf8Format) {
-        auto rv = FORMAT::format(u8"{}{}{}{}{}{} world!",
+        auto rv = FORMAT::format(u8"{:c}{}{}{}{}{} world!",
                                  PROBE[0],
                                  PROBE_STRING.data(),
                                  PROBE_STRING.c_str(),
                                  PROBE,
                                  PROBE_STRING,
                                  PROBE_STRING_VIEW);
-        EXPECT_EQ(rv, u8"104hellohellohellohellohello world!");
+        EXPECT_EQ(rv, u8"hhellohellohellohellohello world!");
     }
 
 }
