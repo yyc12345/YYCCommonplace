@@ -12,13 +12,19 @@ namespace yycc::string::op {
 
 #pragma region Printf
 
+    // YYC MARK:
+    // Shitty __attribute__((format(gnu_printf, (A), (B)))) force the type of format string is const char*.
+    // My function signature will cause compile error which can not be removed by any switches.
+    // I guess Clang may have same issue.
+    // So I sadly disable format string check for printf in UTF8 char type.
+
     /**
      * @brief Perform an UTF8 string formatting operation.
      * @param[in] format The format string.
      * @param[in] ... Argument list of format string.
      * @return The formatted result.
     */
-    std::u8string printf(YYCC_PRINTF_CHECK_FMTSTR const char8_t* format, ...) YYCC_PRINTF_CHECK_ATTR(1, 2);
+    std::u8string printf(/*YYCC_PRINTF_CHECK_FMTSTR*/ const char8_t* format, ...) /*YYCC_PRINTF_CHECK_ATTR(1, 2)*/;
     /**
      * @brief Perform an UTF8 string formatting operation.
      * @param[in] format The format string.

@@ -2,13 +2,11 @@
 #include "../termcolor.hpp"
 #include "../../patch/stream.hpp"
 #include "../../patch/format.hpp"
-#include "../../string/op.hpp"
 
 #define CLAP ::yycc::carton::clap
 #define TABULATE ::yycc::carton::tabulate
 #define TERMCOLOR ::yycc::carton::termcolor
 #define FORMAT ::yycc::patch::format
-#define OP ::yycc::carton::op
 
 using namespace ::yycc::patch::stream;
 
