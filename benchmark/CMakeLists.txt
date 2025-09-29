@@ -4,6 +4,8 @@ add_executable(YYCCBenchmark "")
 target_sources(YYCCBenchmark
 PRIVATE
     main.cpp
+
+    yycc/string/op.cpp
 )
 # target_sources(YYCCBenchmark
 # PRIVATE
