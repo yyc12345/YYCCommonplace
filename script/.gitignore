@@ -2,10 +2,6 @@
 # Exclude VSCode
 .vscode/
 
-# Exclude generated files
-win_build.bat
-linux_build.sh
-
 ## ===== Python =====
 # Byte-compiled / optimized / DLL files
 __pycache__/

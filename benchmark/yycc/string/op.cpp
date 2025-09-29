@@ -7,12 +7,12 @@ using namespace std::literals::string_view_literals;
 
 namespace yyccbench::string::op {
 
-    static void StringStrip(benchmark::State& state) {
+    static void BM_StringStrip(benchmark::State& state) {
         std::u8string_view strl = u8" \thello\r\n"sv, words = u8" \t\r\n"sv;
         for (auto _ : state) {
             auto rv = OP::strip(strl, words);
         }
     }
-    BENCHMARK(StringStrip);
+    BENCHMARK(BM_StringStrip)->Name("StringStrip");
 
 }
