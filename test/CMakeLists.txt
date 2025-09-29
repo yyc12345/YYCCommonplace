@@ -1,7 +1,7 @@
-# Create executable testbench
-add_executable(YYCCTestbench "")
-# Setup testbench sources
-target_sources(YYCCTestbench
+# Create executable test
+add_executable(YYCCTest "")
+# Setup test sources
+target_sources(YYCCTest
 PRIVATE
     main.cpp
     
@@ -42,19 +42,19 @@ PRIVATE
     yycc/carton/tabulate.cpp
     yycc/carton/clap.cpp
 )
-target_sources(YYCCTestbench
+target_sources(YYCCTest
 PRIVATE
 FILE_SET HEADERS
 FILES
     shared/literals.hpp
 )
 # Setup headers
-target_include_directories(YYCCTestbench
+target_include_directories(YYCCTest
 PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}"
 )
 # Setup libraries
-target_link_libraries(YYCCTestbench
+target_link_libraries(YYCCTest
 PRIVATE
     YYCCommonplace
     GTest::gtest_main
@@ -62,4 +62,4 @@ PRIVATE
 
 # Discover all test
 include(GoogleTest)
-gtest_discover_tests(YYCCTestbench)
+gtest_discover_tests(YYCCTest)

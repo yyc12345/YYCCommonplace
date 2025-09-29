@@ -10,7 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Provide options
-option(YYCC_BUILD_TESTBENCH "Build testbench of YYCCommonplace." OFF)
+option(YYCC_BUILD_TEST "Build test of YYCCommonplace." OFF)
+option(YYCC_BUILD_BENCHMARK "Build benchmark of YYCCommonplace." OFF)
 option(YYCC_BUILD_DOC "Build document of YYCCommonplace." OFF)
 option(YYCC_ENFORCE_ICONV "Enforce iconv support for this library (e.g. in MSYS2 environment)." OFF)
 
@@ -26,21 +27,28 @@ set(YYCC_INSTALL_DOC_PATH ${CMAKE_INSTALL_DOCDIR} CACHE PATH
 "Non-arch doc install path relative to CMAKE_INSTALL_PREFIX unless set to an absolute path.")
 
 # Include dependency.
-# GTest is required if we build testbench
-if (YYCC_BUILD_TESTBENCH)
+# GTest is required if we build test
+if (YYCC_BUILD_TEST)
     # For Windows: Prevent overriding the parent project's compiler/linker settings
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     find_package(GTest REQUIRED)
+endif ()
+# Google Benchmark is required if we build benchmark
+if (YYCC_BUILD_BENCHMARK)
+    find_package(benchmark REQUIRED)
 endif ()
 # Iconv is required if we are not in Windows or user request it
 if (YYCC_ENFORCE_ICONV OR (NOT WIN32))
     find_package(Iconv REQUIRED)
 endif ()
 
-# Import 3 build targets
+# Import 4 build targets
 add_subdirectory(src)
-if (YYCC_BUILD_TESTBENCH)
-    add_subdirectory(testbench)
+if (YYCC_BUILD_TEST)
+    add_subdirectory(test)
+endif ()
+if (YYCC_BUILD_BENCHMARK)
+    add_subdirectory(benchmark)
 endif ()
 if (YYCC_BUILD_DOC)
     add_subdirectory(doc)

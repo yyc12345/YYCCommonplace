@@ -21,7 +21,7 @@ public:
         m_StringArgument(YYCC_U8("string"), YYCC::ArgParser::AbstractArgument::NO_SHORT_NAME, nullptr, nullptr, true),
         m_BoolArgument(nullptr, YYCC_U8_CHAR('b'), nullptr),
         m_ClampedFloatArgument(YYCC_U8("clamped-float"), YYCC::ArgParser::AbstractArgument::NO_SHORT_NAME, nullptr, nullptr, true, YYCC::Constraints::GetMinMaxRangeConstraint<float>(-1.0f, 1.0f)),
-        m_OptionContext(YYCC_U8("TestArgParser"), YYCC_U8("This is the testbench of argument parser."), {
+        m_OptionContext(YYCC_U8("TestArgParser"), YYCC_U8("This is the test of argument parser."), {
             &m_IntArgument, &m_FloatArgument, &m_StringArgument,
             &m_BoolArgument, &m_ClampedFloatArgument
         }) {}

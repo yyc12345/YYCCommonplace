@@ -11,7 +11,7 @@ It means that it is not stable and work in progress.
 * CMake 3.23 at least.
 * The common compiler supporting C++ 23 (GCC / Clang / MSVC).
 * Iconv (Optional on Windows. Required on other systems).
-* [GoogleTest](https://github.com/google/googletest) (Required if you build testbench).
+* [GoogleTest](https://github.com/google/googletest) (Required if you build test).
 * Doxygen (Required if you build documentation).
 * Python and Astral UV (Required if you use "User Build" method)
 
@@ -24,7 +24,7 @@ It means that it is not stable and work in progress.
 
 ### GoogleTest
 
-GoogleTest is required if you need to build testbench.
+GoogleTest is required if you need to build test.
 If you don't need this please skip this chapter.
 
 We use GoogleTest v1.17.0.
@@ -89,7 +89,7 @@ TODO...
 
 There is a list listing all variables you may configure during compiling.
 
-* `YYCC_BUILD_TESTBENCH`: Set it to `ON` to build testbench. `OFF` in default.
+* `YYCC_BUILD_TEST`: Set it to `ON` to build test. `OFF` in default.
 It is useful for the developer of this project.
 It also suit for the user who has runtime issues on their platforms to check whether this project works as expected.
 * `YYCC_BUILD_DOC`: Set it to `ON` to build documentation. `OFF` in default.
