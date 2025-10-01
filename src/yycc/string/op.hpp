@@ -144,31 +144,74 @@ namespace yycc::string::op {
 
 #pragma endregion
 
-#pragma region Strip
+#pragma region Strip and Trim
 
     /**
      * @brief Remove leading and trailing whitespace from the string.
-     * @param[in,out] strl The string to be stripped.
+     * @details
+     * This "strip" function is full Unicode supported.
+     * It means that it is different with all other ordinary implementations,
+     * that treat each UTF8 code unit as an invididual chars when stripping.
+     * This function will break given words by UTF8 code point first,
+     * and try to strip these code points in given string.
+     * So it can strip Unicode whitespace or any other characters correctly.
+     * However, obviously, it is slower than ASCII-only version "trim".
+     * If you only need to strip ASCII whitespace (space, tab, newline) or any other code point lower than \c 0x7F,
+     * please consider using trim() for better performance.
+     * @param[in] strl The string to be stripped.
      * @param[in] words The characters to be stripped.
      * @return The string view with leading and trailing whitespace removed.
+     * @see See trim() for ASCII-only version "strip".
      */
     std::u8string_view strip(const std::u8string_view& strl, const std::u8string_view& words);
-
     /**
      * @brief Remove leading whitespace from the string.
-     * @param[in,out] strl The string to be stripped.
+     * @param[in] strl The string to be stripped.
      * @param[in] words The characters to be stripped.
      * @return The string view with leading whitespace removed.
+     * @see See strip() for more info.
      */
     std::u8string_view lstrip(const std::u8string_view& strl, const std::u8string_view& words);
-
     /**
      * @brief Remove trailing whitespace from the string.
-     * @param[in,out] strl The string to be stripped.
+     * @param[in] strl The string to be stripped.
      * @param[in] words The characters to be stripped.
      * @return The string view with trailing whitespace removed.
+     * @see See strip() for more info.
      */
     std::u8string_view rstrip(const std::u8string_view& strl, const std::u8string_view& words);
+
+    /**
+     * @brief Remove leading and trailing whitespace from the string.
+     * @details
+     * This function is limited "trim" function.
+     * It brutely think each code unit in given words are invididual chars during stripping.
+     * So it can only trim ASCII whitespace (space, tab, newline) or any other code point lower than \c 0x7F.
+     * If you need to trim Unicode whitespace or any other characters,
+     * please consider using strip() for correct behavior.
+     * @param[in] strl The view of string to be trimmed.
+     * @param[in] words The characters to be trimmed.
+     * @return The string view with leading and trailing whitespace removed.
+     * @see See strip() for full Unicode supported version "trim".
+     */
+    std::u8string_view trim(const std::u8string_view& strl, const std::u8string_view& words);
+    /**
+     * @brief Remove leading whitespace from the string.
+     * @param[in] strl The view of string to be trimmed.
+     * @param[in] words The characters to be trimmed.
+     * @return The string view with leading whitespace removed.
+     * @see See trim() for more info.
+     */
+    std::u8string_view ltrim(const std::u8string_view& strl, const std::u8string_view& words);
+    /**
+     * @brief Remove trailing whitespace from the string.
+     * @param[in] strl The view of string to be trimmed.
+     * @param[in] words The characters to be trimmed.
+     * @return The string view with trailing whitespace removed.
+     * @see See trim() for more info.
+     */
+    std::u8string_view rtrim(const std::u8string_view& strl, const std::u8string_view& words);
+
 
 #pragma endregion
 

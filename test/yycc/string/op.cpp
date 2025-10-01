@@ -86,6 +86,12 @@ namespace yycctest::string::op {
             EXPECT_EQ(rv, u8" \taaa");
         }
 
+        // Full strip
+        {
+            auto rv = OP::strip(u8"   ", u8" ");
+            EXPECT_TRUE(rv.empty());
+        }
+
         // Special strip
         {
             auto rv = OP::strip(u8"啊啊啊aaaあああ", u8"啊あ");
@@ -110,6 +116,32 @@ namespace yycctest::string::op {
         }
     }
 
+    TEST(StringOp, Trim) {
+        // Normal trim
+        {
+            auto rv = OP::trim(u8" \taaa\n", u8" \t\r\n");
+            EXPECT_EQ(rv, u8"aaa");
+        }
+        {
+            auto rv = OP::ltrim(u8" \taaa\n", u8" \t\r\n");
+            EXPECT_EQ(rv, u8"aaa\n");
+        }
+        {
+            auto rv = OP::rtrim(u8" \taaa\n", u8" \t\r\n");
+            EXPECT_EQ(rv, u8" \taaa");
+        }
+
+        // Bad words
+        {
+            EXPECT_ANY_THROW(OP::trim(u8"q啊啊啊aaaあああp", u8"p啊q"));
+        }
+
+        // Full trim
+        {
+            auto rv = OP::trim(u8"   ", u8" ");
+            EXPECT_TRUE(rv.empty());
+        }
+    }
     TEST(StringOp, Split) {
         // Normal
         {

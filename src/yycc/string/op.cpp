@@ -379,7 +379,7 @@ namespace yycc::string::op {
 #pragma endregion
 
     template<bool bDoLeft, bool bDoRight>
-    std::u8string_view internal_strip(const std::u8string_view& strl, const std::u8string_view& words) {
+    static std::u8string_view internal_strip(const std::u8string_view& strl, const std::u8string_view& words) {
         std::optional<TrieTree> prefix, suffix;
         if constexpr (bDoLeft) prefix = TrieTree();
         if constexpr (bDoRight) suffix = TrieTree();
@@ -418,6 +418,62 @@ namespace yycc::string::op {
     }
 
 #pragma endregion
+
+#pragma region Trim
+
+    template<bool bDoLeft, bool bDoRight>
+    std::u8string_view internal_trim(const std::u8string_view& strl, const std::u8string_view& words) {
+        // check words
+        if (!std::ranges::none_of(words, [](auto c) { return static_cast<uint8_t>(c) & 0x80; })) {
+            throw std::invalid_argument("given words are not all ASCII (<= 0x7F) only");
+        }
+
+        // prepare return value
+        std::u8string_view rv = strl;
+
+        // remove left first
+        if constexpr (bDoLeft) {
+            auto finder = rv.find_first_not_of(words);
+            if (finder == std::u8string_view::npos) {
+                // all string are in given words
+                rv = std::u8string_view();
+            } else {
+                // remove by offset
+                rv = rv.substr(finder);
+            }
+        }
+
+        // remove right
+        if constexpr (bDoRight) {
+            auto finder = rv.find_last_not_of(words);
+            if (finder == std::u8string_view::npos) {
+                // all string are in given words
+                rv = std::u8string_view();
+            } else {
+                // remove by offset
+                rv = rv.substr(0, finder + 1);
+            }
+        }
+
+        // return value
+        return rv;
+    }
+
+    std::u8string_view trim(const std::u8string_view& strl, const std::u8string_view& words) {
+        return internal_trim<true, true>(strl, words);
+    }
+
+    std::u8string_view ltrim(const std::u8string_view& strl, const std::u8string_view& words) {
+        return internal_trim<true, false>(strl, words);
+    }
+
+    std::u8string_view rtrim(const std::u8string_view& strl, const std::u8string_view& words) {
+        return internal_trim<false, true>(strl, words);
+    }
+
+
+#pragma endregion
+
 
 #pragma region Split
 

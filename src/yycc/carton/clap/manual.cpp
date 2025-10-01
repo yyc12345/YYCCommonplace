@@ -2,10 +2,13 @@
 #include "../termcolor.hpp"
 #include "../../patch/stream.hpp"
 #include "../../patch/format.hpp"
+#include "../../string/op.hpp"
+#include <ranges>
 
 #define CLAP ::yycc::carton::clap
 #define TABULATE ::yycc::carton::tabulate
 #define TERMCOLOR ::yycc::carton::termcolor
+#define OP ::yycc::string::op
 #define FORMAT ::yycc::patch::format
 
 using namespace ::yycc::patch::stream;
@@ -51,6 +54,10 @@ namespace yycc::carton::clap::manual {
         const auto &options = app.get_options();
         for (const auto &reg_opt : options.all_options()) {
             const auto &opt = reg_opt.get_option();
+
+            //for (const auto [index, item] : std::views::enumerate(header)) {
+            //
+            //}
         }
     }
 
