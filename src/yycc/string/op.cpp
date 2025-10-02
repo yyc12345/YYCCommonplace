@@ -181,12 +181,12 @@ namespace yycc::string::op {
         std::u8string_view next_str;
 
     public:
+        CodePointIterator() : CodePointIterator(std::u8string_view()) {}
         CodePointIterator(const std::u8string_view& strl) : current_str(), next_str(strl) { ++(*this); }
+        YYCC_DEFAULT_COPY_MOVE(CodePointIterator)
 
         reference operator*() const { return this->current_str; }
-
         pointer operator->() const { return &this->current_str; }
-
         CodePointIterator& operator++() {
             // move next string to current string and analyse it
             current_str = next_str;
@@ -214,17 +214,14 @@ namespace yycc::string::op {
             // return self
             return *this;
         }
-
         CodePointIterator operator++(int) {
             CodePointIterator temp = *this;
             ++(*this);
             return temp;
         }
-
         bool operator==(const CodePointIterator& other) const {
             return this->current_str == other.current_str && this->next_str == other.next_str;
         }
-
         bool operator!=(const CodePointIterator& other) const { return !(*this == other); }
 
     private:
@@ -263,9 +260,9 @@ namespace yycc::string::op {
 
     public:
         explicit CodePoint(std::u8string_view u8str) : u8str(u8str) {}
+        YYCC_DEFAULT_COPY_MOVE(CodePoint)
 
         CodePointIterator begin() const { return CodePointIterator(u8str); }
-
         CodePointIterator end() const {
             // Pass empty string view indicate end.
             return CodePointIterator(std::u8string_view());
@@ -295,7 +292,7 @@ namespace yycc::string::op {
             // Do not accept root element always (no empty string).
             root->is_end = false;
         }
-        
+
         /**
          * @brief Insert new words in trie tree.
          * @details
@@ -352,18 +349,18 @@ namespace yycc::string::op {
 
             // YYC MARK:
             // There is a fatal bug for Trie Tree, but it doesn't matter with our usage scenario.
-            // 
+            //
             // Assume there is two string "ab" and "abcd". If user give "abc",
             // we should match it with "ab" prefix, but this function will return there is no match.
             // However, this is impossible for UTF8 sequence.
             // There is no possibility that two UTF8 sequence, indicating two different Unicode code point respectively,
             // has the same prefix and different length. Because their first byte must be different,
             // the first byte indicate the length of sequence.
-            // 
-            // This result also can be proven for suffix, 
+            //
+            // This result also can be proven for suffix,
             // because first byte must not be equal to any other continuation bytes.
             // It is impossible that they have same "ab".
-            // 
+            //
             // So it is safe for our usage scenario although this bug is presented.
 
             // check whether current is valid end.
@@ -471,9 +468,7 @@ namespace yycc::string::op {
         return internal_trim<false, true>(strl, words);
     }
 
-
 #pragma endregion
-
 
 #pragma region Split
 
@@ -481,6 +476,8 @@ namespace yycc::string::op {
     // https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 
 #pragma region Lazy Split Iterator
+
+    LazySplitIterator::LazySplitIterator() : LazySplitIterator(std::nullopt, std::u8string_view()) {}
 
     LazySplitIterator::LazySplitIterator(std::optional<std::u8string_view> strl, const std::u8string_view& delimiter) :
         m_current_str(std::nullopt), m_next_str(strl), m_delimiter(delimiter) {
@@ -542,8 +539,8 @@ namespace yycc::string::op {
     }
 
     bool LazySplitIterator::operator==(const LazySplitIterator& other) const {
-        return (this->m_current_str == other.m_current_str) && (this->m_next_str == other.m_next_str)
-               && (this->m_delimiter == other.m_delimiter);
+        // YYC MARK: do not compare the delimiter
+        return (this->m_current_str == other.m_current_str) && (this->m_next_str == other.m_next_str);
     }
 
     bool LazySplitIterator::operator!=(const LazySplitIterator& other) const {

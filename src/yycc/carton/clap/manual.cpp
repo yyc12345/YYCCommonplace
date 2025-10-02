@@ -55,13 +55,44 @@ namespace yycc::carton::clap::manual {
         for (const auto &reg_opt : options.all_options()) {
             const auto &opt = reg_opt.get_option();
 
-            //for (const auto [index, item] : std::views::enumerate(header)) {
-            //
-            //}
+            auto desc_by_line = OP::lazy_split(opt.get_description(), u8"\n");
+            for (const auto [index, item] : std::views::enumerate(desc_by_line)) {
+                if (index == 0) {
+                    auto full_name = TERMCOLOR::colored(opt.to_showcase_name(),
+                                                        TERMCOLOR::Color::LightYellow,
+                                                        TERMCOLOR::Color::Default,
+                                                        TERMCOLOR::Attribute::Default);
+                    auto value_hint = TERMCOLOR::colored(opt.to_showcase_value(),
+                                                         TERMCOLOR::Color::LightGreen,
+                                                         TERMCOLOR::Color::Default,
+                                                         TERMCOLOR::Attribute::Default);
+                    this->opt_printer.add_row({full_name, value_hint, item});
+                } else {
+                    this->opt_printer.add_row({u8"", u8"", item});
+                }
+            }
         }
     }
 
-    void Manual::fill_var_table() {}
+    void Manual::fill_var_table() {
+        const auto &variables = app.get_variables();
+        for (const auto &reg_var : variables.all_variables()) {
+            const auto &var = reg_var.get_variable();
+
+            auto desc_by_line = OP::lazy_split(var.get_description(), u8"\n");
+            for (const auto [index, item] : std::views::enumerate(desc_by_line)) {
+                if (index == 0) {
+                    auto name = TERMCOLOR::colored(var.get_name(),
+                                                   TERMCOLOR::Color::LightYellow,
+                                                   TERMCOLOR::Color::Default,
+                                                   TERMCOLOR::Attribute::Default);
+                    this->var_printer.add_row({name, item});
+                } else {
+                    this->var_printer.add_row({u8"", item});
+                }
+            }
+        }
+    }
 
     void Manual::print_version(std::ostream &dst) const {
         const auto &summary = this->app.get_summary();

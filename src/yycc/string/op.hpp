@@ -1,5 +1,6 @@
 #pragma once
 #include "../macro/printf_checker.hpp"
+#include "../macro/class_copy_move.hpp"
 #include <string>
 #include <string_view>
 #include <cstdarg>
@@ -243,7 +244,9 @@ namespace yycc::string::op {
         std::u8string_view m_delimiter; ///< Delimiter
 
     public:
+        LazySplitIterator();
         LazySplitIterator(std::optional<std::u8string_view> strl, const std::u8string_view& delimiter);
+        YYCC_DEFAULT_COPY_MOVE(LazySplitIterator)
 
         reference operator*() const;
         pointer operator->() const;
@@ -263,6 +266,8 @@ namespace yycc::string::op {
 
     public:
         LazySplit(const std::u8string_view& strl, const std::u8string_view& delimiter);
+        YYCC_DEFAULT_COPY_MOVE(LazySplit)
+
         LazySplitIterator begin() const;
         LazySplitIterator end() const;
     };
