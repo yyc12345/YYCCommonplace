@@ -16,8 +16,10 @@
  */
 namespace yycc::rust::env {
 
-    /// @brief The error occurs in this module.
-    enum class EnvError {
+#pragma region Environment Variable
+
+    /// @brief The error occurs in environment variable operations.
+    enum class VarError {
         NoSuchName,    ///< The variable with given name is not presented.
         BadEncoding,   ///< Error when performing encoding convertion.
         BadArithmetic, ///< Error when performing arithmetic operations.
@@ -26,16 +28,16 @@ namespace yycc::rust::env {
         NoMemory,      ///< No enough memory to finish this operation.
     };
 
-    /// @brief The result type in this module.
+    /// @brief The result type in environment variable operations.
     template<typename T>
-    using EnvResult = std::expected<T, EnvError>;
+    using VarResult = std::expected<T, VarError>;
 
     /**
      * @brief Get the value of given environment variable name.
      * @param[in] name The name of environment variable
      * @return Gotten value, or error occurs.
      */
-    EnvResult<std::u8string> get_var(const std::u8string_view& name);
+    VarResult<std::u8string> get_var(const std::u8string_view& name);
 
     /**
      * @brief Set the value of given environment variable name.
@@ -47,7 +49,7 @@ namespace yycc::rust::env {
      * @param[in] value The value to be written into.
      * @return Nothing or error occurs.
      */
-    EnvResult<void> set_var(const std::u8string_view& name, const std::u8string_view& value);
+    VarResult<void> set_var(const std::u8string_view& name, const std::u8string_view& value);
 
     /**
      * @brief Delete environment variable with given name.
@@ -57,6 +59,31 @@ namespace yycc::rust::env {
      * @param[in] name The name of environment variable
      * @return Nothing, or error occurs.
      */
-    EnvResult<void> del_var(const std::u8string_view& name);
+    VarResult<void> del_var(const std::u8string_view& name);
+
+#pragma endregion
+
+#pragma region Environment Path
+
+    /// @brief Error occurs when operating path related functions.
+    enum class PathError {
+        Win32,    ///< Underlying Win32 function error.
+        Posix,    ///< Underlying POSIX failed.
+        BadSize,  ///< Written size if not matched with expected size.
+        BadCast,  ///< Error occurs when casting values.
+        Overflow, ///< Some arithmetic operation overflow.
+    };
+
+    /// @brief The result type used for path related functions;
+    template<typename T>
+    using PathResult = std::expected<T, PathError>;
+
+    /**
+     * @brief Get the path of the current running executable.
+     * @return Gotten path (no absolute path guaranteed) or error occurs.
+     */
+    PathResult<std::u8string> current_exe();
+
+#pragma endregion
 
 } // namespace yycc::rust::env
