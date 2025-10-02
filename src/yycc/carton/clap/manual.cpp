@@ -3,6 +3,7 @@
 #include "../../patch/stream.hpp"
 #include "../../patch/format.hpp"
 #include "../../string/op.hpp"
+#include "../../rust/env.hpp"
 #include <ranges>
 
 #define CLAP ::yycc::carton::clap
@@ -10,6 +11,7 @@
 #define TERMCOLOR ::yycc::carton::termcolor
 #define OP ::yycc::string::op
 #define FORMAT ::yycc::patch::format
+#define ENV ::yycc::rust::env
 
 using namespace ::yycc::patch::stream;
 
@@ -107,8 +109,12 @@ namespace yycc::carton::clap::manual {
     void Manual::print_help(std::ostream &dst) const {
         this->print_version();
 
-        TERMCOLOR::cprintln(trctx.usage_title, TERMCOLOR::Color::Yellow, TERMCOLOR::Color::Default, TERMCOLOR::Attribute::Default, dst);
-        dst << INDENT << FORMAT::format(trctx.usage_body, app.get_summary().get_bin_name()) << std::endl;
+        // only print usage if we can fetch the name of executable
+        auto executable = ENV::current_exe();
+        if (executable.has_value()) {
+            TERMCOLOR::cprintln(trctx.usage_title, TERMCOLOR::Color::Yellow, TERMCOLOR::Color::Default, TERMCOLOR::Attribute::Default, dst);
+            dst << INDENT << FORMAT::format(trctx.usage_body, executable.value()) << std::endl;
+        }
 
         const auto &variables = app.get_variables();
         if (!variables.empty()) {
