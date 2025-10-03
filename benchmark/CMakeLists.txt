@@ -6,6 +6,8 @@ PRIVATE
     main.cpp
 
     yycc/string/op.cpp
+
+    yycc/carton/fft.cpp
 )
 # target_sources(YYCCBenchmark
 # PRIVATE

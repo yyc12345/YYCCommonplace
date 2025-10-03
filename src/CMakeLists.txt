@@ -95,6 +95,7 @@ FILES
     yycc/carton/clap/summary.hpp
     yycc/carton/clap/application.hpp
     yycc/carton/clap/manual.hpp
+    yycc/carton/fft.hpp
 )
 # Setup header infomations
 target_include_directories(YYCCommonplace
