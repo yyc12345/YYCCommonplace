@@ -11,6 +11,7 @@ namespace yyccbench::string::op {
         std::u8string_view strl = u8" \thello\r\n"sv, words = u8" \t\r\n"sv;
         for (auto _ : state) {
             auto rv = OP::strip(strl, words);
+            benchmark::DoNotOptimize(rv);
         }
     }
     BENCHMARK(BM_StringStrip)->Name("StringStrip");
@@ -19,6 +20,7 @@ namespace yyccbench::string::op {
         std::u8string_view strl = u8" \thello\r\n"sv, words = u8" \t\r\n"sv;
         for (auto _ : state) {
             auto rv = OP::trim(strl, words);
+            benchmark::DoNotOptimize(rv);
         }
     }
     BENCHMARK(BM_StringTrim)->Name("StringTrim");

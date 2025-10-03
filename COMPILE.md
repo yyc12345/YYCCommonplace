@@ -26,7 +26,8 @@ So you actually do not need Google Test, Google Benchmark and Doxygen.
 > [!WARNING]  
 > You may face some issues when building on macOS with Clang. That's not your fault.
 > Clang used libc++ library lacks some essential features used by this project.
-> You may try other solutions for compiling this project on macOS or with Clang.
+> A possible solution is that use GCC and libstdc++ on macOS instead of default Clang and libc++.
+> Build issue may be resolved until libc++ finish these features: `std::stacktrace` and `std::views::enumerate`.
 
 ### Google Test
 
