@@ -15,11 +15,14 @@
  * 
  * Unfortunately, I cannot change the exception mechanism in the standard library.
  * The standard library will still throw exceptions where it does, and I cannot prevent that.
- * Therefore, I suggest a good practice that any C++ exception should be immediately treated as an error and cause the program to crash and exit.
- * For this reason, registering any unhandled error callbacks which may resume the execution of program is prohibited to prevent unexpected continuation of execution.
- * For code we write ourselves that we can control, we should use the macros provided in this file instead of throwing exceptions.
- * In this way, unexpected behavior in our code will cause the program to exit immediately, outputting error information and stack traces.
+ * Therefore, I suggest a good practice call "exception is error",
+ * any C++ exception should be immediately treated as an error and cause the program to crash and exit.
+ * For this reason, registering any unhandled error callbacks which may resume the execution of program 
+ * is strictly prohibited to prevent any unexpected recovery from exceptions.
+ * For code your written, you should use the macros provided in this file instead of throwing exceptions.
+ * In this way, unexpected behavior in code will cause immediate exit, shown error information and stack traces.
  * Standard library exceptions will also cause the program to exit, but without stack information.
+ * However, if you are following "exception is error" rule, you still can throw exceptions instead.
  */
 namespace yycc::panic {
 

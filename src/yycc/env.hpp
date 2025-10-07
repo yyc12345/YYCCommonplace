@@ -4,15 +4,15 @@
 #include <expected>
 
 /**
- * @brief The namespace providing environment variable operations.
+ * @brief The namespace providing runtime environment operations.
+
  * @details
  * When I programming with Rust, I was astonished that
- * Rust standard library have so much robust environment variable operations.
- * Oppositly, C++ STL still lake in this even in today.
- *
- * The functions manipulating environment variable is different in different OS.
- * I create this namespace inspired from Rust standard library
- * to glue all these things up and make a uniform interface.
+ * Rust standard library have so much robust environment-related operations,
+ * such as environment variable operations, current program infos and etc.
+ * Oppositly, C++ STL are still lack in this even in today.
+ * So I create this namespace to glue all these things up, 
+ * according to different operating systems, and make a uniform interface.
  */
 namespace yycc::env {
 

@@ -1,4 +1,17 @@
 #pragma once
+/**
+ * @file
+ * @brief The Rust-like prelude header for C++.
+ * @details
+ * When I writting with Rust, I notice Rust add types for all files in default.
+ * This default imported types are called "prelude".
+ * This is very convenient for programming so I decide to introduce it in C++.
+ * 
+ * I create this file, organize all types, which I think should be exposed for programmer, in to an independent namespace,
+ * and expose them into global namesoace.
+ * By simply include this file at the top of your C++ code, you can get Rust-like prelude effect in C++.
+ * These exposed types including primitive types, string types, basic Option and Result utilities, panic mechanisim and etc.
+*/
 
 // Rust prelude section
 #include "primitive.hpp"
@@ -7,6 +20,13 @@
 #include "panic.hpp"
 #include <vector>
 
+/**
+ * @brief The namespace including all types presented in prelude.
+ * @details
+ * By including this file, all of these types are automaticalling exposed to global namespace.
+ * There is no need to refer this namespace anymore.
+ * This namespace is just a container for types which need to be exposed.
+ */
 namespace yycc::prelude {
     // Include primitive types
 
@@ -27,12 +47,11 @@ namespace yycc::prelude {
     using f32 = NS_YYCC_PRIMITIVE::f32;
     using f64 = NS_YYCC_PRIMITIVE::f64;
 
-    using str = NS_YYCC_PRIMITIVE::str;
-
 #undef NS_YYCC_PRIMITIVE
 
     // Other types
-    using String = std::u8string;
+    //using str = std::u8string_view;
+    //using String = std::u8string;
     template<typename T>
     using Vec = std::vector<T>;
 
