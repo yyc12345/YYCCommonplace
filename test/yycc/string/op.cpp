@@ -2,7 +2,7 @@
 #include <yycc.hpp>
 #include <yycc/string/op.hpp>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define OP ::yycc::string::op
 using namespace std::literals::string_view_literals;

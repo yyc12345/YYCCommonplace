@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <string_view>
 
-namespace yycc::rust::primitive {
+namespace yycc::primitive {
 
 	// `bool` is keyword so should not declare it anymore.
 	// `char` is keyword so should not declare it anymore.
@@ -25,4 +25,3 @@ namespace yycc::rust::primitive {
 
 	using str = std::u8string_view;
 }
-

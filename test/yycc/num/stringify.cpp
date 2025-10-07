@@ -2,7 +2,7 @@
 #include <yycc.hpp>
 #include <yycc/num/stringify.hpp>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define STRINGIFY ::yycc::num::stringify
 

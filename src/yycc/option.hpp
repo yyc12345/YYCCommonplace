@@ -7,7 +7,7 @@
  * This namespace reproduce Rust Option type, and its members Some and None in C++.
  * However Option is not important than Result, so its implementation is very casual.
  */
-namespace yycc::rust::option {
+namespace yycc::option {
 
     template<typename T>
     using Option = std::optional<T>;
@@ -22,4 +22,4 @@ namespace yycc::rust::option {
         return OptionType(std::nullopt);
     }
 
-} // namespace yycc::rust::option
+} // namespace yycc::option

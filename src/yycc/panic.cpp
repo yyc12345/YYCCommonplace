@@ -1,6 +1,6 @@
 #include "panic.hpp"
-#include "../carton/termcolor.hpp"
-#include "../patch/stream.hpp"
+#include "carton/termcolor.hpp"
+#include "patch/stream.hpp"
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -10,7 +10,7 @@
 
 using namespace yycc::patch::stream;
 
-namespace yycc::rust::panic {
+namespace yycc::panic {
 
     void panic(const char* file, int line, const std::u8string_view& msg) {
         // Output message in stderr.
@@ -36,4 +36,4 @@ namespace yycc::rust::panic {
         std::abort();
     }
 
-} // namespace yycc::rust::panic
+} // namespace yycc::panic

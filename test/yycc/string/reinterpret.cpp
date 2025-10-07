@@ -3,7 +3,7 @@
 #include <yycc.hpp>
 #include <yycc/string/reinterpret.hpp>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define REINTERPRET ::yycc::string::reinterpret
 #define AS_UINT8(p) static_cast<u8>(p)

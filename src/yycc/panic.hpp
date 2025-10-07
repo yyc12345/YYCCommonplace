@@ -1,5 +1,5 @@
 #pragma once
-#include "../patch/format.hpp"
+#include "patch/format.hpp"
 #include <string_view>
 #include <format>
 
@@ -21,7 +21,7 @@
  * In this way, unexpected behavior in our code will cause the program to exit immediately, outputting error information and stack traces.
  * Standard library exceptions will also cause the program to exit, but without stack information.
  */
-namespace yycc::rust::panic {
+namespace yycc::panic {
 
     /**
      * @brief Immediately crashes the entire program like Rust's \c panic! macro.
@@ -31,7 +31,7 @@ namespace yycc::rust::panic {
      * However, this format function is specially modified that it can accept UTF8 format string and UTF8 string argument.
      * More preciously, it is "format" in \c yycc::patch::format namespace.
      */
-#define RS_PANIC(msg, ...) ::yycc::rust::panic::panic(__FILE__, __LINE__, ::yycc::patch::format::format(msg __VA_OPT__(, ) __VA_ARGS__))
+#define RS_PANIC(msg, ...) ::yycc::panic::panic(__FILE__, __LINE__, ::yycc::patch::format::format(msg __VA_OPT__(, ) __VA_ARGS__))
 
     /**
      * @brief Immediately crashes the entire program like Rust's \c panic! macro.
@@ -44,4 +44,4 @@ namespace yycc::rust::panic {
      */
     [[noreturn]] void panic(const char* file, int line, const std::u8string_view& msg);
 
-} // namespace yycc::rust::panic
+} // namespace yycc::panic

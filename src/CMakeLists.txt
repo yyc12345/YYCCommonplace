@@ -15,7 +15,7 @@ PRIVATE
     yycc/string/op.cpp
     yycc/patch/fopen.cpp
     yycc/patch/stream.cpp
-    yycc/rust/panic.cpp
+    yycc/panic.cpp
     yycc/env.cpp
     yycc/windows/com.cpp
     yycc/windows/dialog.cpp
@@ -53,6 +53,7 @@ FILES
     yycc/macro/class_copy_move.hpp
     yycc/macro/printf_checker.hpp
     yycc/flag_enum.hpp
+    yycc/string.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp
     yycc/patch/ptr_pad.hpp
@@ -64,11 +65,11 @@ FILES
     yycc/num/safe_cast.hpp
     yycc/num/safe_op.hpp
     yycc/num/op.hpp
-    yycc/rust/prelude.hpp
-    yycc/rust/primitive.hpp
-    yycc/rust/panic.hpp
-    yycc/rust/option.hpp
-    yycc/rust/result.hpp
+    yycc/primitive.hpp
+    yycc/option.hpp
+    yycc/result.hpp
+    yycc/prelude.hpp
+    yycc/panic.hpp
     yycc/env.hpp
     yycc/windows/import_guard_head.hpp
     yycc/windows/import_guard_tail.hpp

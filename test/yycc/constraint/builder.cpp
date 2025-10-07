@@ -2,7 +2,7 @@
 #include <yycc.hpp>
 #include <yycc/constraint/builder.hpp>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define BUILDER ::yycc::constraint::builder
 using namespace std::literals::string_view_literals;

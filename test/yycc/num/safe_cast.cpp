@@ -3,7 +3,7 @@
 #include <yycc/num/safe_cast.hpp>
 #include <yycc/macro/ptr_size_detector.hpp>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define CAST ::yycc::num::safe_cast
 

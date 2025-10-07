@@ -2,7 +2,7 @@
 #include <yycc.hpp>
 #include <yycc/constraint.hpp>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define CONSTRAINT ::yycc::constraint::Constraint
 

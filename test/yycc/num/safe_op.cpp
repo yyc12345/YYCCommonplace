@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <limits>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define OP ::yycc::num::safe_op
 

@@ -36,7 +36,7 @@
  * Similarly, when using \c std::cerr 's \c operator<< overload, you also need to write suitable adapters.
  * @remarks This namespace only work with environment supporting `std::expected` (i.e. C++ 23).
  */
-namespace yycc::rust::result {
+namespace yycc::result {
 
     /**
      * @brief Equivalent Rust \c Result in C++
@@ -74,4 +74,4 @@ namespace yycc::rust::result {
         return ResultType(std::unexpect, std::forward<Args>(args)...);
     }
 
-} // namespace yycc::rust::result
+} // namespace yycc::result

@@ -2,7 +2,7 @@
 #include <yycc.hpp>
 #include <yycc/num/op.hpp>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define OP ::yycc::num::op
 

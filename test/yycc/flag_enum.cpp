@@ -3,7 +3,7 @@
 #include <yycc/flag_enum.hpp>
 #include <cinttypes>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define FLAG_ENUM ::yycc::flag_enum
 

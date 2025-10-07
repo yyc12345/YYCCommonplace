@@ -29,7 +29,7 @@ In short words, this library use UTF8 encoding everywhere except some special ca
 \li Traditional format function in yycc::string::op.
 Traditional format function provide some overloads for ordinary string formatting.
 That's because this feature is so common to use in some cases.
-\li The message of Rust panic in yycc::rust::panic.
+\li The message of Rust panic in yycc::panic.
 Due to the limitation of \c std::format, we only can use ordinary string as its message content.
 \li The message of standard library exception.
 For the compatibility with C++ standard library exception,

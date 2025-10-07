@@ -2,7 +2,7 @@
 #include <yycc.hpp>
 #include <yycc/num/parse.hpp>
 
-#include <yycc/rust/prelude.hpp>
+#include <yycc/prelude.hpp>
 
 #define PARSE ::yycc::num::parse
 
