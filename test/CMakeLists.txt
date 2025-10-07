@@ -20,7 +20,7 @@ PRIVATE
     yycc/patch/fopen.cpp
     yycc/patch/stream.cpp
     yycc/patch/format.cpp
-    yycc/rust/env.cpp
+    yycc/env.cpp
     yycc/string/reinterpret.cpp
     yycc/string/op.cpp
     yycc/num/parse.cpp

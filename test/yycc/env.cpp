@@ -1,17 +1,17 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
-#include <yycc/rust/env.hpp>
+#include <yycc/env.hpp>
 #include <yycc/macro/os_detector.hpp>
 #include <filesystem>
 
-#define ENV ::yycc::rust::env
+#define ENV ::yycc::env
 
-namespace yycctest::rust::env {
+namespace yycctest::env {
 
     constexpr char8_t VAR_NAME[] = u8"HOMER";
     constexpr char8_t VAR_VALUE[] = u8"doh";
 
-    TEST(RustEnv, EnvVar) {
+    TEST(Env, EnvVar) {
         // Write a new variable should okey
         {
             auto rv = ENV::set_var(VAR_NAME, VAR_VALUE);
@@ -44,7 +44,7 @@ namespace yycctest::rust::env {
         }
     }
 
-    TEST(RustEnv, CurrentExe) {
+    TEST(Env, CurrentExe) {
         auto rv = ENV::current_exe();
         ASSERT_TRUE(rv.has_value());
 
@@ -59,4 +59,4 @@ namespace yycctest::rust::env {
 #endif
     }
 
-} // namespace yycctest::rust::env
+} // namespace yycctest::env

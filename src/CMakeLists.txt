@@ -16,7 +16,7 @@ PRIVATE
     yycc/patch/fopen.cpp
     yycc/patch/stream.cpp
     yycc/rust/panic.cpp
-    yycc/rust/env.cpp
+    yycc/env.cpp
     yycc/windows/com.cpp
     yycc/windows/dialog.cpp
     yycc/windows/winfct.cpp
@@ -69,7 +69,7 @@ FILES
     yycc/rust/panic.hpp
     yycc/rust/option.hpp
     yycc/rust/result.hpp
-    yycc/rust/env.hpp
+    yycc/env.hpp
     yycc/windows/import_guard_head.hpp
     yycc/windows/import_guard_tail.hpp
     yycc/windows/com.hpp

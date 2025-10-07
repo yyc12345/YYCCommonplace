@@ -1,15 +1,15 @@
 #include "env.hpp"
-#include "../macro/os_detector.hpp"
+#include "macro/os_detector.hpp"
 
 // Environment variable required
 #if defined(YYCC_OS_WINDOWS)
-#include "../encoding/windows.hpp"
-#include "../num/safe_op.hpp"
-#include "../num/safe_cast.hpp"
+#include "encoding/windows.hpp"
+#include "num/safe_op.hpp"
+#include "num/safe_cast.hpp"
 #include <Windows.h>
 #include <winbase.h>
 #else
-#include "../string/reinterpret.hpp"
+#include "string/reinterpret.hpp"
 #include <cstdlib>
 #include <cerrno>
 #include <stdexcept>
@@ -17,7 +17,7 @@
 
 // Path related functions required
 #if defined(YYCC_OS_WINDOWS)
-#include "../windows/winfct.hpp"
+#include "windows/winfct.hpp"
 #else
 #include <unistd.h>
 #include <sys/stat.h>
@@ -29,7 +29,7 @@
 #define REINTERPRET ::yycc::string::reinterpret
 #define WINFCT ::yycc::windows::winfct
 
-namespace yycc::rust::env {
+namespace yycc::env {
 
 #pragma region Environment Variable
 
@@ -207,4 +207,4 @@ namespace yycc::rust::env {
 
 #pragma endregion
 
-} // namespace yycc::rust::env
+} // namespace yycc::env

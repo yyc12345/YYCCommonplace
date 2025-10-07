@@ -14,7 +14,7 @@
  * I create this namespace inspired from Rust standard library
  * to glue all these things up and make a uniform interface.
  */
-namespace yycc::rust::env {
+namespace yycc::env {
 
 #pragma region Environment Variable
 
@@ -86,4 +86,4 @@ namespace yycc::rust::env {
 
 #pragma endregion
 
-} // namespace yycc::rust::env
+} // namespace yycc::env
