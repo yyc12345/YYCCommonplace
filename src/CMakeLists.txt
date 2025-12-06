@@ -96,6 +96,7 @@ FILES
     yycc/carton/clap/summary.hpp
     yycc/carton/clap/application.hpp
     yycc/carton/clap/manual.hpp
+    yycc/carton/clap/validator.hpp
     yycc/carton/fft.hpp
 )
 # Setup header infomations

@@ -14,7 +14,7 @@ namespace yycc::carton::clap::application {
                     NS_YYCC_CLAP::option::OptionCollection&& options,
                     NS_YYCC_CLAP::variable::VariableCollection&& variables);
         ~Application();
-        YYCC_DEFAULT_COPY_MOVE(Application);
+        YYCC_DEFAULT_COPY_MOVE(Application)
 
     public:
         const NS_YYCC_CLAP::summary::Summary& get_summary() const;

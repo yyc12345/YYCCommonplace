@@ -13,7 +13,7 @@ namespace yycc::carton::clap::manual {
     public:
         ManualTr();
         ~ManualTr();
-        YYCC_DEFAULT_COPY_MOVE(ManualTr);
+        YYCC_DEFAULT_COPY_MOVE(ManualTr)
 
     public:
         std::u8string author_and_version;
@@ -25,7 +25,7 @@ namespace yycc::carton::clap::manual {
     public:
         Manual(const NS_YYCC_CLAP::application::Application& app, ManualTr&& trctx = ManualTr());
         ~Manual();
-        YYCC_DEFAULT_COPY_MOVE(Manual);
+        YYCC_DEFAULT_COPY_MOVE(Manual)
 
     private:
         void setup_table();
