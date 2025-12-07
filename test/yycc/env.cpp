@@ -48,8 +48,7 @@ namespace yycctest::env {
         auto rv = ENV::current_exe();
         ASSERT_TRUE(rv.has_value());
 
-        std::filesystem::path p(rv.value());
-        auto filename = p.filename().u8string();
+        auto filename = rv.value().filename().u8string();
 #if defined(YYCC_OS_WINDOWS)
         // Only Windows has special ext.
         EXPECT_EQ(filename, u8"YYCCTest.exe");

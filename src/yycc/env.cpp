@@ -50,7 +50,7 @@ namespace yycc::env {
             // the size passed to this function must include NULL terminal.
             // So we forcely use checked add and sub for this bad behavior.
             auto fct_size = SAFEOP::checked_add<size_t>(wvalue.size(), 1);
-            if (!fct_size.has_value()) return std::unexpected(VarError::BadArithmetic);
+            if (!fct_size.has_value()) return std::unexpected(VarError::Others);
             auto rv = ::GetEnvironmentVariableW(wname.c_str(), wvalue.data(), fct_size.value());
 
             // Check the return value
@@ -58,14 +58,14 @@ namespace yycc::env {
                 // Function failed. Extract error reason.
                 auto ec = GetLastError();
                 if (ec == ERROR_ENVVAR_NOT_FOUND) return std::unexpected(VarError::NoSuchName);
-                else return std::unexpected(VarError::BadCall);
+                else return std::unexpected(VarError::SysCall);
             } else {
                 // Function okey. Check the size.
                 // Fetch function expected size.
                 auto rv_size = SAFECAST::try_to<size_t>(rv);
-                if (!rv_size.has_value()) return std::unexpected(VarError::BadArithmetic);
+                if (!rv_size.has_value()) return std::unexpected(VarError::Others);
                 auto exp_size = SAFEOP::checked_sub<size_t>(rv_size.value(), 1);
-                if (!exp_size.has_value()) return std::unexpected(VarError::BadArithmetic);
+                if (!exp_size.has_value()) return std::unexpected(VarError::Others);
 
                 // YYC MARK:
                 // According to Microsoft, the return value of this function is just a bullshit.
@@ -106,7 +106,7 @@ namespace yycc::env {
 
         // Convert to wchar, set variable, and check result.
         auto rv = ::SetEnvironmentVariableW(ENC::to_wchar(name).value().c_str(), ENC::to_wchar(value).value().c_str());
-        if (!rv) return std::unexpected(VarError::BadCall);
+        if (!rv) return std::unexpected(VarError::SysCall);
         else return {};
 #else
         // Reference: https://pubs.opengroup.org/onlinepubs/9699919799/functions/setenv.html
@@ -130,7 +130,7 @@ namespace yycc::env {
 
         // Convert to wchar, delete variable, and check result.
         auto rv = ::SetEnvironmentVariableW(ENC::to_wchar(name).value().c_str(), NULL);
-        if (!rv) return std::unexpected(VarError::BadCall);
+        if (!rv) return std::unexpected(VarError::SysCall);
         else return {};
 #else
         // Reference: https://pubs.opengroup.org/onlinepubs/9699919799/functions/unsetenv.html
@@ -146,18 +146,26 @@ namespace yycc::env {
 #endif
     }
 
+    VarResult<std::vector<VarPair>> get_vars() {
+        // TODO: finish this function according to Rust implementation.
+        // Considering whether replace return value with an iterator.
+        throw std::logic_error("not implemented");
+    }
+
 #pragma endregion
 
-#pragma region Environment
+#pragma region Environment Path
 
-    PathResult<std::u8string> current_exe() {
+    PathResult<std::filesystem::path> current_dir() {
+        return std::filesystem::current_path();
+    }
+
+    PathResult<std::filesystem::path> current_exe() {
 #if defined(YYCC_OS_WINDOWS)
-        return WINFCT::get_module_file_name(NULL).transform_error([](auto e) { return PathError::Win32; });
-#else
-        // TODO:
-        // "/proc/self/exe" is Linux specific, not in POSIX standard.
-        // This method may need further patch when running on macOS.
-
+        return WINFCT::get_module_file_name(NULL).transform_error([](auto e) { return PathError::SysCall; }).transform([](auto v) {
+            return std::filesystem::path(v);
+        });
+#elif defined(YYCC_OS_LINUX)
         // Reference: https://www.man7.org/linux/man-pages/man2/readlink.2.html
 
         // specify the path
@@ -169,7 +177,7 @@ namespace yycc::env {
         }
         auto expected_size = SAFECAST::try_to<size_t>(sb.st_size);
         if (!expected_size.has_value()) {
-            return std::unexpected(PathError::BadCast);
+            return std::unexpected(PathError::Others);
         }
         auto buf_size = expected_size.value();
         // Some magic symlinks under (for example) /proc and /sys report 'st_size' as zero.
@@ -184,25 +192,48 @@ namespace yycc::env {
         // write data
         auto passed_size = SAFEOP::checked_add<size_t>(buf_size, 1);
         if (!passed_size.has_value()) {
-            return std::unexpected(PathError::Overflow);
+            return std::unexpected(PathError::Others);
         }
         ssize_t nbytes = readlink(path, REINTERPRET::as_ordinary(rv.data()), passed_size.value());
         if (nbytes < 0) {
-            return std::unexpected(PathError::Posix);
+            return std::unexpected(PathError::Others);
         }
 
         // check written size
         auto written_size = SAFECAST::try_to<size_t>(nbytes);
         if (!written_size.has_value()) {
-            return std::unexpected(PathError::BadCast);
+            return std::unexpected(PathError::Others);
         }
         if (written_size.value() != buf_size) {
-            return std::unexpected(PathError::BadSize);
+            return std::unexpected(PathError::Others);
         }
 
         // okey
-        return rv;
+        return std::filesystem::path(rv);
+#else
+        // TODO: Implement this in other OS.
+        // "/proc/self/exe" is Linux specific, not in POSIX standard.
+        // This method may need further patch when running on macOS.
 #endif
+    }
+
+    PathResult<std::filesystem::path> home_dir() {
+        // TODO: finish this function according to Rust implementation.
+        throw std::logic_error("not implemented");
+    }
+
+    PathResult<std::filesystem::path> temp_dir() {
+        return std::filesystem::temp_directory_path();
+    }
+
+#pragma endregion
+
+#pragma region Environment Argument
+
+    ArgResult<std::vector<std::u8string>> get_args() {
+        // TODO: finish this function according to Rust implementation.
+        // Considering whether use iterator as return value.
+        throw std::logic_error("not implemented");
     }
 
 #pragma endregion

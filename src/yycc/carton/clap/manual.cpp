@@ -113,7 +113,7 @@ namespace yycc::carton::clap::manual {
         auto executable = ENV::current_exe();
         if (executable.has_value()) {
             TERMCOLOR::cprintln(trctx.usage_title, TERMCOLOR::Color::Yellow, TERMCOLOR::Color::Default, TERMCOLOR::Attribute::Default, dst);
-            dst << INDENT << FORMAT::format(trctx.usage_body, executable.value()) << std::endl;
+            dst << INDENT << FORMAT::format(trctx.usage_body, executable.value().u8string()) << std::endl;
         }
 
         const auto &variables = app.get_variables();
