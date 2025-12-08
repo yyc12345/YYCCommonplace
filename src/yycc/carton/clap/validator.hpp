@@ -19,16 +19,22 @@ namespace yycc::carton::clap::validator {
      * And, it also should have an member function called "validate"
      * which receive <TT>const std::string_view&</TT> as its only argument,
      * and return <TT>std::optional<ReturnType></TT> as result.
-     * If this \t std::optional is empty, it means that there is some error occurs when validating,
+     * If this \c std::optional is empty, it means that there is some error occurs when validating,
      * otherwise, it is the validated value.
+     * 
+     * Finally, it must can be default initialized.
      */
     template<typename T>
-    concept Validator = requires(const T& t, const std::u8string_view& sv) {
+    concept Validator = std::default_initializable<T> && requires(const T& t, const std::u8string_view& sv) {
         // Check whether there is T::ReturnType type
         typename T::ReturnType;
         // Check whether there is "validate" member function and it has correct signature.
         { t.validate(sv) } -> std::same_as<std::optional<typename T::ReturnType>>;
     };
+
+    /// @brief A convenient alias to the return type of validator.
+    template<Validator T>
+    using ValidatorReturnType = T::ReturnType;
 
     template<std::integral T, auto TMin = std::numeric_limits<T>::min(), auto TMax = std::numeric_limits<T>::max()>
     struct IntegralValidator {
