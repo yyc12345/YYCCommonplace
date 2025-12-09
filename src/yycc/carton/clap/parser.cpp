@@ -61,45 +61,6 @@ namespace yycc::carton::clap::parser {
 
 #pragma region Core
 
-    /// @brief Core capture function.
-    template<std::ranges::viewable_range V>
-    static TYPES::ClapResult<std::map<TYPES::Token, std::optional<std::u8string>>> capture(const APPLICATION::Application& app, V&& args) {
-        // Create context.
-        ParserContext ctx(app);
-
-        // Fetch commandline arguments
-        // And skip the first argument because it is the path to executable.
-        // Then start to execute until all arguments are consumed.
-        for (const auto& arg : args | std::views::drop(1)) {
-            // Fetch argument kind
-            ClassifiedArgument classified_arg(arg);
-
-            // Execute handler according to state.
-            TYPES::ClapResult<void> rv;
-            switch (ctx.state) {
-                case ParserState::Normal:
-                    rv = normal_state(ctx, classified_arg);
-                    break;
-                case ParserState::WaitingValue:
-                    rv = waiting_value_state(ctx, classified_arg);
-                    break;
-            }
-            if (!rv.has_value()) {
-                return std::unexpected(rv.error());
-            }
-        }
-
-        // If the final state is waiting value,
-        // it means that the last option lose its asociated value.
-        // So we need report error.
-        if (ctx.state == ParserState::WaitingValue && ctx.opt_waiting.has_value()) {
-            return std::unexpected(TYPES::ClapError::LostValue);
-        }
-
-        // Return capture result.
-        return ctx.values;
-    }
-
     /// @brief The handler for state machine Normal state.
     static TYPES::ClapResult<void> normal_state(ParserContext& ctx, const ClassifiedArgument& arg) {
         // Do thing according all registered options.
@@ -165,6 +126,45 @@ namespace yycc::carton::clap::parser {
         }
 
         return {};
+    }
+
+    /// @brief Core capture function.
+    template<std::ranges::viewable_range V>
+    static TYPES::ClapResult<std::map<TYPES::Token, std::optional<std::u8string>>> capture(const APPLICATION::Application& app, V&& args) {
+        // Create context.
+        ParserContext ctx(app);
+
+        // Fetch commandline arguments
+        // And skip the first argument because it is the path to executable.
+        // Then start to execute until all arguments are consumed.
+        for (const auto& arg : args | std::views::drop(1)) {
+            // Fetch argument kind
+            ClassifiedArgument classified_arg(arg);
+
+            // Execute handler according to state.
+            TYPES::ClapResult<void> rv;
+            switch (ctx.state) {
+                case ParserState::Normal:
+                    rv = normal_state(ctx, classified_arg);
+                    break;
+                case ParserState::WaitingValue:
+                    rv = waiting_value_state(ctx, classified_arg);
+                    break;
+            }
+            if (!rv.has_value()) {
+                return std::unexpected(rv.error());
+            }
+        }
+
+        // If the final state is waiting value,
+        // it means that the last option lose its asociated value.
+        // So we need report error.
+        if (ctx.state == ParserState::WaitingValue && ctx.opt_waiting.has_value()) {
+            return std::unexpected(TYPES::ClapError::LostValue);
+        }
+
+        // Return capture result.
+        return ctx.values;
     }
 
 #pragma endregion
