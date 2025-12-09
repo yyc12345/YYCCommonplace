@@ -48,7 +48,8 @@ namespace yycc::carton::clap::parser {
     /// @brief The state machine context prepared for parser.
     struct ParserContext {
         ParserContext(const APPLICATION::Application& app) : state(ParserState::Normal), opt_waiting(std::nullopt), app(app), values() {}
-        YYCC_DEFAULT_COPY_MOVE(ParserContext)
+        // We have a "const" reference member so we delete these.
+        YYCC_DELETE_COPY_MOVE(ParserContext)
 
         ParserState state;                                           ///< Current state.
         std::optional<TYPES::Token> opt_waiting;                     ///< The token to the option waiting for associated value.
@@ -61,14 +62,15 @@ namespace yycc::carton::clap::parser {
 #pragma region Core
 
     /// @brief Core capture function.
-    static TYPES::ClapResult<std::map<TYPES::Token, std::optional<std::u8string>>> capture(const APPLICATION::Application& app) {
+    template<std::ranges::viewable_range V>
+    static TYPES::ClapResult<std::map<TYPES::Token, std::optional<std::u8string>>> capture(const APPLICATION::Application& app, V args) {
         // Create context.
         ParserContext ctx(app);
 
         // Fetch commandline arguments
         // And skip the first argument because it is the path to executable.
         // Then start to execute until all arguments are consumed.
-        for (const auto& arg : ENV::get_args() | std::views::drop(1)) {
+        for (const auto& arg : args | std::views::drop(1)) {
             // Fetch argument kind
             ClassifiedArgument classified_arg(arg);
 
@@ -170,11 +172,17 @@ namespace yycc::carton::clap::parser {
 #pragma region Parser Class
 
     TYPES::ClapResult<Parser> Parser::from_user(const APPLICATION::Application& app, const std::vector<std::u8string_view>& args) {
-        return TYPES::ClapResult<Parser>();
+        auto rv = capture(app, args);
+        if (rv.has_value()) return Parser(std::move(rv.value()));
+        else return std::unexpected(rv.error());
     }
 
     TYPES::ClapResult<Parser> Parser::from_system(const APPLICATION::Application& app) {
-        return TYPES::ClapResult<Parser>();
+        auto rv = capture(app, ENV::get_args() | std::views::transform([](auto s) {
+                                   return std::u8string_view(s);
+                               }));
+        if (rv.has_value()) return Parser(std::move(rv.value()));
+        else return std::unexpected(rv.error());
     }
 
     Parser::Parser(decltype(Parser::values)&& value) : values(std::move(values)) {}
