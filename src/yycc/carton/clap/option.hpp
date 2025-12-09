@@ -20,6 +20,7 @@ namespace yycc::carton::clap::option {
         YYCC_DEFAULT_COPY_MOVE(Option)
 
     public:
+        bool has_value() const;
         std::optional<std::u8string_view> get_short_name() const;
         std::optional<std::u8string_view> get_long_name() const;
         std::optional<std::u8string_view> get_value_hint() const;

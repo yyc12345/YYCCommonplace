@@ -146,7 +146,7 @@ namespace yycc::env {
 #endif
     }
 
-    VarResult<std::vector<VarPair>> get_vars() {
+    std::vector<VarPair> get_vars() {
         // TODO: finish this function according to Rust implementation.
         // Considering whether replace return value with an iterator.
         throw std::logic_error("not implemented");

@@ -2,9 +2,12 @@
 #include "../../macro/class_copy_move.hpp"
 #include "application.hpp"
 #include "validator.hpp"
+#include <vector>
+#include <utility>
 #include <map>
 #include <optional>
 #include <string>
+#include <string_view>
 
 #define NS_YYCC_CLAP_TYPES ::yycc::carton::clap::types
 #define NS_YYCC_CLAP_APPLICATION ::yycc::carton::clap::application
@@ -12,22 +15,38 @@
 
 namespace yycc::carton::clap::resolver {
 
-    class Parser {
+    class Resolver {
+    private:
+        /**
+         * @brief All captured environment variable.
+         * @details Key is the token to already registered variable.
+         * Value is the associated value for key token.
+         * If it is no-value variable, the value will be \c std::nullopt.
+         */
+        std::map<NS_YYCC_CLAP_TYPES::Token, std::optional<std::u8string>> values;
+
     public:
-        Parser(const NS_YYCC_CLAP_APPLICATION::Application& app);
-        ~Parser();
-        YYCC_DEFAULT_COPY_MOVE(Parser)
+        static NS_YYCC_CLAP_TYPES::ClapResult<Resolver> from_user(
+            const NS_YYCC_CLAP_APPLICATION::Application& app, const std::vector<std::pair<std::u8string_view, std::u8string_view>>& vars);
+        static NS_YYCC_CLAP_TYPES::ClapResult<Resolver> from_system(const NS_YYCC_CLAP_APPLICATION::Application& app);
 
     private:
-        NS_YYCC_CLAP_TYPES::ClapResult<std::u8string_view> get_raw_value_option(NS_YYCC_CLAP_TYPES::Token token) const;
+        Resolver(decltype(Resolver::values)&& values);
 
     public:
-        bool has_option(NS_YYCC_CLAP_TYPES::Token token) const;
-        NS_YYCC_CLAP_TYPES::ClapResult<bool> get_flag_option(NS_YYCC_CLAP_TYPES::Token token) const;
+        ~Resolver();
+        YYCC_DEFAULT_COPY_MOVE(Resolver)
+
+    private:
+        NS_YYCC_CLAP_TYPES::ClapResult<std::u8string_view> get_raw_value_variable(NS_YYCC_CLAP_TYPES::Token token) const;
+
+    public:
+        bool has_variable(NS_YYCC_CLAP_TYPES::Token token) const;
+        NS_YYCC_CLAP_TYPES::ClapResult<bool> get_flag_variable(NS_YYCC_CLAP_TYPES::Token token) const;
         template<NS_YYCC_CLAP_VALIDATOR::Validator T>
-        NS_YYCC_CLAP_TYPES::ClapResult<NS_YYCC_CLAP_VALIDATOR::ValidatorReturnType<T>> get_value_option(
+        NS_YYCC_CLAP_TYPES::ClapResult<NS_YYCC_CLAP_VALIDATOR::ValidatorReturnType<T>> get_value_variable(
             NS_YYCC_CLAP_TYPES::Token token) const {
-            auto raw_value = this->get_raw_value_option(token);
+            auto raw_value = this->get_raw_value_variable(token);
             if (raw_value.has_value()) {
                 T validator{};
                 auto value = validator.validate(raw_value.value());
@@ -37,17 +56,10 @@ namespace yycc::carton::clap::resolver {
                 return std::unexpected(raw_value.error())
             }
         }
-
-    private:
-        /**
-         * @brief All captured commandline argument.
-         * @details Key is the token to already registered option.
-         * Value is the associated value for key token.
-         * If it is no-value option, the value will be \c std::nullopt.
-         */
-        std::map<NS_YYCC_CLAP_TYPES::Token, std::optional<std::u8string>> values;
     };
 
 } // namespace yycc::carton::clap::resolver
 
+#undef NS_YYCC_CLAP_VALIDATOR
+#undef NS_YYCC_CLAP_APPLICATION
 #undef NS_YYCC_CLAP_TYPES

@@ -72,7 +72,7 @@ namespace yycc::env {
      * for all the environment variables of the current process.
      * @return The list holding all variables.
      */
-    VarResult<std::vector<VarPair>> get_vars();
+    std::vector<VarPair> get_vars();
 
 #pragma endregion
 
@@ -131,7 +131,7 @@ namespace yycc::env {
      * @brief Returns the arguments that this program was started with (normally passed via the command line).
      * @return The list holding all argument one by one.
      */
-    ArgResult<std::vector<std::u8string>> get_args();
+    std::vector<std::u8string> get_args();
 
 #pragma endregion
 

@@ -12,15 +12,17 @@ namespace yycc::carton::clap::variable {
 
     class Variable {
     public:
-        Variable(const std::u8string_view& name, const std::u8string_view& description);
+        Variable(const std::u8string_view& name, const std::u8string_view& description, bool care_value);
         ~Variable();
         YYCC_DEFAULT_COPY_MOVE(Variable)
 
     public:
+        bool is_care_value() const;
         std::u8string_view get_name() const;
         std::u8string_view get_description() const;
 
     private:
+        bool care_value;
         std::u8string name;
         std::u8string description;
     };

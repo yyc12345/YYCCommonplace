@@ -34,6 +34,10 @@ namespace yycc::carton::clap::option {
 
     Option::~Option() {}
 
+    bool Option::has_value() const {
+        return this->value_hint.has_value();
+    }
+
     std::optional<std::u8string_view> Option::get_short_name() const {
         return this->short_name;
     }

@@ -9,13 +9,18 @@ namespace yycc::carton::clap::variable {
 
 #pragma region Variable
 
-    Variable::Variable(const std::u8string_view &name, const std::u8string_view &description) : name(name), description(description) {
+    Variable::Variable(const std::u8string_view &name, const std::u8string_view &description, bool care_value) :
+        name(name), description(description), care_value(care_value) {
         if (name.empty()) {
             throw std::logic_error("the name of variable should not be empty");
         }
     }
 
     Variable::~Variable() {}
+
+    bool Variable::is_care_value() const {
+        return this->care_value;
+    }
 
     std::u8string_view Variable::get_name() const {
         return this->name;
