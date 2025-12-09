@@ -13,7 +13,7 @@ namespace yycc::carton::clap::resolver {
 
     /// @brief Core capture function
     template<std::ranges::viewable_range V>
-    static TYPES::ClapResult<std::map<TYPES::Token, std::optional<std::u8string>>> capture(const APPLICATION::Application& app, V vars) {
+    static TYPES::ClapResult<std::map<TYPES::Token, std::optional<std::u8string>>> capture(const APPLICATION::Application& app, V&& vars) {
         std::map<TYPES::Token, std::optional<std::u8string>> values;
         const auto& variables = app.get_variables();
 
@@ -48,13 +48,14 @@ namespace yycc::carton::clap::resolver {
 
     TYPES::ClapResult<Resolver> Resolver::from_user(const APPLICATION::Application& app,
                                                     const std::vector<std::pair<std::u8string_view, std::u8string_view>>& vars) {
-        auto rv = capture(app, vars);
+        auto rv = capture(app, std::views::all(vars));
         if (rv.has_value()) return Resolver(std::move(rv.value()));
         else return std::unexpected(rv.error());
     }
 
     TYPES::ClapResult<Resolver> Resolver::from_system(const APPLICATION::Application& app) {
-        auto rv = capture(app, ENV::get_vars() | std::views::transform([](auto p) {
+        auto vars = ENV::get_vars();
+        auto rv = capture(app, vars | std::views::transform([](const auto& p) {
                                    return std::make_pair<std::u8string_view, std::u8string_view>(p.first, p.second);
                                }));
         if (rv.has_value()) return Resolver(std::move(rv.value()));

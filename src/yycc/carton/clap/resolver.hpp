@@ -53,7 +53,7 @@ namespace yycc::carton::clap::resolver {
                 if (value.has_value()) return value.value();
                 else return std::unexpected(NS_YYCC_CLAP_TYPES::ClapError::BadCast);
             } else {
-                return std::unexpected(raw_value.error())
+                return std::unexpected(raw_value.error());
             }
         }
     };

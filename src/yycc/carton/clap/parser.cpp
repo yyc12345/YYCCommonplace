@@ -63,7 +63,7 @@ namespace yycc::carton::clap::parser {
 
     /// @brief Core capture function.
     template<std::ranges::viewable_range V>
-    static TYPES::ClapResult<std::map<TYPES::Token, std::optional<std::u8string>>> capture(const APPLICATION::Application& app, V args) {
+    static TYPES::ClapResult<std::map<TYPES::Token, std::optional<std::u8string>>> capture(const APPLICATION::Application& app, V&& args) {
         // Create context.
         ParserContext ctx(app);
 
@@ -172,13 +172,14 @@ namespace yycc::carton::clap::parser {
 #pragma region Parser Class
 
     TYPES::ClapResult<Parser> Parser::from_user(const APPLICATION::Application& app, const std::vector<std::u8string_view>& args) {
-        auto rv = capture(app, args);
+        auto rv = capture(app, std::views::all(args));
         if (rv.has_value()) return Parser(std::move(rv.value()));
         else return std::unexpected(rv.error());
     }
 
     TYPES::ClapResult<Parser> Parser::from_system(const APPLICATION::Application& app) {
-        auto rv = capture(app, ENV::get_args() | std::views::transform([](auto s) {
+        auto args = ENV::get_args();
+        auto rv = capture(app, args | std::views::transform([](const auto& s) {
                                    return std::u8string_view(s);
                                }));
         if (rv.has_value()) return Parser(std::move(rv.value()));

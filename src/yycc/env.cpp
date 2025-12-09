@@ -230,7 +230,7 @@ namespace yycc::env {
 
 #pragma region Environment Argument
 
-    ArgResult<std::vector<std::u8string>> get_args() {
+    std::vector<std::u8string> get_args() {
         // TODO: finish this function according to Rust implementation.
         // Considering whether use iterator as return value.
         throw std::logic_error("not implemented");
