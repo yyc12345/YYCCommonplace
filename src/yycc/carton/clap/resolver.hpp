@@ -45,10 +45,9 @@ namespace yycc::carton::clap::resolver {
         NS_YYCC_CLAP_TYPES::ClapResult<bool> get_flag_variable(NS_YYCC_CLAP_TYPES::Token token) const;
         template<NS_YYCC_CLAP_VALIDATOR::Validator T>
         NS_YYCC_CLAP_TYPES::ClapResult<NS_YYCC_CLAP_VALIDATOR::ValidatorReturnType<T>> get_value_variable(
-            NS_YYCC_CLAP_TYPES::Token token) const {
+            NS_YYCC_CLAP_TYPES::Token token, const T& validator = T()) const {
             auto raw_value = this->get_raw_value_variable(token);
             if (raw_value.has_value()) {
-                T validator{};
                 auto value = validator.validate(raw_value.value());
                 if (value.has_value()) return value.value();
                 else return std::unexpected(NS_YYCC_CLAP_TYPES::ClapError::BadCast);

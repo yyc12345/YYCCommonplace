@@ -1,4 +1,5 @@
 #pragma once
+#include "../../macro/class_copy_move.hpp"
 #include "../../num/parse.hpp"
 #include <optional>
 #include <string_view>
@@ -23,9 +24,11 @@ namespace yycc::carton::clap::validator {
      * otherwise, it is the validated value.
      * 
      * Finally, it must can be default initialized.
+     * Please note that this class may be initialized during each calling.
+     * Please make sure that its ctor will not consume too much resources.
      */
     template<typename T>
-    concept Validator = std::default_initializable<T> && requires(const T& t, const std::u8string_view& sv) {
+    concept Validator = requires(const T& t, const std::u8string_view& sv) {
         // Check whether there is T::ReturnType type
         typename T::ReturnType;
         // Check whether there is "validate" member function and it has correct signature.
@@ -38,7 +41,10 @@ namespace yycc::carton::clap::validator {
 
     template<std::integral T, auto TMin = std::numeric_limits<T>::min(), auto TMax = std::numeric_limits<T>::max()>
     struct IntegralValidator {
+        YYCC_DEFAULT_COPY_MOVE(IntegralValidator)
+
         static_assert(TMin <= TMax);
+
         using ReturnType = T;
         std::optional<ReturnType> validate(const std::u8string_view& sv) {
             auto rv = NS_YYCC_NUM_PARSE::parse<ReturnType>(sv);
@@ -52,9 +58,12 @@ namespace yycc::carton::clap::validator {
 
     template<std::floating_point T, auto TMin = std::numeric_limits<T>::lowest(), auto TMax = std::numeric_limits<T>::max()>
     struct FloatingPointValidator {
+        YYCC_DEFAULT_COPY_MOVE(FloatingPointValidator)
+
         static_assert(std::isfinite(TMin));
         static_assert(std::isfinite(TMax));
         static_assert(TMin <= TMax);
+
         using ReturnType = T;
         std::optional<ReturnType> validate(const std::u8string_view& sv) {
             auto rv = NS_YYCC_NUM_PARSE::parse<ReturnType>(sv);
@@ -67,6 +76,8 @@ namespace yycc::carton::clap::validator {
     };
 
     struct BoolValidator {
+        YYCC_DEFAULT_COPY_MOVE(BoolValidator)
+
         using ReturnType = bool;
         std::optional<ReturnType> validate(const std::u8string_view& sv) {
             auto rv = NS_YYCC_NUM_PARSE::parse<ReturnType>(sv);
@@ -76,6 +87,8 @@ namespace yycc::carton::clap::validator {
     };
 
     struct StringValidator {
+        YYCC_DEFAULT_COPY_MOVE(StringValidator)
+
         using ReturnType = std::u8string;
         std::optional<ReturnType> validate(const std::u8string_view& sv) { return std::u8string(sv); }
     };
