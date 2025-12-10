@@ -16,6 +16,7 @@ namespace yycc::carton::clap::validator {
      * @details
      * A valid command line argument validator must have a type name or alias called "ReturnType" 
      * indicating the return value of this validator.
+     * Please note that the type of this return value must can be placed into \c std::optional.
      * 
      * And, it also should have an member function called "validate"
      * which receive <TT>const std::string_view&</TT> as its only argument,

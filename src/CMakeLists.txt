@@ -38,6 +38,7 @@ PRIVATE
     yycc/carton/clap/manual.cpp
     yycc/carton/clap/parser.cpp
     yycc/carton/clap/resolver.cpp
+    yycc/carton/binstore/types.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -101,6 +102,8 @@ FILES
     yycc/carton/clap/validator.hpp
     yycc/carton/clap/parser.hpp
     yycc/carton/clap/resolver.hpp
+    yycc/carton/binstore/types.hpp
+    yycc/carton/binstore/serializer.hpp
     yycc/carton/fft.hpp
 )
 # Setup header infomations
