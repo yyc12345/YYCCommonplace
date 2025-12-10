@@ -184,4 +184,5 @@ namespace yycc::carton::binstore::serializer {
 
         NS_YYCC_BINSTORE_TYPES::ByteArray reset() const { return this->serialize(u8"").value(); }
     };
+
 } // namespace yycc::carton::binstore::serializer

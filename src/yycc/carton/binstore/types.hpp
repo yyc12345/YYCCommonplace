@@ -15,6 +15,19 @@ namespace yycc::carton::binstore::types {
     template<typename T>
     using BinstoreResult = std::expected<T, BinstoreError>;
 
+    /**
+     * @brief An unique token type.
+     * @details
+     * When outside code registering an setting in collection
+     * there must be a token returned by manager.
+     * When outside code want to visit this registered item again,
+     * they should provide this token returned when registering.
+     * 
+     * Its value actually is the index of its stored vector.
+     * So this type is an alias to vector size type.
+     */
+    using Token = size_t;
+
     /// @brief The raw data of setting.
     class ByteArray {
     public:
