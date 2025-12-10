@@ -8,7 +8,9 @@ namespace yycc::carton::binstore::types {
 
     /// @brief All possible error kind occurs in this module.
     enum class BinstoreError {
-
+        NoSuchSetting, ///< Given token is invalid for setting.
+        BadVersion,    ///< The version provided in given file or IO is rejected by version strategy.
+        Io,            ///< C++ IO error.
     };
 
     /// @brief The result type used in this module.
@@ -27,6 +29,14 @@ namespace yycc::carton::binstore::types {
      * So this type is an alias to vector size type.
      */
     using Token = size_t;
+
+    /**
+     * @brief The identifier reprsenting version in binstore.
+     * @details Higher number in identifier means that the newer version.
+     * In most cases, new version can accept old version's configurations.
+     * Once the struct of configurations was changed, this identifier should be bumped up.
+     */
+    using VersionIdentifier = uint64_t;
 
     /// @brief The raw data of setting.
     class ByteArray {
@@ -67,4 +77,4 @@ namespace yycc::carton::binstore::types {
         std::vector<uint8_t> datas; ///< The internal buffer.
     };
 
-}
+} // namespace yycc::carton::binstore::types

@@ -40,6 +40,7 @@ PRIVATE
     yycc/carton/clap/resolver.cpp
     yycc/carton/binstore/types.cpp
     yycc/carton/binstore/setting.cpp
+    yycc/carton/binstore/configuration.cpp
     yycc/carton/binstore/storage.cpp
 )
 target_sources(YYCCommonplace 
@@ -108,6 +109,7 @@ FILES
     yycc/carton/binstore/types.hpp
     yycc/carton/binstore/serializer.hpp
     yycc/carton/binstore/setting.hpp
+    yycc/carton/binstore/configuration.hpp
     yycc/carton/binstore/storage.hpp
     yycc/carton/fft.hpp
 )

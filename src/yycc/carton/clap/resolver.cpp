@@ -1,5 +1,4 @@
 #include "resolver.hpp"
-#include "types.hpp"
 #include "../../env.hpp"
 #include <stdexcept>
 #include <ranges>
@@ -7,6 +6,7 @@
 #define TYPES ::yycc::carton::clap::types
 #define APPLICATION ::yycc::carton::clap::application
 #define ENV ::yycc::env
+
 namespace yycc::carton::clap::resolver {
 
 #pragma region Core

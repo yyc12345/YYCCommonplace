@@ -1,5 +1,6 @@
 #pragma once
 #include "../../macro/class_copy_move.hpp"
+#include "types.hpp"
 #include "application.hpp"
 #include "validator.hpp"
 #include <vector>

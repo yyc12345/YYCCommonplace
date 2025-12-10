@@ -5,6 +5,7 @@
 #include <string>
 #include <limits>
 #include <concepts>
+#include <type_traits>
 
 #define NS_YYCC_BINSTORE_TYPES ::yycc::carton::binstore::types
 
