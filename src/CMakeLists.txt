@@ -39,6 +39,8 @@ PRIVATE
     yycc/carton/clap/parser.cpp
     yycc/carton/clap/resolver.cpp
     yycc/carton/binstore/types.cpp
+    yycc/carton/binstore/setting.cpp
+    yycc/carton/binstore/storage.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -102,8 +104,11 @@ FILES
     yycc/carton/clap/validator.hpp
     yycc/carton/clap/parser.hpp
     yycc/carton/clap/resolver.hpp
+    yycc/carton/binstore.hpp
     yycc/carton/binstore/types.hpp
     yycc/carton/binstore/serializer.hpp
+    yycc/carton/binstore/setting.hpp
+    yycc/carton/binstore/storage.hpp
     yycc/carton/fft.hpp
 )
 # Setup header infomations
