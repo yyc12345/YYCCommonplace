@@ -185,7 +185,7 @@ namespace yycc::carton::clap::parser {
         else return std::unexpected(rv.error());
     }
 
-    Parser::Parser(decltype(Parser::values)&& value) : values(std::move(values)) {}
+    Parser::Parser(decltype(Parser::values)&& values) : values(std::move(values)) {}
 
     Parser::~Parser() {}
 
@@ -200,7 +200,7 @@ namespace yycc::carton::clap::parser {
             return false;
         } else {
             // Found.
-            auto val = finder->second;
+            const auto& val = finder->second;
             if (val.has_value()) throw std::logic_error("get flag option as value option.");
             else return true;
         }
@@ -213,7 +213,7 @@ namespace yycc::carton::clap::parser {
             return std::unexpected(TYPES::ClapError::NotCaptured);
         } else {
             // Found.
-            auto val = finder->second;
+            const auto& val = finder->second;
             if (val.has_value()) return std::u8string_view(val.value());
             else throw std::logic_error("get value option as flag option.");
         }

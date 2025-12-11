@@ -20,7 +20,7 @@ namespace yycc::carton::clap::manual {
 #pragma region Manual Translation
 
     ManualTr::ManualTr() :
-        author_and_version(u8"Invented by {0}. Version {1}."), usage_title(u8"Usage:"), usage_body(u8"{0} <options> ..."),
+        author_and_version(u8"Built by {0} with version {1}."), usage_title(u8"Usage:"), usage_body(u8"{0} <options> ..."),
         avail_opt(u8"Available options:"), avail_var(u8"Available environment variables:") {}
 
     ManualTr::~ManualTr() {}
@@ -100,14 +100,13 @@ namespace yycc::carton::clap::manual {
         const auto &summary = this->app.get_summary();
 
         TERMCOLOR::cprintln(summary.get_name(), TERMCOLOR::Color::Yellow, TERMCOLOR::Color::Default, TERMCOLOR::Attribute::Default, dst);
-        dst << summary.get_name() << std::endl;
         dst << FORMAT::format(trctx.author_and_version, summary.get_author(), summary.get_version()) << std::endl;
         dst << summary.get_description() << std::endl;
         dst << std::endl;
     }
 
     void Manual::print_help(std::ostream &dst) const {
-        this->print_version();
+        this->print_version(dst);
 
         // only print usage if we can fetch the name of executable
         auto executable = ENV::current_exe();

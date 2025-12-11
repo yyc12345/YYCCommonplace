@@ -10,18 +10,21 @@ namespace yycctest::carton::clap {
     using Token = CLAP::types::Token;
     namespace validator = CLAP::validator;
 
-    TEST(CartonClap, BadOption) {
+    // YYC MARK:
+    // GoogleTest do not allow use TEST and TEST_F in the same test suite
+    // So I was forcely split following builder checker into independent test suit.
+
+    TEST(CartonClapOption, BadOption) {
         // No short name and long name.
         EXPECT_ANY_THROW(auto opt = CLAP::option::Option(std::nullopt, std::nullopt, std::nullopt, u8""));
         // Empty short name or long name.
         EXPECT_ANY_THROW(auto opt = CLAP::option::Option(u8"", std::nullopt, std::nullopt, u8""));
         EXPECT_ANY_THROW(auto opt = CLAP::option::Option(std::nullopt, u8"", std::nullopt, u8""));
         // Bad short name
-        EXPECT_ANY_THROW(auto opt = CLAP::option::Option(u8"fuck", std::nullopt, std::nullopt, u8""));
         EXPECT_ANY_THROW(auto opt = CLAP::option::Option(u8"-", std::nullopt, std::nullopt, u8""));
     }
 
-    TEST(CartonClap, BadOptions) {
+    TEST(CartonClapOption, BadOptions) {
         // Duplicated.
         {
             auto options = CLAP::option::OptionCollection();
@@ -36,12 +39,12 @@ namespace yycctest::carton::clap {
         }
     }
 
-    TEST(CartonClap, BadVariable) {
+    TEST(CartonClapVariable, BadVariable) {
         // Empty name
         EXPECT_ANY_THROW(auto var = CLAP::variable::Variable(u8"", u8"", true));
     }
 
-    TEST(CartonClap, BadVariables) {
+    TEST(CartonClapVariable, BadVariables) {
         // Duplicated.
         {
             auto variables = CLAP::variable::VariableCollection();

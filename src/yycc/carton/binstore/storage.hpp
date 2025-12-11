@@ -90,7 +90,7 @@ namespace yycc::carton::binstore::storage {
     public:
         template<NS_YYCC_BINSTORE_SERDES::SerDes T>
         NS_YYCC_BINSTORE_TYPES::BinstoreResult<std::pair<GetValueState, NS_YYCC_BINSTORE_SERDES::SerDesValueType<T>>> get_value(
-            NS_YYCC_BINSTORE_TYPES::Token token, const T& serdes = T()) {
+            NS_YYCC_BINSTORE_TYPES::Token token, const T& serdes = T{}) {
             // If we have value, we fetch it first
             if (this->has_value(token)) {
                 // Get raw value.
@@ -129,7 +129,7 @@ namespace yycc::carton::binstore::storage {
         template<NS_YYCC_BINSTORE_SERDES::SerDes T>
         NS_YYCC_BINSTORE_TYPES::BinstoreResult<SetValueState> set_value(NS_YYCC_BINSTORE_TYPES::Token token,
                                                                         const NS_YYCC_BINSTORE_SERDES::SerDesValueType<T>& value,
-                                                                        const T& serdes = T()) {
+                                                                        const T& serdes = T{}) {
             // First we try assign it.
             {
                 // Convert it into raw format.

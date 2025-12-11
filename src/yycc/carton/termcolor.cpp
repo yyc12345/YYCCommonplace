@@ -216,7 +216,7 @@ namespace yycc::carton::termcolor {
         dst << colored(words, foreground, background, styles);
     }
 
-    void ecprint(const std::u8string_view& words, Color foreground, Color background, Attribute styles) {
+    void ceprint(const std::u8string_view& words, Color foreground, Color background, Attribute styles) {
         cprint(words, foreground, background, styles, std::cerr);
     }
 
@@ -225,7 +225,7 @@ namespace yycc::carton::termcolor {
         dst << std::endl;
     }
 
-    void ecprintln(const std::u8string_view& words, Color foreground, Color background, Attribute styles) {
+    void ceprintln(const std::u8string_view& words, Color foreground, Color background, Attribute styles) {
         cprintln(words, foreground, background, styles, std::cerr);
     }
 

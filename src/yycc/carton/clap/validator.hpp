@@ -42,6 +42,7 @@ namespace yycc::carton::clap::validator {
 
     template<std::integral T, auto TMin = std::numeric_limits<T>::min(), auto TMax = std::numeric_limits<T>::max()>
     struct IntegralValidator {
+        IntegralValidator() = default;
         YYCC_DEFAULT_COPY_MOVE(IntegralValidator)
 
         static_assert(TMin <= TMax);
@@ -59,9 +60,14 @@ namespace yycc::carton::clap::validator {
 
     template<std::floating_point T, auto TMin = std::numeric_limits<T>::lowest(), auto TMax = std::numeric_limits<T>::max()>
     struct FloatingPointValidator {
+        FloatingPointValidator() {
+            // TODO: Remove this and make it "= default" when 3 common STL make std::isfinite become constexpr.
+            if (!std::isfinite(TMin)) throw std::logic_error("invalid float minimum value.");
+            if (!std::isfinite(TMax)) throw std::logic_error("invalid float maximum value.");
+        }
         YYCC_DEFAULT_COPY_MOVE(FloatingPointValidator)
 
-        // TODO: Use static_assert once 3 common STL make this become constexpr.
+        // TODO: Use static_assert once 3 common STL make std::isfinite become constexpr.
         //static_assert(std::isfinite<T>(TMin));
         //static_assert(std::isfinite<T>(TMax));
         static_assert(TMin <= TMax);
@@ -78,6 +84,7 @@ namespace yycc::carton::clap::validator {
     };
 
     struct BoolValidator {
+        BoolValidator() = default;
         YYCC_DEFAULT_COPY_MOVE(BoolValidator)
 
         using ReturnType = bool;
@@ -89,6 +96,7 @@ namespace yycc::carton::clap::validator {
     };
 
     struct StringValidator {
+        StringValidator() = default;
         YYCC_DEFAULT_COPY_MOVE(StringValidator)
 
         using ReturnType = std::u8string;

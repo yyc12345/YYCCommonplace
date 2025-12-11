@@ -77,7 +77,7 @@ namespace yycc::carton::clap::resolver {
             return false;
         } else {
             // Found.
-            auto val = finder->second;
+            const auto& val = finder->second;
             if (val.has_value()) throw std::logic_error("get flag variable as value variable.");
             else return true;
         }
@@ -90,7 +90,7 @@ namespace yycc::carton::clap::resolver {
             return std::unexpected(TYPES::ClapError::NotCaptured);
         } else {
             // Found.
-            auto val = finder->second;
+            const auto& val = finder->second;
             if (val.has_value()) return std::u8string_view(val.value());
             else throw std::logic_error("get value variable as flag variable.");
         }
