@@ -45,8 +45,8 @@ namespace yycc::carton::clap::parser {
         bool has_option(NS_YYCC_CLAP_TYPES::Token token) const;
         NS_YYCC_CLAP_TYPES::ClapResult<bool> get_flag_option(NS_YYCC_CLAP_TYPES::Token token) const;
         template<NS_YYCC_CLAP_VALIDATOR::Validator T>
-        NS_YYCC_CLAP_TYPES::ClapResult<NS_YYCC_CLAP_VALIDATOR::ValidatorReturnType<T>> get_value_option(
-            NS_YYCC_CLAP_TYPES::Token token, const T& validator = T()) const {
+        NS_YYCC_CLAP_TYPES::ClapResult<NS_YYCC_CLAP_VALIDATOR::ValidatorReturnType<T>> get_value_option(NS_YYCC_CLAP_TYPES::Token token,
+                                                                                                        const T& validator = T()) const {
             auto raw_value = this->get_raw_value_option(token);
             if (raw_value.has_value()) {
                 auto value = validator.validate(raw_value.value());

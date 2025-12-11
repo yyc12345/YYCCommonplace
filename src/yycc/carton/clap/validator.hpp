@@ -47,7 +47,7 @@ namespace yycc::carton::clap::validator {
         static_assert(TMin <= TMax);
 
         using ReturnType = T;
-        std::optional<ReturnType> validate(const std::u8string_view& sv) {
+        std::optional<ReturnType> validate(const std::u8string_view& sv) const {
             auto rv = NS_YYCC_NUM_PARSE::parse<ReturnType>(sv);
             if (rv) {
                 auto value = rv.value();
@@ -61,12 +61,13 @@ namespace yycc::carton::clap::validator {
     struct FloatingPointValidator {
         YYCC_DEFAULT_COPY_MOVE(FloatingPointValidator)
 
-        static_assert(std::isfinite(TMin));
-        static_assert(std::isfinite(TMax));
+        // TODO: Use static_assert once 3 common STL make this become constexpr.
+        //static_assert(std::isfinite<T>(TMin));
+        //static_assert(std::isfinite<T>(TMax));
         static_assert(TMin <= TMax);
 
         using ReturnType = T;
-        std::optional<ReturnType> validate(const std::u8string_view& sv) {
+        std::optional<ReturnType> validate(const std::u8string_view& sv) const {
             auto rv = NS_YYCC_NUM_PARSE::parse<ReturnType>(sv);
             if (rv) {
                 auto value = rv.value();
@@ -80,7 +81,7 @@ namespace yycc::carton::clap::validator {
         YYCC_DEFAULT_COPY_MOVE(BoolValidator)
 
         using ReturnType = bool;
-        std::optional<ReturnType> validate(const std::u8string_view& sv) {
+        std::optional<ReturnType> validate(const std::u8string_view& sv) const {
             auto rv = NS_YYCC_NUM_PARSE::parse<ReturnType>(sv);
             if (rv) return rv.value();
             else return std::nullopt;
@@ -91,7 +92,7 @@ namespace yycc::carton::clap::validator {
         YYCC_DEFAULT_COPY_MOVE(StringValidator)
 
         using ReturnType = std::u8string;
-        std::optional<ReturnType> validate(const std::u8string_view& sv) { return std::u8string(sv); }
+        std::optional<ReturnType> validate(const std::u8string_view& sv) const { return std::u8string(sv); }
     };
 
 } // namespace yycc::carton::clap::validator

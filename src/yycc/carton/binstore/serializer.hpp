@@ -84,8 +84,9 @@ namespace yycc::carton::binstore::serializer {
     struct FloatingPointSerDes {
         YYCC_DEFAULT_COPY_MOVE(FloatingPointSerDes)
 
-        static_assert(std::isfinite(TMin));
-        static_assert(std::isfinite(TMax));
+        // TODO: Use static_assert once 3 common STL make this become constexpr.
+        //static_assert(std::isfinite(TMin));
+        //static_assert(std::isfinite(TMax));
         static_assert(TMin <= TMax);
         static_assert(TDefault >= TMin && TDefault <= TMax);
 
