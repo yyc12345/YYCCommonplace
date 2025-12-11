@@ -10,6 +10,8 @@ namespace yycctest::carton::clap {
     using Token = CLAP::types::Token;
     namespace validator = CLAP::validator;
 
+#pragma region Clap Builder
+
     // YYC MARK:
     // GoogleTest do not allow use TEST and TEST_F in the same test suite
     // So I was forcely split following builder checker into independent test suit.
@@ -52,6 +54,10 @@ namespace yycctest::carton::clap {
             EXPECT_ANY_THROW(variables.add_variable(CLAP::variable::Variable(u8"a", u8"", true)));
         }
     }
+
+#pragma endregion
+
+#pragma region Clap Body
 
     class CartonClap : public ::testing::Test {
     protected:
@@ -97,7 +103,7 @@ namespace yycctest::carton::clap {
         Token int_variable;
         using IntVariableValidator = validator::IntegralValidator<i32>;
         Token clamped_int_variable;
-        using ClampedFloatVariableValidator = validator::FloatingPointValidator<float, -1.0f, 1.0f>;
+        using ClampedFloatVariableValidator = validator::IntegralValidator<u32, 61, 72>;
         Token novalue_variable;
 
         // Application
@@ -120,6 +126,8 @@ namespace yycctest::carton::clap {
         manual.print_help(ss);
         EXPECT_FALSE(ss.view().empty());
     }
+
+#pragma region Parser Part
 
     TEST_F(CartonClap, ParserNormal) {
         const std::vector<std::u8string_view> args = {u8"exec", u8"-i", u8"114514"};
@@ -183,49 +191,6 @@ namespace yycctest::carton::clap {
         }
     }
 
-    TEST_F(CartonClap, ParserInvalidName) {
-        const std::vector<std::u8string_view> args = {u8"exec", u8"-?", u8"114514"};
-        auto result = CLAP::parser::Parser::from_user(app, args);
-        ASSERT_FALSE(result.has_value());
-    }
-
-    TEST_F(CartonClap, ParserDuplicatedAssign) {
-        const std::vector<std::u8string_view> args = {u8"exec", u8"-i", u8"114514", u8"--int", u8"114514"};
-        auto result = CLAP::parser::Parser::from_user(app, args);
-        ASSERT_FALSE(result.has_value());
-    }
-
-    TEST_F(CartonClap, ParserUnexpectedValue) {
-        const std::vector<std::u8string_view> args = {u8"exec", u8"-i", u8"114514", u8"1919810"};
-        auto result = CLAP::parser::Parser::from_user(app, args);
-        ASSERT_FALSE(result.has_value());
-    }
-
-    TEST_F(CartonClap, ParserLostValue) {
-        const std::vector<std::u8string_view> args = {u8"exec", u8"-i"};
-        auto result = CLAP::parser::Parser::from_user(app, args);
-        ASSERT_FALSE(result.has_value());
-    }
-
-    TEST_F(CartonClap, ParserBadCast) {
-        const std::vector<std::u8string_view> args = {u8"exec", u8"-i", u8"114514", u8"--clamped-float", u8"114.0"};
-        auto result = CLAP::parser::Parser::from_user(app, args);
-        ASSERT_TRUE(result.has_value());
-        auto parser = std::move(result.value());
-
-        // Check okey cast
-        {
-            auto value = parser.get_value_option<IntOptionValidator>(int_option);
-            ASSERT_TRUE(value.has_value());
-            EXPECT_EQ(value.value(), 114514);
-        }
-        // Check bad cast
-        {
-            auto value = parser.get_value_option<ClampedFloatOptionValidator>(clamped_float_option);
-            EXPECT_FALSE(value.has_value());
-        }
-    }
-
     TEST_F(CartonClap, ParserFull) {
         const std::vector<std::u8string_view> args = {
             u8"exec", // Program self.
@@ -270,5 +235,161 @@ namespace yycctest::carton::clap {
             EXPECT_EQ(value.value(), true);
         }
     }
+
+    TEST_F(CartonClap, ParserInvalidName) {
+        const std::vector<std::u8string_view> args = {u8"exec", u8"-?", u8"114514"};
+        auto result = CLAP::parser::Parser::from_user(app, args);
+        ASSERT_FALSE(result.has_value());
+    }
+
+    TEST_F(CartonClap, ParserDuplicatedAssign) {
+        const std::vector<std::u8string_view> args = {u8"exec", u8"-i", u8"114514", u8"--int", u8"114514"};
+        auto result = CLAP::parser::Parser::from_user(app, args);
+        ASSERT_FALSE(result.has_value());
+    }
+
+    TEST_F(CartonClap, ParserUnexpectedValue) {
+        const std::vector<std::u8string_view> args = {u8"exec", u8"-i", u8"114514", u8"1919810"};
+        auto result = CLAP::parser::Parser::from_user(app, args);
+        ASSERT_FALSE(result.has_value());
+    }
+
+    TEST_F(CartonClap, ParserLostValue) {
+        const std::vector<std::u8string_view> args = {u8"exec", u8"-i"};
+        auto result = CLAP::parser::Parser::from_user(app, args);
+        ASSERT_FALSE(result.has_value());
+    }
+
+    TEST_F(CartonClap, ParserBadCast) {
+        const std::vector<std::u8string_view> args = {u8"exec", u8"-i", u8"114514", u8"--clamped-float", u8"114.0"};
+        auto result = CLAP::parser::Parser::from_user(app, args);
+        ASSERT_TRUE(result.has_value());
+        auto parser = std::move(result.value());
+
+        // Check okey cast
+        {
+            auto value = parser.get_value_option<IntOptionValidator>(int_option);
+            ASSERT_TRUE(value.has_value());
+            EXPECT_EQ(value.value(), 114514);
+        }
+        // Check bad cast
+        {
+            auto value = parser.get_value_option<ClampedFloatOptionValidator>(clamped_float_option);
+            EXPECT_FALSE(value.has_value());
+        }
+    }
+
+#pragma endregion
+
+#pragma region Resolver Part
+
+    TEST_F(CartonClap, ResolverNormal) {
+        const std::vector<std::pair<std::u8string_view, std::u8string_view>> vars = {
+            {u8"int", u8"114514"}, // Integer variable
+        };
+        auto result = CLAP::resolver::Resolver::from_user(app, vars);
+        ASSERT_TRUE(result.has_value());
+        auto resolver = std::move(result.value());
+
+        // Check that int variable was captured with correct value
+        {
+            auto value = resolver.get_value_variable<IntVariableValidator>(int_variable);
+            ASSERT_TRUE(value.has_value());
+            EXPECT_EQ(value.value(), 114514);
+        }
+        // Check that other variables were not captured
+        {
+            auto value = resolver.get_value_variable<ClampedFloatVariableValidator>(clamped_int_variable);
+            EXPECT_FALSE(value.has_value());
+        }
+        {
+            auto value = resolver.get_flag_variable(novalue_variable);
+            ASSERT_TRUE(value.has_value());
+            EXPECT_EQ(value.value(), false);
+        }
+    }
+
+    TEST_F(CartonClap, ResolverNothing) {
+        const std::vector<std::pair<std::u8string_view, std::u8string_view>> vars = {};
+        auto result = CLAP::resolver::Resolver::from_user(app, vars);
+        ASSERT_TRUE(result.has_value());
+        auto resolver = std::move(result.value());
+
+        // Check that all variables were not captured
+        {
+            auto value = resolver.get_value_variable<IntVariableValidator>(int_variable);
+            EXPECT_FALSE(value.has_value());
+        }
+        {
+            auto value = resolver.get_value_variable<ClampedFloatVariableValidator>(clamped_int_variable);
+            EXPECT_FALSE(value.has_value());
+        }
+        {
+            auto value = resolver.get_flag_variable(novalue_variable);
+            ASSERT_TRUE(value.has_value());
+            EXPECT_EQ(value.value(), false);
+        }
+    }
+
+    TEST_F(CartonClap, ResolverFull) {
+        const std::vector<std::pair<std::u8string_view, std::u8string_view>> vars = {
+            {u8"int", u8"114514"},     // Integer variable
+            {u8"clamped-int", u8"70"}, // Clamped int variable
+            {u8"b", u8"some words"},   // Integer variable
+        };
+        auto result = CLAP::resolver::Resolver::from_user(app, vars);
+        ASSERT_TRUE(result.has_value());
+        auto resolver = std::move(result.value());
+
+        // Check that all variables were captured
+        {
+            auto value = resolver.get_value_variable<IntVariableValidator>(int_variable);
+            ASSERT_TRUE(value.has_value());
+            EXPECT_EQ(value.value(), 114514);
+        }
+        {
+            auto value = resolver.get_value_variable<ClampedFloatVariableValidator>(clamped_int_variable);
+            ASSERT_TRUE(value.has_value());
+            EXPECT_EQ(value.value(), 70);
+        }
+        {
+            auto value = resolver.get_flag_variable(novalue_variable);
+            ASSERT_TRUE(value.has_value());
+            EXPECT_EQ(value.value(), true);
+        }
+    }
+
+    TEST_F(CartonClap, ResolverDuplicatedAssign) {
+        const std::vector<std::pair<std::u8string_view, std::u8string_view>> vars = {
+            {u8"int", u8"114514"},  // Integer variable
+            {u8"int", u8"1919810"}, // Duplicated integer variable
+        };
+        EXPECT_ANY_THROW(auto result = CLAP::resolver::Resolver::from_user(app, vars));
+    }
+
+    TEST_F(CartonClap, ResolverBadCast) {
+        const std::vector<std::pair<std::u8string_view, std::u8string_view>> vars = {
+            {u8"int", u8"114514"},     // OK integer variable
+            {u8"clamped-int", u8"11"}, // Bad clamped int variable
+        };
+        auto result = CLAP::resolver::Resolver::from_user(app, vars);
+        ASSERT_TRUE(result.has_value());
+        auto resolver = std::move(result.value());
+
+        // Check okey cast
+        {
+            auto value = resolver.get_value_variable<IntVariableValidator>(int_variable);
+            ASSERT_TRUE(value.has_value());
+            EXPECT_EQ(value.value(), 114514);
+        }
+        // Check bad cast
+        {
+            auto value = resolver.get_value_variable<ClampedFloatVariableValidator>(clamped_int_variable);
+            EXPECT_FALSE(value.has_value());
+        }
+    }
+#pragma endregion
+
+#pragma endregion
 
 } // namespace yycctest::carton::clap
