@@ -177,7 +177,10 @@ namespace yycc::carton::clap::parser {
     }
 
     TYPES::ClapResult<Parser> Parser::from_system(const APPLICATION::Application& app) {
-        auto args = ENV::get_args();
+        auto rv_args = ENV::get_args();
+        if (!rv_args.has_value()) return std::unexpected(TYPES::ClapError::Others);
+        auto args = std::move(rv_args.value());
+
         auto rv = capture(app, args | std::views::transform([](const auto& s) {
                                    return std::u8string_view(s);
                                }));

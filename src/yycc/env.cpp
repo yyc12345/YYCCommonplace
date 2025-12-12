@@ -173,7 +173,7 @@ namespace yycc::env {
     using SmartEnvironmentStrings = std::unique_ptr<std::remove_pointer_t<LPWCH>, EnvironmentStringsDeleter>;
 #endif
 
-    std::vector<VarPair> get_vars() {
+    VarResult<std::vector<VarPair>> get_vars() {
         // TODO: Considering whether replace return value with an iterator.
         std::vector<VarPair> rv;
 
@@ -181,7 +181,7 @@ namespace yycc::env {
         // Reference: https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getenvironmentstringsw
 
         SmartEnvironmentStrings env_block(GetEnvironmentStringsW());
-        if (env_block == nullptr) throw std::runtime_error("GetEnvironmentStringsW call failed");
+        if (env_block == nullptr) return std::unexpected(VarError::SysCall);
 
         wchar_t *current = env_block.get();
         while (*current != L'\0') {
@@ -193,17 +193,17 @@ namespace yycc::env {
             if (pos != std::string::npos) {
                 auto key = entry.substr(0, pos);
                 auto value = entry.substr(pos + 1);
-                if (key.empty()) throw std::runtime_error("unexpected empty variable name");
+                if (key.empty()) return std::unexpected(VarError::NullPointer);
 
                 auto u8key = ENC::to_utf8(key);
                 auto u8value = ENC::to_utf8(value);
                 if (u8key.has_value() && u8value.has_value()) {
                     rv.emplace_back(std::make_pair(std::move(u8key.value()), std::move(u8value.value())));
                 } else {
-                    throw std::runtime_error("bad encoding of variable");
+                    return std::unexpected(VarError::BadEncoding);
                 }
             } else {
-                throw std::runtime_error("bad variable syntax");
+                return std::unexpected(VarError::Others);
             }
 
             // Increase the pointer
@@ -221,10 +221,10 @@ namespace yycc::env {
             if (pos != std::string::npos) {
                 auto key = entry.substr(0, pos);
                 auto value = entry.substr(pos + 1);
-                if (key.empty()) throw std::runtime_error("unexpected empty variable name");
+                if (key.empty()) return std::unexpected(VarError::NullPointer);
                 rv.emplace_back(std::make_pair(REINTERPRET::as_utf8(key), REINTERPRET::as_utf8(value)));
             } else {
-                throw std::runtime_error("bad variable syntax");
+                return std::unexpected(VarError::Others);
             }
         }
 #endif
@@ -362,7 +362,7 @@ namespace yycc::env {
         else return std::unexpected(PathError::SysCall);
 #else
         // Reference: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap08.html
-        
+
         // HOME is an environment variable in POSIX standard.
         auto home = get_var(u8"HOME");
         if (home.has_value()) rv = std::move(home.value());
@@ -385,7 +385,7 @@ namespace yycc::env {
     class CommandLineArgvDeleter {
     public:
         CommandLineArgvDeleter() {}
-        void operator()(LPWCH ptr) {
+        void operator()(LPWSTR* ptr) {
             if (ptr != nullptr) {
                 LocalFree(ptr);
             }
@@ -395,7 +395,7 @@ namespace yycc::env {
 
 #endif
 
-    std::vector<std::u8string> get_args() {
+    ArgResult<std::vector<std::u8string>> get_args() {
         // TODO: Considering whether use iterator as return value.
         std::vector<std::u8string> rv;
 
@@ -405,18 +405,18 @@ namespace yycc::env {
         // Fetch args from Win32 functions
         int argc;
         SmartCommandLineArgv argv(CommandLineToArgvW(GetCommandLineW(), &argc));
-        if (argv == nullptr) throw std::runtime_error("unexpected blank command line tuple");
+        if (argv == nullptr) return std::unexpected(ArgError::NullPointer);
 
         // Analyse it
         for (int i = 1; i < argc; ++i) { // starts with 1 to remove first part (executable self)
             auto arg = argv.get()[i];
-            if (arg == nullptr) throw std::runtime_error("unexpected nullptr argument");
+            if (arg == nullptr) return std::unexpected(ArgError::NullPointer);
 
             auto u8arg = ENC::to_utf8(arg);
             if (u8arg.has_value()) {
                 rv.emplace_back(std::move(u8arg.value()));
             } else {
-                throw std::runtime_error("bad encoding of argument");
+                return std::unexpected(ArgError::BadEncoding);
             }
         }
 
@@ -437,7 +437,7 @@ namespace yycc::env {
                 // We use NUL as delimiter
                 std::getline(cmdline, arg, '\0');
                 // Check whether reading is okey.
-                if (!cmdline.good()) throw std::runtime_error("bad reading");
+                if (!cmdline.good()) return std::unexpected(ArgError::Others);
                 // If return string is empty, it means that we reach the tail.
                 if (arg.empty()) break;
 
@@ -447,7 +447,7 @@ namespace yycc::env {
             // Close file
             cmdline.close();
         } else {
-            throw std::runtime_error("fail to open cmdline file");
+            return std::unexpected(ArgError::Others);
         }
 
 #elif defined(YYCC_OS_MACOS)
@@ -457,11 +457,11 @@ namespace yycc::env {
         if (apple_argv && apple_argc) {
             for (int i = 0; i < *apple_argc; ++i) {
                 auto ptr = (*apple_argv)[i];
-                if (ptr == nullptr) throw std::runtime_error("unexpected nullptr argument");
+                if (ptr == nullptr) return std::unexpected(ArgError::NullPointer);
                 else rv.emplace_back(REINTERPRET::as_utf8(ptr));
             }
         } else {
-            throw std::runtime_error("fail to get pointer to argument data");
+            return std::unexpected(ArgError::SysCall);
         }
 #else
 #error "Not supported OS"

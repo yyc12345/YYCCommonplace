@@ -54,7 +54,10 @@ namespace yycc::carton::clap::resolver {
     }
 
     TYPES::ClapResult<Resolver> Resolver::from_system(const APPLICATION::Application& app) {
-        auto vars = ENV::get_vars();
+        auto rv_vars = ENV::get_vars();
+        if (!rv_vars.has_value()) return std::unexpected(TYPES::ClapError::Others);
+        auto vars = std::move(rv_vars.value());
+
         auto rv = capture(app, vars | std::views::transform([](const auto& p) {
                                    return std::make_pair<std::u8string_view, std::u8string_view>(p.first, p.second);
                                }));

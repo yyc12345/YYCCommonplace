@@ -21,12 +21,13 @@ namespace yycc::env {
 
     /// @brief The error occurs in environment variable operations.
     enum class VarError {
-        SysCall,       ///< Error occurs when calling backend functions.
-        NoSuchName,    ///< The variable with given name is not presented.
-        BadName,       ///< Given name is ill-formated (empty string or has "=" character).
-        BadEncoding,   ///< Error when performing encoding convertion.
-        NoMemory,      ///< No enough memory to finish this operation.
-        Others,        ///< Any other error types.
+        SysCall,     ///< Error occurs when calling backend functions.
+        NoSuchName,  ///< The variable with given name is not presented.
+        BadName,     ///< Given name is ill-formated (empty string or has "=" character).
+        BadEncoding, ///< Error when performing encoding convertion.
+        NoMemory,    ///< No enough memory to finish this operation.
+        NullPointer, ///< Unexpected null pointer occurs during operation.
+        Others,      ///< Any other error types.
     };
 
     /// @brief The result type in environment variable operations.
@@ -74,7 +75,7 @@ namespace yycc::env {
      * @return The list holding all variables.
      * @exception std::runtime_error Error occurs when getting variables.
      */
-    std::vector<VarPair> get_vars();
+    VarResult<std::vector<VarPair>> get_vars();
 
 #pragma endregion
 
@@ -121,8 +122,10 @@ namespace yycc::env {
 
     /// @brief Error occurs when operating argument related functions.
     enum class ArgError {
-        SysCall, ///< Underlying system calling error.
-        Others,  ///< Any other error types.
+        SysCall,     ///< Underlying system calling error.
+        BadEncoding, ///< Error when performing encoding convertion.
+        NullPointer, ///< Unexpected null pointer occurs during operation.
+        Others,      ///< Any other error types.
     };
 
     /// @brief The result type used for argument related functions;
@@ -134,7 +137,7 @@ namespace yycc::env {
      * @return The list holding all argument one by one.
      * @exception std::runtime_error Error occurs when getting arguments.
      */
-    std::vector<std::u8string> get_args();
+    ArgResult<std::vector<std::u8string>> get_args();
 
 #pragma endregion
 
