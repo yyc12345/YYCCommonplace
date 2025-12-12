@@ -1,11 +1,84 @@
 #include "storage.hpp"
+#include "../../num/safe_cast.hpp"
 #include <fstream>
+#include <concepts>
+#include <type_traits>
 
 #define TYPES ::yycc::carton::binstore::types
 #define CFG ::yycc::carton::binstore::configuration
 #define SERDES ::yycc::carton::binstore::serializer
+#define SAFECAST ::yycc::num::safe_cast
 
 namespace yycc::carton::binstore::storage {
+
+#pragma region Read and Write Helper Functions
+
+    static bool read_buffer(std::istream& s, void* buffer, size_t length) {
+        // Cast length
+        auto rv_length = SAFECAST::try_to<std::streamsize>(length);
+        if (!rv_length.has_value()) return false;
+        auto cast_length = rv_length.value();
+
+        // Read data.
+        s.read(static_cast<std::istream::char_type*>(buffer), cast_length);
+        // Check read count.
+        if (s.gcount() != cast_length) return false;
+        // Return IO status.
+        return s.good();
+    }
+
+    template<typename T>
+    requires std::is_pod_v<T>
+    static bool read_pod(std::istream& s, T& val) {
+        return read_buffer(s, &val, sizeof(T));
+    }
+
+    static bool read_byte_array(std::istream& s, TYPES::ByteArray& ba) {
+        size_t length = 0;
+        if (!read_pod(s, length)) return false;
+
+        // Resize byte array.
+        // There is an exception may be thrown that resized length is too large.
+        // We need capture it and return error.
+        try {
+            ba.resize_data(length);
+        } catch (const std::exception&) {
+            return false;
+        }
+        // Read data into byte array.
+        read_buffer(s, ba.get_data_ptr(), length);
+        // Okey
+        return true;
+    }
+
+    static bool write_buffer(std::ostream& s, const void* buffer, size_t length) {
+        // Cast length
+        auto rv_length = SAFECAST::try_to<std::streamsize>(length);
+        if (!rv_length.has_value()) return false;
+        auto cast_length = rv_length.value();
+
+        // Write data.
+        s.write(static_cast<const std::istream::char_type*>(buffer), cast_length);
+        // There is no function to tell how many data was written,
+        // so directly return.
+        return s.good();
+    }
+
+    template<typename T>
+        requires std::is_pod_v<T>
+    static bool write_pod(std::ostream& s, const T& val) {
+        return write_buffer(s, &val, sizeof(T));
+    }
+
+    static bool write_byte_array(std::ostream& s, const TYPES::ByteArray& ba) {
+        // Write length header.
+        auto length = ba.get_data_size();
+        if (!write_pod(s, length)) return false;
+        // Write body
+        return write_buffer(s, ba.get_data_ptr(), length);
+    }
+
+#pragma endregion
 
 #pragma region Storage Class
 

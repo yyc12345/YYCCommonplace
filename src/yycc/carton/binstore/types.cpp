@@ -8,19 +8,19 @@ namespace yycc::carton::binstore::types {
 
     ByteArray::~ByteArray() {}
 
-    size_t ByteArray::GetDataSize() const {
+    size_t ByteArray::get_data_size() const {
         return this->datas.size();
     }
 
-    void ByteArray::ResizeData(size_t new_size) {
+    void ByteArray::resize_data(size_t new_size) {
         this->datas.resize(new_size);
     }
 
-    const void* ByteArray::GetDataPtr(size_t offset) const {
+    const void* ByteArray::get_data_ptr(size_t offset) const {
         return this->datas.data() + offset;
     }
 
-    void* ByteArray::GetDataPtr(size_t offset) {
+    void* ByteArray::get_data_ptr(size_t offset) {
         return this->datas.data() + offset;
     }
 

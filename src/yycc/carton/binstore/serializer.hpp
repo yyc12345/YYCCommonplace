@@ -61,15 +61,15 @@ namespace yycc::carton::binstore::serializer {
             if (value > TMax || value < TMin) return std::nullopt;
 
             NS_YYCC_BINSTORE_TYPES::ByteArray ba;
-            ba.ResizeData(VALUE_SIZE);
-            std::memcpy(ba.GetDataPtr(), &value, VALUE_SIZE);
+            ba.resize_data(VALUE_SIZE);
+            std::memcpy(ba.get_data_ptr(), &value, VALUE_SIZE);
             return ba;
         }
 
         std::optional<ValueType> deserialize(const NS_YYCC_BINSTORE_TYPES::ByteArray& ba) const {
-            if (ba.GetDataSize() != VALUE_SIZE) return std::nullopt;
+            if (ba.get_data_size() != VALUE_SIZE) return std::nullopt;
             ValueType value;
-            std::memcpy(&value, ba.GetDataPtr(), VALUE_SIZE);
+            std::memcpy(&value, ba.get_data_ptr(), VALUE_SIZE);
 
             if (value > TMax || value < TMin) return std::nullopt;
             return value;
@@ -103,16 +103,16 @@ namespace yycc::carton::binstore::serializer {
             if (value > TMax || value < TMin) return std::nullopt;
 
             NS_YYCC_BINSTORE_TYPES::ByteArray ba;
-            ba.ResizeData(VALUE_SIZE);
-            std::memcpy(ba.GetDataPtr(), &value, VALUE_SIZE);
+            ba.resize_data(VALUE_SIZE);
+            std::memcpy(ba.get_data_ptr(), &value, VALUE_SIZE);
             return ba;
         }
 
         std::optional<ValueType> deserialize(const NS_YYCC_BINSTORE_TYPES::ByteArray& ba) const {
-            if (ba.GetDataSize() != VALUE_SIZE) return std::nullopt;
+            if (ba.get_data_size() != VALUE_SIZE) return std::nullopt;
 
             ValueType value;
-            std::memcpy(&value, ba.GetDataPtr(), VALUE_SIZE);
+            std::memcpy(&value, ba.get_data_ptr(), VALUE_SIZE);
             if (value > TMax || value < TMin) return std::nullopt;
             return value;
         }
@@ -130,16 +130,16 @@ namespace yycc::carton::binstore::serializer {
 
         std::optional<NS_YYCC_BINSTORE_TYPES::ByteArray> serialize(const ValueType& value) const {
             NS_YYCC_BINSTORE_TYPES::ByteArray ba;
-            ba.ResizeData(VALUE_SIZE);
-            std::memcpy(ba.GetDataPtr(), &value, VALUE_SIZE);
+            ba.resize_data(VALUE_SIZE);
+            std::memcpy(ba.get_data_ptr(), &value, VALUE_SIZE);
             return ba;
         }
 
         std::optional<ValueType> deserialize(const NS_YYCC_BINSTORE_TYPES::ByteArray& ba) const {
-            if (ba.GetDataSize() != VALUE_SIZE) return std::nullopt;
+            if (ba.get_data_size() != VALUE_SIZE) return std::nullopt;
 
             ValueType value;
-            std::memcpy(&value, ba.GetDataPtr(), VALUE_SIZE);
+            std::memcpy(&value, ba.get_data_ptr(), VALUE_SIZE);
             return value;
         }
 
@@ -160,12 +160,12 @@ namespace yycc::carton::binstore::serializer {
 
             // Prepare byte array and allocate size.
             NS_YYCC_BINSTORE_TYPES::ByteArray ba;
-            ba.ResizeData(HEADER_SIZE + length);
+            ba.resize_data(HEADER_SIZE + length);
 
             // Copy length first
-            std::memcpy(ba.GetDataPtr(), &length, HEADER_SIZE);
+            std::memcpy(ba.get_data_ptr(), &length, HEADER_SIZE);
             // Copy string data
-            std::memcpy(ba.GetDataPtr(HEADER_SIZE), value.data(), length);
+            std::memcpy(ba.get_data_ptr(HEADER_SIZE), value.data(), length);
 
             // Okey
             return ba;
@@ -173,20 +173,20 @@ namespace yycc::carton::binstore::serializer {
 
         std::optional<ValueType> deserialize(const NS_YYCC_BINSTORE_TYPES::ByteArray& ba) const {
             // Get byte array size
-            size_t ba_size = ba.GetDataSize();
+            size_t ba_size = ba.get_data_size();
             // Check whether it has header
             if (ba_size < HEADER_SIZE) return std::nullopt;
 
             // Get header
             HeaderType length;
-            std::memcpy(&length, ba.GetDataPtr(), HEADER_SIZE);
+            std::memcpy(&length, ba.get_data_ptr(), HEADER_SIZE);
 
             // Check whether full size is header + length.
             if (ba_size != HEADER_SIZE + length) return std::nullopt;
             // Prepare result
             std::u8string value(length, u8'\0');
             // Read into result
-            std::memcpy(value.data(), ba.GetDataPtr(HEADER_SIZE), length);
+            std::memcpy(value.data(), ba.get_data_ptr(HEADER_SIZE), length);
 
             // Okey
             return value;

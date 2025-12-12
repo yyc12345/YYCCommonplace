@@ -51,27 +51,27 @@ namespace yycc::carton::binstore::types {
          * @remarks This is usually used when reading data.
          * @return The length of internal buffer.
          */
-        size_t GetDataSize() const;
+        size_t get_data_size() const;
         /**
          * @brief Resize internal buffer to given size.
          * @remarks This is usually used when writing data.
          * @param[in] new_size The new size of internal buffer.
          */
-        void ResizeData(size_t new_size);
+        void resize_data(size_t new_size);
         /**
          * @brief Get data pointer to internal buffer for reading.
          * @remarks This is usually used when reading data.
          * @param[in] offset The offset in byte added to underlying pointer.
          * @return The data pointer to internal buffer.
          */
-        const void* GetDataPtr(size_t offset = 0) const;
+        const void* get_data_ptr(size_t offset = 0) const;
         /**
          * @brief Get data pointer to internal buffer for writing.
          * @remarks This is usually used when writing data.
          * @param[in] offset The offset in byte added to underlying pointer.
          * @return The data pointer to internal buffer.
          */
-        void* GetDataPtr(size_t offset = 0);
+        void* get_data_ptr(size_t offset = 0);
 
     private:
         std::vector<uint8_t> datas; ///< The internal buffer.
