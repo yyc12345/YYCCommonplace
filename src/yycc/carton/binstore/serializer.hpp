@@ -48,6 +48,7 @@ namespace yycc::carton::binstore::serializer {
              auto TMax = std::numeric_limits<T>::max(),
              auto TDefault = static_cast<T>(0)>
     struct IntegralSerDes {
+        IntegralSerDes() = default;
         YYCC_DEFAULT_COPY_MOVE(IntegralSerDes)
 
         static_assert(TMin <= TMax);
@@ -82,6 +83,11 @@ namespace yycc::carton::binstore::serializer {
              auto TMax = std::numeric_limits<T>::max(),
              auto TDefault = static_cast<T>(0)>
     struct FloatingPointSerDes {
+        FloatingPointSerDes() {
+            // TODO: Remove this and make it "= default" when 3 common STL make std::isfinite become constexpr.
+            if (!std::isfinite(TMin)) throw std::logic_error("invalid float minimum value.");
+            if (!std::isfinite(TMax)) throw std::logic_error("invalid float maximum value.");
+        }
         YYCC_DEFAULT_COPY_MOVE(FloatingPointSerDes)
 
         // TODO: Use static_assert once 3 common STL make this become constexpr.
@@ -116,6 +122,7 @@ namespace yycc::carton::binstore::serializer {
 
     template<bool TDefault = false>
     struct BoolSerDes {
+        BoolSerDes() = default;
         YYCC_DEFAULT_COPY_MOVE(BoolSerDes)
 
         using ValueType = bool;
@@ -140,6 +147,7 @@ namespace yycc::carton::binstore::serializer {
     };
 
     struct StringSerDes {
+        StringSerDes() = default;
         YYCC_DEFAULT_COPY_MOVE(StringSerDes)
 
         using ValueType = std::u8string;
