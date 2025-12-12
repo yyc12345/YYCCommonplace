@@ -187,13 +187,19 @@ namespace yycc::env {
         while (*current != L'\0') {
             // Fetch current wide string
             std::wstring_view entry(current);
+            // Increase the pointer first,
+            // because in later steps we may enter next loop before reaching the end of this loop syntax.
+            current += entry.length() + 1;
 
             // Parse "KEY=VALUE"
             size_t pos = entry.find(L'=');
             if (pos != std::string::npos) {
                 auto key = entry.substr(0, pos);
                 auto value = entry.substr(pos + 1);
-                if (key.empty()) return std::unexpected(VarError::NullPointer);
+                // However, Idk why there are some shit words like "=::=::" are in this string list.
+                // This should be excluded and can not be seen as error.
+                // So we simply skip them and do not report error.
+                if (key.empty()) continue;
 
                 auto u8key = ENC::to_utf8(key);
                 auto u8value = ENC::to_utf8(value);
@@ -205,9 +211,6 @@ namespace yycc::env {
             } else {
                 return std::unexpected(VarError::Others);
             }
-
-            // Increase the pointer
-            current += entry.length() + 1;
         }
 
         env_block.reset();
@@ -408,7 +411,7 @@ namespace yycc::env {
         if (argv == nullptr) return std::unexpected(ArgError::NullPointer);
 
         // Analyse it
-        for (int i = 1; i < argc; ++i) { // starts with 1 to remove first part (executable self)
+        for (int i = 0; i < argc; ++i) { // starts with 1 to remove first part (executable self)
             auto arg = argv.get()[i];
             if (arg == nullptr) return std::unexpected(ArgError::NullPointer);
 

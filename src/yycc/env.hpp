@@ -77,6 +77,9 @@ namespace yycc::env {
      */
     VarResult<std::vector<VarPair>> get_vars();
 
+    // TODO: Add join_paths() and split_paths() for variable 
+    // especially for PATH-like variable.
+
 #pragma endregion
 
 #pragma region Environment Path

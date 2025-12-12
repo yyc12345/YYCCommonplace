@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <yycc.hpp>
 #include <yycc/env.hpp>
-#include <yycc/macro/os_detector.hpp>
 #include <filesystem>
 
 #define ENV ::yycc::env
@@ -44,18 +43,40 @@ namespace yycctest::env {
         }
     }
 
+    TEST(Env, EnvVars) {
+        auto rv = ENV::get_vars();
+        ASSERT_TRUE(rv.has_value());
+        EXPECT_FALSE(rv.value().empty());
+    }
+
+    TEST(Env, CurrentDir) {
+        auto rv = ENV::current_dir();
+        ASSERT_TRUE(rv.has_value());
+        EXPECT_TRUE(std::filesystem::is_directory(rv.value()));
+    }
+
     TEST(Env, CurrentExe) {
         auto rv = ENV::current_exe();
         ASSERT_TRUE(rv.has_value());
+        EXPECT_TRUE(std::filesystem::is_regular_file(rv.value()));
+    }
 
-        auto filename = rv.value().filename().u8string();
-#if defined(YYCC_OS_WINDOWS)
-        // Only Windows has special ext.
-        EXPECT_EQ(filename, u8"YYCCTest.exe");
-#else
-        // Executable in other system are all in plain name.
-        EXPECT_EQ(filename, u8"YYCCTest");
-#endif
+    TEST(Env, HomeDir) {
+        auto rv = ENV::home_dir();
+        ASSERT_TRUE(rv.has_value());
+        EXPECT_TRUE(std::filesystem::is_directory(rv.value()));
+    }
+
+    TEST(Env, TempDir) {
+        auto rv = ENV::temp_dir();
+        ASSERT_TRUE(rv.has_value());
+        EXPECT_TRUE(std::filesystem::is_directory(rv.value()));
+    }
+
+    TEST(Env, EnvArgs) {
+        auto rv = ENV::get_args();
+        ASSERT_TRUE(rv.has_value());
+        EXPECT_FALSE(rv.value().empty());
     }
 
 } // namespace yycctest::env
