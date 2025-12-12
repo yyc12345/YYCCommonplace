@@ -13,6 +13,12 @@ namespace yycc::carton::binstore::storage {
 
 #pragma region Read and Write Helper Functions
 
+    static bool is_eof(std::istream& s) {
+        // Peek next value and check bit flag.
+        s.peek();
+        return s.eof();
+    }
+
     static bool read_buffer(std::istream& s, void* buffer, size_t length) {
         // Cast length
         auto rv_length = SAFECAST::try_to<std::streamsize>(length);
@@ -28,7 +34,7 @@ namespace yycc::carton::binstore::storage {
     }
 
     template<typename T>
-    requires std::is_pod_v<T>
+        requires std::is_pod_v<T>
     static bool read_pod(std::istream& s, T& val) {
         return read_buffer(s, &val, sizeof(T));
     }
@@ -47,6 +53,22 @@ namespace yycc::carton::binstore::storage {
         }
         // Read data into byte array.
         read_buffer(s, ba.get_data_ptr(), length);
+        // Okey
+        return true;
+    }
+
+    static bool read_u8string(std::istream& s, std::u8string& strl) {
+        size_t length = 0;
+        if (!read_pod(s, length)) return false;
+
+        // Same reason for try-catch like ByteArray.
+        try {
+            strl.resize(length);
+        } catch (const std::exception&) {
+            return false;
+        }
+        // Read data into byte array.
+        read_buffer(s, strl.data(), length);
         // Okey
         return true;
     }
@@ -78,6 +100,14 @@ namespace yycc::carton::binstore::storage {
         return write_buffer(s, ba.get_data_ptr(), length);
     }
 
+    static bool write_u8string(std::ostream& s, const std::u8string_view& sv) {
+        // Write length header.
+        auto length = sv.length();
+        if (!write_pod(s, length)) return false;
+        // Write body
+        return write_buffer(s, sv.data(), length);
+    }
+
 #pragma endregion
 
 #pragma region Storage Class
@@ -98,7 +128,56 @@ namespace yycc::carton::binstore::storage {
     }
 
     TYPES::BinstoreResult<void> Storage::load(std::istream& s, LoadStrategy strategy) {
-        return TYPES::BinstoreResult<void>();
+        // Before loading, we need clear all stored raw data first.
+        this->raws.clear();
+
+        // Read identifier
+        TYPES::VersionIdentifier version;
+        if (!read_pod(s, version)) return std::unexpected(TYPES::BinstoreError::Io);
+
+        // Check identifier with strategy
+        {
+            bool ok_for_read = false;
+            auto expected_version = this->cfg.get_version();
+            switch (strategy) {
+                case LoadStrategy::OnlyCurrent:
+                    ok_for_read = (version == expected_version);
+                    break;
+                case LoadStrategy::MigrateOld:
+                    ok_for_read = (version <= expected_version);
+                    break;
+                case LoadStrategy::AcceptAll:
+                    ok_for_read = true;
+                    break;
+            }
+            if (!ok_for_read) return std::unexpected(TYPES::BinstoreError::BadVersion);
+        }
+
+        // Read settings one by one.
+        const auto& settings = this->cfg.get_settings();
+        while (!is_eof(s)) {
+            // Read setting name
+            std::u8string setting_name;
+            if (!read_u8string(s, setting_name)) return std::unexpected(TYPES::BinstoreError::Io);
+
+            // Read setting body
+            TYPES::ByteArray ba;
+            if (!read_byte_array(s, ba)) return std::unexpected(TYPES::BinstoreError::Io);
+
+            // Check whether there is such setting and its token.
+            auto token_finder = settings.find_name(setting_name);
+            // If no such name, skip this setting.
+            if (!token_finder.has_value()) continue;
+            auto token = token_finder.value();
+
+            // If there is duplicated entry, report error
+            if (this->raws.contains(token)) std::unexpected(TYPES::BinstoreError::DuplicatedAssign);
+            // Otherwise insert it
+            this->raws.emplace(token, std::move(ba));
+        }
+
+        // Okey
+        return {};
     }
 
     TYPES::BinstoreResult<void> Storage::save_into_file(const std::filesystem::path& fpath) {
@@ -113,7 +192,24 @@ namespace yycc::carton::binstore::storage {
     }
 
     TYPES::BinstoreResult<void> Storage::save(std::ostream& s) {
-        return TYPES::BinstoreResult<void>();
+        // Write version identifier
+        auto version = this->cfg.get_version();
+        if (!write_pod(s, version)) return std::unexpected(TYPES::BinstoreError::Io);
+
+        // Write settings one by one
+        const auto& settings = this->cfg.get_settings();
+        for (const auto& [setting_token, setting_value] : this->raws) {
+            // Fetch setting name first
+            auto setting_name = settings.get_setting(setting_token).get_name();
+
+            // Write name
+            if (!write_u8string(s, setting_name)) return std::unexpected(TYPES::BinstoreError::Io);
+            // Write setting body
+            if (!write_byte_array(s, setting_value)) return std::unexpected(TYPES::BinstoreError::Io);
+        }
+
+        // Okey
+        return {};
     }
 
     bool Storage::has_setting(TYPES::Token token) const {

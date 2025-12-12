@@ -8,9 +8,10 @@ namespace yycc::carton::binstore::types {
 
     /// @brief All possible error kind occurs in this module.
     enum class BinstoreError {
-        NoSuchSetting, ///< Given token is invalid for setting.
-        BadVersion,    ///< The version provided in given file or IO is rejected by version strategy.
-        Io,            ///< C++ IO error.
+        NoSuchSetting,    ///< Given token is invalid for setting.
+        DuplicatedAssign, ///< Duplicated setting entry in data.
+        BadVersion,       ///< The version provided in given file or IO is rejected by version strategy.
+        Io,               ///< C++ IO error.
     };
 
     /// @brief The result type used in this module.
