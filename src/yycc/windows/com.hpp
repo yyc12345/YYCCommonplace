@@ -4,6 +4,7 @@
 #if defined(YYCC_OS_WINDOWS) && defined(YYCC_STL_MSSTL)
 
 #include <memory>
+#include <type_traits>
 
 #include "import_guard_head.hpp"
 #include <Windows.h>

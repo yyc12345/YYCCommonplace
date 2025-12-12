@@ -1,26 +1,40 @@
 #include "env.hpp"
 #include "macro/os_detector.hpp"
+#include <string>
+#include <string_view>
+#include <memory>
+#include <type_traits>
+#include <stdexcept>
 
-// Environment variable required
 #if defined(YYCC_OS_WINDOWS)
 #include "encoding/windows.hpp"
 #include "num/safe_op.hpp"
 #include "num/safe_cast.hpp"
+#include "windows/winfct.hpp"
+#include "windows/import_guard_head.hpp"
 #include <Windows.h>
 #include <winbase.h>
-#else
+#include <processenv.h> // For getting environment variables and commandline argument.
+#include <shellapi.h>   // For getting commandline argument.
+#include "windows/import_guard_tail.hpp"
+#elif defined(YYCC_OS_LINUX)
 #include "string/reinterpret.hpp"
 #include <cstdlib>
 #include <cerrno>
-#include <stdexcept>
-#endif
-
-// Path related functions required
-#if defined(YYCC_OS_WINDOWS)
-#include "windows/winfct.hpp"
-#else
+#include <fstream> // For reading commandline argument.
 #include <unistd.h>
-#include <sys/stat.h>
+#include <sys/stat.h> // For reading symlink target.
+#elif defined(YYCC_OS_MACOS)
+#include "string/reinterpret.hpp"
+#include "num/safe_cast.hpp"
+#include <cstdlib>
+#include <cerrno>
+#include <unistd.h>
+#include <cstring>
+#include <mach-o/dyld.h> // For getting current exe path.
+#include <crt_externs.h> // For getting commandline argument.
+#else
+#error "Not supported OS"
 #endif
 
 #define SAFECAST ::yycc::num::safe_cast
@@ -146,10 +160,76 @@ namespace yycc::env {
 #endif
     }
 
+#if defined(YYCC_OS_WINDOWS)
+    class EnvironmentStringsDeleter {
+    public:
+        EnvironmentStringsDeleter() {}
+        void operator()(LPWCH ptr) {
+            if (ptr != nullptr) {
+                FreeEnvironmentStringsW(ptr);
+            }
+        }
+    };
+    using SmartEnvironmentStrings = std::unique_ptr<std::remove_pointer_t<LPWCH>, EnvironmentStringsDeleter>;
+#endif
+
     std::vector<VarPair> get_vars() {
-        // TODO: finish this function according to Rust implementation.
-        // Considering whether replace return value with an iterator.
-        throw std::logic_error("not implemented");
+        // TODO: Considering whether replace return value with an iterator.
+        std::vector<VarPair> rv;
+
+#if defined(YYCC_OS_WINDOWS)
+        // Reference: https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getenvironmentstringsw
+
+        SmartEnvironmentStrings env_block(GetEnvironmentStringsW());
+        if (env_block == nullptr) throw std::runtime_error("GetEnvironmentStringsW call failed");
+
+        wchar_t *current = env_block.get();
+        while (*current != L'\0') {
+            // Fetch current wide string
+            std::wstring_view entry(current);
+
+            // Parse "KEY=VALUE"
+            size_t pos = entry.find(L'=');
+            if (pos != std::string::npos) {
+                auto key = entry.substr(0, pos);
+                auto value = entry.substr(pos + 1);
+                if (key.empty()) throw std::runtime_error("unexpected empty variable name");
+
+                auto u8key = ENC::to_utf8(key);
+                auto u8value = ENC::to_utf8(value);
+                if (u8key.has_value() && u8value.has_value()) {
+                    rv.emplace_back(std::make_pair(std::move(u8key.value()), std::move(u8value.value())));
+                } else {
+                    throw std::runtime_error("bad encoding of variable");
+                }
+            } else {
+                throw std::runtime_error("bad variable syntax");
+            }
+
+            // Increase the pointer
+            current += entry.length() + 1;
+        }
+
+        env_block.reset();
+#else
+        // Reference: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap08.html
+
+        // POSIX (Linux, macOS, etc.)
+        for (char **env = environ; *env != nullptr; ++env) {
+            std::string_view entry(*env);
+            size_t pos = entry.find('=');
+            if (pos != std::string::npos) {
+                auto key = entry.substr(0, pos);
+                auto value = entry.substr(pos + 1);
+                if (key.empty()) throw std::runtime_error("unexpected empty variable name");
+                rv.emplace_back(std::make_pair(REINTERPRET::as_utf8(key), REINTERPRET::as_utf8(value)));
+            } else {
+                throw std::runtime_error("bad variable syntax");
+            }
+        }
+#endif
+
+        return rv;
     }
 
 #pragma endregion
@@ -160,24 +240,38 @@ namespace yycc::env {
         return std::filesystem::current_path();
     }
 
-    PathResult<std::filesystem::path> current_exe() {
-#if defined(YYCC_OS_WINDOWS)
-        return WINFCT::get_module_file_name(NULL).transform_error([](auto e) { return PathError::SysCall; }).transform([](auto v) {
-            return std::filesystem::path(v);
-        });
-#elif defined(YYCC_OS_LINUX)
+#if defined(YYCC_OS_LINUX)
+
+    /// @brief All possible error occurs when reading Linux symlink target.
+    enum class ReadSymlinkTargetError {
+        SysCall,   ///< Fail to call system call.
+        Truncated, ///< Expected path to target was truncated.
+        Others,    ///< Any other errors
+    };
+
+    /**
+     * @brief An utility function for convenient reading symlink target on Linux.
+     * @param[in] link The path to symlink where the target is read.
+     * @return The read path to to target, or error occurs.
+     */
+    static std::expected<std::u8string, ReadSymlinkTargetError> read_symlink_target(const std::string_view &link) {
         // Reference: https://www.man7.org/linux/man-pages/man2/readlink.2.html
 
-        // specify the path
-        constexpr char path[] = "/proc/self/exe";
+        // String view is not NUL terminated.
+        // Create an string container for it.
+        std::string path(link);
 
-        // get the expected size
+        // Get the expected size.
+        // Query this symlink info first.
         struct stat sb;
-        if (lstat(path, &sb) != 0) {
+        if (lstat(path.c_str(), &sb) != 0) {
+            return std::unexpected(ReadSymlinkTargetError::SysCall);
         }
+        // Fetch the size of target path in gotten struct.
+        // And cast it into expected type.
         auto expected_size = SAFECAST::try_to<size_t>(sb.st_size);
         if (!expected_size.has_value()) {
-            return std::unexpected(PathError::Others);
+            return std::unexpected(ReadSymlinkTargetError::Others);
         }
         auto buf_size = expected_size.value();
         // Some magic symlinks under (for example) /proc and /sys report 'st_size' as zero.
@@ -186,40 +280,96 @@ namespace yycc::env {
             buf_size = PATH_MAX;
         }
 
-        // prepare buffer and resize it;
+        // Prepare return value and allocate it with previous gotten size.
         std::u8string rv(u8'\0', buf_size);
 
-        // write data
+        // Copy data into result value.
+        // Add one to the link size, so that we can determine whether
+        // the buffer returned by readlink() was truncated.
+        // Also, due to the add operation, we need do overflow checks.
         auto passed_size = SAFEOP::checked_add<size_t>(buf_size, 1);
         if (!passed_size.has_value()) {
-            return std::unexpected(PathError::Others);
+            return std::unexpected(ReadSymlinkTargetError::Others);
         }
-        ssize_t nbytes = readlink(path, REINTERPRET::as_ordinary(rv.data()), passed_size.value());
+        // Read data into result value.
+        ssize_t nbytes = readlink(path.c_str(), REINTERPRET::as_ordinary(rv.data()), passed_size.value());
         if (nbytes < 0) {
-            return std::unexpected(PathError::Others);
+            return std::unexpected(ReadSymlinkTargetError::SysCall);
         }
 
-        // check written size
+        // Check written size
+        // Cast it type into expected type.
         auto written_size = SAFECAST::try_to<size_t>(nbytes);
         if (!written_size.has_value()) {
-            return std::unexpected(PathError::Others);
+            return std::unexpected(ReadSymlinkTargetError::Others);
         }
+        // If the return value was equal to the buffer size, then
+        // the link target was larger than expected (perhaps because the
+        // target was changed between the call to lstat() and the call to
+        // readlink()). Return error instead.
         if (written_size.value() != buf_size) {
-            return std::unexpected(PathError::Others);
+            // TODO: There must be a better solution to this truncated issue than simply return error.
+            return std::unexpected(ReadSymlinkTargetError::Truncated);
         }
 
-        // okey
-        return std::filesystem::path(rv);
-#else
-        // TODO: Implement this in other OS.
-        // "/proc/self/exe" is Linux specific, not in POSIX standard.
-        // This method may need further patch when running on macOS.
+        // Everything is okey
+        return rv;
+    }
+
 #endif
+
+    PathResult<std::filesystem::path> current_exe() {
+        std::u8string rv;
+
+#if defined(YYCC_OS_WINDOWS)
+        auto file_name = WINFCT::get_module_file_name(NULL);
+        if (file_name.has_value()) rv = std::move(file_name.value());
+        else return std::unexpected(PathError::SysCall);
+#elif defined(YYCC_OS_LINUX)
+        // Reference: https://www.man7.org/linux/man-pages/man5/proc_pid_exe.5.html
+        auto target = read_symlink_target("/proc/self/exe");
+        if () return rv = std::move(target.value());
+        else return std::unexpected(PathError::SysCall);
+#elif defined(YYCC_OS_MACOS)
+        // TODO: This is AI generated and don't have test and reference.
+        std::string buffer(PATH_MAX, '\0');
+        auto rv_size = SAFECAST::try_to<uint32_t>(buffer.size());
+        if (!rv_size.has_value()) return std::unexpected(PathError::Others);
+        auto size = rv_size.value();
+        if (_NSGetExecutablePath(buffer.data(), &size) != 0) {
+            // Buffer too small; resize and retry
+            buffer.resize(SAFECAST::to<size_t>(size));
+            if (_NSGetExecutablePath(buffer.data(), &size) != 0) {
+                return std::unexpected(PathError::SysCall);
+            }
+        }
+        buffer.resize(strlen(buffer.data()));
+        rv = REINTERPRET::as_utf8(buffer);
+#else
+#error "Not supported OS"
+#endif
+
+        return std::filesystem::path(rv);
     }
 
     PathResult<std::filesystem::path> home_dir() {
-        // TODO: finish this function according to Rust implementation.
-        throw std::logic_error("not implemented");
+        std::u8string rv;
+
+#if defined(YYCC_OS_WINDOWS)
+        // USERPROFILE is introduced in Rust std::env::home_dir() document.
+        auto home = get_var(u8"USERPROFILE");
+        if (home.has_value()) rv = std::move(home.value());
+        else return std::unexpected(PathError::SysCall);
+#else
+        // Reference: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap08.html
+        
+        // HOME is an environment variable in POSIX standard.
+        auto home = get_var(u8"HOME");
+        if (home.has_value()) rv = std::move(home.value());
+        else return std::unexpected(PathError::SysCall);
+#endif
+
+        return std::filesystem::path(rv);
     }
 
     PathResult<std::filesystem::path> temp_dir() {
@@ -230,10 +380,94 @@ namespace yycc::env {
 
 #pragma region Environment Argument
 
+#if defined(YYCC_OS_WINDOWS)
+
+    class CommandLineArgvDeleter {
+    public:
+        CommandLineArgvDeleter() {}
+        void operator()(LPWCH ptr) {
+            if (ptr != nullptr) {
+                LocalFree(ptr);
+            }
+        }
+    };
+    using SmartCommandLineArgv = std::unique_ptr<std::remove_pointer_t<LPWSTR *>, CommandLineArgvDeleter>;
+
+#endif
+
     std::vector<std::u8string> get_args() {
-        // TODO: finish this function according to Rust implementation.
-        // Considering whether use iterator as return value.
-        throw std::logic_error("not implemented");
+        // TODO: Considering whether use iterator as return value.
+        std::vector<std::u8string> rv;
+
+#if defined(YYCC_OS_WINDOWS)
+        // Reference: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw
+
+        // Fetch args from Win32 functions
+        int argc;
+        SmartCommandLineArgv argv(CommandLineToArgvW(GetCommandLineW(), &argc));
+        if (argv == nullptr) throw std::runtime_error("unexpected blank command line tuple");
+
+        // Analyse it
+        for (int i = 1; i < argc; ++i) { // starts with 1 to remove first part (executable self)
+            auto arg = argv.get()[i];
+            if (arg == nullptr) throw std::runtime_error("unexpected nullptr argument");
+
+            auto u8arg = ENC::to_utf8(arg);
+            if (u8arg.has_value()) {
+                rv.emplace_back(std::move(u8arg.value()));
+            } else {
+                throw std::runtime_error("bad encoding of argument");
+            }
+        }
+
+        // Free data
+        argv.reset();
+#elif defined(YYCC_OS_LINUX)
+        // Reference: https://www.man7.org/linux/man-pages/man5/proc_pid_cmdline.5.html
+
+        // Open special file.
+        // Because we are in Linux so we do not need use UTF-8.
+        std::ifstream cmdline("/proc/self/cmdline", std::ios::binary);
+        // Check whether file is open.
+        if (cmdline.is_open()) {
+            // Prepare container for holding fetched argument.
+            std::string arg;
+            // Fetch arguments one by one.
+            while (true) {
+                // We use NUL as delimiter
+                std::getline(cmdline, arg, '\0');
+                // Check whether reading is okey.
+                if (!cmdline.good()) throw std::runtime_error("bad reading");
+                // If return string is empty, it means that we reach the tail.
+                if (arg.empty()) break;
+
+                // Push this argument into result.
+                rv.emplace_back(REINTERPRET::as_utf8(arg));
+            }
+            // Close file
+            cmdline.close();
+        } else {
+            throw std::runtime_error("fail to open cmdline file");
+        }
+
+#elif defined(YYCC_OS_MACOS)
+        // TODO: This is AI generated and don't have test and reference.
+        char ***apple_argv = _NSGetArgv();
+        int *apple_argc = _NSGetArgc();
+        if (apple_argv && apple_argc) {
+            for (int i = 0; i < *apple_argc; ++i) {
+                auto ptr = (*apple_argv)[i];
+                if (ptr == nullptr) throw std::runtime_error("unexpected nullptr argument");
+                else rv.emplace_back(REINTERPRET::as_utf8(ptr));
+            }
+        } else {
+            throw std::runtime_error("fail to get pointer to argument data");
+        }
+#else
+#error "Not supported OS"
+#endif
+
+        return rv;
     }
 
 #pragma endregion
