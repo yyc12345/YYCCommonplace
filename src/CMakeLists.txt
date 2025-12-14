@@ -41,7 +41,8 @@ PRIVATE
     yycc/carton/binstore/types.cpp
     yycc/carton/binstore/setting.cpp
     yycc/carton/binstore/configuration.cpp
-    yycc/carton/binstore/storage.cpp
+    #yycc/carton/binstore/storage.cpp
+    yycc/carton/lexer61.cpp
 )
 target_sources(YYCCommonplace 
 PUBLIC
@@ -110,7 +111,8 @@ FILES
     yycc/carton/binstore/serializer.hpp
     yycc/carton/binstore/setting.hpp
     yycc/carton/binstore/configuration.hpp
-    yycc/carton/binstore/storage.hpp
+    #yycc/carton/binstore/storage.hpp
+    yycc/carton/lexer61.hpp
     yycc/carton/fft.hpp
 )
 # Setup header infomations
