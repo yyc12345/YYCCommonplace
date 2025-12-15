@@ -24,8 +24,7 @@ namespace yycc::carton::lexer61 {
         YYCC_DEFAULT_COPY_MOVE(Lexer61)
 
     public:
-        LexerResult<std::vector<std::u8string_view>> lex(const std::u8string_view& cmd);
-        LexerResult<std::vector<std::u8string>> owend_lex(const std::u8string_view& cmd);
+        LexerResult<std::vector<std::u8string>> lex(const std::u8string_view& cmd);
 
     private:
         void reset();
@@ -36,11 +35,11 @@ namespace yycc::carton::lexer61 {
         void proc_escape();
         void proc_normal();
 
-        std::vector<std::u8string_view> m_ArgsCollection; ///< Internal result holder.
-        std::u8string m_CurrentArg;                   ///< Holding current building commandline argument.
-        char8_t m_CurrentChar;                    ///< Holding current char analysing.
-        LexerState m_State;                       ///< Recording current state.
-        LexerState m_PrevState;                   ///< Recording previous state.
+        std::vector<std::u8string> m_ArgsCollection; ///< Internal result holder.
+        std::u8string m_CurrentArg;                  ///< Holding current building commandline argument.
+        char8_t m_CurrentChar;                       ///< Holding current char analysing.
+        LexerState m_State;                          ///< Recording current state.
+        LexerState m_PrevState;                      ///< Recording previous state.
     };
 
 } // namespace yycc::carton::lexer61

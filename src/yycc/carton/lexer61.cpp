@@ -2,11 +2,12 @@
 
 namespace yycc::carton::lexer61 {
 
-    Lexer61::Lexer61() : m_ArgsCollection(), m_CurrentArg(), m_CurrentChar(u8'\0'), m_State(LexerState::Space), m_PrevState(LexerState::Space) {}
+    Lexer61::Lexer61() :
+        m_ArgsCollection(), m_CurrentArg(), m_CurrentChar(u8'\0'), m_State(LexerState::Space), m_PrevState(LexerState::Space) {}
 
     Lexer61::~Lexer61() {}
 
-    LexerResult<std::vector<std::u8string_view>> Lexer61::lex(const std::u8string_view &cmd) {
+    LexerResult<std::vector<std::u8string>> Lexer61::lex(const std::u8string_view &cmd) {
         // Clear variables when we start a new lex.
         this->reset();
 
@@ -64,20 +65,6 @@ namespace yycc::carton::lexer61 {
             return this->m_ArgsCollection;
         } else {
             return std::unexpected(LexerError::UnexpectedEnd);
-        }
-    }
-
-    LexerResult<std::vector<std::u8string>> Lexer61::owend_lex(const std::u8string_view &cmd) {
-        auto rv = this->lex(cmd);
-        if (rv.has_value()) {
-            auto source = std::move(rv.value());
-            std::vector<std::u8string> elems;
-            for (const auto &strl_view : source) {
-                elems.emplace_back(std::u8string(strl_view));
-            }
-            return elems;
-        } else {
-            std::unexpected(rv.error());
         }
     }
 

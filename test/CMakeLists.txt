@@ -42,6 +42,7 @@ PRIVATE
     yycc/carton/tabulate.cpp
     yycc/carton/clap.cpp
     yycc/carton/binstore.cpp
+    yycc/carton/lexer61.cpp
     yycc/carton/fft.cpp
 )
 target_sources(YYCCTest
