@@ -59,7 +59,7 @@ FILES
     yycc/macro/ptr_size_detector.hpp
     yycc/macro/class_copy_move.hpp
     yycc/macro/printf_checker.hpp
-    yycc/flag_enum.hpp
+    yycc/cenum.hpp
     yycc/string.hpp
     yycc/string/reinterpret.hpp
     yycc/string/op.hpp

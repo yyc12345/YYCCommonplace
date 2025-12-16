@@ -1,10 +1,10 @@
 #include "termcolor.hpp"
-#include "../flag_enum.hpp"
+#include "../cenum.hpp"
 #include "../patch/stream.hpp"
 #include <stdexcept>
 #include <bit>
 
-#define FLAG_ENUM ::yycc::flag_enum
+#define CENUM ::yycc::cenum
 
 using namespace std::literals::string_view_literals;
 using namespace yycc::patch::stream;
@@ -102,7 +102,7 @@ namespace yycc::carton::termcolor {
         }
 
         // Check whether it only has one flag
-        if (!std::has_single_bit(FLAG_ENUM::integer(attr))) {
+        if (!std::has_single_bit(CENUM::integer(attr))) {
             throw std::invalid_argument("style() only accept single flag attribute");
         }
 
@@ -145,7 +145,7 @@ namespace yycc::carton::termcolor {
      * @return The count of single flag.
      */
     static size_t count_attribute_flags(Attribute attrs) {
-        return static_cast<size_t>(std::popcount(FLAG_ENUM::integer(attrs)));
+        return static_cast<size_t>(std::popcount(CENUM::integer(attrs)));
     }
 
     /**
@@ -163,7 +163,7 @@ namespace yycc::carton::termcolor {
      */
     static void append_styles(std::u8string& s, Attribute attrs) {
 #define CHECK_ATTR(probe) \
-    if (FLAG_ENUM::has(attrs, probe)) s.append(termcolor::style(probe));
+    if (CENUM::has(attrs, probe)) s.append(termcolor::style(probe));
 
         if (attrs != Attribute::Default) {
             CHECK_ATTR(Attribute::Bold);

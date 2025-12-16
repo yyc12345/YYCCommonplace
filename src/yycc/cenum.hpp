@@ -8,7 +8,7 @@
  * But it lack essential logic operations which is commonly used by programmer.
  * So we create this helper to resolve this issue.
 */
-namespace yycc::flag_enum {
+namespace yycc::cenum {
 
     // Reference:
     // Enum operator overload: https://stackoverflow.com/a/71107019
@@ -204,4 +204,4 @@ namespace yycc::flag_enum {
         return static_cast<ut>(e);
     }
 
-} // namespace yycc::flag_enum
+} // namespace yycc::cenum

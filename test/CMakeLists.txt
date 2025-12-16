@@ -13,7 +13,7 @@ PRIVATE
     yycc/macro/endian_detector.cpp
     yycc/macro/ptr_size_detector.cpp
     yycc/macro/stl_detector.cpp
-    yycc/flag_enum.cpp
+    yycc/cenum.cpp
     yycc/patch/ptr_pad.cpp
     yycc/patch/fopen.cpp
     yycc/patch/stream.cpp
