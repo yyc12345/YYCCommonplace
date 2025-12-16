@@ -6,7 +6,7 @@
 
 #define TYPES ::yycc::carton::binstore::types
 #define CFG ::yycc::carton::binstore::configuration
-#define SERDES ::yycc::carton::binstore::serializer
+#define SERDES ::yycc::carton::binstore::serdes
 #define SAFECAST ::yycc::num::safe_cast
 
 namespace yycc::carton::binstore::storage {
@@ -129,7 +129,7 @@ namespace yycc::carton::binstore::storage {
 
     TYPES::BinstoreResult<void> Storage::load(std::istream& s, LoadStrategy strategy) {
         // Before loading, we need clear all stored raw data first.
-        this->raws.clear();
+        this->clear();
 
         // Read identifier
         TYPES::VersionIdentifier version;
@@ -171,7 +171,7 @@ namespace yycc::carton::binstore::storage {
             auto token = token_finder.value();
 
             // If there is duplicated entry, report error
-            if (this->raws.contains(token)) std::unexpected(TYPES::BinstoreError::DuplicatedAssign);
+            if (this->raws.contains(token)) return std::unexpected(TYPES::BinstoreError::DuplicatedAssign);
             // Otherwise insert it
             this->raws.emplace(token, std::move(ba));
         }
@@ -210,6 +210,10 @@ namespace yycc::carton::binstore::storage {
 
         // Okey
         return {};
+    }
+
+    void Storage::clear() {
+        this->raws.clear();
     }
 
     bool Storage::has_setting(TYPES::Token token) const {

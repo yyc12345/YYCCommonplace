@@ -5,11 +5,13 @@
 #include <string>
 #include <limits>
 #include <concepts>
+#include <stdexcept>
+#include <cmath>
 #include <type_traits>
 
 #define NS_YYCC_BINSTORE_TYPES ::yycc::carton::binstore::types
 
-namespace yycc::carton::binstore::serializer {
+namespace yycc::carton::binstore::serdes {
 
     // TODO: Support numeric list and string list SerDes.
 
@@ -120,6 +122,33 @@ namespace yycc::carton::binstore::serializer {
         NS_YYCC_BINSTORE_TYPES::ByteArray reset() const { return this->serialize(TDefault).value(); }
     };
 
+    template<typename T, auto TDefault = static_cast<T>(0)>
+        requires std::is_enum_v<T>
+    struct EnumSerDes {
+        EnumSerDes() = default;
+        YYCC_DEFAULT_COPY_MOVE(EnumSerDes)
+
+        using UnderlyingType = std::underlying_type_t<T>;
+        using ValueType = T;
+
+        std::optional<NS_YYCC_BINSTORE_TYPES::ByteArray> serialize(const ValueType& value) const {
+            return inner.serialize(static_cast<UnderlyingType>(value));
+        }
+
+        std::optional<ValueType> deserialize(const NS_YYCC_BINSTORE_TYPES::ByteArray& ba) const {
+            return inner.deserialize(ba).transform([](auto v) { return static_cast<ValueType>(v); });
+        }
+
+        NS_YYCC_BINSTORE_TYPES::ByteArray reset() const { return inner.reset(); }
+
+    private:
+        IntegralSerDes<UnderlyingType,
+                       std::numeric_limits<UnderlyingType>::min(),
+                       std::numeric_limits<UnderlyingType>::max(),
+                       static_cast<UnderlyingType>(TDefault)>
+            inner;
+    };
+
     template<bool TDefault = false>
     struct BoolSerDes {
         BoolSerDes() = default;
@@ -195,4 +224,4 @@ namespace yycc::carton::binstore::serializer {
         NS_YYCC_BINSTORE_TYPES::ByteArray reset() const { return this->serialize(u8"").value(); }
     };
 
-} // namespace yycc::carton::binstore::serializer
+} // namespace yycc::carton::binstore::serdes

@@ -41,7 +41,7 @@ PRIVATE
     yycc/carton/binstore/types.cpp
     yycc/carton/binstore/setting.cpp
     yycc/carton/binstore/configuration.cpp
-    #yycc/carton/binstore/storage.cpp
+    yycc/carton/binstore/storage.cpp
     yycc/carton/lexer61.cpp
 )
 target_sources(YYCCommonplace 
@@ -108,10 +108,10 @@ FILES
     yycc/carton/clap/resolver.hpp
     yycc/carton/binstore.hpp
     yycc/carton/binstore/types.hpp
-    yycc/carton/binstore/serializer.hpp
+    yycc/carton/binstore/serdes.hpp
     yycc/carton/binstore/setting.hpp
     yycc/carton/binstore/configuration.hpp
-    #yycc/carton/binstore/storage.hpp
+    yycc/carton/binstore/storage.hpp
     yycc/carton/lexer61.hpp
     yycc/carton/fft.hpp
 )

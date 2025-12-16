@@ -2,7 +2,7 @@
 #include "../../macro/class_copy_move.hpp"
 #include "types.hpp"
 #include "configuration.hpp"
-#include "serializer.hpp"
+#include "serdes.hpp"
 #include <map>
 #include <optional>
 #include <utility>
@@ -13,7 +13,7 @@
 
 #define NS_YYCC_BINSTORE_TYPES ::yycc::carton::binstore::types
 #define NS_YYCC_BINSTORE_CFG ::yycc::carton::binstore::configuration
-#define NS_YYCC_BINSTORE_SERDES ::yycc::carton::binstore::serializer
+#define NS_YYCC_BINSTORE_SERDES ::yycc::carton::binstore::serdes
 
 namespace yycc::carton::binstore::storage {
 
@@ -61,10 +61,15 @@ namespace yycc::carton::binstore::storage {
         YYCC_DEFAULT_COPY_MOVE(Storage)
 
     public:
-        NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> load_from_file(const std::filesystem::path& fpath, LoadStrategy strategy);
-        NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> load(std::istream& s, LoadStrategy strategy);
+        NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> load_from_file(const std::filesystem::path& fpath, LoadStrategy strategy = LoadStrategy::MigrateOld);
+        NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> load(std::istream& s, LoadStrategy strategy = LoadStrategy::MigrateOld);
         NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> save_into_file(const std::filesystem::path& fpath);
         NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> save(std::ostream& s);
+        /**
+         * @brief Clear all raw data saved in internal cache.
+         * @details This will cause every setting was set in default value when user fetching them.
+         */
+        void clear();
 
     private:
         /**
@@ -129,7 +134,7 @@ namespace yycc::carton::binstore::storage {
                 // Get raw value.
                 const auto& ba = this->get_raw_value(token);
                 // Try to deserialize it.
-                auto value = serdes.deserialize(raw_value);
+                auto value = serdes.deserialize(ba);
                 // If the result is okey, return it.
                 if (value.has_value()) {
                     return value.value();

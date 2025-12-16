@@ -5,6 +5,7 @@
 #include <string_view>
 #include <limits>
 #include <concepts>
+#include <stdexcept>
 #include <cmath>
 
 #define NS_YYCC_NUM_PARSE ::yycc::num::parse

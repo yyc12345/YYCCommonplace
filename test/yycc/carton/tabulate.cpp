@@ -22,6 +22,8 @@ namespace yycctest::carton::tabulate {
 
         void expected_print(const std::u8string_view& exp) {
             ss.str("");
+            ss.clear();
+            
             table.print(ss);
             EXPECT_EQ(REINTERPRET::as_utf8_view(ss.view()), exp);
         }
