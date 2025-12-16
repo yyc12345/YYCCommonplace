@@ -14,8 +14,6 @@ PRIVATE
     yycc/macro/ptr_size_detector.cpp
     yycc/macro/stl_detector.cpp
     yycc/flag_enum.cpp
-    yycc/constraint.cpp
-    yycc/constraint/builder.cpp
     yycc/patch/ptr_pad.cpp
     yycc/patch/fopen.cpp
     yycc/patch/stream.cpp

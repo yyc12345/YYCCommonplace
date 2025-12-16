@@ -84,8 +84,6 @@ FILES
     yycc/windows/dialog.hpp
     yycc/windows/winfct.hpp
     yycc/windows/console.hpp
-    yycc/constraint.hpp
-    yycc/constraint/builder.hpp
     yycc/encoding/stl.hpp
     yycc/encoding/windows.hpp
     yycc/encoding/iconv.hpp
