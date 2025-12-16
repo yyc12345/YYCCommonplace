@@ -265,7 +265,7 @@ namespace yycctest::carton::binstore {
     protected:
         CartonBinstoreVersion() {
             // Create settings
-            auto settings = SettingCollection();
+            settings = SettingCollection();
             setting = settings.add_setting(Setting(u8"int-setting"));
         }
         ~CartonBinstoreVersion() override = default;
@@ -302,7 +302,7 @@ namespace yycctest::carton::binstore {
 
     TEST_F(CartonBinstoreVersion, LoadStrategy) {
         // Prepare buffer and essential settings
-        constexpr VersionIdentifier OLD_VERSION = 32;
+        constexpr VersionIdentifier OLD_VERSION = 16;
         constexpr VersionIdentifier MID_VERSION = 32;
         constexpr VersionIdentifier NEW_VERSION = 61;
 

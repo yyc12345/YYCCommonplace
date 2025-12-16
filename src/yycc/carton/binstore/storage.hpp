@@ -181,6 +181,9 @@ namespace yycc::carton::binstore::storage {
             auto ba = success_ser ? std::move(rv_ser.value()) : serdes.reset();
             // Assign it to setting's raw value.
             this->set_raw_value(token, std::move(ba));
+
+            // Return result
+            return success_ser;
         }
     };
 
