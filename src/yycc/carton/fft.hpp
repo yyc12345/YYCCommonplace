@@ -24,19 +24,19 @@ namespace yycc::carton::fft {
         // We use std::has_single_bit() to check whether given number is an integral power of 2.
         // And use (std::bit_width() - 1) to get the exponent of given number based on 2.
 
-        template<typename TIndex, typename TFloat, size_t N>
+        template<typename TIndex, typename TFloat, TIndex VN>
         struct validate_args {
         private:
             static constexpr bool is_unsigned_int = std::is_unsigned_v<TIndex> && std::is_integral_v<TIndex>;
             static constexpr bool is_float_point = std::is_floating_point_v<TFloat>;
-            static constexpr bool n_is_pow_2 = std::has_single_bit<TIndex>(static_cast<TIndex>(N)) && N >= static_cast<TIndex>(2);
+            static constexpr bool n_is_pow_2 = std::has_single_bit<TIndex>(static_cast<TIndex>(VN)) && VN >= static_cast<TIndex>(2);
 
         public:
             static constexpr bool value = is_unsigned_int && is_float_point && n_is_pow_2;
         };
 
-        template<typename TIndex, typename TFloat, size_t N>
-        inline constexpr bool validate_args_v = validate_args<TIndex, TFloat, N>::value;
+        template<typename TIndex, typename TFloat, TIndex VN>
+        inline constexpr bool validate_args_v = validate_args<TIndex, TFloat, VN>::value;
 
     } // namespace util
 
@@ -44,11 +44,11 @@ namespace yycc::carton::fft {
 
     enum class WindowType { HanningWindow };
 
-    template<typename TIndex, typename TFloat, size_t N>
-        requires util::validate_args_v<TIndex, TFloat, N>
+    template<typename TIndex, typename TFloat, TIndex VN>
+        requires util::validate_args_v<TIndex, TFloat, VN>
     class Window {
     private:
-        static constexpr TIndex N = N;
+        static constexpr TIndex N = VN;
 
     public:
         Window(WindowType win_type) : window_type(win_type), window_data(nullptr) {
@@ -102,12 +102,12 @@ namespace yycc::carton::fft {
 
 #pragma region FFT
 
-    template<typename TIndex, typename TFloat, size_t N>
-        requires util::validate_args_v<TIndex, TFloat, N>
+    template<typename TIndex, typename TFloat, TIndex VN>
+        requires util::validate_args_v<TIndex, TFloat, VN>
     struct FftProperties {
     public:
         using TComplex = std::complex<TFloat>;
-        static constexpr TIndex N = static_cast<TIndex>(N);
+        static constexpr TIndex N = static_cast<TIndex>(VN);
         static constexpr TIndex M = static_cast<TIndex>(std::bit_width<TIndex>(N) - 1);
         static constexpr TIndex HALF_POINT = N >> static_cast<TIndex>(1);
     };
@@ -119,11 +119,11 @@ namespace yycc::carton::fft {
      * @tparam TFloat 
      * @tparam N 
      */
-    template<typename TIndex, typename TFloat, size_t N>
-        requires util::validate_args_v<TIndex, TFloat, N>
+    template<typename TIndex, typename TFloat, TIndex VN>
+        requires util::validate_args_v<TIndex, TFloat, VN>
     class Fft {
     private:
-        using TProperties = FftProperties<TIndex, TFloat, N>;
+        using TProperties = FftProperties<TIndex, TFloat, VN>;
         using TComplex = TProperties::TComplex;
         static constexpr TIndex N = TProperties::N;
         static constexpr TIndex M = TProperties::M;
@@ -201,12 +201,12 @@ namespace yycc::carton::fft {
      * @tparam N 
      * @warning This class is \b NOT thread safe. Please use different instance in different thread.
      */
-    template<typename TIndex, typename TFloat, size_t N>
-        requires util::validate_args_v<TIndex, TFloat, N>
+    template<typename TIndex, typename TFloat, TIndex VN>
+        requires util::validate_args_v<TIndex, TFloat, VN>
     class FriendlyFft {
     private:
-        using UnderlyingFft = Fft<TIndex, TFloat, N>;
-        using TProperties = FftProperties<TIndex, TFloat, N>;
+        using UnderlyingFft = Fft<TIndex, TFloat, VN>;
+        using TProperties = FftProperties<TIndex, TFloat, VN>;
         using TComplex = TProperties::TComplex;
         static constexpr TIndex N = TProperties::N;
         static constexpr TIndex M = TProperties::M;

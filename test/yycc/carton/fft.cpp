@@ -10,7 +10,7 @@ namespace yycctest::carton::fft {
     using TIndex = size_t;
     using TFloat = float;
     using TComplex = std::complex<TFloat>;
-    template<size_t N>
+    template<TIndex N>
     using TFft = FFT::Fft<TIndex, TFloat, N>;
 
     // YYC MARK:
@@ -18,7 +18,7 @@ namespace yycctest::carton::fft {
     constexpr TFloat TOLERANCE = static_cast<TFloat>(0.0003);
     //constexpr TFloat tolerance = std::numeric_limits<TFloat>::epsilon();
 
-    template<size_t N>
+    template<TIndex N>
     static void test_fft(const std::vector<TFloat>& real_src, const std::vector<TComplex>& dst) {
         // check given data size
         ASSERT_EQ(real_src.size(), N);

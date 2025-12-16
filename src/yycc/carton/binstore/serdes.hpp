@@ -7,6 +7,7 @@
 #include <concepts>
 #include <stdexcept>
 #include <cmath>
+#include <cstring>
 #include <type_traits>
 
 #define NS_YYCC_BINSTORE_TYPES ::yycc::carton::binstore::types
@@ -221,3 +222,5 @@ namespace yycc::carton::binstore::serdes {
     };
 
 } // namespace yycc::carton::binstore::serdes
+
+#undef NS_YYCC_BINSTORE_TYPES

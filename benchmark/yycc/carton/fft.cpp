@@ -11,7 +11,7 @@ namespace yyccbench::carton::fft {
     using TIndex = size_t;
     using TFloat = float;
     using TComplex = std::complex<TFloat>;
-    template<size_t N>
+    template<TIndex N>
     using TFft = FFT::Fft<TIndex, TFloat, N>;
 
     constexpr TIndex FFT_POINTS = 1024u;
