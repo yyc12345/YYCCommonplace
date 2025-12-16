@@ -46,9 +46,9 @@ namespace yycc::carton::binstore::serdes {
     using SerDesValueType = T::ValueType;
 
     template<std::integral T,
+             auto TDefault = static_cast<T>(0),
              auto TMin = std::numeric_limits<T>::min(),
-             auto TMax = std::numeric_limits<T>::max(),
-             auto TDefault = static_cast<T>(0)>
+             auto TMax = std::numeric_limits<T>::max()>
     struct IntegralSerDes {
         IntegralSerDes() = default;
         YYCC_DEFAULT_COPY_MOVE(IntegralSerDes)
@@ -81,9 +81,9 @@ namespace yycc::carton::binstore::serdes {
     };
 
     template<std::floating_point T,
+             auto TDefault = static_cast<T>(0),
              auto TMin = std::numeric_limits<T>::lowest(),
-             auto TMax = std::numeric_limits<T>::max(),
-             auto TDefault = static_cast<T>(0)>
+             auto TMax = std::numeric_limits<T>::max()>
     struct FloatingPointSerDes {
         FloatingPointSerDes() {
             // TODO: Remove this and make it "= default" when 3 common STL make std::isfinite become constexpr.
@@ -122,7 +122,7 @@ namespace yycc::carton::binstore::serdes {
         NS_YYCC_BINSTORE_TYPES::ByteArray reset() const { return this->serialize(TDefault).value(); }
     };
 
-    template<typename T, auto TDefault = static_cast<T>(0)>
+    template<typename T, T TDefault>
         requires std::is_enum_v<T>
     struct EnumSerDes {
         EnumSerDes() = default;
@@ -142,11 +142,7 @@ namespace yycc::carton::binstore::serdes {
         NS_YYCC_BINSTORE_TYPES::ByteArray reset() const { return inner.reset(); }
 
     private:
-        IntegralSerDes<UnderlyingType,
-                       std::numeric_limits<UnderlyingType>::min(),
-                       std::numeric_limits<UnderlyingType>::max(),
-                       static_cast<UnderlyingType>(TDefault)>
-            inner;
+        IntegralSerDes<UnderlyingType, static_cast<UnderlyingType>(TDefault)> inner;
     };
 
     template<bool TDefault = false>

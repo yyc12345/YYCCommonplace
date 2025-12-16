@@ -78,9 +78,9 @@ namespace yycctest::carton::binstore {
         Token string_setting;
         using StringSettingSerDes = serdes::StringSerDes;
         Token bool_setting;
-        using BoolSettingSerDes = serdes::BoolSerDes<>;
+        using BoolSettingSerDes = serdes::BoolSerDes<false>;
         Token clamped_float_setting;
-        using ClampedFloatSettingSerDes = serdes::FloatingPointSerDes<float, -1.0f, 1.0f>;
+        using ClampedFloatSettingSerDes = serdes::FloatingPointSerDes<float, 0.0f, -1.0f, 1.0f>;
         Token enum_setting;
         using EnumSettingSerDes = serdes::EnumSerDes<TestEnum, TestEnum::Test1>;
 
