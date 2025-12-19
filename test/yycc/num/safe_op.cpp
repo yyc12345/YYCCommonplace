@@ -155,6 +155,89 @@ namespace yycctest::num::safe_op {
 
 #pragma endregion
 
+#pragma region Strict operations
+
+    TEST(NumSafeOp, StrictAdd) {
+        // Unsigned
+        {
+            auto rv = OP::strict_add<u32>(MAX<u32> - 2, 1);
+            EXPECT_EQ(rv, MAX<u32> - 1);
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_add<u32>(MAX<u32> - 2, 3));
+        }
+        // Signed
+        {
+            auto rv = OP::strict_add<i32>(MAX<i32> - 2, 1);
+            EXPECT_EQ(rv, MAX<i32> - 1);
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_add<i32>(MAX<i32> - 2, 3));
+        }
+    }
+
+    TEST(NumSafeOp, StrictSub) {
+        // Unsigned
+        {
+            auto rv = OP::strict_sub<u32>(1, 1);
+            EXPECT_EQ(rv, 0);
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_sub<u32>(0, 1));
+        }
+        // Signed
+        {
+            auto rv = OP::strict_sub<i32>(MIN<i32> + 2, 1);
+            EXPECT_EQ(rv, MIN<i32> + 1);
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_sub<i32>(MIN<i32> + 2, 3));
+        }
+    }
+
+    TEST(NumSafeOp, StrictMul) {
+        // Unsigned
+        {
+            auto rv = OP::strict_mul<u32>(5, 1);
+            EXPECT_EQ(rv, 5);
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_mul<u32>(MAX<u32>, 2));
+        }
+        // Signed
+        {
+            auto rv = OP::strict_mul<i32>(MAX<i32>, 1);
+            EXPECT_EQ(rv, MAX<i32>);
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_mul<i32>(MAX<i32>, 2));
+        }
+    }
+
+    TEST(NumSafeOp, StrictDiv) {
+        // Unsigned
+        {
+            auto rv = OP::strict_div<u32>(128, 2);
+            EXPECT_EQ(rv, 64);
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_div<u32>(1, 0));
+        }
+        // Signed
+        {
+            auto rv = OP::strict_div<i32>(MIN<i32> + 1, -1);
+            EXPECT_EQ(rv, INT32_C(2147483647));
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_div<i32>(MIN<i32>, -1));
+        }
+        {
+            EXPECT_ANY_THROW(OP::strict_div<i32>(1, 0));
+        }
+    }
+
+#pragma endregion
+
 #pragma region Overflowing operations
 
     TEST(NumSafeOp, OverflowingAdd) {

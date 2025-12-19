@@ -32,7 +32,7 @@
  * @details
  * After writing some programs in Rust, I've deeply realized the richness of operators for primitive types in Rust.
  * You can explicitly specify the behavior of arithmetic overflow
- * (choose one of wrapping, checked, overflowing, and saturating).
+ * (choose one of wrapping, checked, overflowing, saturating and strict).
  * Therefore, I'm replicating these convenient features from Rust in this namespace.
  * 
  * Additionally, I provide a bunch of extra operations, called ordinary operation.
@@ -476,6 +476,80 @@ namespace yycc::num::safe_op {
         if (ub_div_zero(a, b)) return std::nullopt;
         // `INT_MIN / -1` overflow undefined behavior.
         if (ub_signed_int_min_div_minus_one(a, b)) return std::nullopt;
+        return a / b;
+    }
+
+#pragma endregion
+
+#pragma region Strict operations
+
+    // YYC MARK:
+    // If overflow occurs when using strict_* function family,
+    // these functions will throw exception, otherwise return the computed result.
+
+    /**
+     * @brief Performs a strict addition operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the addition.
+     * @param[in] b The right operand of the addition.
+     * @return The result if no overflow occurs.
+     * @exception std::overflow_error Overflow occurs when perform operation.
+     */
+    template<typename T>
+        requires std::integral<T>
+    std::optional<T> strict_add(T a, T b) {
+        T result;
+        if (hardware_add_overflow(a, b, &result)) throw std::overflow_error("overflow or underflow in strict_add");
+        return result;
+    }
+
+    /**
+     * @brief Performs a strict subtraction operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the subtraction.
+     * @param[in] b The right operand of the subtraction.
+     * @return The result if no overflow occurs.
+     * @exception std::overflow_error Overflow occurs when perform operation.
+     */
+    template<typename T>
+        requires std::integral<T>
+    std::optional<T> strict_sub(T a, T b) {
+        T result;
+        if (hardware_sub_overflow(a, b, &result)) throw std::overflow_error("overflow or underflow in strict_sub");
+        return result;
+    }
+
+    /**
+     * @brief Performs a strict multiplication operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the multiplication.
+     * @param[in] b The right operand of the multiplication.
+     * @return The result if no overflow occurs.
+     * @exception std::overflow_error Overflow occurs when perform operation.
+     */
+    template<typename T>
+        requires std::integral<T>
+    std::optional<T> strict_mul(T a, T b) {
+        T result;
+        if (hardware_mul_overflow(a, b, &result)) throw std::overflow_error("overflow or underflow in strict_mul");
+        return result;
+    }
+
+    /**
+     * @brief Performs a strict division operation on two integers.
+     * @tparam T Integer type.
+     * @param[in] a The left operand of the division.
+     * @param[in] b The right operand of the division.
+     * @return The result if no error occurs.
+     * @exception std::overflow_error Overflow or division by zero occurs when perform operation.
+     */
+    template<typename T>
+        requires std::integral<T>
+    std::optional<T> strict_div(T a, T b) {
+        // Division by zero is undefined behavior.
+        if (ub_div_zero(a, b)) throw std::overflow_error("division by zero in strict_div");
+        // `INT_MIN / -1` overflow undefined behavior.
+        if (ub_signed_int_min_div_minus_one(a, b)) throw std::overflow_error("overflow or underflow in strict_div");
         return a / b;
     }
 
