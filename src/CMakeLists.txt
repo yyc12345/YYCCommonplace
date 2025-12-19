@@ -42,6 +42,10 @@ PRIVATE
     yycc/carton/binstore/setting.cpp
     yycc/carton/binstore/configuration.cpp
     yycc/carton/binstore/storage.cpp
+    yycc/carton/brigadier/types.cpp
+    yycc/carton/brigadier/constraint.cpp
+    yycc/carton/brigadier/node.cpp
+    yycc/carton/brigadier/parser.cpp
     yycc/carton/lexer61.cpp
 )
 target_sources(YYCCommonplace 
@@ -111,6 +115,11 @@ FILES
     yycc/carton/binstore/configuration.hpp
     yycc/carton/binstore/storage.hpp
     yycc/carton/lexer61.hpp
+    yycc/carton/brigadier.hpp
+    yycc/carton/brigadier/types.hpp
+    yycc/carton/brigadier/constraint.hpp
+    yycc/carton/brigadier/node.hpp
+    yycc/carton/brigadier/parser.hpp
     yycc/carton/fft.hpp
 )
 # Setup header infomations

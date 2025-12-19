@@ -39,6 +39,7 @@ namespace yycc::carton::binstore::types {
      */
     using VersionIdentifier = uint64_t;
 
+    /// @private
     /// @brief The raw data of setting.
     class ByteArray {
     public:
