@@ -2,7 +2,7 @@
 #include "wcwidth.hpp"
 #include "../num/safe_op.hpp"
 #include "../patch/stream.hpp"
-#include "../patch/libcxx/stacktrace.hpp"
+#include "../patch/libcxx/enumerate.hpp"
 #include <stdexcept>
 #include <ranges>
 

@@ -1,11 +1,16 @@
 #include "panic.hpp"
+#include "macro/stl_detector.hpp"
 #include "carton/termcolor.hpp"
 #include "patch/stream.hpp"
-#include "patch/libcxx/stacktrace.hpp"
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+
+#if defined(YYCC_STL_CLANGSTL)
+#include "patch/libcxx/stacktrace.hpp"
+#else
 #include <stacktrace>
+#endif
 
 #define TERMCOLOR ::yycc::carton::termcolor
 

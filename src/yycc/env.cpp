@@ -1,5 +1,8 @@
 #include "env.hpp"
 #include "macro/os_detector.hpp"
+#include "string/reinterpret.hpp"
+#include "num/safe_op.hpp"
+#include "num/safe_cast.hpp"
 #include <string>
 #include <string_view>
 #include <memory>
@@ -8,8 +11,6 @@
 
 #if defined(YYCC_OS_WINDOWS)
 #include "encoding/windows.hpp"
-#include "num/safe_op.hpp"
-#include "num/safe_cast.hpp"
 #include "windows/winfct.hpp"
 #include "windows/import_guard_head.hpp"
 #include <Windows.h>
@@ -18,15 +19,12 @@
 #include <shellapi.h>   // For getting commandline argument.
 #include "windows/import_guard_tail.hpp"
 #elif defined(YYCC_OS_LINUX)
-#include "string/reinterpret.hpp"
 #include <cstdlib>
 #include <cerrno>
 #include <fstream> // For reading commandline argument.
 #include <unistd.h>
 #include <sys/stat.h> // For reading symlink target.
 #elif defined(YYCC_OS_MACOS)
-#include "string/reinterpret.hpp"
-#include "num/safe_cast.hpp"
 #include <cstdlib>
 #include <cerrno>
 #include <unistd.h>
@@ -331,7 +329,7 @@ namespace yycc::env {
 #elif defined(YYCC_OS_LINUX)
         // Reference: https://www.man7.org/linux/man-pages/man5/proc_pid_exe.5.html
         auto target = read_symlink_target("/proc/self/exe");
-        if () return rv = std::move(target.value());
+        if (target.has_value()) return rv = std::move(target.value());
         else return std::unexpected(PathError::SysCall);
 #elif defined(YYCC_OS_MACOS)
         // TODO: This is AI generated and don't have test and reference.
@@ -388,7 +386,7 @@ namespace yycc::env {
     class CommandLineArgvDeleter {
     public:
         CommandLineArgvDeleter() {}
-        void operator()(LPWSTR* ptr) {
+        void operator()(LPWSTR *ptr) {
             if (ptr != nullptr) {
                 LocalFree(ptr);
             }

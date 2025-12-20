@@ -14,238 +14,99 @@
 #include <utility>
 #include <tuple>
 #include <cstddef>
+#include <iterator>
 
-namespace std {
+namespace std::ranges::views {
 
-namespace ranges {
-namespace views {
+        // 简化的enumerate实现
+        namespace detail {
 
-namespace detail {
+            template<typename R>
+            class enumerate_view {
+            private:
+                R _range;
+                size_t _start;
 
-template<typename T>
-concept can_reference = requires { typename T&; };
+                template<bool Const>
+                class iterator {
+                    using Base = conditional_t<Const, const R, R>;
+                    using Iter = decltype(std::ranges::begin(std::declval<Base&>()));
 
-template<typename V, typename I>
-concept enumerable = 
-    ranges::input_range<V> && 
-    integral<I> && 
-    ranges::view<V>;
+                    Iter _iter;
+                    size_t _index;
 
-} // namespace detail
+                public:
+                    using iterator_category = typename std::iterator_traits<Iter>::iterator_category;
+                    using value_type = std::tuple<size_t, decltype(*_iter)>;
+                    using difference_type = typename std::iterator_traits<Iter>::difference_type;
 
-// enumerate_view实现
-template<ranges::view V, typename I = size_t>
-requires detail::enumerable<V, I>
-class enumerate_view : public ranges::view_interface<enumerate_view<V, I>> {
-private:
-    V _base;
-    I _start;
+                    iterator(Iter iter, size_t index) : _iter(iter), _index(index) {}
 
-    // 迭代器实现
-    template<bool Const>
-    class iterator {
-    private:
-        using Base = conditional_t<Const, const V, V>;
-        using Parent = conditional_t<Const, const enumerate_view, enumerate_view>;
-        
-        Parent* _parent = nullptr;
-        ranges::iterator_t<Base> _current;
-        I _index;
-        
-    public:
-        using iterator_category = typename iterator_traits<ranges::iterator_t<Base>>::iterator_category;
-        using iterator_concept = iterator_category;
-        using value_type = tuple<I, ranges::range_reference_t<Base>>;
-        using difference_type = ranges::range_difference_t<Base>;
-        
-        iterator() = default;
-        
-        constexpr iterator(Parent* parent, ranges::iterator_t<Base> current, I index)
-            : _parent(parent), _current(current), _index(index) {}
-        
-        constexpr iterator(iterator<!Const> other) requires Const &&
-            convertible_to<ranges::iterator_t<V>, ranges::iterator_t<Base>>
-            : _parent(other._parent), _current(other._current), _index(other._index) {}
-        
-        constexpr ranges::iterator_t<Base> base() const {
-            return _current;
-        }
-        
-        constexpr auto operator*() const {
-            return tuple<I, ranges::range_reference_t<Base>>(_index, *_current);
-        }
-        
-        constexpr iterator& operator++() {
-            ++_current;
-            ++_index;
-            return *this;
-        }
-        
-        constexpr iterator operator++(int) {
-            auto tmp = *this;
-            ++*this;
-            return tmp;
-        }
-        
-        constexpr iterator& operator--() requires ranges::bidirectional_range<Base> {
-            --_current;
-            --_index;
-            return *this;
-        }
-        
-        constexpr iterator operator--(int) requires ranges::bidirectional_range<Base> {
-            auto tmp = *this;
-            --*this;
-            return tmp;
-        }
-        
-        constexpr iterator& operator+=(difference_type n) 
-            requires ranges::random_access_range<Base> {
-            _current += n;
-            _index += static_cast<I>(n);
-            return *this;
-        }
-        
-        constexpr iterator& operator-=(difference_type n) 
-            requires ranges::random_access_range<Base> {
-            _current -= n;
-            _index -= static_cast<I>(n);
-            return *this;
-        }
-        
-        constexpr auto operator[](difference_type n) const
-            requires ranges::random_access_range<Base> {
-            return tuple<I, ranges::range_reference_t<Base>>(
-                _index + static_cast<I>(n), _current[n]);
-        }
-        
-        friend constexpr bool operator==(const iterator& x, const iterator& y) {
-            return x._current == y._current;
-        }
-        
-        friend constexpr bool operator<(const iterator& x, const iterator& y)
-            requires ranges::random_access_range<Base> {
-            return x._current < y._current;
-        }
-        
-        friend constexpr bool operator>(const iterator& x, const iterator& y)
-            requires ranges::random_access_range<Base> {
-            return x._current > y._current;
-        }
-        
-        friend constexpr bool operator<=(const iterator& x, const iterator& y)
-            requires ranges::random_access_range<Base> {
-            return x._current <= y._current;
-        }
-        
-        friend constexpr bool operator>=(const iterator& x, const iterator& y)
-            requires ranges::random_access_range<Base> {
-            return x._current >= y._current;
-        }
-        
-        friend constexpr iterator operator+(const iterator& i, difference_type n)
-            requires ranges::random_access_range<Base> {
-            auto r = i;
-            r += n;
-            return r;
-        }
-        
-        friend constexpr iterator operator+(difference_type n, const iterator& i)
-            requires ranges::random_access_range<Base> {
-            return i + n;
-        }
-        
-        friend constexpr iterator operator-(const iterator& i, difference_type n)
-            requires ranges::random_access_range<Base> {
-            auto r = i;
-            r -= n;
-            return r;
-        }
-        
-        friend constexpr difference_type operator-(const iterator& x, const iterator& y)
-            requires ranges::random_access_range<Base> {
-            return x._current - y._current;
-        }
-    };
-    
-public:
-    enumerate_view() = default;
-    
-    constexpr enumerate_view(V base, I start = 0)
-        : _base(std::move(base)), _start(start) {}
-    
-    constexpr V base() const & requires copy_constructible<V> {
-        return _base;
-    }
-    
-    constexpr V base() && {
-        return std::move(_base);
-    }
-    
-    constexpr I start() const {
-        return _start;
-    }
-    
-    constexpr auto begin() requires (!ranges::simple_view<V>) {
-        return iterator<false>(this, ranges::begin(_base), _start);
-    }
-    
-    constexpr auto begin() const requires ranges::range<const V> {
-        return iterator<true>(this, ranges::begin(_base), _start);
-    }
-    
-    constexpr auto end() requires (!ranges::simple_view<V>) {
-        return iterator<false>(this, ranges::end(_base), 
-            _start + static_cast<I>(ranges::distance(_base)));
-    }
-    
-    constexpr auto end() const requires ranges::range<const V> {
-        return iterator<true>(this, ranges::end(_base),
-            _start + static_cast<I>(ranges::distance(_base)));
-    }
-    
-    constexpr auto size() requires ranges::sized_range<V> {
-        return ranges::size(_base);
-    }
-    
-    constexpr auto size() const requires ranges::sized_range<const V> {
-        return ranges::size(_base);
-    }
-};
+                    auto operator*() const { return std::tuple<size_t, decltype(*_iter)>(_index, *_iter); }
 
-// 推导指引
-template<class R, class I>
-enumerate_view(R&&, I) -> enumerate_view<views::all_t<R>, I>;
+                    iterator& operator++() {
+                        ++_iter;
+                        ++_index;
+                        return *this;
+                    }
 
-template<class R>
-enumerate_view(R&&) -> enumerate_view<views::all_t<R>, size_t>;
+                    iterator operator++(int) {
+                        auto tmp = *this;
+                        ++*this;
+                        return tmp;
+                    }
 
-// enumerate适配器对象
-struct enumerate_fn {
-    template<ranges::viewable_range R, typename I = size_t>
-    requires detail::enumerable<views::all_t<R>, I>
-    constexpr auto operator()(R&& r, I start = 0) const {
-        return enumerate_view(views::all(forward<R>(r)), start);
-    }
-    
-    template<typename I = size_t>
-    constexpr auto operator()(I start = 0) const {
-        return ranges::views::__adaptor_invoke(*this, start);
-    }
-};
+                    bool operator==(const iterator& other) const { return _iter == other._iter; }
 
-// 适配器对象实例
-inline constexpr enumerate_fn enumerate;
+                    bool operator!=(const iterator& other) const { return _iter != other._iter; }
 
-} // namespace views
+                    // 支持双向迭代
+                    iterator& operator--()
+                        requires std::bidirectional_iterator<Iter>
+                    {
+                        --_iter;
+                        --_index;
+                        return *this;
+                    }
 
-// 使enumerate_view成为view
-template<typename V, typename I>
-inline constexpr bool enable_borrowed_range<views::enumerate_view<V, I>> = 
-    ranges::enable_borrowed_range<V>;
+                    iterator operator--(int)
+                        requires std::bidirectional_iterator<Iter>
+                    {
+                        auto tmp = *this;
+                        --*this;
+                        return tmp;
+                    }
+                };
 
-} // namespace ranges
+            public:
+                enumerate_view(R range, size_t start = 0) : _range(std::move(range)), _start(start) {}
 
-} // namespace std
+                auto begin() { return iterator<false>(std::ranges::begin(_range), _start); }
+                auto end() { return iterator<false>(std::ranges::end(_range), _start + std::ranges::distance(_range)); }
+
+                auto begin() const { return iterator<true>(std::ranges::begin(_range), _start); }
+                auto end() const { return iterator<true>(std::ranges::end(_range), _start + std::ranges::distance(_range)); }
+            };
+
+            // 适配器函数对象
+            struct enumerate_fn {
+                template<std::ranges::range R>
+                auto operator()(R&& r, size_t start = 0) const {
+                    return enumerate_view<std::ranges::views::all_t<R>>(std::forward<R>(r), start);
+                }
+
+                // 用于管道操作符的版本
+                auto operator()(size_t start = 0) const {
+                    return [start](auto&& r) {
+                        return enumerate_view<std::ranges::views::all_t<decltype(r)>>(std::forward<decltype(r)>(r), start);
+                    };
+                }
+            };
+
+        } // namespace detail
+
+        inline constexpr detail::enumerate_fn enumerate;
+
+} // namespace std::ranges::views
 
 #endif

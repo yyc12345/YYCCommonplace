@@ -113,7 +113,7 @@ namespace yycc::carton::tabulate {
          */
         Tabulate(size_t n);
         ~Tabulate();
-        YYCC_DELETE_COPY_MOVE(Tabulate)
+        YYCC_DEFAULT_COPY_MOVE(Tabulate)
 
     public:
         /**

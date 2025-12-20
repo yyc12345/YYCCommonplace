@@ -38,7 +38,7 @@ namespace yycc::carton::clap::manual {
 
     private:
         ManualTr trctx;
-        const NS_YYCC_CLAP::application::Application app;
+        NS_YYCC_CLAP::application::Application app;
         NS_YYCC_TABULATE::Tabulate opt_printer;
         NS_YYCC_TABULATE::Tabulate var_printer;
     };
