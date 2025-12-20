@@ -1,6 +1,7 @@
 #include "panic.hpp"
 #include "carton/termcolor.hpp"
 #include "patch/stream.hpp"
+#include "patch/libcxx/stacktrace.hpp"
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>

@@ -67,6 +67,8 @@ FILES
     yycc/patch/fopen.hpp
     yycc/patch/stream.hpp
     yycc/patch/format.hpp
+    yycc/patch/libcxx/enumerate.hpp
+    yycc/patch/libcxx/stacktrace.hpp
     yycc/num/parse.hpp
     yycc/num/stringify.hpp
     yycc/num/safe_cast.hpp
