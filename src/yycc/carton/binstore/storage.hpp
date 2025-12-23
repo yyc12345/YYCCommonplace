@@ -1,3 +1,7 @@
+/**
+ * @file storage.hpp
+ * @brief Storage management for the binstore module.
+ */
 #pragma once
 #include "../../macro/class_copy_move.hpp"
 #include "types.hpp"
@@ -45,6 +49,7 @@ namespace yycc::carton::binstore::storage {
         AcceptAll,
     };
 
+    /// @brief Main storage class for managing binary settings storage.
     class Storage {
     private:
         /**
@@ -56,15 +61,46 @@ namespace yycc::carton::binstore::storage {
         NS_YYCC_BINSTORE_CFG::Configuration cfg; ///< The configuration associated with this storage.
 
     public:
+        /**
+         * @brief Construct a new Storage object.
+         * @param[in] cfg The configuration to associate with this storage.
+         */
         Storage(NS_YYCC_BINSTORE_CFG::Configuration&& cfg);
         ~Storage();
         YYCC_DEFAULT_COPY_MOVE(Storage)
 
     public:
-        NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> load_from_file(const std::filesystem::path& fpath, LoadStrategy strategy = LoadStrategy::MigrateOld);
+        /**
+         * @brief Load settings from a file.
+         * @param[in] fpath Path to the file to load from.
+         * @param[in] strategy The load strategy to use. Defaults to MigrateOld.
+         * @return A BinstoreResult indicating success or failure.
+         */
+        NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> load_from_file(const std::filesystem::path& fpath,
+                                                                    LoadStrategy strategy = LoadStrategy::MigrateOld);
+
+        /**
+         * @brief Load settings from an input stream.
+         * @param[in] s The input stream to load from.
+         * @param[in] strategy The load strategy to use. Defaults to MigrateOld.
+         * @return A BinstoreResult indicating success or failure.
+         */
         NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> load(std::istream& s, LoadStrategy strategy = LoadStrategy::MigrateOld);
+
+        /**
+         * @brief Save settings to a file.
+         * @param[in] fpath Path to the file to save to.
+         * @return A BinstoreResult indicating success or failure.
+         */
         NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> save_into_file(const std::filesystem::path& fpath);
+
+        /**
+         * @brief Save settings to an output stream.
+         * @param[in] s The output stream to save to.
+         * @return A BinstoreResult indicating success or failure.
+         */
         NS_YYCC_BINSTORE_TYPES::BinstoreResult<void> save(std::ostream& s);
+
         /**
          * @brief Clear all raw data saved in internal cache.
          * @details This will cause every setting was set in default value when user fetching them.
