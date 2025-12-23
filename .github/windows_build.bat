@@ -11,7 +11,7 @@ CD build
 :: Build with x64 architecture in Release mode
 cmake -A x64 ../..
 cmake --build . --config Release
-cmake --install . --prefix=../install --config Relese
+cmake --install . --prefix=../install --config Release
 
 :: Back to root directory
 CD ..

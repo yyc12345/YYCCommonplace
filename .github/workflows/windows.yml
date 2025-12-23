@@ -1,0 +1,55 @@
+name: YYCC Windows Build
+
+on: [workflow_dispatch]
+
+jobs:
+  windows-build:
+
+    strategy:
+      matrix:
+        include:
+          - vs: '2022'
+            msvc_arch: 'x64'
+
+    runs-on: windows-2022
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    # - name: Setup Google Test and Google Benchmark
+    #   run: |
+    #     # Setup Google Test
+    #     git clone -b v1.17.0 https://github.com/google/googletest.git external/googletest
+    #     cd external/googletest
+    #     mkdir build install
+    #     cd build
+    #     cmake -DCMAKE_CXX_STANDARD=23 -Dgtest_force_shared_crt=ON -DCMAKE_BUILD_TYPE=Release ..
+    #     cmake --build . --config Release
+    #     cmake --install . --prefix=../install --config Release
+    #     cd ../..
+    #     # Setup Google Benchmark
+    #     git clone -b v1.9.4 https://github.com/google/benchmark.git external/benchmark
+    #     cd external/benchmark
+    #     # Create symlink to googletest as required by benchmark
+    #     mklink /D googletest ../googletest
+    #     mkdir build install
+    #     cd build
+    #     cmake -DCMAKE_CXX_STANDARD=23 -DBENCHMARK_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
+    #     cmake --build . --config Release
+    #     cmake --install . --prefix=../install --config Release
+    #     cd ../..
+    - name: Build YYCC
+      shell: cmd
+      run: |
+        set VS=${{ matrix.vs }}
+        set VCVARS="C:\Program Files (x86)\Microsoft Visual Studio\%VS%\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
+        if not exist %VCVARS% set VCVARS="C:\Program Files\Microsoft Visual Studio\%VS%\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
+        call %VCVARS% ${{ matrix.msvc_arch }}
+        .\.github\windows_build.bat
+    - name: Upload Built Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: YYCC-windows-build
+        path: bin/install/*
+        retention-days: 30
+        

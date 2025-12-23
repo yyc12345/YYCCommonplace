@@ -1,0 +1,46 @@
+name: YYCC Linux Build
+
+on: [workflow_dispatch]
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    - name: Install Dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential cmake git
+    # - name: Setup Google Test and Google Benchmark
+    #   run: |
+    #     # Setup Google Test
+    #     git clone -b v1.17.0 https://github.com/google/googletest.git external/googletest
+    #     cd external/googletest
+    #     mkdir build install
+    #     cd build
+    #     cmake -DCMAKE_CXX_STANDARD=23 -Dgtest_force_shared_crt=ON -DCMAKE_BUILD_TYPE=Release ..
+    #     cmake --build .
+    #     cmake --install . --prefix=../install
+    #     cd ../..
+    #     # Setup Google Benchmark
+    #     git clone -b v1.9.4 https://github.com/google/benchmark.git external/benchmark
+    #     cd external/benchmark
+    #     # Create symlink to googletest as required by benchmark
+    #     ln -s ../googletest googletest
+    #     mkdir build install
+    #     cd build
+    #     cmake -DCMAKE_CXX_STANDARD=23 -DBENCHMARK_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
+    #     cmake --build .
+    #     cmake --install . --prefix=../install
+    #     cd ../..
+    - name: Build YYCC
+      run: |
+        ./.github/linux_build.sh
+    - name: Upload Built Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: YYCC-linux-build
+        path: bin/install/*
+        retention-days: 30
