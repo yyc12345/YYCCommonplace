@@ -2,6 +2,9 @@
 
 ## Choose Version
 
+This manual is only suit for the version equal or newer than YYCC 2.0.
+For old version, please checkout to corresponding tag and browse how to build them.
+
 We suggest that you only use stable version (tagged commit).
 The latest commit always present current works.
 It means that it is not stable and work in progress.
@@ -107,6 +110,8 @@ Execute `.github/windows_build.bat` on Windows or `.github/linux_build.sh` on PO
 
 ### Developer Build
 
+#### Configurable Variables
+
 First, there is a list listing all variables you may configure during compiling.
 
 * `YYCC_BUILD_TEST`: Set it to `ON` to build test. `OFF` in default.
@@ -121,11 +126,48 @@ It may be useful for the developer who firstly use this project in their own pro
 Please note that generated documentation is different in different platforms.
 * `YYCC_ENFORCE_ICONV`: Set it to `ON` to enable Iconv feature forcely. `OFF` in default.
 The usage of this option has been introduced in previous "Iconv" chapter.
-* `GTest_ROOT`: TODO
-* `benchmark_ROOT`: TODO
-* `Iconv_ROOT`: TODO
+* `GTest_ROOT`: Set to the install path of Google Test
+ if you have enable `YYCC_BUILD_TEST` and want to use your personal built Google Test.
+* `benchmark_ROOT`: Set to the install path of Google Benchmark
+ if you have enable `YYCC_BUILD_BENCHMARK` and want to use your personal built Google Benchmark.
+* `Iconv_ROOT`: The assistant variable for finding Iconv which is exposed by CMake.
+You usually do not need set it up.
 * `CMAKE_CXX_STANDARD`: Set C++ standard version of project.
 `23` in default and this version can not be lower than C++23.
 You usually do not need change this.
 * `CMAKE_POSITION_INDEPENDENT_CODE`: Set it to `True` to enable PIC.
 This is essential for those project which use this project and produce dynamicing library as final artifact.
+
+#### Configure CMake
+
+When configure CMake, you may use different options on different platforms.
+Following list may help you.
+
+- On Windows:
+    * `-A Win32` or `-A x64` to specify architecture.
+- On Linux or other POSIX systems:
+    * `-DCMAKE_BUILD_TYPE=Debug` or `-DCMAKE_BUILD_TYPE=Release` to specify build type.
+
+Additionally, you can attach any variables introduced above with `-D` option during CMake configurations.
+
+#### Build with CMake
+
+After configuration, you can use `cmake --build .` to build project,
+with additional options on different platforms.
+Following list may help you.
+
+- On Windows:
+    * `--config Debug` or `--config Release` to specify build type.
+- On Linux or other POSIX systems:
+    * None
+
+#### Install with CMake
+
+After building, you can use `cmake --install . --prefix <path-to-prefix>`
+to install project into given path, with additional options on different platforms.
+Following list may help you.
+
+- On Windows:
+    * `--config Debug` or `--config Release` to specify build type.
+- On Linux or other POSIX systems:
+    * None
