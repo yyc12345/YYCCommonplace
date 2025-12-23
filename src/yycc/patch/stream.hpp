@@ -10,10 +10,8 @@
  */
 namespace yycc::patch::stream {
 
-    // TODO: replace all old way (C-style output) with this new way if possible.
-
     std::ostream& operator<<(std::ostream& os, const std::u8string_view& u8str);
     std::ostream& operator<<(std::ostream& os, const char8_t* u8str);
     std::ostream& operator<<(std::ostream& os, char8_t u8chr);
 
-}
+} // namespace yycc::patch::stream

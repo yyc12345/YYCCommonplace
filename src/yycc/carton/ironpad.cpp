@@ -422,7 +422,8 @@ namespace yycc::carton::ironpad {
                 IMAGEHLP_LINE64 winline;
                 winline.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
                 if (SymGetLineFromAddr64(process, frame.AddrPC.Offset, &dwDisplacement, &winline)) {
-                    source_file = REINTERPRET::as_utf8(winline.FileName); // TODO: check whether there is UNICODE file name.
+                    // TODO: check whether this field is a valid UNICODE file name.
+                    source_file = REINTERPRET::as_utf8(winline.FileName);
                     source_file_line = winline.LineNumber;
                 }
 

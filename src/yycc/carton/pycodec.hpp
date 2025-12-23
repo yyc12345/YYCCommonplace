@@ -24,6 +24,14 @@
 #error "Can not find viable encoding convertion solution in current environment for PyCodec module."
 #endif
 
+/**
+ * @brief A module providing encoding conversion utilities between various character encodings.
+ * @details
+ * This module provides a unified interface for converting between different character encodings,
+ * with backend implementations that may use Iconv or Windows-specific APIs depending on the
+ * available features and platform. The module supports conversions between char, UTF-8, UTF-16,
+ * UTF-32, and wide character encodings.
+ */
 namespace yycc::carton::pycodec {
 
     /// @brief The universal name of encoding.

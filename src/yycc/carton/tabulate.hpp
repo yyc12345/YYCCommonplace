@@ -6,6 +6,12 @@
 #include <vector>
 #include <iostream>
 
+/**
+ * @brief The tabulate namespace provides utilities for creating formatted tables in console output.
+ * @details This namespace contains classes for managing table structure, cell data, column widths,
+ * and rendering tables with customizable headers, separators, and formatting options.
+ * It supports Unicode text (using u8string) and calculates proper column widths for correct display.
+ */
 namespace yycc::carton::tabulate {
 
     /**
@@ -100,7 +106,20 @@ namespace yycc::carton::tabulate {
     using Rows = std::vector<Row>;
 
     /**
-     * @brief Main class of Tabulate
+     * @brief Main class for creating and managing formatted console tables.
+     * @details The Tabulate class provides a complete interface for building tables with
+     * customizable headers, data rows, column widths, and display options. It supports
+     * Unicode text via u8string and handles proper column width calculation to ensure
+     * correct table formatting in console output.
+     * 
+     * Features include:
+     * - Configurable column count
+     * - Optional header display
+     * - Customizable separator bars
+     * - Prefix string support (for indentation)
+     * - Automatic column width calculation
+     * - Unicode text support
+     * - Stream output with customizable destination
      */
     class Tabulate {
     public:
