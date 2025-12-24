@@ -11,7 +11,7 @@ When some functions throw exception, it should cause program paniked, rather tha
 This is inspired from Rust, and also the compromise with STL.
 
 Most functions this library provided has Rust-Result-like return value.
-It means that programmer can handle error correctly.
+It means that programmer can handle error gracefully.
 However, this library is based on STL, another library that may throw C++ exception to indicate error.
 We can not control this behavior of STL, so I forcely apply this rule.
 
@@ -19,7 +19,7 @@ We can not control this behavior of STL, so I forcely apply this rule.
 
 This library has special treat with Windows to make it works on Windows.
 However, for other operating system, it do not have too much care.
-We brutally make a premise that other operating systems are UNIX-liked and use UTF8 as its encoding.
+We brutally make a premise that other operating systems are POSIX-compatible and use UTF8 as its encoding.
 
 \section premise_and_principle__string_encoding String Encoding
 
@@ -29,8 +29,6 @@ In short words, this library use UTF8 encoding everywhere except some special ca
 \li Traditional format function in yycc::string::op.
 Traditional format function provide some overloads for ordinary string formatting.
 That's because this feature is so common to use in some cases.
-\li The message of Rust panic in yycc::panic.
-Due to the limitation of \c std::format, we only can use ordinary string as its message content.
 \li The message of standard library exception.
 For the compatibility with C++ standard library exception,
 we only can use ordinary string as the message of exception.

@@ -1,4 +1,4 @@
-namespace YYCC {
+namespace yycc::macro {
 /**
 
 \page library_macros Library Macros
@@ -30,7 +30,7 @@ There is a list of these comparison macros.
 \li YYCC_VERCMP_LE
 \li YYCC_VERCMP_NG
 
-You may notice all of these macros are starts with \c YYCC_VERCMP_,
+You may notice all of these macros are all start with \c YYCC_VERCMP_,
 and their tails are inspired from x86 ASM comparison jump code.
 For example, \c E means "equal" and \c NE means "not equal",
 \c G means "greater", \c GE means "greater or equal", and \c NG means "not gretaer".
@@ -48,7 +48,98 @@ There is a example about checking whether YYCC library version is exactly what w
 #endif
 \endcode
 
-\section library_macros__platform_checker Platform Checker
+\section library_macros__class_copy_move Class Copy / Move Functions
+
+YYCC provides several macros to manage copy and move constructors and assignment operators for classes.
+These include macros to delete, default, declare, and implement copy and move operations.
+
+<UL>
+    <LI>
+    \c YYCC_DELETE_COPY(CLSNAME): Explicitly remove copy constructor and copy assignment operator for the given class.
+    <UL>
+        <LI><TT>CLSNAME(const CLSNAME&) = delete;</TT></LI>
+        <LI><TT>CLSNAME& operator=(const CLSNAME&) = delete;</TT></LI>
+    </UL>
+    </LI>
+    <LI>
+    \c YYCC_DELETE_MOVE(CLSNAME): Explicitly remove move constructor and move assignment operator for the given class.
+    <UL>
+        <LI><TT>CLSNAME(CLSNAME&&) noexcept = delete;</TT></LI>
+        <LI><TT>CLSNAME& operator=(CLSNAME&&) noexcept = delete;</TT></LI>
+    </UL>
+    </LI>
+    <LI>\c YYCC_DELETE_COPY_MOVE(CLSNAME): The combination of \c YYCC_DELETE_COPY and \c YYCC_DELETE_MOVE.</LI>
+    <LI>
+    \c YYCC_DEFAULT_COPY(CLSNAME): Explicitly set default copy constructor and copy assignment operator for the given class.
+    <UL>
+        <LI><TT>CLSNAME(const CLSNAME&) = default;</TT></LI>
+        <LI><TT>CLSNAME& operator=(const CLSNAME&) = default;</TT></LI>
+    </UL>
+    </LI>
+    <LI>
+    \c YYCC_DEFAULT_MOVE(CLSNAME): Explicitly set default move constructor and move assignment operator for the given class.
+    <UL>
+        <LI><TT>CLSNAME(CLSNAME&&) noexcept = default;</TT></LI>
+        <LI><TT>CLSNAME& operator=(CLSNAME&&) noexcept = default;</TT></LI>
+    </UL>
+    </LI>
+    <LI>\c YYCC_DEFAULT_COPY_MOVE(CLSNAME): The combination of \c YYCC_DEFAULT_COPY and \c YYCC_DEFAULT_MOVE.</LI>
+    <LI>
+    \c YYCC_DECL_COPY(CLSNAME): Make declaration of copy constructor and assignment operator for the given class to avoid typos.
+    <UL>
+        <LI><TT>CLSNAME(const CLSNAME&);</TT></LI>
+        <LI><TT>CLSNAME& operator=(const CLSNAME&);</TT></LI>
+    </UL>
+    </LI>
+    <LI>
+    \c YYCC_DECL_MOVE(CLSNAME): Make declaration of move constructor and assignment operator for the given class to avoid typos.
+    <UL>
+        <LI><TT>CLSNAME(CLSNAME&&) noexcept;</TT></LI>
+        <LI><TT>CLSNAME& operator=(CLSNAME&&) noexcept;</TT></LI>
+    </UL>
+    </LI>
+    <LI>\c YYCC_DECL_COPY_MOVE(CLSNAME): The combination of \c YYCC_DECL_COPY and \c YYCC_DECL_MOVE.</LI>
+    <LI>\c YYCC_IMPL_COPY_CTOR(CLSNAME, RHS): Make implementation signature of copy constructor for the given class with the right operand name to avoid typos.</LI>
+    <LI>\c YYCC_IMPL_COPY_OPER(CLSNAME, RHS): Make implementation signature of copy assignment operator for the given class with the right operand name to avoid typos.</LI>
+    <LI>\c YYCC_IMPL_MOVE_CTOR(CLSNAME, RHS): Make implementation signature of move constructor for the given class with the right operand name to avoid typos.</LI>
+    <LI>\c YYCC_IMPL_MOVE_OPER(CLSNAME, RHS): Make implementation signature of move assignment operator for the given class with the right operand name to avoid typos.</LI>
+</UL>
+
+Please note that \c YYCC_DECL_ and \c YYCC_IMPL_ should be used together.
+These macros are designed to make sure that you write correct function signatures.
+There is an example about how to use it.
+In HPP file, you can write:
+
+\code
+class Foo {
+    YYCC_DECL_COPY_MOVE(Foo)
+};
+\endcode
+
+And in corresponding CPP file, you should write:
+
+\code
+YYCC_IMPL_COPY_CTOR(Foo, rhs)
+{
+    // Copy members from rhs
+}
+YYCC_IMPL_COPY_OPER(Foo, rhs)
+{
+    // Copy members from rhs
+    return *this;
+}
+YYCC_IMPL_MOVE_CTOR(Foo, rhs)
+{
+    // Move members from rhs
+}
+YYCC_IMPL_MOVE_OPER(Foo, rhs)
+{
+    // Move members from rhs
+    return *this;
+}
+\endcode
+
+\section library_macros__platform_checker OS Detector
 
 In many cross platform applications, 
 programmer usually write code adapted to different platforms in one source file 
@@ -56,67 +147,175 @@ and enable them respectively by macros representing the target platform.
 As a cross platform library,
 YYCC also has this feature and you can utilize it if you don't have other ways to so the same things.
 
-\subsection library_macros__platform_checker__values Values
+\subsection library_macros__platform_checker__macro Macro
 
-YYCC always define a macro called \c YYCC_OS to indicate the system of target platform.
-In implementation, it will check following list from top to bottom to set matched value for it.
+YYCC always define <B>one of following macros</B> to indicate the system of target platform.
 
-\li \c YYCC_OS_WINDOWS: Windows environment. It is done by checking whether environment define \c _WIN32 macro.
-\li \c YYCC_OS_LINUX: In current implementation, this means target platform is \b NOT Windows.
+\li \c YYCC_OS_WINDOWS: Windows environment.
+\li \c YYCC_OS_LINUX: Linux environment.
+\li \c YYCC_OS_MACOS: macOS environment.
 
-\subsection library_macros__platform_checker__usage Usage
-
-Now you know any possible value of \c YYCC_OS.
-The next step is how to use it to enable specified code in specific target platform.
-We take Windows platform for example.
 Assume \c blabla() function is Windows specific.
-We have following example code:
+There is an example about how to use it:
 
 \code
 #if defined(YYCC_OS_WINDOWS)
+// Code specific to Windows
 blabla();
 #endif
 \endcode
 
-It's enough and simple that use \c \#if to bracket the Windows specified code.
+\subsection library_macros__platform_checker__constexpr_function Constexpr Function
 
-\section library_macros__batch_class_copy_move Batch Class Copy / Move Functions
+Additionally, YYCC also provides a bunch of constexpr functions to check whether the target platform is what we want.
+More precisely, os::get_os() function returns an enum value os::OsKind indicating the target platform.
 
-YYCC provides 6 macros to batchly remove class copy constructor and move constructor,
-or set default class copy constructor and move constructor.
+There is an example about how to use it:
 
-<UL>
-    <LI>
-    \c YYCC_DEL_CLS_COPY: Declare following 2 statements which delete copy constrcutor and copy assign operator.
-    <UL>
-        <LI><TT>CLSNAME(const CLSNAME&) = delete;</TT></LI>
-        <LI><TT>CLSNAME& operator=(const CLSNAME&) = delete;</TT></LI>
-    </UL>
-    </LI>
-    <LI>
-    \c YYCC_DEL_CLS_MOVE: Declare following 2 statements which delete move constrcutor and move assign operator.
-    <UL>
-        <LI><TT>CLSNAME(CLSNAME&&) = delete;</TT></LI>
-        <LI><TT>CLSNAME& operator=(CLSNAME&&) = delete;</TT></LI>
-    </UL>
-    </LI>
-    <LI>\c YYCC_DEL_CLS_COPY_MOVE: The combination of \c YYCC_DEL_CLS_COPY and \c YYCC_DEL_CLS_MOVE.</LI>
-    <LI>
-    \c YYCC_DEF_CLS_COPY: Declare following 2 statements which set default copy constrcutor and copy assign operator.
-    <UL>
-        <LI><TT>CLSNAME(const CLSNAME&) = default;</TT></LI>
-        <LI><TT>CLSNAME& operator=(const CLSNAME&) = default;</TT></LI>
-    </UL>
-    </LI>
-    <LI>
-    \c YYCC_DEF_CLS_MOVE: Declare following 2 statements which set default move constrcutor and move assign operator.
-    <UL>
-        <LI><TT>CLSNAME(CLSNAME&&) = default;</TT></LI>
-        <LI><TT>CLSNAME& operator=(CLSNAME&&) = default;</TT></LI>
-    </UL>
-    </LI>
-    <LI>\c YYCC_DEF_CLS_COPY_MOVE: The combination of \c YYCC_DEF_CLS_COPY and \c YYCC_DEF_CLS_MOVE.</LI>
-</UL>
+\code
+if constexpr (os::get_os() == os::OsKind::Windows) {
+    // Code specific to Windows
+    blabla();
+}
+\endcode
+
+\section library_macros__compiler_detector Compiler Detector
+
+YYCC provides macros and constexpr functions to detect the compiler being used for compilation.
+
+\subsection library_macros__compiler_detector__macro Macro
+
+YYCC defines <B>one of following macros</B> to indicate which compiler is being used.
+
+\li \c YYCC_CC_MSVC: MSVC compiler (Microsoft Visual C++)
+\li \c YYCC_CC_GCC: GCC compiler (GNU Compiler Collection)
+\li \c YYCC_CC_CLANG: Clang compiler
+
+There is an example about how to use it:
+
+\code
+#if defined(YYCC_CC_MSVC)
+// Code specific to MSVC
+blabla();
+#endif
+\endcode
+
+\subsection library_macros__compiler_detector__constexpr_function Constexpr Function
+
+YYCC also provides a constexpr function to check which compiler is being used at compile time.
+More precisely, compiler::get_compiler() function returns an enum value compiler::CompilerKind indicating the compiler being used.
+
+There is an example about how to use it:
+
+\code
+if constexpr (compiler::get_compiler() == compiler::CompilerKind::Msvc) {
+    // Code specific to MSVC
+    blabla();
+}
+\endcode
+
+\section library_macros__endian_detector Endian Detector
+
+YYCC provides macros and constexpr functions to detect the endianness of the target platform.
+
+\subsection library_macros__endian_detector__macro Macro
+
+YYCC always defines <B>one of following macros</B> to indicate the endianness of the target platform.
+
+\li \c YYCC_ENDIAN_LITTLE: Little endian system
+\li \c YYCC_ENDIAN_BIG: Big endian system
+
+There is an example about how to use it:
+
+\code
+#if defined(YYCC_ENDIAN_LITTLE)
+// Code specific to little endian systems
+blabla();
+#endif
+\endcode
+
+\subsection library_macros__endian_detector__constexpr_function Constexpr Function
+
+YYCC also provides a constexpr function to check the endianness of the target platform.
+More precisely, endian::get_endian() function returns an enum value endian::EndianKind indicating the endianness.
+
+There is an example about how to use it:
+
+\code
+if constexpr (endian::get_endian() == endian::EndianKind::Little) {
+    // Code specific to little endian systems
+    blabla();
+}
+\endcode
+
+\section library_macros__stl_detector STL Detector
+
+YYCC provides macros to detect which Standard Template Library (STL) implementation is being used.
+
+\subsection library_macros__stl_detector__macro Macro
+
+YYCC defines <B>one of following macros</B> to indicate which STL implementation is being used.
+
+\li \c YYCC_STL_MSSTL: Microsoft STL
+\li \c YYCC_STL_GNUSTL: GNU STL
+\li \c YYCC_STL_CLANGSTL: Clang STL
+
+There is an example about how to use it:
+
+\code
+#if defined(YYCC_STL_MSSTL)
+// Code specific to Microsoft STL
+blabla();
+#endif
+\endcode
+
+\subsection library_macros__stl_detector__constexpr_function Constexpr Function
+
+YYCC also provides a constexpr function to check which STL implementation is being used at compile time.
+More precisely, stl::get_stl() function returns an enum value stl::StlKind indicating the STL implementation.
+
+There is an example about how to use it:
+
+\code
+if constexpr (stl::get_stl() == stl::StlKind::MsStl) {
+    // Code specific to Microsoft STL
+    blabla();
+}
+\endcode
+
+\section library_macros__ptr_size_detector Pointer Size Detector
+
+YYCC provides macros and constexpr functions to detect the pointer size of the target platform.
+
+\subsection library_macros__ptr_size_detector__macro Macro
+
+YYCC always define <B>one of following macros</B> to indicate the pointer size of target platform.
+
+\li \c YYCC_PTRSIZE_32: 32-bit environment
+\li \c YYCC_PTRSIZE_64: 64-bit environment
+
+There is an example about how to use it:
+
+\code
+#if defined(YYCC_PTRSIZE_32)
+// Code specific to 32-bit environment
+blabla();
+#endif
+\endcode
+
+\subsection library_macros__ptr_size_detector__constexpr_function Constexpr Function
+
+YYCC also provides a constexpr function to check the pointer size of the target platform.
+More precisely, ptr_size::get_ptr_size() function returns an enum value ptr_size::PtrSizeKind indicating the pointer size.
+
+There is an example about how to use it:
+
+\code
+if constexpr (ptr_size::get_ptr_size() == ptr_size::PtrSizeKind::Bits32) {
+    // Code specific to 32-bit environment
+    blabla();
+}
+\endcode
 
 */
 }
