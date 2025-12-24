@@ -145,9 +145,10 @@ PUBLIC
     $<$<PLATFORM_ID:Darwin>:YYCC_OS_MACOS>
     $<$<PLATFORM_ID:iOS>:YYCC_OS_MACOS> # We brutally think iOS as macOS.
     # Compiler macro
+    $<$<CXX_COMPILER_ID:MSVC>:YYCC_CC_MSVC>
     $<$<CXX_COMPILER_ID:GNU>:YYCC_CC_GCC>
     $<$<CXX_COMPILER_ID:Clang>:YYCC_CC_CLANG>
-    $<$<CXX_COMPILER_ID:MSVC>:YYCC_CC_MSVC>
+    $<$<CXX_COMPILER_ID:AppleClang>:YYCC_CC_CLANG> # We brutally think AppleClang is Clang.
     # Endian macro
     $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},LITTLE_ENDIAN>:YYCC_ENDIAN_LITTLE>
     $<$<STREQUAL:${CMAKE_CXX_BYTE_ORDER},BIG_ENDIAN>:YYCC_ENDIAN_BIG>

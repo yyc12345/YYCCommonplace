@@ -37,6 +37,7 @@ jobs:
     #     cd ../..
     - name: Build YYCC
       run: |
+        chmod +x ./.github/linux_build.sh
         ./.github/linux_build.sh
     - name: Upload Built Artifact
       uses: actions/upload-artifact@v4

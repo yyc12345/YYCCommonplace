@@ -33,6 +33,7 @@ jobs:
     #     cd ../..
     - name: Build YYCC
       run: |
+        chmod +x ./.github/macos_build.sh
         ./.github/macos_build.sh
     - name: Upload Built Artifact
       uses: actions/upload-artifact@v4

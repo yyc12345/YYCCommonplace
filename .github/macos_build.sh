@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Create build directory and enter it
 mkdir bin
