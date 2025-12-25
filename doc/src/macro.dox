@@ -6,7 +6,7 @@ namespace yycc::macro {
 In this page we will introduce the macros defined by this library
 which can not be grouped in other topic.
 
-\section macro__version_cmp Library Version and Version Comparison
+\section macro__version Library Version
 
 Version is a important things in modern software development, especially for a library.
 In YYCC, we use Semantic Versioning as our version standard.
@@ -15,6 +15,8 @@ For more infomations about it, please see: https://semver.org/
 First, YYCC has its own version and it can be visited by
 \c YYCC_VER_MAJOR, \c YYCC_VER_MINOR, and \c YYCC_VER_PATCH.
 Each part of Semantic Versioning is provided individually.
+
+\section macro__version_cmp Version Comparison
 
 YYCC also provide a bunch of macros to compare 2 versions.
 It also provides a way to check YYCC version in program using YYCC,
