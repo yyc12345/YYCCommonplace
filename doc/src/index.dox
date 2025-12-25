@@ -31,14 +31,16 @@
 
     \li \subpage premise_and_principle
 
-    \li \subpage library_macros
+    <B>STL Enhancements</B>
+
+    \li \subpage macro
+
+    \li \subpage string_reinterpret
 
     <!--
-    \li \subpage library_encoding
+    \li \subpage string_helper
 
     \li \subpage encoding_helper
-
-    \li \subpage string_helper
 
     \li \subpage parser_helper
 
@@ -51,8 +53,6 @@
     \li \subpage enum_helper
     -->
 
-    <B>Advanced Features</B>
-
     <!--
     \li \subpage constraints
 
@@ -63,6 +63,8 @@
 
   </TD>
   <TD ALIGN="LEFT" VALIGN="TOP">
+
+    <B>Advanced Features</B>
 
     <B>Windows Specific Features</B>
 

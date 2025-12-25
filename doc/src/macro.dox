@@ -1,12 +1,12 @@
 namespace yycc::macro {
 /**
 
-\page library_macros Library Macros
+\page macro Library Macros
 
 In this page we will introduce the macros defined by this library
 which can not be grouped in other topic.
 
-\section library_macros__batch_class_copy_move Library Version and Version Comparison
+\section macro__version_cmp Library Version and Version Comparison
 
 Version is a important things in modern software development, especially for a library.
 In YYCC, we use Semantic Versioning as our version standard.
@@ -48,7 +48,7 @@ There is a example about checking whether YYCC library version is exactly what w
 #endif
 \endcode
 
-\section library_macros__class_copy_move Class Copy / Move Functions
+\section macro__copy_move Class Copy / Move Functions
 
 YYCC provides several macros to manage copy and move constructors and assignment operators for classes.
 These include macros to delete, default, declare, and implement copy and move operations.
@@ -139,7 +139,7 @@ YYCC_IMPL_MOVE_OPER(Foo, rhs)
 }
 \endcode
 
-\section library_macros__platform_checker OS Detector
+\section macro__platform_checker OS Detector
 
 In many cross platform applications, 
 programmer usually write code adapted to different platforms in one source file 
@@ -147,7 +147,7 @@ and enable them respectively by macros representing the target platform.
 As a cross platform library,
 YYCC also has this feature and you can utilize it if you don't have other ways to so the same things.
 
-\subsection library_macros__platform_checker__macro Macro
+\subsection macro__platform_checker__macro Macro
 
 YYCC always define <B>one of following macros</B> to indicate the system of target platform.
 
@@ -165,7 +165,7 @@ blabla();
 #endif
 \endcode
 
-\subsection library_macros__platform_checker__constexpr_function Constexpr Function
+\subsection macro__platform_checker__constexpr_function Constexpr Function
 
 Additionally, YYCC also provides a bunch of constexpr functions to check whether the target platform is what we want.
 More precisely, os::get_os() function returns an enum value os::OsKind indicating the target platform.
@@ -179,11 +179,11 @@ if constexpr (os::get_os() == os::OsKind::Windows) {
 }
 \endcode
 
-\section library_macros__compiler_detector Compiler Detector
+\section macro__compiler_detector Compiler Detector
 
 YYCC provides macros and constexpr functions to detect the compiler being used for compilation.
 
-\subsection library_macros__compiler_detector__macro Macro
+\subsection macro__compiler_detector__macro Macro
 
 YYCC defines <B>one of following macros</B> to indicate which compiler is being used.
 
@@ -200,7 +200,7 @@ blabla();
 #endif
 \endcode
 
-\subsection library_macros__compiler_detector__constexpr_function Constexpr Function
+\subsection macro__compiler_detector__constexpr_function Constexpr Function
 
 YYCC also provides a constexpr function to check which compiler is being used at compile time.
 More precisely, compiler::get_compiler() function returns an enum value compiler::CompilerKind indicating the compiler being used.
@@ -214,11 +214,11 @@ if constexpr (compiler::get_compiler() == compiler::CompilerKind::Msvc) {
 }
 \endcode
 
-\section library_macros__endian_detector Endian Detector
+\section macro__endian_detector Endian Detector
 
 YYCC provides macros and constexpr functions to detect the endianness of the target platform.
 
-\subsection library_macros__endian_detector__macro Macro
+\subsection macro__endian_detector__macro Macro
 
 YYCC always defines <B>one of following macros</B> to indicate the endianness of the target platform.
 
@@ -234,7 +234,7 @@ blabla();
 #endif
 \endcode
 
-\subsection library_macros__endian_detector__constexpr_function Constexpr Function
+\subsection macro__endian_detector__constexpr_function Constexpr Function
 
 YYCC also provides a constexpr function to check the endianness of the target platform.
 More precisely, endian::get_endian() function returns an enum value endian::EndianKind indicating the endianness.
@@ -248,11 +248,11 @@ if constexpr (endian::get_endian() == endian::EndianKind::Little) {
 }
 \endcode
 
-\section library_macros__stl_detector STL Detector
+\section macro__stl_detector STL Detector
 
 YYCC provides macros to detect which Standard Template Library (STL) implementation is being used.
 
-\subsection library_macros__stl_detector__macro Macro
+\subsection macro__stl_detector__macro Macro
 
 YYCC defines <B>one of following macros</B> to indicate which STL implementation is being used.
 
@@ -269,7 +269,7 @@ blabla();
 #endif
 \endcode
 
-\subsection library_macros__stl_detector__constexpr_function Constexpr Function
+\subsection macro__stl_detector__constexpr_function Constexpr Function
 
 YYCC also provides a constexpr function to check which STL implementation is being used at compile time.
 More precisely, stl::get_stl() function returns an enum value stl::StlKind indicating the STL implementation.
@@ -283,11 +283,11 @@ if constexpr (stl::get_stl() == stl::StlKind::MsStl) {
 }
 \endcode
 
-\section library_macros__ptr_size_detector Pointer Size Detector
+\section macro__ptr_size_detector Pointer Size Detector
 
 YYCC provides macros and constexpr functions to detect the pointer size of the target platform.
 
-\subsection library_macros__ptr_size_detector__macro Macro
+\subsection macro__ptr_size_detector__macro Macro
 
 YYCC always define <B>one of following macros</B> to indicate the pointer size of target platform.
 
@@ -303,7 +303,7 @@ blabla();
 #endif
 \endcode
 
-\subsection library_macros__ptr_size_detector__constexpr_function Constexpr Function
+\subsection macro__ptr_size_detector__constexpr_function Constexpr Function
 
 YYCC also provides a constexpr function to check the pointer size of the target platform.
 More precisely, ptr_size::get_ptr_size() function returns an enum value ptr_size::PtrSizeKind indicating the pointer size.

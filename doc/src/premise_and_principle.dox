@@ -24,7 +24,13 @@ We brutally make a premise that other operating systems are POSIX-compatible and
 \section premise_and_principle__string_encoding String Encoding
 
 Before using this library, you should know the encoding strategy of this library first.
-In short words, this library use UTF8 encoding everywhere except some special cases list following (not all).
+After upgrade the whole project into C++23, \c char8_t is the only valid UTF8 char type.
+\c std::u8string and \c std::u8string_view are the only valid UTF8 string container and viewer.
+And, \c u8 string literal prefix is the only way to create UTF8 string literal.
+In brief words, this library use UTF8 encoding everywhere.
+
+However, there are some special cases that use ordinary string instead of UTF8 string list following 
+(also, not all cases are covered).
 
 \li Traditional format function in yycc::string::op.
 Traditional format function provide some overloads for ordinary string formatting.
