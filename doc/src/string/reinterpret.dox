@@ -89,13 +89,25 @@ Same as UTF8 string pointer, we also have as_ordinary() and as_ordinary_view() d
 Try to do your own research and figure out how to use them.
 It's pretty easy.
 
-\section string__reinterpret__windows_warns Warnings to Windows Programmer
+\section string__reinterpret__clarification Clarification about Usage Scenario
 
-Due to the legacy of MSVC, the encoding of \c char* may not be UTF8 in most cases.
+Let we make a clarification for what this chapter are talking about.
+In these chapter, what we are talking about the convertion between UTF8 string and ordinary string,
+which is originally encoded by UTF-8 but presented by \c char type.
+This spot is crucial. If you apply any functions provided by this namespace to any string which is not encoded by UTF-8,
+for example, trying converting an CP1252 encoded western europe string to UTF-8 via function given by this namespace,
+it must cause <B>undefined behavior</B>.
+
+The correct function for doing these things introduced above is located in yycc::encoding namespace,
+or a more generic module located in yycc::carton::pycodec.
+This namespace is only suit for the convertion of UTF-8 string which was mis-presented by non-<TT>char8_t</TT> types.
+After understand this point, you now can safely use this namespace.
+
+Additionally, due to the legacy of MSVC, the encoding of \c char* may not be UTF8 in most cases.
 If you run the convertion code introduced in this article with the string which is not encoded with UTF8, 
 it may cause undefined behavior.
 
-To enable UTF8 mode of MSVC, please deliver \c /utf-8 switch to MSVC.
+To enable UTF8 mode of MSVC, please deliver \c /utf-8 switch to MSVC compiler.
 Thus you can use the functions introduced in this article safely.
 Otherwise, you must guarteen that the argument you provided to these functions is encoded by UTF8 manually.
 

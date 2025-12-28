@@ -39,18 +39,16 @@
 
     \li \subpage string__reinterpret
 
-    <!--
-    \li \subpage string_helper
+    \li \subpage string__op
 
+    \li \subpage patch
+
+    <!--
     \li \subpage encoding_helper
 
     \li \subpage parser_helper
 
     \li \subpage console_helper
-
-    \li \subpage io_helper
-
-    \li \subpage std_patch
 
     -->
 

@@ -1,0 +1,176 @@
+namespace yycc::string::op {
+/**
+
+\page string__op String Operations
+
+\section string__op__printf Printf VPrintf
+
+yycc::string::op provides 4 functions for formatting string.
+These functions are originally provided to programmer who can not use C++ 20 \c std::format feature.
+However, when this project was migrated to C++23 standard, \c std::format is finally available.
+And we set these functions as the complement to \c std::format feature.
+
+\code
+std::u8string printf(const char8_t* format, ...);
+std::u8string vprintf(const char8_t* format, va_list argptr);
+std::string printf(const char* format, ...);
+std::string vprintf(const char* format, va_list argptr);
+\endcode
+
+#printf and #vprintf is similar to \c std::sprintf and \c std::vsprintf.
+#printf accepts UTF8 format string and variadic arguments specifying data to print.
+This is commonly used by programmer.
+However, #vprintf also do the same work but its second argument is \c va_list, 
+the representation of variadic arguments.
+It is mostly used by other function which has variadic arguments.
+
+The only difference between these function and standard library functions is 
+that you don't need to worry about whether the space of given buffer is enough,
+because these functions help you to calculate this internally.
+
+Once there are some exceptions occurs, such as, not enough memeory, or the bad syntax of format string,
+these functions will throw exception immediately.
+
+\section string__op__replace Replace
+
+yycc::string::op provide 2 functions for programmer do string replacement:
+
+\code
+void replace(std::u8string& strl, const std::u8string_view& from_strl, const std::u8string_view& to_strl);
+std::u8string replace(const std::u8string_view& strl, const std::u8string_view& from_strl, const std::u8string_view& to_strl);
+\endcode
+
+The first overload will do replacement in given string container directly.
+The second overload will produce a copy of original string and do replacement on the copied string.
+
+These #replace functions have special treatments for boundary scenarios:
+
+\li If given string is empty, the return value will be empty.
+\li If the character sequence to be replaced is empty string, no replacement will happen.
+\li If the character sequence will be replaced into string is or empty, it will simply delete found character sequence from given string.
+
+\section string__op__join Join
+
+yycc::string::op provide an universal way for joining string and various specialized join functions.
+
+\subsection string__op__join__universal Universal Join Function
+
+Because C++ list types are various.
+There is no unique and convenient way to create an universal join function.
+So we create #JoinDataProvider to describe join context.
+
+Before using universal join function,
+you should setup #JoinDataProvider first, the context of join function.
+It actually is an \c std::function object which can be easily fetched by C++ lambda syntax.
+This function pointer returns \c std::optional<std::u8string_view>,
+which should return \c std::u8string_view for the data to be joined, or \c std::nullopt if there is no more data.
+As you noticed, this is similar to Rust iterator.
+
+Then, you can pass the created #JoinDataProvider object to #join function.
+And specify delimiter at the same time.
+Then you can get the final joined string.
+There is an example:
+
+\code
+std::vector<std::u8string> data {
+    u8"", u8"1", u8"2", u8""
+};
+auto iter = data.cbegin();
+auto stop = data.cend();
+std::u8string joined_string = yycc::string::op::join(
+    [&iter, &stop]() -> std::optional<std::u8string_view> {
+        if (iter == stop) return std::nullopt;
+        return *iter++;
+    }, 
+    delimiter
+);
+\endcode
+
+\subsection string__op__join__specialized Specialized Join Function
+
+Despite universal join function, 
+yycc::string::op also provide a specialized join functions for standard library container.
+For example, the code written above can be written in following code by using this specialized overload.
+The first two argument is just the begin and end iterator.
+However, you must make sure that the iterator can be dereferenced and then implicitly converted to std::u8string_view.
+
+\code
+std::vector<std::u8string> data {
+    u8"", u8"1", u8"2", u8""
+};
+std::u8string joined_string = yycc::string::op::join(data.begin(), data.end(), delimiter);
+\endcode
+
+\section string__op__lower_upper Lower Upper
+
+This namespace provides Python-like string lower and upper function.
+
+\code
+void lower(std::u8string& strl);
+std::u8string to_lower(const std::u8string_view& strl);
+void upper(std::u8string& strl);
+std::u8string to_upper(const std::u8string_view& strl);
+\endcode
+
+The functions start with "to_" prefix accept a string view as argument 
+and return a \b copy whose content are all the lower/upper case of original string.
+The rest of these functions accept a mutable string container as argument and will modify it in place.
+
+\section string__op__strip_trim Strip and Trim
+
+This namespace provides functions for removing leading and trailing characters.
+There are two sets of functions:
+
+\subsection string__op__strip Unicode-aware functions
+
+These functions properly handle Unicode characters when stripping:
+
+\code
+std::u8string_view strip(const std::u8string_view& strl, const std::u8string_view& words);
+std::u8string_view lstrip(const std::u8string_view& strl, const std::u8string_view& words);
+std::u8string_view rstrip(const std::u8string_view& strl, const std::u8string_view& words);
+\endcode
+
+The prefix "l" and "r" are for left and right strip respectively like Python.
+
+\subsection string__op__trim ASCII-only functions
+
+These functions treat each byte as an individual character and are faster for ASCII-only scenarios:
+
+\code
+std::u8string_view trim(const std::u8string_view& strl, const std::u8string_view& words);
+std::u8string_view ltrim(const std::u8string_view& strl, const std::u8string_view& words);
+std::u8string_view rtrim(const std::u8string_view& strl, const std::u8string_view& words);
+\endcode
+
+The difference of "trim" and "strip" is same as their invented time in Java.
+"trim" is inveted at first so its function is confined to ASCII-only strings.
+"strip" is introduced later and it should accept more scenarios like Unicode.
+Although all of "trim" and "strip" can handle Unicode in Java.
+
+\section string__op__split Split
+
+This namespace provides Python-like string split functions.
+It has 3 variants for different use cases:
+
+\code
+LazySplit lazy_split(const std::u8string_view& strl, const std::u8string_view& delimiter);
+std::vector<std::u8string_view> split(const std::u8string_view& strl, const std::u8string_view& delimiter);
+std::vector<std::u8string> split_owned(const std::u8string_view& strl, const std::u8string_view& delimiter);
+\endcode
+
+All these overloads take a string view as the first argument representing the string need to be split.
+The second argument is a string view representing the delimiter for splitting.
+
+The first function #lazy_split returns a #LazySplit object that can be used in range-based for loops.
+This is lazy-computed and memory-efficient for large datasets.
+The second function #split returns a vector of string views, which is memory-efficient 
+but the views are only valid as long as the original string remains valid.
+The third function #split_owned returns a vector of strings, which are copies of the original parts.
+
+If the source string (the string need to be split) is empty, or the delimiter is empty,
+the result will only has 1 item and this item is source string itself.
+There is no way that these methods return an empty list, except the code is buggy.
+
+*/
+}

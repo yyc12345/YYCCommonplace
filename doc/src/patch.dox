@@ -1,0 +1,75 @@
+namespace yycc::patch {
+/**
+
+\page patch Other STL Patches
+
+There are some other STL patches in this library which can not be organized in single document file individually.
+So I put them together here.
+
+\section patch__ptr_pad Pointer Print Padding
+
+When printing pointer on screen, programmer usually left-pad zero to make it looks good.
+However, the count of zero for padding is different in x86 and x64 architecture (8 for x86 and 16 for x64).
+Macro \c PRIXPTR_LPAD will help you to resolve this issue.
+
+Macro \c PRIXPTR_LPAD will be expended to one of following value according to the target system architecture.
+
+\li \c "08": On x86 system.
+\li \c "016": On x64 system.
+
+There is an example for how to use it:
+
+\code
+void* raw_ptr = blabla();
+std::printf(stdout, "Raw Pointer 0x%" PRIXPTR_LPAD PRIXPTR, raw_ptr);
+\endcode
+
+Note \c PRIXPTR is defined by standard library for formatting pointer as hexadecimal style.
+
+\section patch__smart_file Smart FILE Pointer
+
+fopen::SmartStdFile use \c std::unique_ptr with custom deleter to implement smart \c FILE*.
+It is useful in the cases that you want to automatically free opened file when leaving corresponding scope.
+
+\section patch__utf8_fopen UTF8 fopen
+
+In Windows, standard \c std::fopen can not handle UTF8 file name in common environment.
+So we create fopen::fopen to give programmer an universal \c fopen in UTF8 style.
+
+In Windows platform, this function will try to convert its argument to \c wchar_t
+and calling Microsoft specific \c _wfopen function to open file.
+If encoding convertion or \c _wfopen failed, this function will return \c nullptr like \c std::fopen does.
+In other platforms, it will simply redirect calling to \c std::fopen.
+
+There is a simple example:
+
+\code
+FILE* fs = fopen::fopen(u8"/path/to/file", u8"rb");
+\endcode
+
+\section patch__utf8_stream UTF8 Stream Support
+
+The namespace yycc::patch::stream provides UTF8 support for \c std::ostream.
+This namespace contains operator overloads that give \c std::ostream the ability to write UTF8 string and its char.
+To use this feature, you should include its header file first,
+and then directly use <TT>using namespace ::yycc::patch::stream;</TT> to import this namespace.
+
+\section patch__utf8_format UTF8 Format Support
+
+The namespace yycc::patch::format provides a patch for \c std::format to allow UTF8 string as arguments.
+As \c std::format only allows \c char and \c wchar_t as its char type in C++ 23 currently, 
+it's impossible to use UTF8 string for std::format, both as format string and argument.
+This namespace gives a patch for this shortcoming.
+
+First, it define a brandnew format::format function, which resolve the issue that we can not use UTF8 as format string.
+The implementation of this function is simple. We simply convert given UTF8 format string into ordinary string,
+and then delegate it to \c std::vformat, the runtime format function in C++ 23.
+So the performance of this function may be a little worse than \c std::format, but it's not a big deal.
+We suggest that you use this namespace provided format::format function in your code,
+to enable this UTF8 format string feature.
+
+Additionally, this namespace provides \c std::formatter specializations for UTF8 string.
+Thus we can safely use UTF8 string as argument in \c std::format, also including our invented brandnew format::format function.
+
+*/
+}
