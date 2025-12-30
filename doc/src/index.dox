@@ -41,12 +41,12 @@
 
     \li \subpage string__op
 
+    \li \subpage num__parser
+
     \li \subpage patch
 
     <!--
     \li \subpage encoding_helper
-
-    \li \subpage parser_helper
 
     \li \subpage console_helper
 
@@ -67,9 +67,9 @@
 
     <B>Windows Specific Features</B>
 
-    <!--
-    \li \subpage win_import
+    \li \subpage windows__import_guard
 
+    <!--
     \li \subpage com_helper
 
     \li \subpage dialog_helper

@@ -1,0 +1,70 @@
+namespace yycc::num::parse {
+/**
+
+\page num__parser Numeric Parser
+
+Namespace yycc::num::parse is served for the convertion from string to number.
+
+\section num__parser__supported_types Supported Types
+
+Functions located in this namespace support the convertion from string to following types:
+
+\li Integral types (except \c bool): \c int, \c uint32_t, \c char and etc.
+\li Floating point types: \c float, \c double and etc.
+\li \c bool
+
+Please note in C++, \c bool is integral type but we list it individually because parser will treat it specially.
+For \c bool type, parser will try doing convertion between it and \c "true" \c "false" string.
+(\b case-insensitive. It means that \c "true", \c "True" and \c "TRUE", all of them can be converted into \c true.)
+
+\section num__parser__usage Usage
+
+This namespace provide a uniform parser function #parse with various overloads.
+All of them accept an UTF8 string view at first argument,
+and following argument is different required by different overloads which may change parser behavior.
+For example, for floating point type, this function allows caller to specify extra argument providing the format of given number string (\c std::chars_format).
+or for integral type, this function allows caller to specify extra argument providing the base of given number string.
+The return value is a result type, containing converted value or error occurs.
+There are some examples:
+
+\code
+auto rv = parse::parse<uint32_t>(u8"123");
+assert(rv.has_value());
+auto converted = rv.value();
+\endcode
+
+\section num__parser__stringify Stringify
+
+Namespace yycc::num::stringify provide the opposite function of namespace yycc::num::parse.
+They convert given number into their string representation.
+There is an example:
+
+\code
+auto showcase = stringify::stringify<uint32_t>(UINT32_C(114));
+\endcode
+
+Same as parse::parse, stringify::stringify also has same overloads and different second arguments.
+For floating point type, this function allows caller to specify extra arguments
+which provides the format (\c std::chars_format) and precision when getting string representation.
+For integral type, this function allows caller to specify extra argument
+providing the base of number when getting string representation.
+However, the result value of stringify::stringify is just the result, not a result type.
+Because it is mostly impossible to occur error in stringify::stringify.
+
+\section num__parser__notes Notes
+
+All functions located in yycc::num::parse and yycc::num::stringify namespace are implementated by standard library functions.
+These functions just make a good wrapper for complex standard library functions.
+And give you a experience like Rust \c parse functions.
+
+Basically, all functions located in this helper have possibility to throw exception.
+But this possibility are more close to the possibility that \c new statement throw \c std::bad_alloc.
+So in most cases you can assume these functions will not throw any exception.
+
+All functions are template functions.
+The argument of template is the type these functions need to be processed.
+Although C++ have \e smart template type deduction, 
+it would be better to specify template argument manually to explicitly specify your desired type.
+
+*/
+}
