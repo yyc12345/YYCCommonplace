@@ -69,11 +69,11 @@
 
     \li \subpage windows__import_guard
 
+    \li \subpage windows__com
+
+    \li \subpage windows__dialog
+
     <!--
-    \li \subpage com_helper
-
-    \li \subpage dialog_helper
-
     \li \subpage win_fct_helper
 
     \li \subpage exception_helper

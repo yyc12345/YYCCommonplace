@@ -273,7 +273,7 @@ namespace yycc::windows::dialog {
         m_InitDirectory = std::nullopt;
     }
 
-    FileFilters& FileDialog::configre_file_types() {
+    FileFilters& FileDialog::configure_file_types() {
         return m_FileTypes;
     }
 

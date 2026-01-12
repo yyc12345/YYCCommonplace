@@ -90,7 +90,7 @@ namespace yycc::windows::dialog {
      * @details 
      * This class is served for programmer using.
      * But you don't need create it on your own.
-     * You can simply fetch it by FileDialog::ConfigreFileTypes(),
+     * You can simply fetch it by FileDialog::configureFileTypes(),
      * because this class is a part of FileDialog.
     */
     class FileFilters {
@@ -240,7 +240,7 @@ namespace yycc::windows::dialog {
          * @brief Fetch the struct describing file filters for future configuration.
          * @return The reference to the struct describing file filters.
         */
-        FileFilters& configre_file_types();
+        FileFilters& configure_file_types();
         /**
          * @brief Set the index of default selected file filter.
          * @param[in] idx 

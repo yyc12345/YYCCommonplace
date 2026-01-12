@@ -1,7 +1,7 @@
-namespace YYCC::DialogHelper {
+namespace yycc::windows::dialog {
 /**
 
-\page dialog_helper Dialog Helper
+\page windows__dialog Dialog Helper
 
 Picking files and folders is an important and essential operation under Windows.
 However the functions picking files and folders are so complex.
@@ -11,7 +11,7 @@ In following contents we will tell you how to call them.
 This helper is Windows specific.
 It will be totally invisible if you are in other platforms.
 
-\section dialog_helper__file_dialog Configure File Dialog
+\section windows__dialog__file_dialog Configure File Dialog
 
 The first thing is that we should initialize FileDialog, 
 and configure it according to your requirements.
@@ -20,16 +20,16 @@ This class is the data struct representing all aspects of file dialog.
 It also one of the arguments in final dialog function.
 
 \code
-YYCC::DialogHelper::FileDialog params;
-params.SetOwner(owner_getter());
-params.SetTitle(YYCC_U8("My File Picker"));
-params.SetInitFileName(YYCC_U8("test.txt"));
-params.SetInitDirectory(initial_directory_getter());
+FileDialog params;
+params.set_owner(owner_getter());
+params.set_title(u8"My File Picker");
+params.set_init_file_name(u8"test.txt");
+params.set_init_directory(initial_directory_getter());
 \endcode
 
-\subsection dialog_helper__file_dialog__owner Owner
+\subsection windows__dialog__file_dialog__owner Owner
 
-FileDialog::SetOwner will set owner of this dialog.
+FileDialog::set_owner() will set owner of this dialog.
 It accepts a Microsoft defined \c HWND as argument which should be familiar with Windows programmer.
 If you pass \c NULL to it or skip calling this function, it indicate that there is no owner of this dialog.
 <I>
@@ -37,9 +37,9 @@ I don't what will happen if there is no owner for it.
 But it would be better to have an owner if possible.
 </I>
 
-\subsection dialog_helper__file_dialog__title Title
+\subsection windows__dialog__file_dialog__title Title
 
-FileDialog::SetTitle will set dialog title of this dialog.
+FileDialog::set_title() will set dialog title of this dialog.
 If you pass \c nullptr or skip calling it,
 the title of dialog will be filled by system and the function type you calling.
 For example, the title will be "Open..." if you call open file function,
@@ -48,9 +48,9 @@ At the same time, the language of this title filled by system is system UI depen
 It means that you do not need to do any extra I18N work for it.
 So I suggest you do not set title except you really want to modify title.
 
-\subsection dialog_helper__file_dialog__init_file_name Initial File Name
+\subsection windows__dialog__file_dialog__init_file_name Initial File Name
 
-FileDialog::SetInitFileName will set the initial file name presented in dialog file name input box.
+FileDialog::set_init_file_name() will set the initial file name presented in dialog file name input box.
 If you pass \c nullptr or skip calling it, the text in dialog file name input box will be empty.
 
 User can modify the name presented in input box later.
@@ -58,9 +58,9 @@ But if you assign this value, the dialog will lose the ability that remember the
 In normal case, dialog will try remembering the file name user input in dialog, and represent it in the next calling.
 However, if you specify this field, the dialog will always presented your specified value in every calling.
 
-\subsection dialog_helper__file_dialog__init_directory Initial Directory
+\subsection windows__dialog__file_dialog__init_directory Initial Directory
 
-FileDialog::SetInitDirectory will set the initial directory (startup directory) when opening dialog.
+FileDialog::set_init_directory() will set the initial directory (startup directory) when opening dialog.
 
 In following cases, initial directory will fall back to system behavior:
 
@@ -72,7 +72,7 @@ The system default behavior of initial directory is similar with initial file na
 The dialog will try remembering the last directory you just entering, and will back into it in the next calling.
 The directory we meeting in the first launch is system defined.
 
-\section dialog_helper__file_filters Configure File Filters
+\section windows__dialog__file_filters Configure File Filters
 
 File filters is a drop down list represented in file dialog which allow user filter files by their extensions.
 It is beneficial to let user get the file which they want in a directory including massive different files.
@@ -84,20 +84,20 @@ Directory can not be filtered.
 FileFilters takes responsibility for this feature:
 
 \code
-auto& filters = params.ConfigreFileTypes();
-filters.Add(YYCC_U8("Microsoft Word (*.docx; *.doc)"), { YYCC_U8("*.docx"), YYCC_U8("*.doc") });
-filters.Add(YYCC_U8("Microsoft Excel (*.xlsx; *.xls)"), { YYCC_U8("*.xlsx"), YYCC_U8("*.xls") });
-filters.Add(YYCC_U8("Microsoft PowerPoint (*.pptx; *.ppt)"), { YYCC_U8("*.pptx"), YYCC_U8("*.ppt") });
-filters.Add(YYCC_U8("Text File (*.txt)"), { YYCC_U8("*.txt") });
-filters.Add(YYCC_U8("All Files (*.*)"), { YYCC_U8("*.*") });
-params.SetDefaultFileTypeIndex(0u);
+auto& filters = params.configure_file_types();
+filters.add_filter(u8"Microsoft Word (*.docx; *.doc)", { u8"*.docx", u8"*.doc" });
+filters.add_filter(u8"Microsoft Excel (*.xlsx; *.xls)", { u8"*.xlsx", u8"*.xls" });
+filters.add_filter(u8"Microsoft PowerPoint (*.pptx; *.ppt)", { u8"*.pptx", u8"*.ppt" });
+filters.add_filter(u8"Text File (*.txt)", { u8"*.txt" });
+filters.add_filter(u8"All Files (*.*)", { u8"*.*" });
+params.set_default_file_type_index(0u);
 \endcode
 
-\subsection dialog_helper__file_filters__setup File Filters
+\subsection windows__dialog__file_filters__setup File Filters
 
 We don't need to initialize FileFilters by ourselves.
-Oppositely, we fetch it from FileDialog instance by calling FileDialog::ConfigreFileTypes.
-After fetching, we can call FileFilters::Add to add a filter pair for file filters.
+Oppositely, we fetch it from FileDialog instance by calling FileDialog::configure_file_types().
+After fetching, we can call FileFilters::add_filter() to add a filter pair for file filters.
 
 The first argument is the display text which user will see in file filter drop down box.
 
@@ -107,55 +107,51 @@ It is okey to use multiple wildcard string in list.
 This is suit for those file types involving multiple file extensions, such as the old and new file types of Microsoft Office as we illustracted.
 Empty list not allowed
 
-FileFilters::Add also will return a bool to indicate the success of this adding.
+FileFilters::add_filter() throws std::invalid_argument if filter name is blank or filter patterns is empty.
+Because these errors should be found during developing.
 
 It should at least has one file filter in file dialog.
 I don't know the consequence if you don't provide any file filter.
 
-\subsection dialog_helper__file_filters__default_filter Default File Type
+\subsection windows__dialog__file_filters__default_filter Default File Type
 
-FileDialog::SetDefaultFileTypeIndex will set the default selected file filter of this dialog.
+FileDialog::set_default_file_type_index() will set the default selected file filter of this dialog.
 It accepts an index pointing to the file filter which you want to show in default for this file dialog.
-The index of file filters is the order where you call FileFilters::Add above.
+The index of file filters is the order where you call FileFilters::add_filter() above.
 If you pass \c NULL to it or skip calling this function, the first one will be default.
 
-\section dialog_helper__result Create Dialog and Get Result
+\section windows__dialog__result Create Dialog and Get Result
 
 Finally, we can call file dialog functions by we initialized FileDialog
 
 \code
-YYCC::yycc_u8string single_selection;
-std::vector<YYCC::yycc_u8string> multiple_selection;
-
-YYCC::DialogHelper::OpenFileDialog(params, single_selection);
-YYCC::DialogHelper::OpenMultipleFileDialog(params, multiple_selection);
-YYCC::DialogHelper::SaveFileDialog(params, single_selection);
-YYCC::DialogHelper::OpenFolderDialog(params, single_selection);
+auto result1 = open_file(params);
+auto result2 = open_files(params);
+auto result3 = save_file(params);
+auto result4 = open_folder(params);
 \endcode
 
 There are 4 file dialogs you can choose:
 
-\li #OpenFileDialog:  Open single file
-\li #OpenMultipleFileDialog: Open multiple files
-\li #SaveFileDialog: Save single file
-\li #OpenFolderDialog: Open single directory
+\li #open_file:  Open single file
+\li #open_files: Open multiple files
+\li #save_file: Save single file
+\li #open_folder: Open single directory
 
-\subsection dialog_helper__result__arguments Arguments
+\subsection windows__dialog__result__arguments Arguments
 
-Among these 4 functions, the first argument always is the reference to FileDialog.
-Function will use it to decide what should be shown in this file dialog.
+Among these 4 functions, the only argument is the reference to FileDialog.
+Function will use it to decide what would be shown in this file dialog.
 
-The second argument always is the reference to the container receiving the result.
-For single selection, the return type is \c yycc_u8string.
-For multiple selection, the return type is a list of strings: \c std::vector<yycc_u8string>.
+\subsection windows__dialog__result__return_value Return Value
 
-\subsection dialog_helper__result__return_value Return Value
+Please note these 4 functions will return a dialog specified result type as their return value.
+If this result type is an error, it means that an error occurred during execution.
+Otherwise, there is an optional value inside this result type.
+If user click Cancel button, this optional value will be empty.
+otherwise, this optional value will hold user selected a file or directory.
 
-Please note among these 4 functions will return a bool as its return value to indicate the success of function.
-If they return false, it means that the execution of functions are failed or user click Cancel button.
-In this case, there is no guaranteen to the content of second argument (the real return value).
-
-\section dialog_helper__notes Notes
+\section windows__dialog__notes Notes
 
 You may notice there are various classes which we never introduce.
 Because they are intermediate classes and should not be used by programmer.

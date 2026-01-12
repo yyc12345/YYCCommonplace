@@ -16,7 +16,7 @@ namespace yycctest::windows::dialog {
 
         // Prepare parameters
         DIALOG::FileDialog params;
-        auto& filters = params.configre_file_types();
+        auto& filters = params.configure_file_types();
         filters.add_filter(u8"Microsoft Word (*.docx; *.doc)", {u8"*.docx", u8"*.doc"});
         filters.add_filter(u8"Microsoft Excel (*.xlsx; *.xls)", {u8"*.xlsx", u8"*.xls"});
         filters.add_filter(u8"Microsoft PowerPoint (*.pptx; *.ppt)", {u8"*.pptx", u8"*.ppt"});
