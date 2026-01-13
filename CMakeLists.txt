@@ -37,6 +37,10 @@ endif ()
 if (YYCC_BUILD_BENCHMARK)
     find_package(benchmark REQUIRED)
 endif ()
+# Doxygen is required if we build doc
+if (YYCC_BUILD_DOC)
+    find_package(Doxygen REQUIRED)
+endif ()
 # Iconv is required if we are not in Windows or user request it
 if (YYCC_ENFORCE_ICONV OR (NOT WIN32))
     find_package(Iconv REQUIRED)
