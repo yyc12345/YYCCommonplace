@@ -1,0 +1,15 @@
+namespace yycc::windows::winfct {
+/**
+
+\page windows__winfct Windows Function Helper
+
+Namespace yycc::windows::winfct gives a more convenient way to call Windows functions.
+If you want to know how to use these functions, please read the documentation of each function.
+The return value of most functions is a specific result type.
+If any error occurs, the result type will be an error, otherwise it will be the true result.
+
+This namespace is Windows specific.
+It will be entirely invisible in other platforms.
+
+*/
+}

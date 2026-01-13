@@ -45,25 +45,26 @@
 
     \li \subpage patch
 
-    <!--
-    \li \subpage encoding_helper
-
-    \li \subpage console_helper
-
-    -->
-
-    <!--
-    \li \subpage constraints
-
-    \li \subpage config_manager
-
-    \li \subpage arg_parser
-    -->
-
   </TD>
   <TD ALIGN="LEFT" VALIGN="TOP">
 
     <B>Advanced Features (Carton)</B>
+
+    <!--
+    
+    \li \subpage constraints
+
+    \li \subpage encoding_helper
+
+    \li \subpage console_helper
+
+    \li \subpage config_manager
+
+    \li \subpage arg_parser
+
+    \li \subpage exception_helper
+
+    -->
 
     <B>Windows Specific Features</B>
 
@@ -73,11 +74,7 @@
 
     \li \subpage windows__dialog
 
-    <!--
-    \li \subpage win_fct_helper
-
-    \li \subpage exception_helper
-    -->
+    \li \subpage windows__winfct
 
   </TD>
 </TR>
