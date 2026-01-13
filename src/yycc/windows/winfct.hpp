@@ -49,7 +49,6 @@ namespace yycc::windows::winfct {
 	 * @param[in] hModule 
 	 * The HANDLE to the module where you want to get file name.
 	 * It is same as the HANDLE parameter of Win32 \c GetModuleFileName.
-	 * @param[out] ret The variable receiving UTF8 encoded file name of given module.
 	 * @return Fetched UTF8 encoded file name of given module, or error occurs.
 	*/
     WinFctResult<std::u8string> get_module_file_name(HINSTANCE hModule);
@@ -101,10 +100,9 @@ namespace yycc::windows::winfct {
     };
 
     /**
-     * @brief Get the path to \%LOCALAPPDATA\%.
-     * @details \%LOCALAPPDATA\% usually was used as putting local app data files
-     * @param[out] ret The variable receiving UTF8 encoded path to LOCALAPPDATA.
-     * @return True if success, otherwise false.
+     * @brief Get the path to known directory in Windows.
+	 * @param[in] path_type The type of known directory.
+     * @return The result type containing either fetched path, or error occurs.
     */
     WinFctResult<std::u8string> get_known_path(KnownDirectory path_type);
 

@@ -23,7 +23,7 @@
  * @brief The namespace providing Windows universal dialog features.
  * @details
  * This namespace only available on Windows platform.
- * See also \ref dialog_helper.
+ * See also \ref windows__dialog.
 */
 namespace yycc::windows::dialog {
 
@@ -194,7 +194,7 @@ namespace yycc::windows::dialog {
      * @brief The class representing the file dialog.
      * @details 
      * This class is served for programming using to describe every aspectes of the dialog.
-     * For how to use this struct, see \ref dialog_helper.
+     * For how to use this struct, see \ref windows__dialog.
     */
     class FileDialog {
     public:
