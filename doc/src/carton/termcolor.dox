@@ -1,0 +1,121 @@
+namespace yycc::carton::termcolor {
+/**
+
+\page termcolor Terminal Color Utilities
+
+This namespace provides functions to generate ANSI escape sequence for terminal font color and style.
+It also provides functions to add color and style for given string with ANSI Escape Sequence.
+
+Supported color is limited in 16 colors,
+because these color is implemented by ASCII Escape Code: https://en.wikipedia.org/wiki/ANSI_escape_code .
+So if your terminal do not support this, such as default Windows terminal, or teletypewriter,
+you will see some unrecognised characters surrounding with your output.
+That's ASCII Escape Code.
+
+This namespace is basically the imitation of the Python package with same name.
+
+\section termcolor__basic_colors Basic Colors
+
+To use basic foreground and background colors:
+
+\code
+#include "yycc/carton/termcolor.hpp"
+using namespace yycc::carton::termcolor;
+
+// Print red text
+std::cout << colored(u8"Error message", Color::Red) << std::endl;
+
+// Print blue text with yellow background
+cprint(u8"Info message", Color::Blue, Color::Yellow);
+\endcode
+
+\section termcolor__light_colors Light Colors
+
+The namespace provides both standard and light versions of colors:
+
+\code
+// Standard green
+std::cout << colored(u8"Success", Color::Green) << std::endl;
+
+// Light green (brighter variant)
+std::cout << colored(u8"Notice", Color::LightGreen) << std::endl;
+\endcode
+
+\section termcolor__text_styles Text Styles
+
+Multiple text styles can be combined using bitwise operations:
+
+\code
+// Bold text
+std::cout << colored(u8"Important", Color::Red, Color::Default, Attribute::Bold) << std::endl;
+
+// Underlined text
+std::cout << colored(u8"Underlined", Color::Blue, Color::Default, Attribute::Underline) << std::endl;
+
+// Combined styles
+auto combined_style = yycc::cenum::merge(Attribute::Bold, Attribute::Italic);
+cprint(u8"Bold and italic", Color::Magenta, Color::Default, combined_style);
+\endcode
+
+\section termcolor__convenience_functions Convenience Functions
+
+Several convenience functions are available for direct printing:
+
+\code
+// Print to stdout with color
+cprint(u8"Hello World", Color::Green);
+
+// Print to stderr with color and style
+ceprint(u8"Warning", Color::Yellow, Color::Default, Attribute::Bold);
+
+// Print with line break
+cprintln(u8"Success", Color::LightGreen);
+
+// Print to stderr with line break
+ceprintln(u8"Critical Error", Color::LightRed, Color::Default, Attribute::Blink);
+\endcode
+
+\section termcolor__color_enums Available Colors
+
+Available foreground and background colors include:
+
+\li Color::Black
+\li Color::Red
+\li Color::Green
+\li Color::Yellow
+\li Color::Blue
+\li Color::Magenta
+\li Color::Cyan
+\li Color::White
+\li Color::LightBlack
+\li Color::LightRed
+\li Color::LightGreen
+\li Color::LightYellow
+\li Color::LightBlue
+\li Color::LightMagenta
+\li Color::LightCyan
+\li Color::LightWhite
+\li Color::Default
+
+\section termcolor__style_enums Available Styles
+
+Available text styles include:
+
+\li Attribute::Bold
+\li Attribute::Dark
+\li Attribute::Italic
+\li Attribute::Underline
+\li Attribute::Blink
+\li Attribute::Reverse
+\li Attribute::Concealed
+\li Attribute::Default
+
+\section termcolor__old_macros Where is Old Macros
+
+If you have used YYCC 1.x version, you may know that these features are also presented but in a bunch of macros style.
+These macros is removed since YYCC 2.0.
+Since YYCC 2.0, we suggest you to use these new provided functions instead,
+because they are more robust and correspond with our new style of coding by \c std::format and etc.
+
+*/
+}

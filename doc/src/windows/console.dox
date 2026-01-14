@@ -1,0 +1,23 @@
+namespace yycc::windows::console {
+/**
+
+\page windows__console Windows Console Helper
+
+Namespace yycc::windows::console is designed to resolve some issue of Windows console
+which is not corresponding to POSIX system console.
+This namespace also is only available on Windows platform.
+
+Currently this namespace only has one function: colorful_console(),
+which enable colorful console output support for \c stdout and \c stderr in Windows.
+As we introduced, you may know Windows console does not support ASCII Escape Code color in default.
+This function can fix this issue.
+This function will forcely enable ASCII Escape Code support in Windows console if possible.
+Thus you can write colorful text in Windows console freely.
+We suggest you to call this function at the beginning of program.
+
+Considering most Linux console supports ASCII Escape Code very well,
+this function isn't presented in non-Windows platform.
+So it is essential that brack this function calling with Windows-only \c \#if.
+
+*/
+}

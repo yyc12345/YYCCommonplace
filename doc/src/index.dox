@@ -50,6 +50,8 @@
 
     <B>Advanced Features (Carton)</B>
 
+    \li \subpage termcolor
+
     <!--
     
     \li \subpage constraints
@@ -75,6 +77,8 @@
     \li \subpage windows__dialog
 
     \li \subpage windows__winfct
+
+    \li \subpage windows__console
 
   </TD>
 </TR>
