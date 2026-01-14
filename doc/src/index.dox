@@ -52,13 +52,13 @@
 
     \li \subpage termcolor
 
+    \li \subpage csconsole
+
     <!--
     
     \li \subpage constraints
 
     \li \subpage encoding_helper
-
-    \li \subpage console_helper
 
     \li \subpage config_manager
 

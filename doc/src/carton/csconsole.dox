@@ -1,0 +1,74 @@
+namespace YYCC::ConsoleHelper {
+/**
+
+\page csconsole Universal IO Function
+
+This namespace provide universal console IO function which is more like C\# provided,
+because Windows is lacking in UTF8 console IO.
+
+\section csconsole__deprecation Deprecation Notes
+
+This namespace, or thie module is deprecated.
+It provided functions are too aggressive and can not cover all use scenarios.
+So it is suggested not to use this namespace.
+Programmers should handle Windows UTF8 issues on their own.
+
+\section csconsole__why Why?
+
+Windows console doesn't support UTF8 very well.
+The standard input output functions can not work properly with UTF8 on Windows.
+So we create this namespace and provide various console-related functions
+to patch Windows console and let it more like the console in other platforms.
+
+The function provided in this function can be called in any platforms.
+In Windows, the implementation will use Windows native function,
+and in other platform, the implementation will redirect request to standard C function like \c std::fputs and etc.
+So the programmer do not need to be worried about which function should they use,
+and don't need to use macro to use different IO function in different platforms.
+It is just enough that fully use the functions provided in this namespace.
+
+All IO functions this namespace provided are UTF8-based.
+It also means that input output string should always be UTF8 encoded.
+
+\section csconsole__input Input Functions
+
+Please note that EOL will automatically converted into LF on Windows platform, not CRLF.
+This action actually is removing all CR chars in result string.
+This behavior affect nothing in most cases but it still is possible break something in some special case.
+
+Due to implementation, if you decide to use this function,
+you should give up using any other function to read stdin stream,
+such as \c std::gets() and \c std::cin.
+Because this function may read chars which is more than needed.
+These extra chars will be stored in this function and can be used next calling.
+But these chars can not be visited by stdin again.
+This behavior may cause bug.
+So if you decide using this function, stick on it and do not change.
+
+Due to implementation, this function do not support hot switch of stdin.
+It means that stdin can be redirected before first calling of this function,
+but it should not be redirected during program running.
+The reason is the same one introduced above.
+
+\section csconsole__output Output Functions
+
+In current implementation, EOL will not be converted automatically to CRLF.
+This is different with other stream read functions provided in this namespace.
+
+Comparing with other stream read functions provided in this namespace,
+stream write function support hot switch of stdout and stderr.
+Because they do not have internal buffer storing something.
+
+In this namespace, there are various stream write function.
+There is a list telling you how to choose one from them for using:
+
+\li Functions with leading "e" (like eformat, ewrite) will write data into stderr,
+otherwise they will write data into stdout.
+\li Functions with embedded "format" (format, format_line, eformat, eformat_line) are output functions with format feature like \c std::fprintf(), 
+otherwise the functions with embedded "write" in the name (write, write_line, ewrite, ewrite_line) will only write plain string like \c std::fputs().
+\li Functions with trailing "line" (format_line, write_line, eformat_line, ewrite_line) will write extra EOL to break current line.
+This is commonly used, otherwise functions will only write the text provided by arguments,
+without adding something.
+
+*/
+}
