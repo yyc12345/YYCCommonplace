@@ -1,0 +1,202 @@
+namespace yycc::carton::pycodec {
+/**
+\page pycodec Unified Codec (Python-like Codec)
+
+\section pycodec__overview Overview
+
+The unified encoding conversion module provides a consistent interface for character encoding conversion across different platforms. 
+It automatically selects the appropriate backend implementation based on the platform and available features.
+
+\section pycodec__classes Available Classes
+
+\subsection pycodec__classes__char Character to/from UTF-8 Conversion
+
+Convert between named encodings and UTF-8 using a unified interface:
+
+\code
+#include <yycc/carton/pycodec.hpp>
+
+// Example: Converting from a named encoding to UTF-8
+CharToUtf8 converter("GBK");  // or "ISO-8859-1", "SHIFT-JIS", etc.
+
+std::string gbk_text = "你好，世界！";
+auto result = converter.to_utf8(gbk_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting from UTF-8 to a named encoding
+Utf8ToChar converter("GBK");
+
+std::u8string utf8_text = u8"Hello, 世界!";
+auto result = converter.to_char(utf8_text);
+if (result.has_value()) {
+    std::string gbk_text = result.value();
+    // Use gbk_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\subsection pycodec__classes__wchar Wide Character to/from UTF-8 Conversion
+
+Convert between wide character strings and UTF-8:
+
+\code
+#include <yycc/carton/pycodec.hpp>
+
+// Example: Converting wide character to UTF-8
+WcharToUtf8 converter;
+
+std::wstring wide_text = L"Hello, 世界!";
+auto result = converter.to_utf8(wide_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-8 to wide character
+Utf8ToWchar converter;
+
+std::u8string utf8_text = u8"Hello, 世界!";
+auto result = converter.to_wchar(utf8_text);
+if (result.has_value()) {
+    std::wstring wide_text = result.value();
+    // Use wide_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\subsection pycodec__classes__utf16_utf32 UTF-8 to/from UTF-16/UTF-32 Conversion
+
+Convert between UTF encodings:
+
+\code
+#include <yycc/carton/pycodec.hpp>
+
+// Example: Converting UTF-8 to UTF-16
+Utf8ToUtf16 converter;
+
+std::u8string utf8_text = u8"Hello, 世界!";
+auto result = converter.to_utf16(utf8_text);
+if (result.has_value()) {
+    std::u16string utf16_text = result.value();
+    // Use utf16_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-16 to UTF-8
+Utf16ToUtf8 converter;
+
+std::u16string utf16_text = u"Hello, 世界!";
+auto result = converter.to_utf8(utf16_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-8 to UTF-32
+Utf8ToUtf32 converter;
+
+std::u8string utf8_text = u8"Hello, 世界! 🌍";
+auto result = converter.to_utf32(utf8_text);
+if (result.has_value()) {
+    std::u32string utf32_text = result.value();
+    // Use utf32_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-32 to UTF-8
+Utf32ToUtf8 converter;
+
+std::u32string utf32_text = U"Hello, 世界! 🌍";
+auto result = converter.to_utf8(utf32_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\section pycodec__utility Utility Functions
+
+\subsection pycodec__utility__validation Encoding Name Validation
+
+Check if an encoding name is valid in the current environment:
+
+\code
+#include <yycc/carton/pycodec.hpp>
+
+// Example: Validating an encoding name
+bool is_valid = is_valid_encoding_name(u8"UTF-8");
+if (is_valid) {
+    std::cout << "UTF-8 is a valid encoding name\n";
+} else {
+    std::cout << "UTF-8 is not supported\n";
+}
+
+// Test another encoding
+is_valid = is_valid_encoding_name(u8"GBK");
+\endcode
+
+\section pycodec__error_handling Error Handling
+
+All functions in this module return a result containing either 
+a ConvError struct represents conversion errors, or the final converted string.
+
+\code
+#include <yycc/carton/pycodec.hpp>
+
+CharToUtf8 converter("INVALID_ENCODING_NAME");
+std::string text = "Hello";
+
+auto result = converter.to_utf8(text);
+
+if (result.has_value()) {
+    std::u8string converted = result.value();
+    // Process successfully converted string
+} else {
+    // Handle conversion failure
+    std::cout << "Conversion failed\n";
+}
+\endcode
+
+\section pycodec__backend_specifics Platform-Specific Backends
+
+For detailed information about the specific platform backends, see:
+
+\li \ref encoding__windows : Windows-specific implementation using Win32 APIs
+\li \ref encoding__iconv : Iconv-based implementation for POSIX-like systems
+
+\section pycodec__notes Notes
+
+For all supported encoding names and their aliases,
+please browse code written in <TT>script/pycodec</TT> located in our source code.
+
+Please also note that not all encoding name has implementation for all platforms.
+Some uncommon encoding names are not supported on some backend due to the limitations of the corresponding baskend.
+These also can be found in that directory introduced above.
+
+*/
+}

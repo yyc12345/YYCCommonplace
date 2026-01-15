@@ -1,0 +1,98 @@
+namespace yycc::encoding::stl {
+/**
+\page encoding__stl STL-based Codec
+
+\section encoding__stl__overview Overview
+
+The STL-based encoding conversion module provides cross-platform encoding conversion functionality using the standard library's codecvt facets.
+This module is designed to handle conversions between UTF-8, UTF-16, and UTF-32 encodings using the standard C++ locale facilities.
+
+\section encoding__stl__attentions Attentions
+
+The underlying implementation of this module is deprecated by C++ STL and may be removed in future versions of C++.
+So please use this module carefully or considering use our \ref pycodec module instead.
+
+\section encoding__stl__functions Available Functions
+
+\subsection encoding__stl__functions__utf16 UTF-8 to/from UTF-16 Conversion
+
+Convert between UTF-8 and UTF-16 encodings using standard library facilities:
+
+\code
+#include <yycc/encoding/stl.hpp>
+
+// Example: Converting UTF-8 to UTF-16
+std::u8string utf8_text = u8"Hello, 世界!";
+auto result = to_utf16(utf8_text);
+if (result.has_value()) {
+    std::u16string utf16_text = result.value();
+    // Use utf16_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-16 to UTF-8
+std::u16string utf16_text = u"Hello, 世界!";
+auto result = to_utf8(utf16_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\subsection encoding__stl__functions__utf32 UTF-8 to/from UTF-32 Conversion
+
+Convert between UTF-8 and UTF-32 encodings:
+
+\code
+#include <yycc/encoding/stl.hpp>
+
+// Example: Converting UTF-8 to UTF-32
+std::u8string utf8_text = u8"Hello, 世界! 🌍";
+auto result = to_utf32(utf8_text);
+if (result.has_value()) {
+    std::u32string utf32_text = result.value();
+    // Use utf32_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-32 to UTF-8
+std::u32string utf32_text = U"Hello, 世界! 🌍";
+auto result = to_utf8(utf32_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\section encoding__stl__error_handling Error Handling
+
+All functions in this module return a result containing either 
+a ConvError struct represents conversion errors, or the final converted string.
+
+\code
+#include <yycc/encoding/stl.hpp>
+
+std::u8string invalid_utf8 = "\xFF\xFE"; // Invalid UTF-8 sequence
+auto result = to_utf16(invalid_utf8);
+
+if (result.has_value()) {
+    std::u16string converted = result.value();
+    // Process successfully converted string
+} else {
+    // Handle conversion failure
+    std::cout << "Conversion failed\n";
+}
+\endcode
+
+*/
+}

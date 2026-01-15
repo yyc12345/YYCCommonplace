@@ -1,0 +1,166 @@
+namespace yycc::encoding::iconv {
+/**
+\page encoding__iconv Iconv-based Codec
+
+\section encoding__iconv__overview Overview
+
+The Iconv-based encoding conversion module provides encoding conversion functionality using the iconv library. 
+This module is available when you are in POSIX system, or enable iconv support manually when configuring the library.
+
+\section encoding__iconv__classes Available Classes
+
+\subsection encoding__iconv__classes__char Char to/from UTF-8 Conversion
+
+Convert between character encodings and UTF-8:
+
+\code
+#include <yycc/encoding/iconv.hpp>
+
+// Example: Creating a converter from Latin-1 to UTF-8
+CharToUtf8 converter("ISO-8859-1");
+
+std::string latin1_text = "Café résumé naïve";
+auto result = converter.to_utf8(latin1_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Creating a converter from UTF-8 to Latin-1
+Utf8ToChar converter("ISO-8859-1");
+
+std::u8string utf8_text = u8"Café résumé naïve";
+auto result = converter.to_char(utf8_text);
+if (result.has_value()) {
+    std::string latin1_text = result.value();
+    // Use latin1_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\subsection encoding__iconv__classes__wchar WChar to/from UTF-8 Conversion
+
+Convert between wide character and UTF-8:
+
+\code
+#include <yycc/encoding/iconv.hpp>
+
+// Example: Converting wide character to UTF-8
+WcharToUtf8 converter;
+
+std::wstring wide_text = L"Hello, 世界!";
+auto result = converter.to_utf8(wide_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-8 to wide character
+Utf8ToWchar converter;
+
+std::u8string utf8_text = u8"Hello, 世界!";
+auto result = converter.to_wchar(utf8_text);
+if (result.has_value()) {
+    std::wstring wide_text = result.value();
+    // Use wide_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\subsection encoding__iconv__classes__utf16_utf32 UTF-8 to/from UTF-16/UTF-32 Conversion
+
+Convert between UTF encodings:
+
+\code
+#include <yycc/encoding/iconv.hpp>
+
+// Example: Converting UTF-8 to UTF-16
+Utf8ToUtf16 converter;
+
+std::u8string utf8_text = u8"Hello, 世界!";
+auto result = converter.to_utf16(utf8_text);
+if (result.has_value()) {
+    std::u16string utf16_text = result.value();
+    // Use utf16_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-16 to UTF-8
+Utf16ToUtf8 converter;
+
+std::u16string utf16_text = u"Hello, 世界!";
+auto result = converter.to_utf8(utf16_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-8 to UTF-32
+Utf8ToUtf32 converter;
+
+std::u8string utf8_text = u8"Hello, 世界! 🌍";
+auto result = converter.to_utf32(utf8_text);
+if (result.has_value()) {
+    std::u32string utf32_text = result.value();
+    // Use utf32_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-32 to UTF-8
+Utf32ToUtf8 converter;
+
+std::u32string utf32_text = U"Hello, 世界! 🌍";
+auto result = converter.to_utf8(utf32_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\section encoding__iconv__error_handling Error Handling
+
+All functions in this module return a result containing either 
+a ConvError struct represents conversion errors, or the final converted string.
+
+\code
+#include <yycc/encoding/iconv.hpp>
+
+CharToUtf8 converter("INVALID_ENCODING");
+// Note: Constructor errors might be detected during conversion
+
+std::string text = "Hello";
+auto result = converter.to_utf8(text);
+
+if (result.has_value()) {
+    std::u8string converted = result.value();
+    // Process successfully converted string
+} else {
+    // Handle conversion failure
+    std::cout << "Conversion failed\n";
+}
+\endcode
+
+*/
+}

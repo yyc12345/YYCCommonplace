@@ -45,6 +45,16 @@
 
     \li \subpage patch
 
+    <B>Text Encoding</B>
+
+    \li \subpage encoding__stl
+
+    \li \subpage encoding__windows
+
+    \li \subpage encoding__iconv
+
+    \li \subpage pycodec
+
   </TD>
   <TD ALIGN="LEFT" VALIGN="TOP">
 

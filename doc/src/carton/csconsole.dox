@@ -1,4 +1,4 @@
-namespace YYCC::ConsoleHelper {
+namespace yycc::carton::csconsole {
 /**
 
 \page csconsole Universal IO Function
@@ -8,8 +8,8 @@ because Windows is lacking in UTF8 console IO.
 
 \section csconsole__deprecation Deprecation Notes
 
-This namespace, or thie module is deprecated.
-It provided functions are too aggressive and can not cover all use scenarios.
+This namespace, or this module is deprecated.
+Its provided functions are too aggressive and can not cover all use scenarios.
 So it is suggested not to use this namespace.
 Programmers should handle Windows UTF8 issues on their own.
 

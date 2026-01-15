@@ -1,0 +1,191 @@
+namespace yycc::encoding::windows {
+/**
+\page encoding__windows Win32-based Codec
+
+\section encoding__windows__overview Overview
+
+The Windows-specific encoding conversion module provides encoding conversion functionality 
+using Windows API functions such as `WideCharToMultiByte` and `MultiByteToWideChar`. 
+This module is available only on Windows platforms and offers efficient conversion 
+between various character encodings including wide character, multi-byte, and UTF-8.
+
+\section encoding__windows__functions Available Functions
+
+\subsection encoding__windows__functions__wchar Wide Character to/from Multi-byte Conversion
+
+Convert between wide character strings and multi-byte strings using Windows code pages:
+
+\code
+#include <yycc/encoding/windows.hpp>
+
+// Example: Converting wide character string to multi-byte with specific code page
+std::wstring wide_text = L"Hello, 世界!";
+auto result = to_char(wide_text, CP_UTF8);  // Using UTF-8 code page
+if (result.has_value()) {
+    std::string multi_byte_text = result.value();
+    // Use multi_byte_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting multi-byte string to wide character with specific code page
+std::string multi_byte_text = "Hello, 世界!";
+auto result = to_wchar(multi_byte_text, CP_UTF8);
+if (result.has_value()) {
+    std::wstring wide_text = result.value();
+    // Use wide_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\subsection encoding__windows__functions__mbcs Multi-byte to/from Multi-byte Conversion
+
+Convert between different multi-byte encodings by using wide character as an intermediate:
+
+\code
+#include <yycc/encoding/windows.hpp>
+
+// Example: Converting between two different code pages
+std::string source_text = "Hello, world!";
+auto result = to_char(source_text, CP_ACP, CP_UTF8);  // ANSI to UTF-8
+if (result.has_value()) {
+    std::string utf8_text = result.value();
+    // Use converted UTF-8 text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\subsection encoding__windows__functions__utf8 UTF-8 Specific Conversions
+
+Specialized functions for UTF-8 conversion without requiring explicit code page specification:
+
+\code
+#include <yycc/encoding/windows.hpp>
+
+// Example: Converting wide character to UTF-8
+std::wstring wide_text = L"Hello, 世界!";
+auto result = to_utf8(wide_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-8 to wide character
+std::u8string utf8_text = u8"Hello, 世界!";
+auto result = to_wchar(utf8_text);
+if (result.has_value()) {
+    std::wstring wide_text = result.value();
+    // Use wide_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting multi-byte to UTF-8
+std::string multi_byte_text = "Hello, world!";
+auto result = to_utf8(multi_byte_text, CP_ACP);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-8 to multi-byte
+std::u8string utf8_text = u8"Hello, world!";
+auto result = to_char(utf8_text, CP_ACP);
+if (result.has_value()) {
+    std::string multi_byte_text = result.value();
+    // Use multi_byte_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\subsection encoding__windows__functions__utf16_utf32 UTF-8 to/from UTF-16/UTF-32 Conversion
+
+Available on Windows with Microsoft STL for conversion between UTF encodings:
+
+\code
+#include <yycc/encoding/windows.hpp>
+
+// Example: Converting UTF-8 to UTF-16
+std::u8string utf8_text = u8"Hello, 世界!";
+auto result = to_utf16(utf8_text);
+if (result.has_value()) {
+    std::u16string utf16_text = result.value();
+    // Use utf16_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-16 to UTF-8
+std::u16string utf16_text = u"Hello, 世界!";
+auto result = to_utf8(utf16_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-8 to UTF-32
+std::u8string utf8_text = u8"Hello, 世界! 🌍";
+auto result = to_utf32(utf8_text);
+if (result.has_value()) {
+    std::u32string utf32_text = result.value();
+    // Use utf32_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\code
+// Example: Converting UTF-32 to UTF-8
+std::u32string utf32_text = U"Hello, 世界! 🌍";
+auto result = to_utf8(utf32_text);
+if (result.has_value()) {
+    std::u8string utf8_text = result.value();
+    // Use utf8_text...
+} else {
+    // Handle conversion error
+}
+\endcode
+
+\section encoding__windows__error_handling Error Handling
+
+All functions in this module return a result containing either 
+a ConvError struct represents conversion errors, or the final converted string.
+
+\code
+#include <yycc/encoding/windows.hpp>
+
+std::wstring invalid_text = /* some problematic string */;
+auto result = to_char(invalid_text, CP_UTF8);
+
+if (result.has_value()) {
+    std::string converted = result.value();
+    // Process successfully converted string
+} else {
+    // Handle conversion failure
+    std::cout << "Conversion failed\n";
+}
+\endcode
+
+*/
+}
