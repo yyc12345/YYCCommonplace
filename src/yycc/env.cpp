@@ -8,6 +8,7 @@
 #include <memory>
 #include <type_traits>
 #include <stdexcept>
+#include <filesystem>
 
 #if defined(YYCC_OS_WINDOWS)
 #include "encoding/windows.hpp"
@@ -241,84 +242,6 @@ namespace yycc::env {
         return std::filesystem::current_path();
     }
 
-#if defined(YYCC_OS_LINUX)
-
-    /// @brief All possible error occurs when reading Linux symlink target.
-    enum class ReadSymlinkTargetError {
-        SysCall,   ///< Fail to call system call.
-        Truncated, ///< Expected path to target was truncated.
-        Others,    ///< Any other errors
-    };
-
-    /**
-     * @brief An utility function for convenient reading symlink target on Linux.
-     * @param[in] link The path to symlink where the target is read.
-     * @return The read path to to target, or error occurs.
-     */
-    static std::expected<std::u8string, ReadSymlinkTargetError> read_symlink_target(const std::string_view &link) {
-        // Reference: https://www.man7.org/linux/man-pages/man2/readlink.2.html
-
-        // String view is not NUL terminated.
-        // Create an string container for it.
-        std::string path(link);
-
-        // Get the expected size.
-        // Query this symlink info first.
-        struct stat sb;
-        if (lstat(path.c_str(), &sb) != 0) {
-            return std::unexpected(ReadSymlinkTargetError::SysCall);
-        }
-        // Fetch the size of target path in gotten struct.
-        // And cast it into expected type.
-        auto expected_size = SAFECAST::try_to<size_t>(sb.st_size);
-        if (!expected_size.has_value()) {
-            return std::unexpected(ReadSymlinkTargetError::Others);
-        }
-        auto buf_size = expected_size.value();
-        // Some magic symlinks under (for example) /proc and /sys report 'st_size' as zero.
-        // In that case, take PATH_MAX as a "good enough" estimate.
-        if (buf_size == 0) {
-            buf_size = PATH_MAX;
-        }
-
-        // Prepare return value and allocate it with previous gotten size.
-        std::u8string rv(u8'\0', buf_size);
-
-        // Copy data into result value.
-        // Add one to the link size, so that we can determine whether
-        // the buffer returned by readlink() was truncated.
-        // Also, due to the add operation, we need do overflow checks.
-        auto passed_size = SAFEOP::checked_add<size_t>(buf_size, 1);
-        if (!passed_size.has_value()) {
-            return std::unexpected(ReadSymlinkTargetError::Others);
-        }
-        // Read data into result value.
-        ssize_t nbytes = readlink(path.c_str(), REINTERPRET::as_ordinary(rv.data()), passed_size.value());
-        if (nbytes < 0) {
-            return std::unexpected(ReadSymlinkTargetError::SysCall);
-        }
-
-        // Check written size
-        // Cast it type into expected type.
-        auto written_size = SAFECAST::try_to<size_t>(nbytes);
-        if (!written_size.has_value()) {
-            return std::unexpected(ReadSymlinkTargetError::Others);
-        }
-        // If the return value was equal to the buffer size, then
-        // the link target was larger than expected (perhaps because the
-        // target was changed between the call to lstat() and the call to
-        // readlink()). Return error instead.
-        if (written_size.value() != buf_size) {
-            // TODO: There must be a better solution to this truncated issue than simply return error.
-            return std::unexpected(ReadSymlinkTargetError::Truncated);
-        }
-
-        // Everything is okey
-        return rv;
-    }
-
-#endif
-
     PathResult<std::filesystem::path> current_exe() {
         std::u8string rv;
 
@@ -328,9 +251,10 @@ namespace yycc::env {
         else return std::unexpected(PathError::SysCall);
 #elif defined(YYCC_OS_LINUX)
         // Reference: https://www.man7.org/linux/man-pages/man5/proc_pid_exe.5.html
-        auto target = read_symlink_target("/proc/self/exe");
-        if (target.has_value()) return rv = std::move(target.value());
-        else return std::unexpected(PathError::SysCall);
+        std::error_code ec;
+        auto target = std::filesystem::read_symlink(std::filesystem::path("/proc/self/exe"), ec);
+        if (ec) return std::unexpected(PathError::SysCall);
+        else rv = REINTERPRET::as_utf8(target.string());
 #elif defined(YYCC_OS_MACOS)
         // TODO: This is AI generated and don't have test and reference.
         std::string buffer(PATH_MAX, '\0');
@@ -437,10 +361,10 @@ namespace yycc::env {
             while (true) {
                 // We use NUL as delimiter
                 std::getline(cmdline, arg, '\0');
+                // Check whether we reach EOF
+                if (cmdline.eof()) break;
                 // Check whether reading is okey.
-                if (!cmdline.good()) return std::unexpected(ArgError::Others);
-                // If return string is empty, it means that we reach the tail.
-                if (arg.empty()) break;
+                if (cmdline.fail()) return std::unexpected(ArgError::Others);
 
                 // Push this argument into result.
                 rv.emplace_back(REINTERPRET::as_utf8(arg));
