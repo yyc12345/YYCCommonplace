@@ -43,6 +43,12 @@
 
     \li \subpage num__parser
 
+    \li \subpage num__op
+
+    \li \subpage num__safe_cast
+
+    \li \subpage num__safe_op
+
     \li \subpage patch
 
     <B>Text Encoding</B>

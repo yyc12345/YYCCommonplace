@@ -1,0 +1,86 @@
+namespace yycc::num::safe_op {
+/**
+
+\page num__safe_op Numeric Safe Arithmetic Operations
+
+Namespace yycc::num::safe_op provides Rust-like safe arithmetic operations 
+for handling overflow, underflow, and other undefined behaviors in C++.
+
+\section num__safe_op__overview Overview
+
+Inspired by Rust's rich set of arithmetic operators, 
+this namespace provides safe arithmetic operations that handle potential overflow, underflow, and other undefined behaviors that commonly occur in C++. 
+It offers multiple strategies for handling arithmetic operations including wrapping, checked, overflowing, saturating, and strict operations.
+
+\section num__safe_op__operation_types Operation Types
+
+The namespace provides several families of arithmetic operations:
+
+\li \c wrapping_* operations: Perform arithmetic with wrapping on overflow/underflow (similar to unsigned integer behavior)
+\li \c checked_* operations: Return std::optional containing the result, or std::nullopt if overflow/underflow occurs
+\li \c overflowing_* operations: Return a pair with the result and a boolean indicating whether overflow occurred
+\li \c saturating_* operations: Clamp the result to the min/max value when overflow/underflow occurs
+\li \c strict_* operations: Throw exceptions when overflow/underflow occurs
+\li \c ordinary operations (add, sub, mul, div): Alias to wrapping operations for safe default behavior
+
+\section num__safe_op__arithmetic_functions Arithmetic Functions
+
+For each operation type, the namespace provides functions for the four basic arithmetic operations:
+\li \c _add : Addition
+\li \c _sub : Subtraction
+\li \c _mul : Multiplication
+\li \c _div : Division
+
+For example, for wrapping operations: \c wrapping_add, \c wrapping_sub, \c wrapping_mul, \c wrapping_div.
+
+\section num__safe_op__examples Examples
+
+Here are some examples showing how to use the safe arithmetic functions:
+
+\code
+#include <yycc/num/safe_op.hpp>
+#include <iostream>
+
+// Wrapping addition - wraps around on overflow
+uint8_t result1 = safe_op::wrapping_add(uint8_t(200), uint8_t(100)); // Results in 44
+
+// Checked multiplication - returns std::optional
+auto result2 = safe_op::checked_mul(int32_t(1000000), int32_t(1000000));
+if (!result2.has_value()) {
+    std::cout << "Multiplication overflowed!" << std::endl;
+} else {
+    std::cout << "Result: " << result2.value() << std::endl;
+}
+
+// Overflowing subtraction - returns pair of result and overflow flag
+auto [result3, overflowed] = safe_op::overflowing_sub(int32_t(-10), int32_t(INT32_MIN));
+if (overflowed) {
+    std::cout << "Subtraction overflowed!" << std::endl;
+}
+
+// Saturating multiplication - clamps to min/max on overflow
+int32_t result4 = safe_op::saturating_mul(int32_t(1000000), int32_t(1000000)); // Clamps to INT32_MAX
+
+// Ordinary operations - safe defaults without undefined behavior
+int32_t result5 = safe_op::add(int32_t(10), int32_t(20)); // 30
+\endcode
+
+\section num__safe_op__undefined_behaviors Handling of Undefined Behaviors
+
+This namespace handles several undefined behaviors in C++ arithmetic:
+\li Signed integer overflow and underflow (e.g. INT_MAX + 1)
+\li Division by zero
+\li Performing INT_MIN / -1 division (which would result in a value that doesn't fit in the type)
+
+For division operations, special care is taken to handle these undefined behaviors appropriately depending on the operation type.
+
+\section num__safe_op__platform_support Platform Support
+
+The implementation uses hardware-specific overflow detection functions:
+\li GCC/Clang: Uses built-in functions like __builtin_add_overflow
+\li Windows: Uses Windows API functions from \c intsafe.h
+
+This ensures optimal performance across different platforms.
+
+*/
+}

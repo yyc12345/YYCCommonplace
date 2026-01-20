@@ -1,0 +1,30 @@
+namespace yycc::num::op {
+/**
+
+\page num__op Numeric Operations
+
+Namespace yycc::num::op provides functions for robust numeric operations inspired by Rust's approach to primitive type operations.
+
+Currently, this namespace only supports unsigned integer ceiling division, though more operations may be added in the future based on demand.
+
+\section num__op__div_ceil Ceiling Division
+
+The \c div_ceil function performs division between two unsigned integers and rounds up the result. 
+It uses a safe algorithm that avoids potential overflow issues that could occur with the traditional formula <TT>(lhs + rhs - 1) / rhs</TT>.
+
+The function computes: <TT>(lhs % rhs == 0) ? (lhs / rhs) : (lhs / rhs) + 1u</TT>
+The function prevents division by zero by checking the divisor before performing the operation and throwing a std::logic_error if the divisor is zero.
+
+Here are some examples showing how to use this function:
+
+\code
+#include <yycc/num/op.hpp>
+
+// Ceiling division examples
+uint32_t result1 = op::div_ceil(uint32_t(10), uint32_t(3)); // Results in 4
+uint32_t result2 = op::div_ceil(uint32_t(9), uint32_t(3));  // Results in 3
+uint32_t result3 = op::div_ceil(uint32_t(1), uint32_t(10)); // Results in 1
+\endcode
+
+*/
+}

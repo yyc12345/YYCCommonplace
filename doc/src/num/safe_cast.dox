@@ -1,0 +1,63 @@
+namespace yycc::num::safe_cast {
+/**
+
+\page num__safe_cast Numeric Safe Casting
+
+Namespace yycc::num::safe_cast provides functions which safely cast numeric value from one type to another.
+
+\section num__safe_cast__overview Overview
+
+When writing C++ code, casting between types with different ranges is very important 
+but greatly easy to make mistakes which finally cause fatal errors. 
+Inspired by Rust's approach to type conversion, 
+this namespace provides safe casting functions that handle potential overflow and underflow issues.
+
+\section num__safe_cast__functions Functions
+
+The namespace provides two main functions:
+\li \c to() - Direct conversion for cases where the destination type can definitely hold the source value
+which means definitely safe conversions (widening conversions).
+\li \c try_to() - Attempt conversion and return a Result type that includes error information if the conversion fails
+which means potentially risky conversions (narrowing conversions).
+
+The \c try_to function returns a \c std::expected.
+If the conversion succeeds, the result contains the converted value.
+If it fails, it contains a error info.
+
+\section num__safe_cast__examples Examples
+
+Here are some examples showing how to use the safe casting functions:
+
+\code
+#include <yycc/num/safe_cast.hpp>
+
+// Safe conversion using 'to' function
+uint32_t val1 = safe_cast::to<uint32_t>(static_cast<int16_t>(123));
+
+// Potentially risky conversion using 'try_to' function
+auto result = safe_cast::try_to<int16_t>(static_cast<int32_t>(12345));
+if (result.has_value()) {
+    auto converted = result.value();
+    // Use converted value
+} else {
+    // Handle error
+}
+\endcode
+
+\section num__safe_cast__notes Notes
+
+The safety of conversions is determined at compile time using the \c CAN_SAFE_TO meta-programming concept.
+However, for variable-length data types (like \c size_t ), the safety determination may vary across platforms,
+which could affect code portability. For this reason, it would be better to use \c try_to for these types
+for better robust application on different platforms.
+
+\section num__safe_cast__limitations Limitations
+
+This namespace supports safe casting between integral types only. 
+Currently unsupported conversions include:
+
+\li Floating-point to floating-point conversions
+\li Floating-point to integer conversions
+
+*/
+}
