@@ -1,0 +1,93 @@
+namespace yycc::carton::fft {
+/**
+
+\page fft Homemade FFT
+
+This namespace provides a fast Fourier transform (FFT) implementation for signal processing applications.
+It includes classes for performing FFT computations on complex and real-valued signals, along with
+window functions to reduce spectral leakage.
+
+\section fft__basic_usage Basic Usage
+
+To use the FFT functionality for general purposes, use the FriendlyFft class:
+
+\code
+#include "yycc/carton/fft.hpp"
+using namespace yycc::carton::fft;
+
+// Create FFT instance for 8-point transform
+FriendlyFft<size_t, float, 8u> fft;
+
+// Prepare input data (must be power of 2 in length)
+float time_scope[8] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f};
+float freq_scope[4]; // Output is half the input size
+
+// Create window function to reduce spectral leakage
+Window<size_t, float, 8u> window(WindowType::HanningWindow);
+
+// Perform FFT transformation
+fft.easy_compute(time_scope, freq_scope, window);
+
+// freq_scope now contains frequency domain data
+\endcode
+
+\section fft__window_functions Window Functions
+
+The library provides window functions to reduce spectral leakage:
+
+\code
+// Create a Hanning window for 16-point data
+Window<size_t, float, 16u> hanning_window(WindowType::HanningWindow);
+
+// Apply window to your data
+float data[16];
+// ... initialize data ...
+hanning_window.apply_window(data);
+\endcode
+
+\section fft__direct_fft Direct FFT Computation
+
+For more control over the FFT computation, use the core Fft class:
+
+\code
+#include "yycc/carton/fft.hpp"
+
+// Create FFT instance for 16-point transform
+Fft<size_t, double, 16u> fft;
+
+// Prepare complex input data
+std::complex<double> data[16];
+// ... initialize complex data ...
+
+// Perform FFT transformation
+fft.compute(data);
+// data now contains transformed values
+\endcode
+
+\section fft__predefined_types Predefined Types
+
+The library provides commonly used FFT types for convenience:
+
+\code
+// Float precision FFTs
+Fft4F fft4f;    // 4-point float FFT
+Fft8F fft8f;    // 8-point float FFT
+Fft16F fft16f;  // 16-point float FFT
+Fft256F fft256f; // 256-point float FFT
+
+// Double precision FFTs
+Fft4 fft4;      // 4-point double FFT
+Fft8 fft8;      // 8-point double FFT
+Fft16 fft16;    // 16-point double FFT
+Fft256 fft256;  // 256-point double FFT
+\endcode
+
+\section fft__requirements Requirements
+
+- Template parameters must satisfy certain constraints:
+  - \c TIndex: The index type used by FFT which must be an unsigned integral type.
+  - \c TFloat: The float point type used by FFT.
+  - \c VN: The point of FFT which must be a power of 2 and >= 2.
+
+*/
+}

@@ -1,0 +1,102 @@
+namespace yycc::carton::lexer61 {
+/**
+
+\page lexer61 Homemade Command Line Lexer
+
+This namespace provides a lexer for parsing command-line arguments, supporting various quoting mechanisms,
+escape sequences, and Unicode characters. It follows the standard shell parsing rules for handling
+arguments containing spaces and special characters.
+
+\section lexer61__basic_usage Basic Usage
+
+To parse command line arguments, create a Lexer61 instance and call the Lexer61::lex() method:
+
+\code
+#include "yycc/carton/lexer61.hpp"
+using namespace yycc::carton::lexer61;
+
+Lexer61 lexer;
+auto result = lexer.lex(u8"program arg1 arg2 arg3");
+
+if (result.has_value()) {
+    auto args = std::move(result.value());
+    // args contains: [u8"program", u8"arg1", u8"arg2", u8"arg3"]
+    for (const auto& arg : args) {
+        std::wcout << reinterpret_cast<const wchar_t*>(arg.c_str()) << std::endl;
+    }
+}
+\endcode
+
+\section lexer61__quoting_support Quoting Support
+
+The lexer supports both single and double quotes for grouping arguments with spaces:
+
+\code
+Lexer61 lexer;
+
+// Double quotes
+auto result1 = lexer.lex(u8R"(program "argument with spaces" end)");
+// Result: [u8"program", u8"argument with spaces", u8"end"]
+
+// Single quotes
+auto result2 = lexer.lex(u8"program 'another argument' end");
+// Result: [u8"program", u8"another argument", u8"end"]
+
+// Mixed quotes
+auto result3 = lexer.lex(u8R"(program "double quoted 'single inside'" 'single quoted "double inside"')");
+// Result: [u8"program", u8"double quoted 'single inside'", u8"single quoted \"double inside\""]
+\endcode
+
+\section lexer61__escape_sequences Escape Sequences
+
+The lexer supports escape sequences for including special characters:
+
+\code
+Lexer61 lexer;
+auto result = lexer.lex(u8R"(program escaped\ space "quoted with \" quote" 'single with \' quote')");
+
+// Result: [u8"program", u8"escaped space", u8"quoted with \" quote", u8"single with \' quote"]
+\endcode
+
+\section lexer61__unicode_support Unicode Support
+
+The lexer fully supports Unicode characters in command line arguments:
+
+\code
+Lexer61 lexer;
+auto result = lexer.lex(u8"程序 中文 参数");
+// Result: [u8"程序", u8"中文", u8"参数"]
+
+// With quotes
+auto result2 = lexer.lex(u8R"(程序 "中文 参数" '另一个"引号"参数')");
+// Result: [u8"程序", u8"中文 参数", u8"另一个\"引号\"参数"]
+\endcode
+
+\section lexer61__empty_arguments Empty Arguments
+
+Empty arguments can be represented with empty quotes:
+
+\code
+Lexer61 lexer;
+auto result = lexer.lex(u8R"(program "" '')");
+
+// Result: [u8"program", u8"", u8""]
+\endcode
+
+\section lexer61__error_handling Error Handling
+
+The lexer uses \c std::expected for error handling:
+
+\code
+Lexer61 lexer;
+auto result = lexer.lex(u8R"(program "unclosed quote)");
+
+if (!result.has_value()) {
+    // Handle error - in this case, unclosed quote
+    std::cerr << "Error: unclosed quote" << std::endl;
+    std::abort();
+}
+\endcode
+
+*/
+}

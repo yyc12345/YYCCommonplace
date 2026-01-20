@@ -70,6 +70,14 @@
 
     \li \subpage binstore
 
+    \li \subpage fft
+
+    \li \subpage lexer61
+
+    \li \subpage wcwidth
+
+    \li \subpage tabulate
+
     <B>Windows Specific Features</B>
 
     \li \subpage windows__import_guard

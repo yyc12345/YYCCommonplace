@@ -1,0 +1,103 @@
+namespace yycc::carton::wcwidth {
+/**
+
+\page wcwidth Cross-platform Wcwidth
+
+This namespace provides cross-platform implementations of character width calculation functions,
+similar to the Linux-specific \c wcswidth function. It supports Unicode text and ANSI escape sequences,
+making it suitable for calculating display widths of text in terminals across different platforms.
+
+\section wcwidth__basic_usage Basic Usage
+
+To calculate the display width of a string in a terminal:
+
+\code
+#include <yycc/carton/wcwidth.hpp>
+using namespace yycc::carton::wcwidth;
+
+// Calculate width of ASCII text
+size_t width1 = wcwidth(U'a');  // Returns 1
+auto width2 = wcswidth(u8"Hello");  // Returns 5
+
+// Calculate width of Unicode text
+auto width3 = wcswidth(u8"你好世界");  // Returns 8 (Chinese chars typically take 2 spaces each)
+auto width4 = wcswidth(u8"ありがとう");  // Returns 10 (Japanese katakana)
+\endcode
+
+\section wcwidth__ansi_support ANSI Escape Sequence Support
+
+The library can handle ANSI escape sequences (like color codes) in text
+which is not supported by Linux \c wcswidth.
+
+\code
+#include "yycc/carton/termcolor.hpp"
+using namespace yycc::carton::termcolor;
+
+// Calculate width of colored text
+auto colored_text = colored(u8"Hello World", Color::Red);
+auto width = wcswidth(colored_text);
+// Returns the width of "Hello World" (ignoring the ANSI escape sequences)
+\endcode
+
+\section wcwidth__error_handling Error Handling
+
+The functions use \c std::expected for error handling:
+
+\code
+#include "yycc/carton/wcwidth.hpp"
+
+// Safe way to handle potential errors
+auto result = wcswidth(u8"\033?");  // Invalid ANSI sequence
+
+if (result.has_value()) {
+    size_t width = result.value();
+    std::cout << "Width: " << width << std::endl;
+} else {
+    std::cout << "Invalid string" << std::endl;
+}
+\endcode
+
+\section wcwidth__character_types Supported Character Types
+
+The library provides two main functions:
+
+- wcwidth(): Calculate width of a single character.
+- wcswidth(): Calculate width of a string.
+
+\code
+// Using wcwidth for single characters
+size_t char_width = wcwidth(U'A');        // Returns 1
+size_t emoji_width = wcwidth(U'😀');      // Returns width of emoji
+
+// Using wcswidth for strings
+auto str_width1 = wcswidth(u8"Hello");          // Returns 5
+auto str_width2 = wcswidth(U"Unicode String");  // Returns string length in display width
+\endcode
+
+\section wcwidth__platform_differences Platform Considerations
+
+This library addresses platform differences in wide character handling:
+
+\li On Linux, \c whar_t is 4 bytes and can represent any Unicode character
+\li On Windows, \c whar_t is 2 bytes and may require surrogate pairs for some characters
+
+So this library uses \c char32_t internally to ensure consistent behavior across platforms,
+and expose functions with \c char32_t and \c char8_t string container respectively for user.
+
+\section wcwidth__unicode_support Unicode and East Asian Widths
+
+The library properly handles East Asian character widths:
+
+\code
+// Chinese characters typically occupy 2 terminal spaces
+auto chinese_width = wcswidth(u8"中文");  // Returns 4 (2 chars × 2 spaces each)
+
+// Japanese characters
+auto kana_width = wcswidth(u8"ありがとう");  // Returns 10 (5 kana × 2 spaces each)
+
+// Mixed text
+auto mixed_width = wcswidth(u8"Hello 世界");  // Returns 8 (5 ASCII + 1 space + 2 Chinese chars × 2 spaces)
+\endcode
+
+*/
+}

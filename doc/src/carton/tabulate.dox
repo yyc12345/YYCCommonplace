@@ -1,0 +1,107 @@
+namespace yycc::carton::tabulate {
+/**
+
+\page tabulate Tabulate Utilities
+
+This namespace provides utilities for creating formatted tables in console output.
+It supports Unicode text, automatic column width calculation, customizable headers,
+and flexible display options.
+
+\section tabulate__basic_usage Basic Usage
+
+To create a simple table with headers and data rows:
+
+\code
+#include "yycc/carton/tabulate.hpp"
+using namespace yycc::carton::tabulate;
+
+// Create a table with 3 columns
+Tabulate table(3);
+
+// Set the header
+table.set_header({u8"Name", u8"Age", u8"City"});
+
+// Add data rows
+table.add_row({u8"Alice", u8"30", u8"New York"});
+table.add_row({u8"Bob", u8"25", u8"Los Angeles"});
+table.add_row({u8"Charlie", u8"35", u8"Chicago"});
+
+// Print the table
+table.print();
+\endcode
+
+This will output:
+\verbatim
+Name    Age City      
+-----   --- --------- 
+Alice   30  New York  
+Bob     25  Los Angeles
+Charlie 35  Chicago   
+\endverbatim
+
+\section tabulate__customization Customization Options
+
+You can customize various aspects of the table:
+
+\code
+Tabulate table(3);
+
+// Set a custom separator bar
+table.set_bar(u8"===");
+
+// Add a prefix (useful for indentation)
+table.set_prefix(u8"> ");
+
+// Control header and bar visibility
+table.show_header(false);  // Hide header
+table.show_bar(true);      // Show separator bar
+
+// Set header
+table.set_header({u8"Col1", u8"Col2", u8"Col3"});
+
+// Add data
+table.add_row({u8"data1", u8"data2", u8"data3"});
+
+table.print();
+\endcode
+
+\section tabulate__unicode_support Unicode Support
+
+The library fully supports Unicode text in tables:
+
+\code
+Tabulate table(3);
+
+// Set Unicode header
+table.set_header({u8"姓名", u8"年龄", u8"城市"});
+
+// Add Unicode data
+table.add_row({u8"张三", u8"30", u8"北京"});
+table.add_row({u8"李四", u8"25", u8"上海"});
+
+table.print();
+\endcode
+
+\section tabulate__stream_output Stream Output
+
+You can print to any output stream, not just stdout:
+
+\code
+#include <fstream>
+
+Tabulate table(2);
+table.set_header({u8"Key", u8"Value"});
+table.add_row({u8"temp", u8"25C"});
+
+// Print to file
+std::ofstream file("table.txt");
+table.print(file);
+
+// Or print to stringstream
+std::stringstream ss;
+table.print(ss);
+std::string table_str = ss.str();
+\endcode
+
+*/
+}
