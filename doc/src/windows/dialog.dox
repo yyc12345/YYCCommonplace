@@ -133,10 +133,10 @@ auto result4 = open_folder(params);
 
 There are 4 file dialogs you can choose:
 
-\li #open_file:  Open single file
-\li #open_files: Open multiple files
-\li #save_file: Save single file
-\li #open_folder: Open single directory
+\li open_file():  Open single file
+\li open_files(): Open multiple files
+\li save_file(): Save single file
+\li open_folder(): Open single directory
 
 \subsection windows__dialog__result__arguments Arguments
 

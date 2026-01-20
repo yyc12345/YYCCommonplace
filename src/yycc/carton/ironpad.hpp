@@ -8,7 +8,7 @@
  * @details
  * This namespace is currently works on Windows.
  * On other platforms, this namespace provided functions do nothing.
- * For how to utilize this namespace, please see \ref exception_helper.
+ * For how to utilize this namespace, please see \ref ironpad.
  * 
  * This feature is originate from my created Virtools plugin.
  * Because its user frequently trigger some weird behaviors but I have no idea about the detail of them.

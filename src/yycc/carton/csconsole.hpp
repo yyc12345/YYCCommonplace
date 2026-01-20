@@ -25,7 +25,7 @@
  * \li https://stackoverflow.com/questions/45575863/how-to-print-utf-8-strings-to-stdcout-on-windows
  * \li https://stackoverflow.com/questions/69830460/reading-utf-8-input
  * 
- * For how to utilize this functions provided by this namespace, please view \ref console_helper.
+ * For how to utilize this functions provided by this namespace, please view \ref csconsole.
  * 
  * @warning
  * All functions provided by this namespace are too aggressive.

@@ -1,0 +1,187 @@
+namespace yycc::carton::clap {
+/**
+
+\page clap Command Line Argument Parser (CLAP)
+
+Command Line Argument Parser (CLAP) module for handling command line arguments and environment variables.
+This module provides a comprehensive system for defining, parsing, and validating command line
+arguments and environment variables. It includes components for defining application metadata,
+command line options, variables, and utilities for parsing and validation.
+
+\section clap__overview Overview
+
+The CLAP module consists of several key components:
+
+\li Types: Error types and result types used throughout the module
+\li Validator: Type-safe validation for command line argument values
+\li Option: Command line options with short and long names
+\li Variable: Environment variables that can be captured
+\li Summary: Application metadata (name, version, author, description)
+\li Application: Complete application definition with options and variables
+\li Manual: Help and version information generation
+\li Parser: Command line argument parsing functionality
+\li Resolver: Environment variable resolution functionality
+
+\section clap__example Example Usage
+
+Here is a complete example showing how to use the CLAP module:
+
+\code{.cpp}
+#include <yycc.hpp>
+#include <yycc/carton/clap.hpp>
+#include <yycc/patch/stream.hpp>
+#include <iostream>
+
+using namespace yycc::carton::clap;
+using namespace yycc::patch::stream;
+
+// Define an application with options and variables
+int main(int argc, char* argv[]) {
+    // Create application summary
+    auto summary = summary::Summary(u8"MyApp", u8"author", u8"1.0.0", u8"A sample application");
+    
+    // Create options collection
+    auto options = option::OptionCollection();
+    auto int_opt = options.add_option(option::Option(u8"i", u8"int", u8"NUM", u8"integral argument"));
+    auto float_opt = options.add_option(option::Option(u8"f", std::nullopt, u8"NUM", u8"floating point argument"));
+    auto string_opt = options.add_option(option::Option(std::nullopt, u8"string", u8"STR", u8"string argument"));
+    auto flag_opt = options.add_option(option::Option(u8"v", std::nullopt, std::nullopt, u8"verbose mode"));
+    
+    // Create variables collection
+    auto variables = variable::VariableCollection();
+    auto env_var = variables.add_variable(variable::Variable(u8"ENV_VAR", u8"Environment variable description", true));
+    
+    // Create the application and manual
+    auto app = application::Application(std::move(summary), std::move(options), std::move(variables));
+    auto manual = manual::Manual(app);
+    
+    // Parse command line arguments
+    auto result = parser::Parser::from_system(app);
+    if (result.has_value()) {
+        auto parser = std::move(result.value());
+        
+        // Get values using validators
+        using IntValidator = validator::IntegralValidator<int>;
+        using FloatValidator = validator::FloatingPointValidator<float>;
+        using StringValidator = validator::StringValidator;
+        
+        // Check and get integer option
+        if (auto int_val = parser.get_value_option<IntValidator>(int_opt); int_val.has_value()) {
+            std::cout << "Integer value: " << int_val.value() << std::endl;
+        }
+        
+        // Check and get float option
+        if (auto float_val = parser.get_value_option<FloatValidator>(float_opt); float_val.has_value()) {
+            std::cout << "Float value: " << float_val.value() << std::endl;
+        }
+        
+        // Check and get string option
+        if (auto str_val = parser.get_value_option<StringValidator>(string_opt); str_val.has_value()) {
+            std::cout << "String value: " << str_val.value() << std::endl;
+        }
+        
+        // Check flag option
+        if (auto flag_val = parser.get_flag_option(flag_opt); flag_val.has_value() && flag_val.value()) {
+            std::cout << "Verbose mode enabled" << std::endl;
+        }
+    } else {
+        // Print help if parsing failed
+        manual.print_help(std::cout);
+        return 1;
+    }
+    
+    return 0;
+}
+\endcode
+
+This code handles command lines like:
+\code{.sh}
+./myapp -i 123 -f 2.5 --string "hello world" -v
+\endcode
+
+\section clap__components Components
+
+\subsection clap__application Application Definition
+
+The [Application](\ref application::Application) class represents a complete command line application with its summary, options, and environment variables.
+It combines the application metadata, command line options, and environment variables into a single unit.
+
+\subsection clap__options Options
+
+[Option](\ref option::Option) is command line arguments that can accept values or act as flags. 
+They can have both short names (single character)
+and long names (full text). The [OptionCollection](\ref option::OptionCollection) manages a collection of options and ensures no duplicates.
+
+\subsection clap__variables Variables
+
+[Variable](\ref variable::Variable) represent environment variables that can be captured and validated. The [VariableCollection](\ref variable::VariableCollection)
+manages a collection of environment variables and ensures no duplicates.
+
+\subsection clap__parsing Parsing
+
+The [Parser](\ref parser::Parser) class handles command line argument parsing. It can be created from user-provided arguments
+or from system arguments (argc/argv). Values are retrieved using type-safe validators.
+
+\subsection clap__validation Validation
+
+Validators ensure type-safe validation of command line argument values.
+The module provides built-in validators for:
+
+\li Integral types ([IntegralValidator](\ref validator::IntegralValidator))
+\li Floating-point types ([FloatingPointValidator](\ref validator::FloatingPointValidator))
+\li String types ([StringValidator](\ref validator::StringValidator))
+
+For some of them, you also can specify value range via template arguments.
+
+\section clap__custom_validators Custom Validator
+
+Custom validators can be created by implementing the \c Validator concept. 
+A valid validator must satisfy the following requirements:
+
+\li Have a type alias called \c ReturnType indicating the return value type
+\li Have a member function called \c validate that receives <TT>const std::u8string_view&</TT> as its only argument 
+and returns validated \c ReturnType or \c std::nullopt if validation fails
+
+Here is an example of a custom validator that validates email addresses:
+
+\code{.cpp}
+#include <yycc/string/reinterpret.hpp>
+#include <regex>
+
+struct EmailValidator {
+    using ReturnType = std::u8string;
+    
+    std::optional<ReturnType> validate(const std::u8string_view& sv) const {
+        // Simple email validation using regex
+        static const std::regex email_regex(
+            R"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})");
+        
+        auto email_str = yycc::string::reinterpret::as_ordinary_view(sv);
+        if (std::regex_match(email_str, email_regex)) {
+            return sv;
+        }
+        return std::nullopt;
+    }
+};
+\endcode
+
+To use the custom validator:
+
+\code{.cpp}
+// Add option to application
+auto email_opt = options.add_option(option::Option(std::nullopt, u8"email", u8"EMAIL", u8"Email address"));
+
+// Use custom validator
+if (auto email_val = parser.get_value_option<EmailValidator>(email_opt); email_val.has_value()) {
+    std::cout << yycc::patch::format(u8"Valid email: {}", email_val); << std::endl;
+}
+\endcode
+
+\section clap__limitations Limitations
+
+Due to the limitations of implementation,
+CLAP now only allow only zero or one associated value for single option.
+More than one assocciated value for single option is not supported.
+
+*/
+}

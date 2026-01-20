@@ -1,30 +1,30 @@
-namespace YYCC::ExceptionHelper {
+namespace yycc::carton::ironpad {
 /**
 
-\page exception_helper Unhandled Exception Handler
+\page ironpad Unhandled Exception Handler
 
-Most Linux users are familiar with core dump.
-However core dump is a tough work on Windows especially most Windows users are naive for getting core dump.
-So it is essential to make an easy-to-visit core dump Feature for Windows program.
-YYCC provides this feature in YYCC::ExceptionHelper.
+Most Linux users are familiar with using core dump to find bugs.
+However finding bugs is a tough work on Windows especially most Windows users are naive for getting core dump.
+So it is essential to make an easy-to-visit core dump feature for Windows program.
+This is the reason why I create this module, yycc::carton::ironpad.
 
 You may know Google also has a similar and universal project called Crashpad used by Google Chrome.
 That's right. But it is too heavy.
 I just want to implement a tiny but worked core dump feature on Windows.
 
 This module is Windows specific.
-It will be invisible on other platforms.
+It still be available on other operating systems but all of its functions are do nothing.
 
-\section exception_helper__usage Usage
+\section ironpad__usage Usage
 
-\subsection exception_helper__usage__code Register Code
+\subsection ironpad__usage__code Register Code
 
-In most scenarios, programmer only need call #Register when program started or module loaded.
-And call #Unregister when program exited or module unloaded.
+In most scenarios, programmer only need call #startup when program started or module loaded.
+And call #shutdown when program exited or module unloaded.
 All details are hidden by these 2 feature.
 Programmer do not need worried about the implementation of unhandled exception handler.
 
-Optionally, you can provide a function pointer during calling #Register as a callback.
+Optionally, you can provide a function pointer during calling #startup as a callback.
 The prototype of this function pointer is #ExceptionCallback.
 This callback will be called if any unhandled exception happened.
 It provides 2 pathes to log file and core dump file respectively.
@@ -35,21 +35,21 @@ However, please note the pathes provided by callback may be empty.
 In this case, it means that handler fail to create corresponding log files.
 Also, if you trying to register unhandled exception handler on the same process in different module with different callback,
 only the callback provided in first success registering will be called when unhandled exception happened,
-due to \ref exception_helper__notes__singleton design.
+due to \ref ironpad__notes__singleton design.
 
-\subsection exception_helper__usage__location Location
+\subsection ironpad__usage__location Location
 
 When unhandled exception occurs, 
 unhandled exception handler will try to record error log and core dump in following path:
 
-\li Error Log: <TT>\%LOCALAPPDATA\%\\CrashDumps\\<I>program.exe</I>.<I>pid</I>.log</TT>
-\li Core Dump: <TT>\%LOCALAPPDATA\%\\CrashDumps\\<I>program.exe</I>.<I>pid</I>.dmp</TT>
+\li Error Log: <TT>\%LOCALAPPDATA\%\\IronPad\\<I>program.exe</I>.<I>pid</I>.log</TT>
+\li Core Dump: <TT>\%LOCALAPPDATA\%\\IronPad\\<I>program.exe</I>.<I>pid</I>.dmp</TT>
 
 The italic characters <I>program.exe</I> and <I>pid</I> will be replaced by program name and process ID respectively at runtime.
-Directory <TT>\%LOCALAPPDATA\%\\CrashDumps</TT> also is Windows used crash dump directory.
-So you may see some other core dumps done by Windows in it.
+Directory <TT>\%LOCALAPPDATA\%\\IronPad</TT> is the dedicated directory for this module.
+So you may see the generated logs and dumps in it.
 
-\subsection exception_helper__usage__last_remedy Last Remedy
+\subsection ironpad__usage__last_remedy Last Remedy
 
 If unhandled exception handler occurs error, these stuff may not be generated correctly.
 The end user may not find them and send them to you.
@@ -65,40 +65,40 @@ Also please note the last remedy may still have a little bit possibility to occu
 especially the error occurs in back trace function.
 There is no guaranteen that unhandled exception handler must generate error log and core dump.
 
-\section exception_helper__notes Notes
+\section ironpad__notes Notes
 
-\subsection exception_helper__notes__thread_safe Thread Safe
+\subsection ironpad__notes__thread_safe Thread Safe
 
-All exposed functions in YYCC::ExceptionHelper are thread safe.
-The implementation uses \c std:mutex to ensure this.
+All exposed functions in this namespace are thread safe.
+The implementation uses \c std::mutex to ensure this.
 
-\subsection exception_helper__notes__singleton Singleton Handler
+\subsection ironpad__notes__singleton Singleton Handler
 
-YYCC::ExceptionHelper also have a mechanism that make sure the same unhandled exception handler implementation only appear once in the same process.
+This namespace also have a mechanism that make sure the same unhandled exception handler implementation only appear once in the same process.
 For example, you have an executable program A.exe, and 2 dynamic libraries B.dll and C.dll.
 A.exe and B.dll use YYCC unhandled exception handler feature but C.dll not.
 A.exe will load B.dll and C.dll at runtime.
-Although both A.exe and B.dll call #Register,
+Although both A.exe and B.dll call #startup,
 when unhandled exception occurs, there is only one error report output, 
 which may be generated by A.exe or B.dll accoridng to their order of loading.
 
 The core purpose of this is making sure the program will not output too many error report for the same unhandled exception,
-no matter how many modules calling #Register are loaded.
+no matter how many modules calling #startup are loaded.
 Only one error report is enough.
 
 More precisely, we use \c CreateMutexW to create an unique mutex in Windows global scope,
-to make sure #Register only run once in the same process.
+to make sure #startup only run once in the same process.
 It is very like the implementation of singleton application.
 
-\subsection exception_helper__notes__recursive_calling Recursive Calling
+\subsection ironpad__notes__recursive_calling Recursive Calling
 
 The implementation of unhandled exception handler may also will throw exception.
 This will cause infinite recursive calling.
-YYCC::ExceptionHelper has internal mechanism to prevent this bad case.
+This namespace has internal mechanism to prevent this bad case.
 If this really happened, the handler will quit silent and will not cause any issue.
 Programmer don't need to worry about this.
 
-\subsection exception_helper__notes__user_callback The Timing of User Callback
+\subsection ironpad__notes__user_callback The Timing of User Callback
 
 The timing of calling user callback is the tail of unhandled exception handler.
 It means that all log and coredump have been written if possible before calling callback.

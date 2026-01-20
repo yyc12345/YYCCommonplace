@@ -1,0 +1,208 @@
+namespace yycc::carton::binstore {
+/**
+
+\page binstore Binary Settings Storage (Binstore)
+
+The binstore module provides a binary settings storage system that allows
+applications to persistently store and retrieve configuration settings in
+a binary format. It includes functionality for type-safe serialization and deserialization,
+setting management with unique tokens for access control, version control with migration strategies,
+and comprehensive error handling.
+
+\section binstore__overview Overview
+
+The binstore module consists of several key components:
+
+\li types: Basic types and error handling for the module
+\li serdes: Serialization/deserialization functionality for different data types
+\li setting: Management of settings with name-based lookup and token-based access
+\li configuration: Version and settings collection management
+\li storage: Main storage class for loading/saving settings to/from files or streams
+
+\section binstore__example Example Usage
+
+Here is a complete example showing how to use the binstore module:
+
+\code{.cpp}
+#include <yycc.hpp>
+#include <yycc/carton/binstore.hpp>
+#include <yycc/patch/stream.hpp>
+#include <iostream>
+#include <fstream>
+
+using namespace yycc::carton::binstore;
+using namespace yycc::patch::stream;
+
+enum class LogLevel : uint8_t { Debug, Info, Warning, Error };
+
+int main() {
+    // Create settings collection
+    auto settings = setting::SettingCollection();
+    auto int_setting_token = settings.add_setting(setting::Setting(u8"max_connections"));
+    auto float_setting_token = settings.add_setting(setting::Setting(u8"timeout"));
+    auto string_setting_token = settings.add_setting(setting::Setting(u8"server_address"));
+    auto bool_setting_token = settings.add_setting(setting::Setting(u8"enable_logging"));
+    auto enum_setting_token = settings.add_setting(setting::Setting(u8"log_level"));
+    
+    // Create configuration with version 1
+    auto config = configuration::Configuration(1, std::move(settings));
+    
+    // Create storage with the configuration
+    auto storage = storage::Storage(std::move(config));
+    
+    // Using appropriate SerDes types for different data types
+    using IntSerDes = serdes::IntegralSerDes<int32_t>;
+    using FloatSerDes = serdes::FloatingPointSerDes<float>;
+    using StringSerDes = serdes::StringSerDes;
+    using BoolSerDes = serdes::BoolSerDes<true>;  // true as default value
+    using EnumSerDes = serdes::EnumSerDes<LogLevel, LogLevel::Info>;
+    
+    // Set values
+    storage.set_value<IntSerDes>(int_setting_token, 100);
+    storage.set_value<FloatSerDes>(float_setting_token, 2.5f);
+    storage.set_value<StringSerDes>(string_setting_token, u8"localhost");
+    storage.set_value<BoolSerDes>(bool_setting_token, true);
+    storage.set_value<EnumSerDes>(enum_setting_token, LogLevel::Debug);
+    
+    // Save to file
+    if (auto result = storage.save_into_file("config.bin"); result.has_value()) {
+        std::cout << "Configuration saved successfully" << std::endl;
+    } else {
+        std::cout << "Failed to save configuration" << std::endl;
+    }
+    
+    // Load from file
+    auto new_config = configuration::Configuration(1, setting::SettingCollection());
+    auto new_storage = storage::Storage(std::move(new_config));
+    
+    if (auto result = new_storage.load_from_file("config.bin", storage::LoadStrategy::MigrateOld); result.has_value()) {
+        std::cout << "Configuration loaded successfully" << std::endl;
+        
+        // Get values
+        int32_t max_conn = new_storage.get_value<IntSerDes>(int_setting_token);
+        float timeout = new_storage.get_value<FloatSerDes>(float_setting_token);
+        std::u8string addr = new_storage.get_value<StringSerDes>(string_setting_token);
+        bool logging = new_storage.get_value<BoolSerDes>(bool_setting_token);
+        LogLevel level = new_storage.get_value<EnumSerDes>(enum_setting_token);
+        
+        std::cout << "Max connections: " << max_conn << std::endl;
+        std::cout << "Timeout: " << timeout << std::endl;
+        std::cout << "Server address: " << addr << std::endl;
+        std::cout << "Logging enabled: " << (logging ? "yes" : "no") << std::endl;
+        std::cout << "Log level: " << static_cast<int>(level) << std::endl;
+    } else {
+        std::cout << "Failed to load configuration" << std::endl;
+    }
+    
+    return 0;
+}
+\endcode
+
+\section binstore__components Components
+
+\subsection binstore__settings Settings Management
+
+Settings are identified by unique names and accessed via tokens. The [SettingCollection](\ref setting::SettingCollection)
+manages a collection of settings and ensures no duplicates.
+
+\subsection binstore__configuration Configuration
+
+The [Configuration](\ref configuration::Configuration) class holds the version identifier and the collection of settings.
+Version control is crucial for handling configuration migration between application versions.
+
+\subsection binstore__storage Storage
+
+The [Storage](\ref storage::Storage) class is the main interface for setting/getting values and loading/saving configurations.
+It provides methods for both file-based and stream-based operations.
+
+\subsection binstore__serdes Serialization/Deserialization
+
+SerDes (Serializer/Deserializer) classes handle type-safe conversion between values and their binary representation.
+Built-in SerDes types include:
+
+\li Integral types ([IntegralSerDes](\ref serdes::IntegralSerDes))
+\li Floating-point types ([FloatingPointSerDes](\ref serdes::FloatingPointSerDes))
+\li String types ([StringSerDes](\ref serdes::StringSerDes))
+\li Boolean types ([BoolSerDes](\ref serdes::BoolSerDes))
+\li Enum types ([EnumSerDes](\ref serdes::EnumSerDes))
+
+For some of them, you can specify value range and default value via template parameters.
+
+\section binstore__load_strategies Load Strategies
+
+The binstore module provides different strategies for handling version mismatches:
+
+\li [OnlyCurrent](\ref storage::LoadStrategy::OnlyCurrent): Only accept configurations with matching version
+\li [MigrateOld](\ref storage::LoadStrategy::MigrateOld): Accept matching and older versions, reject newer versions
+\li [AcceptAll](\ref storage::LoadStrategy::AcceptAll): Accept all versions (not recommended for production)
+
+\section binstore__custom_serdes Custom SerDes
+
+Custom SerDes (Serializer/Deserializer) can be created by implementing the \c SerDes concept. 
+A valid SerDes must satisfy the following requirements:
+
+\li Have a type alias called \c ValueType indicating the corresponding setting type
+\li Have a member function called \c serialize that accepts a const reference of the setting data and returns \c ByteArray 
+or \c std::nullopt if serialization fails.
+\li Have a member function called \c deserialize that converts \c ByteArray to the desired type 
+or returns \c std::nullopt if deserialization fails.
+\li Have a member function called \c reset that returns a default \c ByteArray value.
+
+Here is an example of a custom SerDes for storing IPv4 addresses:
+
+\code{.cpp}
+#include <cstdint>
+#include <cstring>
+
+struct IPv4Address {
+    std::uint8_t octets[4];
+    
+    IPv4Address() : octets{0, 0, 0, 0} {}
+    IPv4Address(std::uint8_t a, std::uint8_t b, std::uint8_t c, std::uint8_t d) {
+        octets[0] = a; octets[1] = b; octets[2] = c; octets[3] = d;
+    }
+};
+
+struct IPv4SerDes {
+    using ValueType = IPv4Address;
+    static constexpr size_t VALUE_SIZE = sizeof(IPv4Address); // 4 octets
+    
+    std::optional<types::ByteArray> serialize(const ValueType& value) const {
+        types::ByteArray ba;
+        ba.resize_data(VALUE_SIZE);
+        std::memcpy(ba.get_data_ptr(), value.octets, VALUE_SIZE);
+        return ba;
+    }
+    
+    std::optional<ValueType> deserialize(const types::ByteArray& ba) const {
+        if (ba.get_data_size() != VALUE_SIZE) return std::nullopt;
+        
+        ValueType value;
+        std::memcpy(value.octets, ba.get_data_ptr(), VALUE_SIZE);
+        return value;
+    }
+    
+    types::ByteArray reset() const {
+        // Reset to local address
+        ValueType default_value(127, 0, 0, 1);
+        return this->serialize(default_value).value();
+    }
+};
+\endcode
+
+To use the custom SerDes:
+
+\code{.cpp}
+// Add setting to collection
+auto ip_setting_token = settings.add_setting(setting::Setting(u8"server_ip"));
+
+// Use custom SerDes
+IPv4SerDes ip_serdes;
+storage.set_value<IPv4SerDes>(ip_setting_token, IPv4Address(192, 168, 1, 1));
+
+// Retrieve value
+IPv4Address ip_addr = storage.get_value<IPv4SerDes>(ip_setting_token);
+\endcode
+
+*/
+}

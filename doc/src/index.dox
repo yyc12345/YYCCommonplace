@@ -64,19 +64,11 @@
 
     \li \subpage csconsole
 
-    <!--
-    
-    \li \subpage constraints
+    \li \subpage ironpad
 
-    \li \subpage encoding_helper
+    \li \subpage clap
 
-    \li \subpage config_manager
-
-    \li \subpage arg_parser
-
-    \li \subpage exception_helper
-
-    -->
+    \li \subpage binstore
 
     <B>Windows Specific Features</B>
 

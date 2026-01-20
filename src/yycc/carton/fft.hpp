@@ -248,7 +248,7 @@ namespace yycc::carton::fft {
 		 * @param[out] freq_scope The length of this data must be N / 2.
 		 * The first data is 0Hz and the frequency of last data is decided by sample rate which can be computed by get_max_freq() function in this class.
 		 * @param[in] window The window instance applied to data.
-		 * @warnings
+		 * @warning
 		 * This function is \b NOT thread-safe.
 		 * Please do NOT call this function in different thread for one instance.
 		*/
