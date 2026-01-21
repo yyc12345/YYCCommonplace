@@ -51,6 +51,10 @@
 
     \li \subpage patch
 
+    \li \subpage env
+
+    \li \subpage rust
+
     <B>Text Encoding</B>
 
     \li \subpage encoding__stl

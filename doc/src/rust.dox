@@ -1,0 +1,133 @@
+namespace yycc {
+/**
+
+\page rust Rust Facilities in C++
+
+This collection of following headers brings Rust-style programming facilities to C++. 
+
+\section rust__primitive Primitive Types
+
+The yycc::primitive namespace provides primitive types similar to Rust's approach. 
+Especially resolve the problem that the names of C++ primitive types are so long.
+
+There is an example of using primitive types:
+
+\code
+#include <yycc/primitive.hpp>
+using namespace yycc::primitive;
+
+i32 value = 42;
+u64 big_number = 1000000ULL;
+f64 precision = 3.14159265359;
+\endcode
+
+\section rust__option Option Type
+
+The yycc::option namespace reproduces Rust's Option type and its members Some and None in C++.
+Considering C++ has provide \c std::optional, this namespace provided contents are just an alias to it.
+
+\li yycc::option::Option - Template alias for std::optional
+\li yycc::option::Some - Function to create an Option with a value
+\li yycc::option::None - Function to create an empty Option
+
+There is an example of using \c Option type:
+
+\code
+#include <yycc/option.hpp>
+#include <iostream>
+
+using namespace yycc::option;
+
+Option<int> maybe_value = Some<Option<int>>(42);
+if (maybe_value.has_value()) {
+    std::cout << "Value: " << maybe_value.value() << std::endl;
+}
+
+auto empty_value = None<Option<int>>();
+if (!empty_value.has_value()) {
+    std::cout << "No value present" << std::endl;
+}
+\endcode
+
+\section rust__result Result Type
+
+The yycc::result namespace reproduces Rust's Result type and its members Ok and Err in C++. 
+Considering C++ has provide \c std::expected, this namespace provided contents are just an alias to it.
+
+\li yycc::result::Result - Template alias for std::expected
+\li yycc::result::Ok - Function to create a Result with a success value
+\li yycc::result::Err - Function to create a Result with an error value
+
+There is an example of using \c Result type:
+
+\code
+#include <yycc/result.hpp>
+#include <iostream>
+
+using namespace yycc::result;
+
+Result<int, int> divide(int a, int b) {
+    if (b == 0) {
+        return Err<Result<int, int>>(-1);  // Error code
+    }
+    return Ok<Result<int, int>>(a / b);
+}
+
+auto result = divide(10, 2);
+if (result.has_value()) {
+    std::cout << "Result: " << result.value() << std::endl;
+} else {
+    std::cout << "Error occurred: " << result.error() << std::endl;
+}
+\endcode
+
+\section rust__panic Panic Mechanism
+
+The yycc::panic namespace provides Rust-style panic functionality for immediate program termination on unrecoverable errors. 
+This imitates Rust's panic! macro behavior, allowing the program to immediately exit with error information and stack traces.
+
+\li RS_PANIC: Macro equivalent to Rust's panic! macro. 
+This macro will help you append all filename, line and function info to the real panic trigger function.
+\li yycc::panic::panic: The actual function called by the macro.
+User usually does not need to call this function directly.
+
+There is an example of using this panic mechanism:
+
+\code
+#include <yycc/panic.hpp>
+
+void critical_function(int err_code) {
+    // Some condition that indicates an unrecoverable error
+    if (err_code != 100) {
+        RS_PANIC("Unrecoverable error in critical function with code {}", err_code);
+    }
+}
+\endcode
+
+\section rust__prelude Prelude
+
+The yycc::prelude namespace provides a Rust-like prelude for C++. In Rust, types are automatically imported into all files by default.
+This default-imported set of types is called the "prelude". 
+This namespace provides a similar concept for C++.
+
+This namespace will extract following content into \b global scope:
+
+\li All primitive types defined in yycc::primitive.
+\li Vec: \c std::vector template alias.
+\li All functionality from yycc::option and yycc::result namespaces.
+\li Panic mechanism from yycc::panic.
+
+There is an example of using this header:
+
+\code
+#include <yycc/prelude.hpp>
+
+// Now all Rust-style facilities are available without prefixes:
+i32 x = 42;                    // From primitive
+Vec<i32> numbers = {1, 2, 3};  // Vector of primitive types
+auto result = Ok<Result<i32, i32>>(x);  // Result type
+RS_PANIC("Something went wrong");       // Panic macro
+\endcode
+
+*/
+}
