@@ -23,7 +23,7 @@ namespace yycc::carton::clap::option {
         Option(std::optional<std::u8string_view> short_name,
                std::optional<std::u8string_view> long_name,
                std::optional<std::u8string_view> value_hint,
-               const std::u8string& description);
+               const std::u8string_view& description);
         ~Option();
         YYCC_DEFAULT_COPY_MOVE(Option)
 

@@ -12,7 +12,7 @@ namespace yycc::carton::clap::option {
     Option::Option(std::optional<std::u8string_view> short_name,
                    std::optional<std::u8string_view> long_name,
                    std::optional<std::u8string_view> value_hint,
-                   const std::u8string& description) :
+                   const std::u8string_view& description) :
         short_name(short_name), long_name(long_name), value_hint(value_hint), description(description) {
         if (!short_name.has_value() && !long_name.has_value()) {
             throw std::logic_error("must have at least one name, short or long name");
