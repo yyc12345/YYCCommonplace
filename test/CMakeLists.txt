@@ -61,6 +61,11 @@ PRIVATE
     GTest::gtest_main
 )
 
+# Install binary
+install(TARGETS YYCCTest
+    RUNTIME DESTINATION ${YYCC_INSTALL_BIN_PATH}
+)
+
 # Discover all test
 include(GoogleTest)
 gtest_discover_tests(YYCCTest)

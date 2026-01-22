@@ -9,32 +9,44 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-    # - name: Setup Google Test and Google Benchmark
-    #   run: |
-    #     # Setup Google Test
-    #     git clone -b v1.17.0 https://github.com/google/googletest.git extern/googletest
-    #     cd extern/googletest
-    #     mkdir build install
-    #     cd build
-    #     cmake -DCMAKE_CXX_STANDARD=23 -Dgtest_force_shared_crt=ON -DCMAKE_BUILD_TYPE=Release ..
-    #     cmake --build .
-    #     cmake --install . --prefix=../install
-    #     cd ../..
-    #     # Setup Google Benchmark
-    #     git clone -b v1.9.4 https://github.com/google/benchmark.git extern/benchmark
-    #     cd extern/benchmark
-    #     # Create symlink to googletest as required by benchmark
-    #     ln -s ../googletest googletest
-    #     mkdir build install
-    #     cd build
-    #     cmake -DCMAKE_CXX_STANDARD=23 -DBENCHMARK_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
-    #     cmake --build .
-    #     cmake --install . --prefix=../install
-    #     cd ../..
+    - name: Setup Google Test and Google Benchmark
+      run: |
+        # Setup Google Test
+        git clone -b v1.17.0 https://github.com/google/googletest.git --depth 1 extern/googletest
+        cd extern/googletest
+        mkdir build install
+        cd build
+        cmake -DCMAKE_CXX_STANDARD=23 -Dgtest_force_shared_crt=ON -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build .
+        cmake --install . --prefix=../install
+        cd ..
+        cd install
+        export GTest_ROOT=$(pwd)
+        cd ../..
+        # Setup Google Benchmark
+        git clone -b v1.9.4 https://github.com/google/benchmark.git --depth 1 extern/benchmark
+        cd extern/benchmark
+        # Create symlink to googletest as required by benchmark
+        ln -s ../googletest googletest
+        mkdir build install
+        cd build
+        cmake -DCMAKE_CXX_STANDARD=23 -DBENCHMARK_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build .
+        cmake --install . --prefix=../install
+        cd ..
+        cd install
+        export benchmark_ROOT=$(pwd)
+        cd ../..
     - name: Build YYCC
       run: |
         chmod +x ./.github/macos_build.sh
         ./.github/macos_build.sh
+    - name: Run YYCC Test
+      run: |
+        ./bin/install/bin/YYCCTest
+    - name: Run YYCC Benchmark
+      run: |
+        ./bin/install/bin/YYCCBenchmark
     - name: Upload Built Artifact
       uses: actions/upload-artifact@v4
       with:

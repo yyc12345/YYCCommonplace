@@ -26,3 +26,8 @@ PRIVATE
     YYCCommonplace
     benchmark::benchmark
 )
+
+# Install binary
+install(TARGETS YYCCBenchmark
+    RUNTIME DESTINATION ${YYCC_INSTALL_BIN_PATH}
+)
