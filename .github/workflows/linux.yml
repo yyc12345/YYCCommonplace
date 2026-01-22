@@ -13,10 +13,15 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y build-essential cmake git
-    - name: Setup Google Test and Google Benchmark
+    - name: Fetch Google Test
+      uses: actions/checkout@v4
+      with:
+        repository: 'google/googletest'
+        ref: 'v1.17.0'
+        path: 'extern/googletest'
+    - name: Build Google Test
       run: |
-        # Setup Google Test
-        git clone -b v1.17.0 https://github.com/google/googletest.git --depth 1 extern/googletest
+        # Build Google Test
         cd extern/googletest
         mkdir build install
         cd build
@@ -27,8 +32,15 @@ jobs:
         cd install
         export GTest_ROOT=$(pwd)
         cd ../..
-        # Setup Google Benchmark
-        git clone -b v1.9.4 https://github.com/google/benchmark.git --depth 1 extern/benchmark
+    - name: Fetch Google Benchmark
+      uses: actions/checkout@v4
+      with:
+        repository: 'google/benchmark'
+        ref: 'v1.9.4'
+        path: 'extern/benchmark'
+    - name: Build Google Benchmark
+      run: |
+        # Build Google Benchmark
         cd extern/benchmark
         # Create symlink to googletest as required by benchmark
         ln -s ../googletest googletest
