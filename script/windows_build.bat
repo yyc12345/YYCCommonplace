@@ -9,7 +9,7 @@ MKDIR install
 CD build
 
 :: Build with x64 architecture in Release mode
-cmake -A x64 -DYYCC_BUILD_TEST=ON -DGTest_ROOT=%GTest_ROOT% ../..
+cmake -A x64 ../..
 cmake --build . --config Release
 cmake --install . --prefix=../install --config Release
 

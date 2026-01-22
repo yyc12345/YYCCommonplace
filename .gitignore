@@ -3,6 +3,7 @@
 out/
 build/
 install/
+extern/
 
 # Ignore CMake generated stuff
 src/yycc/version.hpp

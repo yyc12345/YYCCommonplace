@@ -106,7 +106,13 @@ If you are a developer (developer of this project, or use this project as depend
 
 "User Build" is basically how GitHub Action build this project.
 
-Execute `.github/windows_build.bat` on Windows or `.github/linux_build.sh` on POSIX-like OS (Linux and macOS) under **the root directory** of this project. The final built artifact is under `bin/install` directory.
+Under **the root directory** of this project, execute:
+
+- `script/windows_build.bat` on Windows
+- or `script/linux_build.sh` on Linux
+- or `script/macos_build.sh` on macOS
+
+The final built artifact is under `bin/install` directory.
 
 ### Developer Build
 

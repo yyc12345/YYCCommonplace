@@ -19,8 +19,8 @@ jobs:
     # - name: Setup Google Test and Google Benchmark
     #   run: |
     #     # Setup Google Test
-    #     git clone -b v1.17.0 https://github.com/google/googletest.git external/googletest
-    #     cd external/googletest
+    #     git clone -b v1.17.0 https://github.com/google/googletest.git extern/googletest
+    #     cd extern/googletest
     #     mkdir build install
     #     cd build
     #     cmake -DCMAKE_CXX_STANDARD=23 -Dgtest_force_shared_crt=ON -DCMAKE_BUILD_TYPE=Release ..
@@ -28,8 +28,8 @@ jobs:
     #     cmake --install . --prefix=../install --config Release
     #     cd ../..
     #     # Setup Google Benchmark
-    #     git clone -b v1.9.4 https://github.com/google/benchmark.git external/benchmark
-    #     cd external/benchmark
+    #     git clone -b v1.9.4 https://github.com/google/benchmark.git extern/benchmark
+    #     cd extern/benchmark
     #     # Create symlink to googletest as required by benchmark
     #     mklink /D googletest ../googletest
     #     mkdir build install
