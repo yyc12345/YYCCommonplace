@@ -66,7 +66,7 @@ namespace yycc::string::op {
 	 * @param[in] _to_strl The \e new string.
 	 * @return The result of replacement.
 	*/
-    std::u8string replace(const std::u8string_view& _strl, const std::u8string_view& _from_strl, const std::u8string_view& _to_strl);
+    std::u8string to_replace(const std::u8string_view& _strl, const std::u8string_view& _from_strl, const std::u8string_view& _to_strl);
 
 #pragma endregion
 

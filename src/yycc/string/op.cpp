@@ -97,7 +97,7 @@ namespace yycc::string::op {
         }
     }
 
-    std::u8string replace(const std::u8string_view& _strl, const std::u8string_view& _from_strl, const std::u8string_view& _to_strl) {
+    std::u8string to_replace(const std::u8string_view& _strl, const std::u8string_view& _from_strl, const std::u8string_view& _to_strl) {
         // prepare result
         std::u8string strl(_strl);
         replace(strl, _from_strl, _to_strl);

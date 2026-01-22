@@ -25,32 +25,32 @@ namespace yycctest::string::op {
     TEST(StringOp, Replace) {
         // Normal case
         {
-            auto rv = OP::replace(u8"aabbcc", u8"bb", u8"dd");
+            auto rv = OP::to_replace(u8"aabbcc", u8"bb", u8"dd");
             EXPECT_EQ(rv, u8"aaddcc");
         }
         // No matched expected string
         {
-            auto rv = OP::replace(u8"aabbcc", u8"zz", u8"yy");
+            auto rv = OP::to_replace(u8"aabbcc", u8"zz", u8"yy");
             EXPECT_EQ(rv, u8"aabbcc");
         }
         // Empty expected string
         {
-            auto rv = OP::replace(u8"aabbcc", std::u8string_view(), u8"zz");
+            auto rv = OP::to_replace(u8"aabbcc", std::u8string_view(), u8"zz");
             EXPECT_EQ(rv, u8"aabbcc");
         }
         // Empty replace string
         {
-            auto rv = OP::replace(u8"aaaabbaa", u8"aa", u8"");
+            auto rv = OP::to_replace(u8"aaaabbaa", u8"aa", u8"");
             EXPECT_EQ(rv, u8"bb");
         }
         // Nested replacing
         {
-            auto rv = OP::replace(u8"aaxcc", u8"x", u8"yx");
+            auto rv = OP::to_replace(u8"aaxcc", u8"x", u8"yx");
             EXPECT_EQ(rv, u8"aayxcc");
         }
         // Empty source string
         {
-            auto rv = OP::replace(std::u8string_view(), u8"", u8"xy");
+            auto rv = OP::to_replace(std::u8string_view(), u8"", u8"xy");
             EXPECT_EQ(rv, u8"");
         }
     }
