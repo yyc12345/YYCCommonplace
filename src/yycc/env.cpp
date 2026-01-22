@@ -1,39 +1,36 @@
 #include "env.hpp"
 #include "macro/os_detector.hpp"
-#include "string/reinterpret.hpp"
 #include "num/safe_op.hpp"
 #include "num/safe_cast.hpp"
-#include <string>
-#include <string_view>
-#include <memory>
-#include <type_traits>
-#include <stdexcept>
-#include <filesystem>
 
 #if defined(YYCC_OS_WINDOWS)
+// Windows headers
 #include "encoding/windows.hpp"
 #include "windows/winfct.hpp"
+#include <memory>           // For safely free gotten environment variable and commandline argument.
+#include <type_traits>      // Used by std::unique_ptr to get underlying pointer type.
 #include "windows/import_guard_head.hpp"
 #include <Windows.h>
 #include <winbase.h>
-#include <processenv.h> // For getting environment variables and commandline argument.
-#include <shellapi.h>   // For getting commandline argument.
+#include <processenv.h>     // For getting environment variables and commandline argument.
+#include <shellapi.h>       // For getting commandline argument.
 #include "windows/import_guard_tail.hpp"
-#elif defined(YYCC_OS_LINUX)
-#include <cstdlib>
-#include <cerrno>
-#include <fstream> // For reading commandline argument.
-#include <unistd.h>
-#include <sys/stat.h> // For reading symlink target.
+#else
+// POSIX headers
+#include "string/reinterpret.hpp"
+#include <cstdlib>          // For POSIX environment variable operations.
+#include <cerrno>           // For POSIX errno.
+#include <stdexcept>        // For re-throw unexpected POSIX errno as STL exception.
+#if defined(YYCC_OS_LINUX)
+// Linux-only headers
+#include <fstream>          // For reading commandline argument.
 #elif defined(YYCC_OS_MACOS)
-#include <cstdlib>
-#include <cerrno>
-#include <unistd.h>
-#include <cstring>
-#include <mach-o/dyld.h> // For getting current exe path.
-#include <crt_externs.h> // For getting commandline argument.
+// macOS-only headers
+#include <mach-o/dyld.h>    // For getting current exe path.
+#include <crt_externs.h>    // For getting commandline argument.
 #else
 #error "Not supported OS"
+#endif
 #endif
 
 #define SAFECAST ::yycc::num::safe_cast
@@ -160,6 +157,7 @@ namespace yycc::env {
     }
 
 #if defined(YYCC_OS_WINDOWS)
+
     class EnvironmentStringsDeleter {
     public:
         EnvironmentStringsDeleter() {}
@@ -170,6 +168,11 @@ namespace yycc::env {
         }
     };
     using SmartEnvironmentStrings = std::unique_ptr<std::remove_pointer_t<LPWCH>, EnvironmentStringsDeleter>;
+
+#else
+
+    extern char** environ;
+
 #endif
 
     VarResult<std::vector<VarPair>> get_vars() {
