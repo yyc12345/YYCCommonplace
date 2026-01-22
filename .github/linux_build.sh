@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+GTest_ROOT="${GTest_ROOT:?GTest_ROOT must be set}"
+benchmark_ROOT="${benchmark_ROOT:?benchmark_ROOT must be set}"
+
 # Create build directory and enter it
 mkdir bin
 cd bin

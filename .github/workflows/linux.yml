@@ -10,6 +10,7 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
     - name: Install Dependencies
+      shell: bash
       run: |
         sudo apt update
         sudo apt install -y build-essential cmake git
@@ -20,6 +21,7 @@ jobs:
         ref: 'v1.17.0'
         path: 'extern/googletest'
     - name: Build Google Test
+      shell: bash
       run: |
         # Build Google Test
         cd extern/googletest
@@ -30,7 +32,7 @@ jobs:
         cmake --install . --prefix=../install
         cd ..
         cd install
-        export GTest_ROOT=$(pwd)
+        echo "GTest_ROOT=$(pwd)" >> "$GITHUB_ENV"
         cd ../..
     - name: Fetch Google Benchmark
       uses: actions/checkout@v4
@@ -39,6 +41,7 @@ jobs:
         ref: 'v1.9.4'
         path: 'extern/benchmark'
     - name: Build Google Benchmark
+      shell: bash
       run: |
         # Build Google Benchmark
         cd extern/benchmark
@@ -51,16 +54,19 @@ jobs:
         cmake --install . --prefix=../install
         cd ..
         cd install
-        export benchmark_ROOT=$(pwd)
+        echo "benchmark_ROOT=$(pwd)" >> "$GITHUB_ENV"
         cd ../..
     - name: Build YYCC
+      shell: bash
       run: |
         chmod +x ./.github/linux_build.sh
         ./.github/linux_build.sh
     - name: Run YYCC Test
+      shell: bash
       run: |
         ./bin/install/bin/YYCCTest
     - name: Run YYCC Benchmark
+      shell: bash
       run: |
         ./bin/install/bin/YYCCBenchmark
     - name: Upload Built Artifact

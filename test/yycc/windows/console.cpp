@@ -8,9 +8,10 @@ namespace yycctest::windows::console {
 #if defined(YYCC_OS_WINDOWS) && defined(YYCC_STL_MSSTL)
 
     TEST(WindowsConsole, ColorfulConsole) {
-        // Set colorful console should always be success.
         auto rv = CONSOLE::colorful_console();
-        EXPECT_TRUE(rv.has_value());
+        // Set colorful console should always be success.
+        // Unless it is not a TTY.
+        EXPECT_TRUE(rv.has_value() || rv.error() == CONSOLE::ExecError::NotTty);
     }
 
 #endif

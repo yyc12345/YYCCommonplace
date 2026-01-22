@@ -33,6 +33,11 @@
 #endif
 #endif
 
+// Extern POSIX environment variables list.
+#if !defined(YYCC_OS_WINDOWS)
+extern char** environ;
+#endif
+
 #define SAFECAST ::yycc::num::safe_cast
 #define SAFEOP ::yycc::num::safe_op
 #define ENC ::yycc::encoding::windows
@@ -168,10 +173,6 @@ namespace yycc::env {
         }
     };
     using SmartEnvironmentStrings = std::unique_ptr<std::remove_pointer_t<LPWCH>, EnvironmentStringsDeleter>;
-
-#else
-
-    extern char** environ;
 
 #endif
 
