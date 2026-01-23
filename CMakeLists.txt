@@ -26,6 +26,9 @@ set(YYCC_INSTALL_BIN_PATH ${CMAKE_INSTALL_BINDIR} CACHE PATH
 set(YYCC_INSTALL_DOC_PATH ${CMAKE_INSTALL_DOCDIR} CACHE PATH
 "Non-arch doc install path relative to CMAKE_INSTALL_PREFIX unless set to an absolute path.")
 
+# Test charconv support due to shitty clang's libcxx.
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/check_charconv.cmake)
+
 # Include dependency.
 # GTest is required if we build test
 if (YYCC_BUILD_TEST)

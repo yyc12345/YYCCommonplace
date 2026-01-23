@@ -5,11 +5,10 @@
 #include <type_traits>
 #include <stdexcept>
 #include <expected>
+#include <charconv>
 
 #if defined(YYCC_STL_CLANGSTL)
-#include "patch/libcxx/charconv.hpp"
-#else
-#include <charconv>
+#include "../patch/libcxx/charconv.hpp"
 #endif
 
 #define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
