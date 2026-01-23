@@ -3,6 +3,7 @@
 #if defined(YYCC_FEAT_ICONV)
 
 #include "../macro/endian_detector.hpp"
+#include "../macro/os_detector.hpp"
 #include <cerrno>
 #include <stdexcept>
 #include <cstdint>
@@ -202,11 +203,14 @@ namespace yycc::encoding::iconv {
     // If we use UTF16 or UTF32 code name directly, it will produce a BOM at data head.
     // That's not what we expected.
     // So we need manually check runtime endian and explicitly specify endian in code name.
+    // 
+    // Also, at the same time, iconv on macOS do not support "WCHAR_T" encoding,
+    // so we need manually set it as UTF32 encoding.
+    // See https://developer.apple.com/forums/thread/811508 for more infos.
 
     using namespace std::literals::string_view_literals;
 
     constexpr auto UTF8_CODENAME_LITERAL = "UTF-8"sv;
-    constexpr auto WCHAR_CODENAME_LITERAL = "WCHAR_T"sv;
     constexpr auto UTF16_CODENAME_LITERAL =
 #if defined(YYCC_ENDIAN_LITTLE)
         "UTF-16LE"sv;
@@ -218,6 +222,13 @@ namespace yycc::encoding::iconv {
         "UTF-32LE"sv;
 #else
         "UTF-32BE"sv;
+#endif
+    constexpr auto WCHAR_CODENAME_LITERAL =
+#if defined(YYCC_OS_MACOS)
+        UTF32_CODENAME_LITERAL;
+        static_assert(sizeof(wchar_t) == sizeof(char32_t), "unexpected wchar_t size");
+#else
+        "WCHAR_T"sv;
 #endif
 
     // TODO:
