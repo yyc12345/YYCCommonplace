@@ -3,9 +3,14 @@
 #include "../string/reinterpret.hpp"
 #include <string_view>
 #include <type_traits>
-#include <charconv>
 #include <stdexcept>
 #include <expected>
+
+#if defined(YYCC_STL_CLANGSTL)
+#include "patch/libcxx/charconv.hpp"
+#else
+#include <charconv>
+#endif
 
 #define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
 #define NS_YYCC_STRING_OP ::yycc::string::op

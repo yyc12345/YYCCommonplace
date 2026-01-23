@@ -3,8 +3,13 @@
 #include <string>
 #include <array>
 #include <type_traits>
-#include <charconv>
 #include <stdexcept>
+
+#if defined(YYCC_STL_CLANGSTL)
+#include "patch/libcxx/charconv.hpp"
+#else
+#include <charconv>
+#endif
 
 #define NS_YYCC_STRING_REINTERPRET ::yycc::string::reinterpret
 
