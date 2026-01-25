@@ -139,9 +139,9 @@ Please note that generated documentation is different in different platforms.
 * `YYCC_ENFORCE_ICONV`: Set it to `ON` to enable Iconv feature forcely. `OFF` in default.
 The usage of this option has been introduced in previous "Iconv" chapter.
 * `GTest_ROOT`: Set to the install path of Google Test
- if you have enable `YYCC_BUILD_TEST` and want to use your personal built Google Test.
+if you have enable `YYCC_BUILD_TEST` and want to use your personal built Google Test.
 * `benchmark_ROOT`: Set to the install path of Google Benchmark
- if you have enable `YYCC_BUILD_BENCHMARK` and want to use your personal built Google Benchmark.
+if you have enable `YYCC_BUILD_BENCHMARK` and want to use your personal built Google Benchmark.
 * `Iconv_ROOT`: The assistant variable for finding Iconv which is exposed by CMake.
 You usually do not need set it up.
 * `CMAKE_CXX_STANDARD`: Set C++ standard version of project.
