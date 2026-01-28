@@ -14,6 +14,7 @@ namespace yyccshared::literals {
     // UNICODE Test Strings
     // Ref: https://stackoverflow.com/questions/478201/how-to-test-an-application-for-correct-encoding-e-g-utf-8
 
+#define UNICODE_STR_BLANK ""
 #define UNICODE_STR_JAPAN "\u30E6\u30FC\u30B6\u30FC\u5225\u30B5\u30A4\u30C8"
 #define UNICODE_STR_CHINA "\u7B80\u4F53\u4E2D\u6587"
 #define UNICODE_STR_KOREA "\uD06C\uB85C\uC2A4 \uD50C\uB7AB\uD3FC\uC73C\uB85C"
@@ -30,6 +31,7 @@ namespace yyccshared::literals {
 #define UNICODE_STR_EMOJI "\U0001F363 \u2716 \U0001F37A" // sushi x beer mug
 
     static std::vector<std::u8string> UTFLIT_U8STR_VEC{
+        U8_LITERAL(UNICODE_STR_BLANK),
         U8_LITERAL(UNICODE_STR_JAPAN),
         U8_LITERAL(UNICODE_STR_CHINA),
         U8_LITERAL(UNICODE_STR_KOREA),
@@ -44,6 +46,7 @@ namespace yyccshared::literals {
         U8_LITERAL(UNICODE_STR_EMOJI),
     };
     static std::vector<std::wstring> UTFLIT_WSTR_VEC{
+        WSTR_LITERAL(UNICODE_STR_BLANK),
         WSTR_LITERAL(UNICODE_STR_JAPAN),
         WSTR_LITERAL(UNICODE_STR_CHINA),
         WSTR_LITERAL(UNICODE_STR_KOREA),
@@ -58,6 +61,7 @@ namespace yyccshared::literals {
         WSTR_LITERAL(UNICODE_STR_EMOJI),
     };
     static std::vector<std::u16string> UTFLIT_U16STR_VEC{
+        U16_LITERAL(UNICODE_STR_BLANK),
         U16_LITERAL(UNICODE_STR_JAPAN),
         U16_LITERAL(UNICODE_STR_CHINA),
         U16_LITERAL(UNICODE_STR_KOREA),
@@ -72,6 +76,7 @@ namespace yyccshared::literals {
         U16_LITERAL(UNICODE_STR_EMOJI),
     };
     static std::vector<std::u32string> UTFLIT_U32STR_VEC{
+        U32_LITERAL(UNICODE_STR_BLANK),
         U32_LITERAL(UNICODE_STR_JAPAN),
         U32_LITERAL(UNICODE_STR_CHINA),
         U32_LITERAL(UNICODE_STR_KOREA),
@@ -157,12 +162,22 @@ namespace yyccshared::literals {
 
 #pragma region OtherLiterals Data
 
-    static std::vector<OtherLiteral> OTHERLIT_OTHERSTR_VEC{{"\xC4\xE3\xBA\xC3\xD6\xD0\xB9\xFA", UINT32_C(936), "GBK", u8"gbk"}};
+    static std::vector<OtherLiteral> OTHERLIT_OTHERSTR_VEC{
+        {"", UINT32_C(437), "ASCII", u8"ascii"},
+        {"\xC4\xE3\xBA\xC3\xD6\xD0\xB9\xFA", UINT32_C(936), "GBK", u8"gbk"},
+    };
 
+#define OTHER_STR_BLANK ""
 #define OTHER_STR_GBK "\u4f60\u597d\u4e2d\u56fd"
 
-    static std::vector<std::u8string> OTHERLIT_U8STR_VEC{U8_LITERAL(OTHER_STR_GBK)};
-    static std::vector<std::wstring> OTHERLIT_WSTR_VEC{WSTR_LITERAL(OTHER_STR_GBK)};
+    static std::vector<std::u8string> OTHERLIT_U8STR_VEC{
+        U8_LITERAL(OTHER_STR_BLANK),
+        U8_LITERAL(OTHER_STR_GBK),
+    };
+    static std::vector<std::wstring> OTHERLIT_WSTR_VEC{
+        WSTR_LITERAL(OTHER_STR_BLANK),
+        WSTR_LITERAL(OTHER_STR_GBK),
+    };
 
 #pragma endregion
 
