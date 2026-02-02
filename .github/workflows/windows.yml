@@ -38,6 +38,7 @@ jobs:
         :: Idk why I can't use $GITHUB_ENV, so I use this stupid way to do this.
         :: This is first entry so we override it.
         echo set GTest_ROOT=%CD% > ../../envs.bat
+        cd ..
         cd ../..
     - name: Fetch Google Benchmark
       uses: actions/checkout@v4
@@ -62,6 +63,7 @@ jobs:
         cd install
         :: This is second entry so we append it.
         echo set benchmark_ROOT=%CD% >> ../../envs.bat
+        cd ..
         cd ../..
     - name: Build YYCC
       shell: cmd

@@ -28,6 +28,7 @@ jobs:
         cd ..
         cd install
         echo "GTest_ROOT=$(pwd)" >> "$GITHUB_ENV"
+        cd ..
         cd ../..
     - name: Fetch Google Benchmark
       uses: actions/checkout@v4
@@ -50,6 +51,7 @@ jobs:
         cd ..
         cd install
         echo "benchmark_ROOT=$(pwd)" >> "$GITHUB_ENV"
+        cd ..
         cd ../..
     - name: Build YYCC
       shell: bash
