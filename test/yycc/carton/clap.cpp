@@ -72,10 +72,10 @@ namespace yycctest::carton::clap {
 
             // Add options
             auto options = CLAP::option::OptionCollection();
-            int_option = options.add_option(CLAP::option::Option(u8"i", u8"int", u8"<integer>", u8"integral argument"));
-            float_option = options.add_option(CLAP::option::Option(u8"f", std::nullopt, u8"<float>", u8""));
-            string_option = options.add_option(CLAP::option::Option(std::nullopt, u8"string", u8"<string>", u8""));
-            clamped_float_option = options.add_option(CLAP::option::Option(std::nullopt, u8"clamped-float", u8"<float>", u8""));
+            int_option = options.add_option(CLAP::option::Option(u8"i", u8"int", u8"integer", u8"integral argument"));
+            float_option = options.add_option(CLAP::option::Option(u8"f", std::nullopt, u8"float", u8""));
+            string_option = options.add_option(CLAP::option::Option(std::nullopt, u8"string", u8"string", u8""));
+            clamped_float_option = options.add_option(CLAP::option::Option(std::nullopt, u8"clamped-float", u8"float", u8""));
             novalue_option = options.add_option(CLAP::option::Option(u8"b", std::nullopt, std::nullopt, u8""));
 
             // Add variables
