@@ -1,6 +1,11 @@
 
 @PACKAGE_INIT@
 
+# Find Iconv if we have found it.
+if ("@Iconv_FOUND@")
+    find_package(Iconv REQUIRED)
+endif ()
+
 # Include targets file
 include("${CMAKE_CURRENT_LIST_DIR}/YYCCommonplaceTargets.cmake")
 
