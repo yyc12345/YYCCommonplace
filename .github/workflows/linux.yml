@@ -23,17 +23,11 @@ jobs:
     - name: Build Google Test
       shell: bash
       run: |
-        # Build Google Test
         cd extern/googletest
-        mkdir build install
-        cd build
-        cmake -DCMAKE_CXX_STANDARD=23 -Dgtest_force_shared_crt=ON -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build .
-        cmake --install . --prefix=../install
-        cd ..
-        cd install
-        echo "GTest_ROOT=$(pwd)" >> "$GITHUB_ENV"
-        cd ..
+        # Build Google Test
+        source ../../.github/scripts/gtest/linux.sh
+        # Record environment variable
+        echo "GTest_ROOT=$GTest_ROOT" >> "$GITHUB_ENV"
         cd ../..
     - name: Fetch Google Benchmark
       uses: actions/checkout@v4
@@ -44,25 +38,18 @@ jobs:
     - name: Build Google Benchmark
       shell: bash
       run: |
-        # Build Google Benchmark
         cd extern/benchmark
         # Create symlink to googletest as required by benchmark
         ln -s ../googletest googletest
-        mkdir build install
-        cd build
-        cmake -DCMAKE_CXX_STANDARD=23 -DBENCHMARK_ENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build .
-        cmake --install . --prefix=../install
-        cd ..
-        cd install
-        echo "benchmark_ROOT=$(pwd)" >> "$GITHUB_ENV"
-        cd ..
+        # Build Google Benchmark
+        source ../../.github/scripts/gbenchmark/linux.sh
+        # Record environment variable
+        echo "benchmark_ROOT=$benchmark_ROOT" >> "$GITHUB_ENV"
         cd ../..
     - name: Build YYCC
       shell: bash
       run: |
-        chmod +x ./.github/linux_build.sh
-        ./.github/linux_build.sh
+        source ./.github/scripts/linux.sh
     - name: Run YYCC Test
       shell: bash
       run: |

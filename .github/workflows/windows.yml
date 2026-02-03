@@ -25,21 +25,13 @@ jobs:
     - name: Build Google Test
       shell: cmd
       run: |
+        CD extern\googletest
         :: Build Google Test
-        cd extern/googletest
-        mkdir build
-        mkdir install
-        cd build
-        cmake -A x64 -DCMAKE_CXX_STANDARD=23 -Dgtest_force_shared_crt=ON  ..
-        cmake --build . --config Release
-        cmake --install . --prefix=../install --config Release
-        cd ..
-        cd install
+        CALL ..\..\.github\scripts\gtest\windows.bat
         :: Idk why I can't use $GITHUB_ENV, so I use this stupid way to do this.
         :: This is first entry so we override it.
-        echo set GTest_ROOT=%CD% > ../../envs.bat
-        cd ..
-        cd ../..
+        ECHO SET GTest_ROOT=%GTest_ROOT% > ..\envs.bat
+        CD ..\..
     - name: Fetch Google Benchmark
       uses: actions/checkout@v4
       with:
@@ -49,22 +41,14 @@ jobs:
     - name: Build Google Benchmark
       shell: cmd
       run: |
-        :: Build Google Benchmark
-        cd extern/benchmark
+        CD extern\benchmark
         :: Create symlink to googletest as required by benchmark
-        mklink /D googletest ../googletest
-        mkdir build
-        mkdir install
-        cd build
-        cmake -A x64 -DCMAKE_CXX_STANDARD=23 -DBENCHMARK_ENABLE_TESTING=OFF ..
-        cmake --build . --config Release
-        cmake --install . --prefix=../install --config Release
-        cd ..
-        cd install
+        mklink /D googletest ..\googletest
+        :: Build Google Benchmark
+        CALL ..\..\.github\scripts\gbenchmark\windows.bat
         :: This is second entry so we append it.
-        echo set benchmark_ROOT=%CD% >> ../../envs.bat
-        cd ..
-        cd ../..
+        ECHO SET benchmark_ROOT=%benchmark_ROOT% >> ..\envs.bat
+        CD ..\..
     - name: Build YYCC
       shell: cmd
       run: |
@@ -74,9 +58,9 @@ jobs:
         if not exist %VCVARS% set VCVARS="C:\Program Files\Microsoft Visual Studio\%VS%\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
         call %VCVARS% ${{ matrix.msvc_arch }}
         :: Extract saved environment variables
-        call .\extern\envs.bat
+        CALL .\extern\envs.bat
         :: Build Project
-        .\.github\windows_build.bat
+        CALL .\.github\scripts\windows.bat
     - name: Run YYCC Test
       shell: cmd
       run: |
