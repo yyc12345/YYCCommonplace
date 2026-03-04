@@ -270,7 +270,7 @@ namespace std {
     // Float to_chars
     template<typename T>
         requires std::floating_point<T>
-    to_chars_result to_chars(char* first, char* last, T value, chars_format fmt, int precision = 0) {
+    to_chars_result to_chars(char* first, char* last, T value, chars_format fmt, int precision = 6) {
         if (first >= last) {
             return {first, std::errc::value_too_large};
         }
